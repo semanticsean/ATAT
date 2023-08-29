@@ -39,9 +39,7 @@ class AgentManager:
     return None
 
   def get_agent_by_email(self, email):
-    local_part = email.split('@')[0].lower()  # Extract the part before the '@'
-    
-    # Search through agents in a case-insensitive manner
+    local_part = email.split('@')[0].lower() 
     for agent_id, agent in self.agents.items():
         if agent_id.lower() == local_part:
             return agent
