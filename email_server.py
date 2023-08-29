@@ -362,32 +362,41 @@ class EmailServer:
 
   @contextmanager
   def smtp_connection(self):
-      server = smtplib.SMTP(self.smtp_server, self.smtp_port)
-      server.starttls()
-      server.login(self.smtp_username, self.smtp_password)
-      try:
-          yield server
-      except Exception as e:
-          logging.error(f"Exception occurred in smtp_connection: {e}")
-      finally:
-          server.quit()
-  
-  def send_email(self, from_email, from_alias, to_emails, cc_emails, subject, body, message_id=None, references=None):
-      msg = MIMEMultipart()
-      msg['From'] = f'"{from_alias}" <{from_email}>'  # Combining display name with email address
-      msg['Sender'] = from_email  # The actual email address that sends the email
-      msg['Reply-To'] = from_alias  # Replies will be directed here
-      msg['To'] = ', '.join(to_emails)
-      if cc_emails:
-          msg['Cc'] = ', '.join(cc_emails)
-      msg['Subject'] = subject
-      if message_id:
-          msg["In-Reply-To"] = message_id
-      if references:
-          msg["References"] = references
-      msg.attach(MIMEText(body, 'plain'))
-  
-      all_recipients = to_emails + cc_emails
-  
-      with self.smtp_connection() as server:
-          server.sendmail(from_email, all_recipients, msg.as_string())  # The actual sender
+    server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+    server.starttls()
+    server.login(self.smtp_username, self.smtp_password)
+    try:
+      yield server
+    except Exception as e:
+      logging.error(f"Exception occurred in smtp_connection: {e}")
+    finally:
+      server.quit()
+
+  def send_email(self,
+                 from_email,
+                 from_alias,
+                 to_emails,
+                 cc_emails,
+                 subject,
+                 body,
+                 message_id=None,
+                 references=None):
+    msg = MIMEMultipart()
+    msg['From'] = f'"{from_alias}" <{from_email}>'  # Combining display name with email address
+    msg['Sender'] = from_email  # The actual email address that sends the email
+    msg['Reply-To'] = from_alias  # Replies will be directed here
+    msg['To'] = ', '.join(to_emails)
+    if cc_emails:
+      msg['Cc'] = ', '.join(cc_emails)
+    msg['Subject'] = subject
+    if message_id:
+      msg["In-Reply-To"] = message_id
+    if references:
+      msg["References"] = references
+    msg.attach(MIMEText(body, 'plain'))
+
+    all_recipients = to_emails + cc_emails
+
+    with self.smtp_connection() as server:
+      server.sendmail(from_email, all_recipients,
+                      msg.as_string())  # The actual sender
