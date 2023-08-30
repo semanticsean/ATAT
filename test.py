@@ -1,3 +1,4 @@
+# test.py 
 import unittest
 from unittest.mock import patch, MagicMock
 from email_server import EmailServer
@@ -66,7 +67,7 @@ class TestEmailServer(unittest.TestCase):
 
   def setUp(self):
     self.agent_manager = AgentManager()
-    self.email_server = EmailServer(self.agent_manager, "mock_gpt_model")
+    self.email_server = EmailServer(self.agent_manager, "mock_gpt_model", testing=True)
 
   @patch('email_server.imaplib.IMAP4_SSL')
   def test_connect_to_imap_server(self, mock_imap_server_class):
@@ -79,7 +80,6 @@ class TestEmailServer(unittest.TestCase):
     print("Step 1: IMAP server connection - Passed")
 
   def tearDown(self):
-
     self.email_server.imap_server.logout()
 
 

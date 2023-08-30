@@ -7,6 +7,7 @@ import imaplib
 import logging
 import html
 import email
+from time import sleep
 from datetime import datetime
 from email.header import decode_header
 from email.mime.multipart import MIMEMultipart
@@ -18,12 +19,13 @@ from agent_selector import AgentSelector
 
 class EmailServer:
 
-  def __init__(self, agent_manager, gpt_model):
+  def __init__(self, agent_manager, gpt_model, testing=False):
     logging.basicConfig(filename='email_server.log',
                         level=logging.INFO,
                         format='%(asctime)s [%(levelname)s]: %(message)s')
     self.agent_manager = agent_manager
     self.gpt_model = gpt_model
+    self.testing = testing
     self.setup_email_server()
     self.processed_threads = self.load_processed_threads()
     self.agent_selector = AgentSelector()
@@ -45,37 +47,14 @@ class EmailServer:
     print("Started email server")
     restart_counter = 0
     MAX_RESTARTS = 5
-    sleep_time = 600  # Sleep time in seconds
+    sleep_time = 620  # Sleep time in seconds
 
     while True:
       try:
-        while True:
-          if self.check_imap_connection():
-            self.process_emails()
-          else:
-            print("IMAP connection lost. Reconnecting...")
-            self.connect_to_imap_server()
-
-          print(
-              f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Sleeping for {sleep_time} seconds.",
-              end='',
-              flush=True)
-          for i in range(sleep_time, 0, -1):
-            print(
-                f"\r[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Sleeping for {i} seconds.",
-                end='',
-                flush=True)
-            time.sleep(1)  # Sleep for 1 second
-          print()  # Print newline after loop
-
-          timestamp = datetime.now().strftime(
-              "%Y-%m-%d %H:%M:%S"
-          )  # Update timestamp again after the final sleep
-          print(f"[{timestamp}] Resuming processing.")
-          self.process_inbox()  # Ensure that the INBOX is selected again
-
+        self.run_server_loop(sleep_time)
       except imaplib.IMAP4.abort as e:
-        self.print(f"IMAP connection aborted: {e}. Reconnecting...")
+        print(f"IMAP connection aborted: {e}. Reconnecting..."
+              )  # Fix for AttributeError
         self.restart_system()
         restart_counter += 1
         if restart_counter >= MAX_RESTARTS:
@@ -88,14 +67,38 @@ class EmailServer:
         print(f"Outer exception occurred: {outer_exception}")
         self.restart_system()
 
+  def run_server_loop(self, sleep_time):
+    while True:
+      if not self.check_imap_connection():
+        print("IMAP connection lost. Reconnecting...")
+        self.connect_to_imap_server()
+
+      self.process_emails()
+
+      print(
+          f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Sleeping for {sleep_time} seconds."
+      )
+
+      for i in range(
+          sleep_time, 0,
+          -10):  # Decreasing sleep time by 10 seconds in each iteration
+        print(f"Sleeping... {i} seconds remaining.")
+        sleep(10)  # Sleep for 10 seconds
+
+      timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+      print(f"[{timestamp}] Resuming processing.")
+      self.process_inbox()
+
   def check_imap_connection(self):
     try:
       status, _ = self.imap_server.noop()
       return status == 'OK'
-    except Exception as e:
-      print(f"IMAP Connection error: {e}. Attempting to reconnect...")
-      self.connect_to_imap_server()
+    except:
       return False
+
+  def restart_system(self):
+    print("Restarting system...")
+    self.connect_to_imap_server()
 
   def process_emails(self):
     try:
@@ -229,10 +232,13 @@ class EmailServer:
         print(f"Invalid UID: {num_str}")
         return None, None, None, None
 
-      mock_imap_instance.uid.side_effect = [('OK', [b'Some Email Data'])] * n_emails
+      result, data = self.imap_server.uid('fetch', num, '(RFC822)')
+      if self.testing:
+          mock_imap_instance.uid.side_effect = [('OK', [b'Some Email Data'])] * n_emails
       if result != 'OK':
-        print(f"Error fetching email content for UID {num}: {result}")
-        return None, None, None, None
+          print(f"Error fetching email content for UID {num}: {result}")
+          return None, None, None, None
+      
 
       raw_email = data[0][1].decode("utf-8")
       email_message = email.message_from_string(raw_email)
