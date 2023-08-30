@@ -161,6 +161,7 @@ class EmailServer:
           self.update_processed_threads(message_id, num, subject)
     else:
       print("No unseen emails found.")
+      print(type(data), data)
 
   def mark_as_seen(self, num):
     num_str = num.decode('utf-8') if isinstance(
@@ -228,8 +229,7 @@ class EmailServer:
         print(f"Invalid UID: {num_str}")
         return None, None, None, None
 
-      result, data = self.imap_server.uid('fetch', num_str,
-                                          '(RFC822)')  # Using the decoded UID
+      mock_imap_instance.uid.side_effect = [('OK', [b'Some Email Data'])] * n_emails
       if result != 'OK':
         print(f"Error fetching email content for UID {num}: {result}")
         return None, None, None, None
