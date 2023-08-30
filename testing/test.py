@@ -1,4 +1,4 @@
-# test.py 
+# test.py TO RUN USE 'python3 -m testing.test'
 import unittest
 from unittest.mock import patch, MagicMock
 from email_server import EmailServer
@@ -67,7 +67,9 @@ class TestEmailServer(unittest.TestCase):
 
   def setUp(self):
     self.agent_manager = AgentManager()
-    self.email_server = EmailServer(self.agent_manager, "mock_gpt_model", testing=True)
+    self.email_server = EmailServer(self.agent_manager,
+                                    "mock_gpt_model",
+                                    testing=True)
 
   @patch('email_server.imaplib.IMAP4_SSL')
   def test_connect_to_imap_server(self, mock_imap_server_class):

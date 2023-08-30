@@ -53,8 +53,7 @@ class EmailServer:
       try:
         self.run_server_loop(sleep_time)
       except imaplib.IMAP4.abort as e:
-        print(f"IMAP connection aborted: {e}. Reconnecting..."
-              )  # Fix for AttributeError
+        print(f"IMAP connection aborted: {e}. Reconnecting...")
         self.restart_system()
         restart_counter += 1
         if restart_counter >= MAX_RESTARTS:
@@ -234,11 +233,11 @@ class EmailServer:
 
       result, data = self.imap_server.uid('fetch', num, '(RFC822)')
       if self.testing:
-          mock_imap_instance.uid.side_effect = [('OK', [b'Some Email Data'])] * n_emails
+        mock_imap_instance.uid.side_effect = [('OK', [b'Some Email Data'])
+                                              ] * n_emails
       if result != 'OK':
-          print(f"Error fetching email content for UID {num}: {result}")
-          return None, None, None, None
-      
+        print(f"Error fetching email content for UID {num}: {result}")
+        return None, None, None, None
 
       raw_email = data[0][1].decode("utf-8")
       email_message = email.message_from_string(raw_email)
@@ -330,15 +329,19 @@ class EmailServer:
 
       agent = self.agent_manager.get_agent(agent_name)
       if agent:
+        # Remove the agent's email from 'to_emails' and 'cc_emails' before sending
         to_emails_without_agent = [
             email for email in to_emails if email != self.smtp_username
         ]
         cc_emails_without_agent = [
             email for email in cc_emails if email != self.smtp_username
         ]
+
+        # Add 'from_' (sender) email to the 'to_emails' list only if it's not the agent itself
         if from_ != self.smtp_username:
           to_emails_without_agent.append(from_)
 
+        # Check if we have valid recipients to send the email to
         if to_emails_without_agent or cc_emails_without_agent:
           print(f"Sending email to: {to_emails_without_agent}")
           print(f"CC: {cc_emails_without_agent}")
@@ -360,9 +363,9 @@ class EmailServer:
         else:
           print("No recipients found to send the email to.")
 
-      # Moved the marking of the email as seen to here
-      if all_responses_successful:
-        self.mark_as_seen(message_id)
+        # Moved the marking of the email as seen to here
+        if all_responses_successful:
+          self.mark_as_seen(message_id)
 
     return all_responses_successful
 
