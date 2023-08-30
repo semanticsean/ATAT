@@ -16,12 +16,50 @@ def mock_imap_server():
   imap_server.select.return_value = ('OK', None)
   imap_server.uid.return_value = ('OK', [b'Some Email Data'])
   yield imap_server
+  imap_server.logout.assert_called()  # Ensure that logout is called
 
 
-@contextmanager
-def mock_smtp_server():
-  smtp_server = MagicMock()
-  yield smtp_server
+class TestAgentSelector(unittest.TestCase):
+
+  def setUp(self):
+    self.max_agents = 12
+    self.agent_selector = AgentSelector(self.max_agents)
+    self.agent_manager = AgentManager()
+
+  def test_get_agent_names_from_content_and_emails_for_n_agents(self):
+    n = 100
+    content = " ".join([f"!!Agent{i}!{i}" for i in range(1, n + 1)])
+    recipient_emails = [f"test{i}@example.com" for i in range(1, n + 1)]
+
+    agents = self.agent_selector.get_agent_names_from_content_and_emails(
+        content, recipient_emails, self.agent_manager)
+
+    expected_agents = [(f"Agent{i}", i)
+                       for i in range(1,
+                                      min(n, self.max_agents) + 1)]
+
+    self.assertEqual(
+        len(agents), len(expected_agents),
+        f"Extracted {len(agents)} agents, expected {len(expected_agents)}")
+
+    print(f"Step 2: Agent extraction - Passed ({len(agents)} agents)")
+
+
+class TestAgentManager(unittest.TestCase):
+
+  def setUp(self):
+    self.agent_manager = AgentManager()
+
+  @patch('agent_manager.json.load')
+  @patch('builtins.open', new_callable=MagicMock)
+  def test_load_agents(self, mock_open, mock_json_load):
+    mock_json_load.return_value = [{"id": "Agent1"}, {"id": "Agent2"}]
+    self.agent_manager.load_agents()
+
+    self.assertTrue(self.agent_manager.agents, "No agents loaded")
+    print(
+        f"Step 3: Agent loading - Passed ({len(self.agent_manager.agents)} agents)"
+    )
 
 
 class TestEmailServer(unittest.TestCase):
@@ -38,33 +76,11 @@ class TestEmailServer(unittest.TestCase):
     self.email_server.connect_to_imap_server()
 
     mock_imap_instance.login.assert_called_once()
+    print("Step 1: IMAP server connection - Passed")
 
+  def tearDown(self):
 
-class TestAgentSelector(unittest.TestCase):
-
-  def setUp(self):
-    self.agent_selector = AgentSelector()
-    self.agent_manager = AgentManager()
-
-  def test_get_agent_names_from_content_and_emails(self):
-    content = "!!Agent1!1 !!Agent2!2"
-    recipient_emails = ["test1@example.com", "test2@example.com"]
-    agents = self.agent_selector.get_agent_names_from_content_and_emails(
-        content, recipient_emails, self.agent_manager)
-    print(f"Agents Extracted: {truncate_field(str(agents))}")
-
-
-class TestAgentManager(unittest.TestCase):
-
-  def setUp(self):
-    self.agent_manager = AgentManager()
-
-  @patch('agent_manager.json.load')
-  @patch('builtins.open', new_callable=MagicMock)
-  def test_load_agents(self, mock_open, mock_json_load):
-    mock_json_load.return_value = [{"id": "Agent1"}, {"id": "Agent2"}]
-    self.agent_manager.load_agents()
-    print(f"Loaded Agents: {truncate_field(str(self.agent_manager.agents))}")
+    self.email_server.imap_server.logout()
 
 
 if __name__ == '__main__':
