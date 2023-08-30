@@ -1,10 +1,14 @@
 import re
 import time
+import json
+import os
+from doc_gen import handle_document_pseudo_code
 
 
 class AgentSelector:
 
   def __init__(self, max_agents=6):
+    self.openai_api_key = os.environ['OPENAI_API_KEY']
     self.max_agents = max_agents
     self.conversation_structure = {}
 
@@ -31,8 +35,13 @@ class AgentSelector:
 
     return f"{persona_context}. {instructions}. Act as this agent:"
 
-  def get_agent_names_from_content_and_emails(self, content, recipient_emails,
-                                              agent_manager):
+  def get_agent_names_from_content_and_emails(self, content, recipient_emails, agent_manager):
+    structured_response, new_content = handle_document_pseudo_code(content, self.openai_api_key)
+    # Check for pseudo-code
+    if structured_response:
+        print(f"Structured response generated: {json.loads(structured_response)}")
+        content = new_content
+
     # Extract agents from recipient emails:
     agent_queue = []
     for email in recipient_emails:

@@ -1,19 +1,18 @@
+import email
+import html
+import imaplib
+import json
+import logging
 import os
 import re
 import smtplib
-import time
-import json
-import imaplib
-import logging
-import html
-import email
-from time import sleep
+from contextlib import contextmanager
 from datetime import datetime
-from email.header import decode_header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import getaddresses
-from contextlib import contextmanager
+from time import sleep
+
 from agent_selector import AgentSelector
 
 
@@ -86,7 +85,6 @@ class EmailServer:
 
       timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
       print(f"[{timestamp}] Resuming processing.")
-      self.process_inbox()
 
   def check_imap_connection(self):
     try:
@@ -95,93 +93,6 @@ class EmailServer:
     except:
       return False
 
-  def restart_system(self):
-    print("Restarting system...")
-    self.connect_to_imap_server()
-
-  def process_emails(self):
-    try:
-      result, data = self.imap_server.select("INBOX")  # Select the mailbox
-      if result != 'OK':
-        print(f"Error selecting INBOX: {result}")
-        return
-
-      result, data = self.imap_server.uid('search', None, 'UNSEEN')
-      if result != 'OK':
-        print(f"Error searching for emails: {result}")
-        return
-
-      unseen_emails = data[0].split()
-      if unseen_emails:
-        print(f"Found {len(unseen_emails)} unseen emails.")
-        for num in unseen_emails:
-          message_id, num, subject, content = self.process_email(num)
-          if message_id is not None and num is not None:
-            self.update_processed_threads(message_id, num, subject)
-      else:
-        print("No unseen emails found.")
-    except Exception as e:
-      print(f"Exception while processing emails: {e}")
-
-  def get_message_id(self, num):
-    try:
-      result, data = self.imap_server.uid(
-          'fetch', num, '(BODY.PEEK[HEADER.FIELDS (MESSAGE-ID)])')
-      if result != 'OK':
-        print(f"Error fetching message ID for UID {num}: {result}")
-        return None
-    except Exception as e:
-      print(f"Exception while fetching message ID for UID {num}: {e}")
-      return None
-
-    print(f"Fetching message ID result: {result}, data: {data}")  # Debug log
-    if result != 'OK':
-      print(f"Error fetching message ID for UID {num}: {result}")
-      return None
-    raw_email = data[0][1].decode("utf-8")
-    email_message = email.message_from_string(raw_email)
-    if not email_message:
-      print(f"Error: email_message object is None for UID {num_str}")
-      return None, None, None, None
-
-    return email_message['Message-ID']
-
-  def process_inbox(self):
-    self.imap_server.select("INBOX")
-    result, data = self.imap_server.uid('search', None, 'UNSEEN')
-    if result != 'OK':
-      print(f"Error searching for emails: {result}")
-      return
-
-    # Checking if there are any unseen emails
-    unseen_emails = data[0].split()
-    if unseen_emails:
-      print(f"Found {len(unseen_emails)} unseen emails.")
-      for num in unseen_emails:
-        message_id, num, subject, content = self.process_email(num)
-        if message_id is not None and num is not None:
-          self.update_processed_threads(message_id, num, subject)
-    else:
-      print("No unseen emails found.")
-      print(type(data), data)
-
-  def mark_as_seen(self, num):
-    num_str = num.decode('utf-8') if isinstance(
-        num, bytes) else num  # Ensure UID is a string
-    if not num_str.isdigit():
-      print(f"Invalid UID provided: {num}. Not marking as seen.")
-      return
-
-    try:
-      result, _ = self.imap_server.uid('store', num_str, '+FLAGS', '\\Seen')
-      if result != 'OK':
-        print(f"Error marking email as seen: {result}")
-      else:
-        print(f"Email marked as seen.")
-    except Exception as e:
-      print(
-          f"Exception while marking email as seen for UID {num_str}: {str(e)}")
-
   def load_processed_threads(self):
     file_path = "processed_threads.json"
     if os.path.exists(file_path):
@@ -189,8 +100,9 @@ class EmailServer:
         try:
           threads = json.load(file)
           for thread_id, data in threads.items():
-            # Check if data is a list, indicating the old format
-            if isinstance(data, list):
+            if isinstance(
+                data,
+                list):  # Check if data is a list, indicating the old format
               # Convert to the new format
               threads[thread_id] = {'nums': data, 'subject': 'Unknown Subject'}
           return threads
@@ -200,6 +112,80 @@ class EmailServer:
           )
           return {}
     return {}
+
+  def restart_system(self):
+    print("Restarting system...")
+    self.connect_to_imap_server()
+
+  def process_email(self, num):
+    try:
+      # Fetch the email content by UID
+      result, data = self.imap_server.uid('fetch', num, '(RFC822)')
+      if result != 'OK':
+        print(f"Error fetching email content for UID {num}: {result}")
+        return None, None, None, None, None, None, None, None
+
+      raw_email = data[0][1].decode("utf-8")
+      email_message = email.message_from_string(raw_email)
+      if not email_message:
+        print(f"Error: email_message object is None for UID {num}")
+        return None, None, None, None, None, None, None, None
+
+      # Extract headers and content
+      from_ = email_message['From']
+      to_emails = [addr[1] for addr in getaddresses([email_message['To']])]
+      cc_emails = [
+          addr[1] for addr in getaddresses([email_message.get('Cc', '')])
+      ]
+      subject = email_message['Subject']
+      message_id = email_message['Message-ID']
+      references = email_message.get('References', '')
+
+      content = ""
+      if email_message.is_multipart():
+        for part in email_message.get_payload():
+          if part.get_content_type() == 'text/plain':
+            content = part.get_payload()
+      else:
+        content = email_message.get_payload()
+
+      return message_id, num, subject, content, from_, to_emails, cc_emails, references
+
+    except Exception as e:
+      print(f"Exception while processing email: {e}")
+      return None, None, None, None, None, None, None, None
+
+  def process_emails(self):
+    try:
+      self.imap_server.select("INBOX")
+      result, data = self.imap_server.uid('search', None, 'UNSEEN')
+      if result != 'OK':
+        print(f"Error searching for emails: {result}")
+        return
+
+      unseen_emails = data[0].split()
+      if unseen_emails:
+        print(f"Found {len(unseen_emails)} unseen emails.")
+        for num in unseen_emails:
+          message_id, num, subject, content, from_, to_emails, cc_emails, references = self.process_email(
+              num)
+          if message_id is not None and num is not None:
+            successful = self.handle_incoming_email(from_, to_emails,
+                                                    cc_emails, content,
+                                                    subject, message_id,
+                                                    references, num)
+
+            if successful:
+              self.mark_as_seen(num)
+      else:
+        print("No unseen emails found.")
+
+    except Exception as e:
+      print(f"Exception while processing emails: {e}")
+
+  def mark_as_seen(self, num):
+    # Code to mark the email as read
+    self.imap_server.uid('store', num, '+FLAGS', '(\Seen)')
 
   def update_processed_threads(self, message_id, num, subject):
     # Ensure that num is a string
@@ -217,79 +203,12 @@ class EmailServer:
     except Exception as e:
       print(f"Error updating processed threads: {e}")
 
-  def process_email(self, num):
-    try:
-      # Ensure IMAP connection is active before processing
-      assert self.check_imap_connection(
-      ), "IMAP connection must be active before processing email"
-
-      num_str = num.decode('utf-8')  # Decoding the UID from bytes to string
-      print(f"Processing email with UID: {num_str}, type: {type(num_str)}")
-
-      # Check for a valid UID
-      if not num_str.isdigit():
-        print(f"Invalid UID: {num_str}")
-        return None, None, None, None
-
-      result, data = self.imap_server.uid('fetch', num, '(RFC822)')
-      if self.testing:
-        mock_imap_instance.uid.side_effect = [('OK', [b'Some Email Data'])
-                                              ] * n_emails
-      if result != 'OK':
-        print(f"Error fetching email content for UID {num}: {result}")
-        return None, None, None, None
-
-      raw_email = data[0][1].decode("utf-8")
-      email_message = email.message_from_string(raw_email)
-
-      from_ = email_message['From']
-      to_emails = [addr[1] for addr in getaddresses([email_message['To']])]
-      cc_emails = [
-          addr[1] for addr in getaddresses([email_message.get('Cc', '')])
-      ]
-      subject = email_message['Subject']
-      message_id = email_message['Message-ID']
-      references = email_message.get('References')
-
-      content = ""
-      if email_message.is_multipart():
-        for part in email_message.get_payload():
-          if part.get_content_type() == 'text/plain':
-            content = part.get_payload()
-          elif part.get_content_type() == 'text/html':
-            content = self.strip_html_tags(
-                part.get_payload(decode=True).decode('utf-8'))
-      else:
-        content = email_message.get_payload()
-
-      email_handled = self.handle_incoming_email(from_, to_emails, cc_emails,
-                                                 content, subject, message_id,
-                                                 references)
-      if email_handled:
-        self.mark_as_seen(num)
-        return message_id, num, subject, content
-
-      print(f"Processing email with UID: {num}")
-      print(self.imap_server.capabilities)
-      return None, None, None, None
-
-    except AssertionError as e:
-      print(e)
-      return None, None, None, None
-    except Exception as e:
-      print(f"Exception while processing email: {e}")
-      return None, None, None, None, None
-
   def strip_html_tags(self, text):
     clean = re.compile('<.*?>')
     return re.sub(clean, '', html.unescape(text))
 
-  def restart_system(self):
-    print("Restarting system...")
-    self.connect_to_imap_server()
-
   def handle_incoming_email(self, from_, to_emails, cc_emails, content,
-                            subject, message_id, references):
+                            subject, message_id, references, num):
     if from_ == self.smtp_username:
       print("Ignoring self-sent email.")
       return False
@@ -304,7 +223,7 @@ class EmailServer:
 
     # Check if this thread has been processed before
     old_content = self.processed_threads.get(message_id, {}).get('content', '')
-    new_content = content.replace(old_content, '').strip()
+    content.replace(old_content, '').strip()
 
     if not agents:
       print("No agents identified from content.")
@@ -321,6 +240,10 @@ class EmailServer:
       if not response:
         all_responses_successful = False
         continue
+      if message_id in self.processed_threads:
+        print(
+            f"Email with message_id {message_id} has already been processed.")
+        return False
 
       if message_id not in self.conversation_threads:
         self.conversation_threads[message_id] = [content]
@@ -365,9 +288,10 @@ class EmailServer:
 
         # Moved the marking of the email as seen to here
         if all_responses_successful:
-          self.mark_as_seen(message_id)
+          self.update_processed_threads(
+              message_id, num, subject)  # Update processed_threads.json
 
-    return all_responses_successful
+      return all_responses_successful
 
   @contextmanager
   def smtp_connection(self):
@@ -407,5 +331,4 @@ class EmailServer:
     all_recipients = to_emails + cc_emails
 
     with self.smtp_connection() as server:
-      server.sendmail(from_email, all_recipients,
-                      msg.as_string())  # The actual sender
+      server.sendmail(from_email, all_recipients, msg.as_string())
