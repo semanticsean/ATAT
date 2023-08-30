@@ -134,9 +134,7 @@ class EmailServer:
       # Extract headers and content
       from_ = email_message['From']
       to_emails = [addr[1] for addr in getaddresses([email_message['To']])]
-      cc_emails = [
-          addr[1] for addr in getaddresses([email_message.get('Cc', '')])
-      ]
+      cc_emails = [addr[1] for addr in getaddresses([email_message.get('Cc', '')])]
       subject = email_message['Subject']
       message_id = email_message['Message-ID']
       references = email_message.get('References', '')
@@ -149,12 +147,44 @@ class EmailServer:
       else:
         content = email_message.get_payload()
 
+      # Check if the content is too long
+      if len(content) > 10000:
+        self.send_error_email(from_, subject, "Content too long")
+        self.mark_as_seen(num)
+        self.update_processed_threads(message_id, num, subject)
+        return None, None, None, None, None, None, None, None
+    
+      # Check if the email contains attachments
+      if email_message.is_multipart() and any(part.get_filename() for part in email_message.get_payload()):
+        self.send_error_email(from_, subject, "Attachments not allowed")
+        self.mark_as_seen(num)
+        self.update_processed_threads(message_id, num, subject)
+        return None, None, None, None, None, None, None, None
+
       return message_id, num, subject, content, from_, to_emails, cc_emails, references
 
     except Exception as e:
       print(f"Exception while processing email: {e}")
       return None, None, None, None, None, None, None, None
 
+  
+  def send_error_email(self, to_email, original_subject, error_reason):
+    error_file_path = "error-response-email.txt"
+    if os.path.exists(error_file_path):
+      with open(error_file_path, 'r') as file:
+        error_content = file.read().replace("{error_reason}", error_reason)
+    else:
+      error_content = f"Your email with the subject '{original_subject}' could not be processed because {error_reason}."
+    
+    subject = f"Error: Unable to process email with subject '{original_subject}'"
+    with self.smtp_connection() as server:
+      msg = MIMEText(error_content, 'plain')
+      msg['From'] = self.smtp_username
+      msg['To'] = to_email
+      msg['Subject'] = subject
+      server.sendmail(self.smtp_username, [to_email], msg.as_string())
+
+  
   def process_emails(self):
     try:
       self.imap_server.select("INBOX")
@@ -207,8 +237,10 @@ class EmailServer:
     clean = re.compile('<.*?>')
     return re.sub(clean, '', html.unescape(text))
 
-  def handle_incoming_email(self, from_, to_emails, cc_emails, content,
-                            subject, message_id, references, num):
+  def handle_incoming_email(self, from_, to_emails, cc_emails, content, subject, message_id, references, num):
+    
+    print("Entered handle_incoming_email")
+    
     if from_ == self.smtp_username:
       print("Ignoring self-sent email.")
       return False
@@ -220,12 +252,19 @@ class EmailServer:
     recipient_emails = to_emails + cc_emails
     agents = self.agent_selector.get_agent_names_from_content_and_emails(
         content, recipient_emails, self.agent_manager)
+    
+    print(f"Identified agents: {agents}")
 
     # Check if this thread has been processed before
     old_content = self.processed_threads.get(message_id, {}).get('content', '')
     content.replace(old_content, '').strip()
 
     if not agents:
+      print("No agents identified from content.")
+      self.send_error_email(from_, subject, "No agents identified from content")
+      self.mark_as_seen(num)
+      self.update_processed_threads(message_id, num, subject)
+      return False
       print("No agents identified from content.")
       return False
 
