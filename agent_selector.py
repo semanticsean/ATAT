@@ -69,14 +69,16 @@ class AgentSelector:
       added_agents = set()
       for match in explicit_tags:
         agent_name, order = match
-        if order:  # If there's an explicit order
-          order = int(order)
-          agent_queue.append((agent_name, order))
-        else:
-          if agent_name not in added_agents:  # Add the agent only once if no explicit order
-            agent_queue.append((agent_name, default_order))
-            added_agents.add(agent_name)
-            default_order += 1
+        agent = agent_manager.get_agent(agent_name, case_sensitive=False)  # Check if agent exists
+        if agent:  # Only add recognized agents
+          if order:  # If there's an explicit order
+            order = int(order)
+            agent_queue.append((agent_name, order))
+          else:
+            if agent_name not in added_agents:  # Add the agent only once if no explicit order
+              agent_queue.append((agent_name, default_order))
+              added_agents.add(agent_name)
+              default_order += 1
 
     agent_queue = sorted(agent_queue, key=lambda x: x[1])[:self.max_agents]
     print(f"Extracted agents from content and emails: {agent_queue}")
@@ -86,8 +88,8 @@ class AgentSelector:
                              total_order, content):
     agent = agent_manager.get_agent(agent_name, case_sensitive=False)
     if not agent:
-      print(f"Warning: No agent found for name {agent_name}. Skipping...")
-      return None
+        print(f"Warning: No agent found for name {agent_name}. Skipping...")
+        return ""  # Returning an empty string instead of None
 
     # Create dynamic prompt with the context of the full conversation history
     dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,

@@ -11,7 +11,7 @@ openai_api_key = os.environ['OPENAI_API_KEY']
 
 def handle_document_pseudo_code(email_content, some_other_argument):
   """
-    Detect the !!document! pseudo-code in the email content.
+    Detect the !!style! pseudo-code in the email content.
     If found, generates a structured response.
     """
   # Use the old working regex pattern here
