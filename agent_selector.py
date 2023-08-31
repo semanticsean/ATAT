@@ -35,12 +35,15 @@ class AgentSelector:
 
     return f"{persona_context}. {instructions}. Act as this agent:"
 
-  def get_agent_names_from_content_and_emails(self, content, recipient_emails, agent_manager):
-    structured_response, new_content = handle_document_pseudo_code(content, self.openai_api_key)
+  def get_agent_names_from_content_and_emails(self, content, recipient_emails,
+                                              agent_manager):
+    structured_response, new_content = handle_document_pseudo_code(
+        content, self.openai_api_key)
     # Check for pseudo-code
     if structured_response:
-        print(f"Structured response generated: {json.loads(structured_response)}")
-        content = new_content
+      print(
+          f"Structured response generated: {json.loads(structured_response)}")
+      content = new_content
 
     # Extract agents from recipient emails:
     agent_queue = []
@@ -50,7 +53,16 @@ class AgentSelector:
         agent_queue.append((agent["id"], len(agent_queue) + 1))
 
     # Check for explicit tags in content
-    explicit_tags = re.findall(r"!!(\w+)(?:!(\d+))?", content)
+    print(f"Content before regex: {content}")
+    try:
+      explicit_tags = re.findall(r"!!(\w+)(?:!(\d+))?", content)
+      # Filter out the tag for "document"
+      explicit_tags = [(name, num) for name, num in explicit_tags
+                       if name.lower() != "style".lower()]
+    except Exception as e:
+      print(f"Regex Error: {e}")
+      print(f"Content: {content}")
+
     if explicit_tags:
       agent_queue = []
       default_order = 1

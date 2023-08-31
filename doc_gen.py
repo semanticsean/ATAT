@@ -14,7 +14,8 @@ def handle_document_pseudo_code(email_content, some_other_argument):
     Detect the !!document! pseudo-code in the email content.
     If found, generates a structured response.
     """
-  match = re.search(r"!!document!\((.*?)\)", email_content, re.DOTALL)
+  # Use the old working regex pattern here
+  match = re.search(r"!!style\((.*?)\)", email_content, re.DOTALL)
   if not match:
     return None, email_content
 
@@ -22,7 +23,7 @@ def handle_document_pseudo_code(email_content, some_other_argument):
   structured_response = gpt4_generate_structured_response(
       pseudo_code_content, openai_api_key)
 
-  # Remove the pseudo-code from the original email content
+  # Use the old working regex pattern here
   new_email_content = re.sub(r"!!document!\(.*?\)",
                              "",
                              email_content,
