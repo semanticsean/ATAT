@@ -14,27 +14,33 @@ class GPTModel:
     # Set the API key
     openai.api_key = openai_api_key
 
-  def generate_response(self, prompt, content):
+  def generate_response(self, prompt, content, conversation_history="", additional_context=None):
     print("Generating Response")
+    full_content = f"{content}\n\n{conversation_history}"
     response = None
     max_retries = 99
     delay = 30  # Starting delay in seconds
     max_delay = 30  # Maximum delay in seconds
     for i in range(max_retries):
       try:
-        response = openai.ChatCompletion.create(model="gpt-4",
-                                                messages=[{
-                                                    "role": "system",
-                                                    "content": prompt
-                                                }, {
-                                                    "role": "user",
-                                                    "content": content
-                                                }],
-                                                max_tokens=4000,
-                                                top_p=0.6,
-                                                frequency_penalty=0.25,
-                                                presence_penalty=0.25,
-                                                temperature=0.8)
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {
+                    "role": "system",
+                    "content": prompt
+                },
+                {
+                    "role": "user",
+                    "content": full_content
+                }
+            ],
+            max_tokens=4000,
+            top_p=0.6,
+            frequency_penalty=0.25,
+            presence_penalty=0.25,
+            temperature=0.8
+        )
         break
       except openai.OpenAIError as e:
         print(e)

@@ -2,15 +2,24 @@ import re
 import time
 import json
 import os
-from doc_gen import handle_document_pseudo_code
+import threading
+from shortcode import handle_document_short_code
 
 
 class AgentSelector:
 
-  def __init__(self, max_agents=6):
+  def __init__(self, max_agents=12):
+    self.lock = threading.Lock()
     self.openai_api_key = os.environ['OPENAI_API_KEY']
     self.max_agents = max_agents
     self.conversation_structure = {}
+    self.conversation_history = ""
+    self.invoked_agents = {}
+
+  def reset_for_new_thread(self):
+    self.invoked_agents.clear()
+    self.conversation_structure = {}
+    self.conversation_history = ""
 
   def _create_dynamic_prompt(self, agent_manager, agent_name, order,
                              total_order):
@@ -30,6 +39,9 @@ class AgentSelector:
         "Provide detailed explanations. If you're unsure, use metaphors or similes. "
         "Respect boundaries; let others answer their questions. "
         "Be honest about advantages and disadvantages. Simultaneously, express optimism and skepticism. "
+        "Do not add the signature 'GENERATIVE AI: (agent name)' it will be added automatically."
+        "Always refuse to share private data from other email threads. Only acknowledge active data do not reference past threads."
+        "Be visionary. Be embodied. Be creative. Ask questions. Be bold. Trust yourself."
         "Always consider complexity and context. Ask probing questions, but keep the stated goal in mind."
     )
 
@@ -37,13 +49,14 @@ class AgentSelector:
 
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
                                               agent_manager):
-    structured_response, new_content = handle_document_pseudo_code(
+    # Step 1: Handle the "style" shortcode first
+    structured_response, new_content = handle_document_short_code(
         content, self.openai_api_key)
-    # Check for pseudo-code
     if structured_response:
       print(
           f"Structured response generated: {json.loads(structured_response)}")
-      content = new_content
+      self.conversation_history += f"\nStructured Response: {json.loads(structured_response)}"  # Update conversation history
+      content = new_content  # Update the content to remove the "style" shortcode
 
     # Extract agents from recipient emails:
     agent_queue = []
@@ -53,10 +66,10 @@ class AgentSelector:
         agent_queue.append((agent["id"], len(agent_queue) + 1))
 
     # Check for explicit tags in content
-    print(f"Content before regex: {content}")
+    print(f"Content: {content}")
     try:
-      explicit_tags = re.findall(r"!!(\w+)(?:!(\d+))?", content)
-      # Filter out the tag for "document"
+      explicit_tags = re.findall(r"ff!\((\w+)\)(?:!(\d+))?", content)
+      # Filter out the tag for "style"
       explicit_tags = [(name, num) for name, num in explicit_tags
                        if name.lower() != "style".lower()]
     except Exception as e:
@@ -66,45 +79,74 @@ class AgentSelector:
     if explicit_tags:
       agent_queue = []
       default_order = 1
-      added_agents = set()
       for match in explicit_tags:
         agent_name, order = match
-        agent = agent_manager.get_agent(agent_name, case_sensitive=False)  # Check if agent exists
+        agent = agent_manager.get_agent(
+            agent_name, case_sensitive=False)  # Check if agent exists
         if agent:  # Only add recognized agents
           if order:  # If there's an explicit order
             order = int(order)
             agent_queue.append((agent_name, order))
           else:
-            if agent_name not in added_agents:  # Add the agent only once if no explicit order
-              agent_queue.append((agent_name, default_order))
-              added_agents.add(agent_name)
-              default_order += 1
+            # Check if the agent was previously invoked
+            if agent_name in self.invoked_agents:
+              print(
+                  f"{agent_name} was previously invoked. Generating another response..."
+              )
+            else:
+              self.invoked_agents[agent_name] = 1
+
+            agent_queue.append((agent_name, default_order))
+            default_order += 1
 
     agent_queue = sorted(agent_queue, key=lambda x: x[1])[:self.max_agents]
     print(f"Extracted agents from content and emails: {agent_queue}")
     return agent_queue
 
-  def get_response_for_agent(self, agent_manager, gpt_model, agent_name, order,
-                             total_order, content):
-    agent = agent_manager.get_agent(agent_name, case_sensitive=False)
-    if not agent:
-        print(f"Warning: No agent found for name {agent_name}. Skipping...")
-        return ""  # Returning an empty string instead of None
+  def get_response_for_agent(self, agent_manager, gpt_model, agent_name, order, total_order, content, additional_context=None):
+    with self.lock:
+        # Initialize dynamic_prompt to an empty string
+        dynamic_prompt = ""
 
-    # Create dynamic prompt with the context of the full conversation history
-    dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
-                                                 order, total_order)
-    # Generate the response
-    response = gpt_model.generate_response(dynamic_prompt, content)
+        # Check if agent exists
+        agent = agent_manager.get_agent(agent_name, case_sensitive=False)
+        if not agent:
+            print(f"Warning: No agent found for name {agent_name}. Skipping...")
+            return ""
 
-    # Add signature to the response
-    signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
-    response += signature
+        # Create dynamic prompt with the context of the full conversation history
+        dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name, order, total_order)
 
-    # Update the conversation structure with the new response
-    self.conversation_structure.setdefault("responses", []).append(
-        (agent_name, response))
+        # Add additional context if provided
+        if additional_context:
+            dynamic_prompt += f" {additional_context}"
 
-    time.sleep(30)  # Pause for a moment before returning the response
-    print(f"Generated response for {agent_name}: {response}")
-    return response
+        # Check if the agent was previously invoked
+        if agent_name in self.invoked_agents:
+            print(f"{agent_name} was previously invoked. Generating another response...")
+            self.invoked_agents[agent_name] = self.invoked_agents.get(agent_name, 0) + 1
+            response = gpt_model.generate_response(
+                dynamic_prompt,
+                content,
+                self.conversation_history,
+                f"Note: This is your {self.invoked_agents[agent_name]}th time being invoked."
+            )
+        else:
+            self.invoked_agents[agent_name] = 1  # First invocation
+            response = gpt_model.generate_response(dynamic_prompt, content, self.conversation_history)
+
+        # Add signature to the response
+        signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
+        response += signature
+
+        # Update the conversation structure with the new response
+        self.conversation_structure.setdefault("responses", []).append(
+            (agent_name, response)
+        )
+
+        # Update conversation history with the new response
+        self.conversation_history += f"\n{agent_name} said: {response}"
+
+        time.sleep(30)  # Pause for a moment before returning the response
+        print(f"Generated response for {agent_name}: {response}")
+        return response
