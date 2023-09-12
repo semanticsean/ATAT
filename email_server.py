@@ -285,6 +285,10 @@ class EmailServer:
     print(f"To emails: {to_emails}")
     print(f"CC emails: {cc_emails}")
 
+    # Keep track of the initial recipient list for the thread
+    initial_to_emails = list(to_emails)
+    initial_cc_emails = list(cc_emails)
+
     # Handle the "style" shortcode first
     structured_response, new_content = handle_document_short_code(thread_content, self.agent_selector.openai_api_key)
     style_info = json.loads(structured_response).get("structured_response", "") if structured_response else ""
@@ -317,6 +321,10 @@ class EmailServer:
 
     for agent_name, order in agents:
 
+        # Reset the recipient list to the initial recipient list before processing this agent's response
+        to_emails = list(initial_to_emails)
+        cc_emails = list(initial_cc_emails)
+
         # Generate response
         if order == len(agents):
             # This is the last agent, append style info to the prompt
@@ -328,6 +336,11 @@ class EmailServer:
             all_responses_successful = False
             continue
 
+        # If the previous message in the thread was from an agent, skip sending the response
+        if previous_responses and previous_responses[-1]['from_'] in [agent["email"] for agent in self.agent_manager.agents.values()]:
+            print(f"Skipping response from {agent_name} to prevent agent-to-agent loop.")
+            continue
+
         if message_id in self.processed_threads:
             print(f"Email with message_id {message_id} has already been processed.")
             return False
@@ -335,16 +348,11 @@ class EmailServer:
         # Step 2: Add the sender's email to human_threads if they are identified as a human
         if from_ not in [agent["email"] for agent in self.agent_manager.agents.values()]:
             human_threads.add(from_)  
-            if from_ in human_senders:
-                print("Multiple emails from the same non-agent detected, sending a single response.")
-                return False
-            else:
-                human_senders.add(from_)
 
         if message_id not in self.conversation_threads:
             self.conversation_threads[message_id] = [thread_content]
         self.conversation_threads[message_id].append(response)
-        previous_responses.append(response)
+        previous_responses.append({'from_': from_, 'response': response})
 
         agent = self.agent_manager.get_agent(agent_name)
         if agent:
@@ -395,6 +403,7 @@ class EmailServer:
     return all_responses_successful
 
 
+
   @contextmanager
   def smtp_connection(self):
     server = smtplib.SMTP(self.smtp_server, self.smtp_port)
@@ -407,30 +416,20 @@ class EmailServer:
     finally:
       server.quit()
 
-  def send_email(self,
-               from_email,
-               from_alias,
-               to_emails,
-               cc_emails,
-               subject,
-               body,
-               message_id=None,
-               references=None):
-
+  def send_email(self, from_email, from_alias, to_emails, cc_emails, subject, body, message_id=None, references=None):
     all_recipients = to_emails + cc_emails
     
     # Remove the sending agent's email from the To and Cc fields
     all_recipients = [email for email in all_recipients if email.lower() != from_email.lower()]
-
     
     if not all_recipients:
         print("No valid recipients found. Aborting email send.")
         return
 
     msg = MIMEMultipart()
-    msg['From'] = f'"{from_alias}" <{from_alias}>' if from_alias.lower() != self.smtp_username.lower() else f'"{self.smtp_username}" <{self.smtp_username}>'
-    msg['Reply-To'] = f'"{from_alias}" <{from_alias}>' if from_alias.lower() != self.smtp_username.lower() else f'"{self.smtp_username}" <{self.smtp_username}>'
-    msg['Sender'] = from_email if from_email.lower() != self.smtp_username.lower() else self.smtp_username
+    msg['From'] = f'"{from_alias}" <{from_alias}>'  
+    msg['Reply-To'] = f'"{from_alias}" <{from_alias}>'  
+    msg['Sender'] = from_email 
     msg['To'] = ', '.join(to_emails)
     if cc_emails:
         msg['Cc'] = ', '.join(cc_emails)
@@ -443,7 +442,6 @@ class EmailServer:
 
     # Clean the all_recipients list to remove the SMTP username to prevent sending emails to itself
     all_recipients = [email for email in all_recipients if email.lower() != self.smtp_username.lower()]
-
 
     with self.smtp_connection() as server:
         server.sendmail(from_email, all_recipients, msg.as_string())

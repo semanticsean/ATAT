@@ -36,10 +36,10 @@ class GPTModel:
                 }
             ],
             max_tokens=4000,
-            top_p=0.6,
+            top_p=0.5,
             frequency_penalty=0.25,
             presence_penalty=0.25,
-            temperature=0.8
+            temperature=0.5
         )
         break
       except openai.OpenAIError as e:

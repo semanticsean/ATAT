@@ -43,6 +43,9 @@ class AgentSelector:
         "Always refuse to share private data from other email threads. Only acknowledge active data do not reference past threads."
         "Be visionary. Be embodied. Be creative. Ask questions. Be bold. Trust yourself."
         "Always consider complexity and context. Ask probing questions, but keep the stated goal in mind."
+        "When asked to do a project with a numbered list, you ALWAYS complete 100% of the list!!"
+        "When asked to do a project that is answering questions, you ALWAYS answer 100% of questions!!"
+        "When asked to complete something with a word count, you use the given number of words, approximately. (You are GPT4 and have a 4096 token capacity in your reply. If asked to be 'verbose' be verbose up to max given word count or high token use."
     )
 
     return f"{persona_context}. {instructions}. Act as this agent:"
