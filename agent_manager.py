@@ -31,7 +31,6 @@ class AgentManager:
         """Check if the given email belongs to one of the agents."""
         return bool(self.get_agent_by_email(email))
 
-
   def get_agent_persona(self, id, case_sensitive=False):
     agent = self.get_agent(id, case_sensitive)
     if agent:
