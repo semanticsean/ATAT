@@ -42,3 +42,10 @@
 2023-09-12 18:20:04,339 [ERROR]: Exception while processing emails: name 'human_threads' is not defined
 2023-09-12 18:28:11,343 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 4097 tokens. However, you requested 6431 tokens (2431 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
 2023-09-12 19:59:37,970 [ERROR]: Exception while processing emails: name 'all_responses_successfulx' is not defined
+2023-09-12 20:56:33,534 [ERROR]: Exception while processing emails: GPTModel.generate_response() takes from 3 to 5 positional arguments but 6 were given
+2023-09-12 22:28:20,080 [ERROR]: Exception while processing emails: AgentSelector.get_response_for_agent() got an unexpected keyword argument 'additional_context'
+2023-09-13 02:27:59,087 [ERROR]: Exception while processing emails: 'GPTModel' object has no attribute 'generate_response'
+2023-09-13 02:32:15,534 [ERROR]: Exception while processing emails: name 'prompt' is not defined
+2023-09-13 02:38:26,552 [ERROR]: Exception while processing emails: AgentSelector.get_response_for_agent() got an unexpected keyword argument 'additional_context'
+2023-09-13 03:22:21,274 [ERROR]: Exception while processing emails: local variable 'structured_response' referenced before assignment
+2023-09-13 04:34:42,279 [ERROR]: Exception while processing emails: AgentSelector.get_response_for_agent() got an unexpected keyword argument 'additional_context'

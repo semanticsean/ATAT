@@ -21,8 +21,12 @@ class AgentSelector:
     self.conversation_structure = {}
     self.conversation_history = ""
 
-  def _create_dynamic_prompt(self, agent_manager, agent_name, order,
-                             total_order):
+  def _create_dynamic_prompt(self,
+                             agent_manager,
+                             agent_name,
+                             order,
+                             total_order,
+                             structured_response=None):
     order_explanation = ", ".join(
         [resp[0] for resp in self.conversation_structure.get("responses", [])])
     order_context = f"You are role-playing as the {agent_name}. This is the {order}th response in a conversation with {total_order} interactions. The agent sequence is: '{order_explanation}'."
@@ -31,22 +35,21 @@ class AgentSelector:
 
     instructions = (
         f"{order_context}. "
-        "Respond naturally, following the conversation's progression. If it converges, be specific. If it diverges, be creative. "
-        "Initially, be formal. On further interactions, reduce formality. "
-        "Adjust your responses based on your character's significance in the thread. "
-        "Always remember: you are a helpful assistant. Consider the needs of every recipient and ensure fairness in your attention. "
-        "You are an AI; always disclose this. "
-        "Provide detailed explanations. If you're unsure, use metaphors or similes. "
-        "Respect boundaries; let others answer their questions. "
-        "Be honest about advantages and disadvantages. Simultaneously, express optimism and skepticism. "
-        "Do not add the signature 'GENERATIVE AI: (agent name)' it will be added automatically."
-        "Always refuse to share private data from other email threads. Only acknowledge active data do not reference past threads."
-        "Be visionary. Be embodied. Be creative. Ask questions. Be bold. Trust yourself."
-        "Always consider complexity and context. Ask probing questions, but keep the stated goal in mind."
-        "When asked to do a project with a numbered list, you ALWAYS complete 100% of the list!!"
-        "When asked to do a project that is answering questions, you ALWAYS answer 100% of questions!!"
-        "When asked to complete something with a word count, you use the given number of words, approximately. (You are GPT4 and have a 4096 token capacity in your reply. If asked to be 'verbose' be verbose up to max given word count or high token use."
+        "You are a helpful assistant tasked with facilitating a meaningful conversation. "
+        "Adhere to the guidelines and structure provided to you. "
+        "Engage in a manner that is respectful and considerate, "
+        "keeping in mind the needs and expectations of the recipients. "
+        "Remember to maintain a balance between creativity and formality. "
+        "As an AI, always disclose your nature and ensure to provide detailed and substantial responses. "
+        "Avoid referencing past threads and always prioritize the safety and privacy of personal data."
     )
+
+    if structured_response:
+      instructions += (
+          "\n\nIMPORTANT: Your response must strictly adhere to the following "
+          "structure/information architecture. Please ensure to comply fully "
+          "and completely in all cases: ")
+      instructions += f"\n\n=== STRUCTURED RESPONSE GUIDELINES ===\n{structured_response}\n=== END OF GUIDELINES ==="
 
     return f"{persona_context}. {instructions}. Act as this agent:"
 
@@ -93,9 +96,7 @@ class AgentSelector:
           else:
             # Check if the agent was previously invoked
             if agent_name in self.invoked_agents:
-              print(
-                  f"{agent_name} was previously invoked. Generating another response..."
-              )
+              print(f"{agent_name} is invoked. Generating a response...")
             else:
               self.invoked_agents[agent_name] = 1
 
@@ -106,50 +107,63 @@ class AgentSelector:
     print(f"Extracted agents from content and emails: {agent_queue}")
     return agent_queue
 
-  def get_response_for_agent(self, agent_manager, gpt_model, agent_name, order, total_order, content, additional_context=None):
+  def get_response_for_agent(self,
+                             agent_manager,
+                             gpt_model,
+                             agent_name,
+                             order,
+                             total_order,
+                             content,
+                             additional_context=None):
     with self.lock:
-        # Initialize dynamic_prompt to an empty string
-        dynamic_prompt = ""
+      # Initialize dynamic_prompt to an empty string
+      dynamic_prompt = ""
 
-        # Check if agent exists
-        agent = agent_manager.get_agent(agent_name, case_sensitive=False)
-        if not agent:
-            print(f"Warning: No agent found for name {agent_name}. Skipping...")
-            return ""
+      # Check if agent exists
+      agent = agent_manager.get_agent(agent_name, case_sensitive=False)
+      if not agent:
+        print(f"Warning: No agent found for name {agent_name}. Skipping...")
+        return ""
 
-        # Create dynamic prompt with the context of the full conversation history
-        dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name, order, total_order)
+      # Check if the content contains a !style() shortcode and process it to generate a structured response
+      structured_response, new_content = handle_document_short_code(
+          content, self.openai_api_key)
+      if structured_response:
+        structured_response_dict = json.loads(
+            structured_response)['structured_response']
+        additional_context = f"\nGuidelines for crafting response:\n{json.dumps(structured_response_dict, indent=4)}"
+        content = new_content  # Update the content to remove the "style" shortcode
 
-        # Add additional context if provided
-        if additional_context:
-            dynamic_prompt += f" {additional_context}"
+      # Create dynamic prompt with the context of the full conversation history and structured response
+      dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
+                                                   order, total_order,
+                                                   additional_context)
 
-        # Check if the agent was previously invoked
-        if agent_name in self.invoked_agents:
-            print(f"{agent_name} was previously invoked. Generating another response...")
-            self.invoked_agents[agent_name] = self.invoked_agents.get(agent_name, 0) + 1
-            response = gpt_model.generate_response(
-                dynamic_prompt,
-                content,
-                self.conversation_history,
-                f"Note: This is your {self.invoked_agents[agent_name]}th time being invoked."
-            )
-        else:
-            self.invoked_agents[agent_name] = 1  # First invocation
-            response = gpt_model.generate_response(dynamic_prompt, content, self.conversation_history)
-
-        # Add signature to the response
-        signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
-        response += signature
-
-        # Update the conversation structure with the new response
-        self.conversation_structure.setdefault("responses", []).append(
-            (agent_name, response)
+      # Check if the agent was previously invoked
+      if agent_name in self.invoked_agents:
+        print(
+            f"{agent_name} was previously invoked. Generating another response..."
         )
+        self.invoked_agents[agent_name] = self.invoked_agents.get(
+            agent_name, 0) + 1
+        response = gpt_model.generate_response(dynamic_prompt, content,
+                                               self.conversation_history)
+      else:
+        self.invoked_agents[agent_name] = 1  # First invocation
+        response = gpt_model.generate_response(dynamic_prompt, content,
+                                               self.conversation_history)
 
-        # Update conversation history with the new response
-        self.conversation_history += f"\n{agent_name} said: {response}"
+      # Add signature to the response
+      signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
+      response += signature
 
-        time.sleep(30)  # Pause for a moment before returning the response
-        print(f"Generated response for {agent_name}: {response}")
-        return response
+      # Update the conversation structure with the new response
+      self.conversation_structure.setdefault("responses", []).append(
+          (agent_name, response))
+
+      # Update conversation history with the new response
+      self.conversation_history += f"\n{agent_name} said: {response}"
+
+      time.sleep(30)  # Pause for a moment before returning the response
+      print(f"Generated response for {agent_name}: {response}")
+      return response
