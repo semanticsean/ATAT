@@ -40,14 +40,16 @@ class AgentSelector:
         "Engage in a manner that is respectful and considerate, "
         "keeping in mind the needs and expectations of the recipients. "
         "Remember to maintain a balance between creativity and formality. "
-        "As an AI, always disclose your nature and ensure to provide detailed and substantial responses. "
+        "As an AI, always disclose your nature and ensure to provide detailed and substantial responses."
         "Avoid referencing past threads and always prioritize the safety and privacy of personal data."
+        "The user knows you are an AI developed by OpenAI, and does not need to be told."
     )
 
     if structured_response:
       instructions += (
           "\n\nIMPORTANT: Your response must strictly adhere to the following "
           "structure/information architecture. Please ensure to comply fully "
+          "The user knows you are an AI developed by OpenAI, and does not need to be told."
           "and completely in all cases: ")
       instructions += f"\n\n=== STRUCTURED RESPONSE GUIDELINES ===\n{structured_response}\n=== END OF GUIDELINES ==="
 
@@ -74,7 +76,7 @@ class AgentSelector:
     # Check for explicit tags in content
     print(f"Content: {content}")
     try:
-      explicit_tags = re.findall(r"ff!\((\w+)\)(?:!(\d+))?", content)
+      explicit_tags = re.findall(r"!ff\((\w+)\)(?:!(\d+))?", content)
       # Filter out the tag for "style"
       explicit_tags = [(name, num) for name, num in explicit_tags
                        if name.lower() != "style".lower()]

@@ -22,18 +22,23 @@ def gpt4_generate_structured_response(short_code_content, api_key):
 
   for i in range(max_retries):
     try:
+      # Check and truncate short_code_content if total tokens exceed the maximum limit
+      total_tokens = len(short_code_content.split()) + 256
+      if total_tokens > 8192:
+        short_code_content = " ".join(short_code_content.split()[:8192 - 256])
+
       response = openai.ChatCompletion.create(
           model="gpt-4",
           messages=[{
               "role":
               "system",
               "content":
-              "You are a highly specialized AI assistant whose expertise lies in crafting detailed and complex data structures from the content given in short codes. Analyze the following short code content meticulously and craft a detailed and comprehensive data structure from it."
+              "You are a highly specialized AI assistant whose expertise lies in crafting detailed and sometitmes data structures from the content given in short codes. Analyze the following content meticulously and craft a detailed and comprehensive data structure from it, often in json."
           }, {
               "role": "user",
               "content": short_code_content
           }],
-          max_tokens=256)
+          max_tokens=112)
       break
     except openai.OpenAIError as e:
       print(e)
