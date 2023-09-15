@@ -43,5 +43,3 @@ class AgentManager:
         if agent_id.lower() == local_part:
             return agent
     return None
-
-
