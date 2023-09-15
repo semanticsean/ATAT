@@ -16,6 +16,17 @@ from time import sleep
 
 from agent_selector import AgentSelector
 
+import sys
+import traceback
+
+def global_exception_hook(exctype, value, tb):
+    print("Global Exception Hook:")
+    traceback.print_exception(exctype, value, tb)
+
+# Set the global exception hook
+sys.excepthook = global_exception_hook
+
+
 
 class EmailServer:
 
@@ -272,7 +283,8 @@ class EmailServer:
     return re.sub(clean, '', html.unescape(text))
 
   def handle_incoming_email(self, from_, to_emails, cc_emails, thread_content,
-                            subject, message_id, references, num):
+                        subject, message_id, references, num):
+    structured_response = None  # Provide a default value
 
     print("Entered handle_incoming_email")
 
@@ -284,34 +296,62 @@ class EmailServer:
     # Step 1: Initialize human_threads as a set to keep track of unique human senders
     human_threads = set()
 
-    if from_ == self.smtp_username:
-      print("Ignoring self-sent email.")
-      return False
-
-    print(f"Handling email from: {from_}")
-    print(f"To emails: {to_emails}")
-    print(f"CC emails: {cc_emails}")
-
-    # Keep track of the initial recipient list for the thread
+    # Initialize initial_to_emails and initial_cc_emails here
     initial_to_emails = list(to_emails)
     initial_cc_emails = list(cc_emails)
 
-    # Handle the "style" shortcode first
-    structured_response, new_content = handle_document_short_code(
-        thread_content, self.agent_selector.openai_api_key)
-    style_info = json.loads(structured_response).get(
-        "structured_response", "") if structured_response else ""
+    if from_ == self.smtp_username:
+        print("Ignoring self-sent email.")
+        return False
+        print(f"Handling email from: {from_}")
+        print(f"To emails: {to_emails}")
+        print(f"CC emails: {cc_emails}")
+        # Keep track of the initial recipient list for the thread
+        initial_to_emails = list(to_emails)
+        initial_cc_emails = list(cc_emails)
+
+        # Initialize structured_response before using it
+        structured_response = None
+        
+        # Handle the "style" shortcode first
+        response = handle_document_short_code(content, self.openai_api_key)
+        if len(response) == 3:
+            structured_response, detailed_responses, new_content = response
+        elif len(response) == 2:
+            structured_response, new_content = response
+        else:
+            print("Unexpected response from handle_document_short_code")
+            return False
+        
+        
+      
+    
+    print(f"email_server.py Structured response before parsing: {structured_response}")  # Add this line to log the value
+    
+    style_info = {}
+
+    if structured_response and structured_response != 'detail':
+        try:
+            style_info = json.loads(structured_response).get('structured_response', {})
+        except json.JSONDecodeError:
+            print(f"JSON decoding of structured_response failed")
+    
+    else:
+        style_info = ""
+    
+    
+    print(f"Style info: {style_info}")
+    
     if structured_response:
-      print(
-          f"Structured response generated: {json.loads(structured_response)}")
-      self.agent_selector.conversation_history += f"\nStructured Response: {json.loads(structured_response)}"  # Update conversation history
-      thread_content = new_content  # Update the thread_content to remove the "style" shortcode
-
+        print(f"Structured response generated: {json.loads(structured_response)}")
+        self.agent_selector.conversation_history += f"\nStructured Response: {json.loads(structured_response)}"  # Update conversation history
+        thread_content = new_content  # Update the thread_content to remove the "style" shortcode
+    
     recipient_emails = to_emails + cc_emails
-    agents = self.agent_selector.get_agent_names_from_content_and_emails(
-        thread_content, recipient_emails, self.agent_manager)
-
+    agents = self.agent_selector.get_agent_names_from_content_and_emails(thread_content, recipient_emails, self.agent_manager)
+    
     print(f"Identified agents: {agents}")
+    
 
     # Check if this thread has been processed before
     if message_id in self.processed_threads:

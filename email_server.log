@@ -60,3 +60,26 @@
 2023-09-13 05:45:10,474 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
 2023-09-13 05:45:40,693 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 8318 tokens (4318 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
 2023-09-13 05:46:10,815 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-09-14 21:48:21,708 [ERROR]: Exception while processing emails: name 're' is not defined
+2023-09-14 21:51:04,726 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 21:52:21,777 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 21:55:01,247 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 21:56:37,566 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 21:58:42,851 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 22:01:59,277 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 22:07:04,398 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 22:08:42,473 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 22:11:20,658 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-14 22:16:48,770 [ERROR]: Exception while processing emails: name 'andle_document_short_code' is not defined
+2023-09-14 22:17:29,567 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 22:18:45,457 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 22:20:24,285 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 22:23:16,178 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 22:24:26,982 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 22:25:59,894 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 22:33:26,081 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 22:52:32,655 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 23:24:45,086 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 23:26:54,908 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 23:31:27,760 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
+2023-09-14 23:35:05,792 [ERROR]: Exception while processing emails: Expecting value: line 1 column 1 (char 0)
