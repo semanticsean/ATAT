@@ -63,8 +63,8 @@ class AgentSelector:
         content, self.openai_api_key, self.conversation_history
     )  # Adjusted to unpack two values instead of three
 
-    structured_response_json = json.dumps(
-        structured_response) if structured_response else None
+    structured_response_json = json.dumps(structured_response) if structured_response else None
+
 
     logging.debug(
         f"Structured response before parsing: {structured_response_json}")
@@ -154,8 +154,7 @@ class AgentSelector:
       logging.debug(f"Content before parsing: {content}")
 
       structured_response, new_content, _ = handle_document_short_code(
-          content, self.openai_api_key, self.conversation_history
-)
+          content, self.openai_api_key, self.conversation_history)
 
       logging.debug("Checking if structured_response equals 'detail'")
 
