@@ -12,3 +12,8 @@
 2023-09-15 22:47:14,765 [ERROR]: Exception while processing emails: local variable 'structured_response' referenced before assignment
 2023-09-15 22:50:14,934 [INFO]: Detail shortcode matched: ['', '"1. C, please writ
 2023-09-15 22:50:14,936 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 18:58:27,468 [INFO]: Detail shortcode matched: ['', '"1. C, 
+2023-09-19 18:58:27,469 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 19:03:34,044 [INFO]: Detail shortcode matched: ['', '"1. C, 
+2023-09-19 19:03:34,046 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 19:09:51,158 [ERROR]: Exception while processing emails: 'tuple' object has no attribute 'get'

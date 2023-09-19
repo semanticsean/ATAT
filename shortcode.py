@@ -5,7 +5,9 @@ import logging
 from doc_gen import gpt4_generate_structured_response
 
 
-def handle_document_short_code(email_content, api_key, conversation_history=None):
+def handle_document_short_code(email_content,
+                               api_key,
+                               conversation_history=None):
 
   # Handling !style short-code
   match = re.search(r"!style\((.*?)\)", email_content, re.DOTALL)
@@ -47,10 +49,13 @@ def handle_document_short_code(email_content, api_key, conversation_history=None
         f"Detail shortcode matched: {str(detailed_responses)[:11]}, {new_email_content[:11]}"
     )
 
-    return {'type': 'detail', 'content': detailed_responses, 'new_content': new_email_content}
+    return {
+        'type': 'detail',
+        'content': detailed_responses,
+        'new_content': new_email_content
+    }
 
-  return None, email_content, None
-
+  return {}, email_content, None
 
 
 def split_content_into_chunks(content, max_char_count=6000):

@@ -14,8 +14,6 @@ from email.mime.text import MIMEText
 from email.utils import getaddresses
 from shortcode import handle_document_short_code
 from time import sleep
-
-from shortcode import handle_document_short_code
 from agent_selector import AgentSelector
 
 
