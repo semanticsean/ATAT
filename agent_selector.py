@@ -134,6 +134,9 @@ class AgentSelector:
     
                 # Logging the split chunks
                 logging.info(f"Identified {len(chunks)} chunks using !detail and !split shortcodes: {chunks}")
+
+                # Limit the length of conversation history to roughly 4k tokens
+                self.conversation_history = self.conversation_history[-16000:]
                 
                 for idx, chunk in enumerate(chunks):
                     # Add custom note for !detail calls 
