@@ -29,40 +29,29 @@ def auto_split_content(content, char_limit=3000):
   return chunks
 
 
-def handle_document_short_code(email_content, api_key, conversation_history=None):
+def handle_document_short_code(email_content, api_key, conversation_history=None, last_agent_response=""):
     """
     This modified function will handle the !detail shortcode and split the content based on the !split delimiter.
     """
-    print("Entered handle_document_short_code function.")
-    structured_response = None 
-
-    # Default return values
+    # Initialize the result dictionary
     result = {'type': None, 'content': None, 'new_content': email_content}
-
-    # Handling !style short-code
-    style_match = re.search(r"!style\((.*?)\)", email_content, re.DOTALL)
-    if style_match:
-        short_code_content = style_match.group(1).strip()
-        structured_response = gpt4_generate_structured_response(
-            short_code_content, api_key)
-        new_email_content = re.sub(r"!style\(.*?\)",
-                                   "",
-                                   email_content,
-                                   flags=re.DOTALL).strip()
-        result['type'] = 'style'
-        result['content'] = structured_response
-        result['new_content'] = new_email_content
-        return result
+    
+    # ... [rest of the function up to the Handling !detail short-code section]
 
     # Handling !detail short-code
     detail_matches = re.findall(r"!detail\((.*?)\)!detail", email_content, re.DOTALL)
     if not detail_matches:
         detail_matches = re.findall(r"!detail\((.*?)$", email_content, re.DOTALL)
-    print(f"Found {len(detail_matches)} detail matches in the content.")
+
     if detail_matches:
         detailed_responses = []
         for match in detail_matches:
             detail_content = match.strip()
+
+            # Check if the content has the !previousResponse keyword and replace it
+            if "!previousResponse" in detail_content:
+                detail_content = detail_content.replace('!previousResponse', last_agent_response)
+
             # Split content based on !split and treat each section as a separate chunk
             split_sections = re.split(r'!split', detail_content)
             detailed_responses.extend([section.strip() for section in split_sections if section.strip()])

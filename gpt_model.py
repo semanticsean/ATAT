@@ -12,6 +12,8 @@ class GPTModel:
 
   def __init__(self):
     openai.api_key = openai_api_key
+    self.last_api_call_time = 0
+
 
   def generate_response(self,
                         dynamic_prompt,
@@ -25,6 +27,15 @@ class GPTModel:
       full_content += f"\n{additional_context}"
     if note:
       full_content += f"\n{note}"
+
+    current_time = time.time()
+    elapsed_time = current_time - self.last_api_call_time
+
+    # If it hasn't been 60 seconds since the last API call, wait for the remaining time
+    if elapsed_time < 60:
+        sleep_duration = 60 - elapsed_time
+        print(f"Sleeping for {sleep_duration:.2f} seconds to avoid rate limits.")
+        time.sleep(sleep_duration)
 
     response = None
     max_retries = 99
@@ -90,5 +101,8 @@ class GPTModel:
     if response is None:
       print("Max retries reached. Could not generate a response.")
       return None
+
+    # Update the last_api_call_time at the end of the API call
+    self.last_api_call_time = time.time()
 
     return response['choices'][0]['message']['content']
