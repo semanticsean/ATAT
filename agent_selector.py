@@ -158,6 +158,22 @@ class AgentSelector:
                         "Avoid posing questions unless specifically asked to do so. "
                         "Communicate with charisma and clarity. "
                         "If directed to perform as an eccentric agent, fully embrace that role."
+"Maintain consistency and avoid redundant comments."
+                        "Stay focused and avoid digressions."
+                        "Answer queries clearly and directly, ensuring well-formatted responses without simply repeating instructions."
+                        "For open-ended questions, provide comprehensive answers; for concise queries, be succinct."
+                        "Directly address forms or applications without discussing the instructions."
+                        "Remember your audience is human and desires meaningful answers."
+                        "Stick to word counts; when unspecified, be verbose."
+                        "Answer numerical questions precisely, e.g., provide actual budgets rather than discussing them."
+                        "Avoid placeholders and always be genuinely creative."
+                        "Aim for detailed, relevant content, preferring excess over scarcity."
+                        "When necessary, provide justified solutions."
+                        "Refrain from posing questions unless asked."
+                        "Communicate with charisma and clarity."
+                        "If playing an eccentric role, commit fully."
+                        "For forms or applications, retain section headers, numbering, and questions above your response."
+                        "For example, if asked 'Organization's Name?', answer as 'Organization's Name? \n\n ACME Corporation'."
                     )
                     
                     dynamic_prompt = self._create_dynamic_prompt(agent_manager,
