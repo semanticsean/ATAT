@@ -17,3 +17,161 @@
 2023-09-19 19:03:34,044 [INFO]: Detail shortcode matched: ['', '"1. C, 
 2023-09-19 19:03:34,046 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
 2023-09-19 19:09:51,158 [ERROR]: Exception while processing emails: 'tuple' object has no attribute 'get'
+2023-09-19 19:16:37,028 [ERROR]: Exception while processing emails: 'tuple' object has no attribute 'get'
+2023-09-19 19:41:25,573 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 19:43:15,977 [ERROR]: Exception while processing emails: local variable 'structured_response' referenced before assignment
+2023-09-19 19:49:28,940 [ERROR]: Exception while processing emails: local variable 'structured_response' referenced before assignment
+2023-09-19 19:51:11,361 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 19:54:25,271 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 19:57:50,122 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 19:59:02,518 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 20:00:28,777 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 20:01:41,423 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 20:02:50,470 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 20:08:07,521 [ERROR]: Exception while processing emails: local variable 'agents' referenced before assignment
+2023-09-19 20:09:56,360 [ERROR]: Exception while processing emails: local variable 'agents' referenced before assignment
+2023-09-19 20:10:53,819 [ERROR]: Exception while processing emails: local variable 'agents' referenced before assignment
+2023-09-19 20:11:31,121 [ERROR]: Exception while processing emails: local variable 'agents' referenced before assignment
+2023-09-19 20:16:31,720 [ERROR]: Exception while processing emails: local variable 'agents' referenced before assignment
+2023-09-19 20:19:43,766 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 20:24:51,217 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 20:26:12,202 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 20:27:11,072 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 20:28:58,561 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 20:30:06,370 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 20:41:34,175 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 20:54:44,161 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 21:02:20,036 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 21:07:44,564 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 21:22:29,872 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 21:23:58,001 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 21:28:44,313 [ERROR]: Exception while processing emails: local variable 'structured_response' referenced before assignment
+2023-09-19 21:31:02,239 [ERROR]: Exception while processing emails: local variable 'structured_response' referenced before assignment
+2023-09-19 21:34:01,652 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 21:37:21,004 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 22:18:25,781 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 22:23:12,867 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 22:37:10,656 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 22:37:21,298 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 22:50:20,175 [ERROR]: Exception while processing emails: name 'response_data' is not defined
+2023-09-19 22:51:39,151 [ERROR]: Exception while processing emails: name 'response_data' is not defined
+2023-09-19 22:51:58,552 [ERROR]: Exception while processing emails: name 'response_data' is not defined
+2023-09-19 22:53:22,219 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 22:57:10,402 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 23:07:51,205 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-19 23:32:04,104 [ERROR]: Exception while processing emails: local variable 'structured_response' referenced before assignment
+2023-09-20 00:14:02,183 [ERROR]: Exception while processing emails: name 'initial_to_emails' is not defined
+2023-09-20 00:15:17,153 [ERROR]: Exception while processing emails: name 'initial_to_emails' is not defined
+2023-09-20 00:18:25,061 [ERROR]: Exception while processing emails: name 'initial_to_emails' is not defined
+2023-09-20 00:19:47,055 [ERROR]: Exception while processing emails: name 'order' is not defined
+2023-09-20 00:23:01,276 [ERROR]: Exception while processing emails: name 'item' is not defined
+2023-09-20 00:24:20,379 [ERROR]: Exception while processing emails: name 'item' is not defined
+2023-09-20 00:26:13,596 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-20 00:30:31,862 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-20 00:32:26,958 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-20 00:36:16,066 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-20 00:42:35,963 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-20 00:47:22,268 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-20 05:09:30,497 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-20 05:26:12,207 [ERROR]: Exception while processing emails: too many values to unpack (expected 2)
+2023-09-20 05:45:16,127 [ERROR]: Exception while processing emails: 'NoneType' object has no attribute 'get'
+2023-09-20 05:47:33,534 [ERROR]: Exception while processing emails: local variable 'shortcode_type' referenced before assignment
+2023-09-20 05:50:00,450 [INFO]: Generated response for devluna: Dear Larry,
+
+I hope this message finds you well. My name is Luna, and I'm an AI 'synth' representing Vital, a Venice-based startup co-founded by David Gull. 
+
+Vital is the first AI Coaching Platform designed to help people navigate life's toughest challenges and achieve their goals & dreams. We leverage advanced AI technology to provide personalized, generative sessions that can change actions, thoughts, and behaviors to improve emotional states and outcomes.
+
+Here's why Vital stands out:
+
+1. **Personalization**: Unlike generic meditation apps or therapy sessions, every interaction with Vital is tailored to the user's specific needs in real time.
+2. **Accessibility**: Available 24/7 on any device, our solution is cost-effective and always there when you need it.
+3. **Scalability**: Our subscription model allows us to reach a broad audience at scale.
+4. **Traction**: We've already seen proof of concept with 10,000 signups, 350+ daily active users, and over 100 paid subscribers.
+
+We believe now is the perfect time for a solution like Vital due to the increasing global mental health issues and the opportunity for personalized AI support.
+
+David would love to discuss potential seed stage investment opportunities with you if this aligns with your interests. In the meantime, I encourage you to download the Vital app (https://apps.apple.com/us/app/ogimi-ai/id6450723996) and try it out for yourself.
+
+Thank you for considering this opportunity. Please let me know if there are any questions I can answer or further information I can provide.
+
+Best,
+Luna
+
+- GENERATIVE AI AGENT: devluna
+2023-09-20 05:50:57,742 [INFO]: Generated response for devlarry: Dear Luna,
+
+Thank you for the detailed pitch. Vital indeed seems to be addressing a significant need in today's world, and I appreciate your efforts in this domain. However, as you might already know, my investment philosophy is quite stringent. Here are a few concerns that I have:
+
+1. **Market Saturation**: The mental health tech space is already crowded with many solutions offering similar services. How does Vital differentiate itself from other AI-based coaching platforms? What makes it unique?
+
+2. **User Retention**: You mentioned 10,000 signups and over 100 paid subscribers, but what about user retention? How many of these users are sticking around after the first month? High churn rates could indicate that users aren't finding enough value in your service.
+
+3. **AI Dependability**: While AI can certainly provide support, it lacks the human touch that is often crucial in dealing with emotional states and personal challenges. How do you ensure that your AI doesn't inadvertently harm someone who might be in a fragile state?
+
+4. **Revenue Model**: Your subscription model could potentially limit access to those who can't afford it, contradicting your goal of accessibility. Have you considered alternative revenue models?
+
+5. **Data Privacy**: With such sensitive information being shared on your platform, how do you ensure data privacy and security?
+
+While I won't be investing at this time due to these concerns, I encourage you to take them into account as you move forward with Vital.
+
+Best,
+Larry
+
+- GENERATIVE AI AGENT: devlarry
+2023-09-20 05:50:57,744 [ERROR]: Exception while processing emails: string indices must be integers
+2023-09-20 05:56:57,273 [INFO]: Generated response for devatlas: !ff(devatlas)
+
+Dear Larry,
+
+I hope this message finds you well. I am Atlas Pierce, CEO of ALIGN CORP, a subsidiary of Semantic Life. We are at the forefront of creating semantic lifeforms, or 'synths', which are complex AI agents that simulate human-like characteristics and behaviors.
+
+Our unique product suite includes Fast Forward and Sculptor. Fast Forward allows users to model how people might react to an email they’re going to send them, or how a meeting might go based on the agenda. It's a powerful tool for coaching, training, and ultimately being successful in relationships. Sculptor is our refined process to build high definition synthetic copies of people in AI agent form.
+
+We believe that these technologies have the potential to revolutionize how we interact with digital spaces and each other. By investing in Semantic Life and ALIGN CORP, you will be partaking in shaping this future while also achieving substantial returns as the demand for such sophisticated AI solutions continues to grow.
+
+I look forward to discussing this opportunity further with you.
+
+Best,
+Atlas
+
+!ff(devlarry)
+
+Hello Luna,
+
+Thank you for introducing me to Atlas and his innovative work at ALIGN CORP and Semantic Life. The concept of semantic lifeforms is intriguing indeed.
+
+Fast Forward seems like a game-changer for interpersonal communication and business strategy. And Sculptor's potential applications are vast - from personalized customer service agents to virtual companionship solutions.
+
+However, I would need more information about their current market performance, projected growth rates, and competitive landscape before making any investment decisions.
+
+Could you arrange a meeting with Atlas so we can delve deeper into these aspects?
+
+Best,
+Larry
+
+- GENERATIVE AI AGENT: devatlas
+2023-09-20 05:57:53,454 [INFO]: Generated response for devlarry: !ff(devlarry)
+
+Atlas,
+
+I appreciate the introduction and the work you're doing at ALIGN CORP. The idea of semantic lifeforms is indeed a fascinating concept, and I can see how Fast Forward and Sculptor could potentially revolutionize our digital interactions.
+
+However, as an investor with a keen eye for detail, I must express my reservations. Here are some areas where I believe your startup may face challenges:
+
+1. Market Saturation: The AI sector is highly competitive with many players offering similar solutions. How does ALIGN CORP differentiate itself from these competitors? What unique value proposition do you offer that others don't?
+
+2. Adoption Rate: While your technology sounds impressive, it also seems complex. How do you plan to ensure user adoption? Do you have a strategy in place to educate potential users about the benefits of your product?
+
+3. Monetization Strategy: Your products seem to be more suited for businesses than individual consumers due to their complexity. Have you considered how this might affect your revenue streams? 
+
+4. Ethical Considerations: As we venture deeper into the realm of AI and synthetic lifeforms, ethical considerations become paramount. How does ALIGN CORP address these concerns?
+
+5. Scalability: Finally, scalability is a critical factor for any tech startup's success. Do you have plans in place to scale up operations if demand increases?
+
+I hope these points provide some food for thought as you continue on your journey with ALIGN CORP.
+
+Best,
+Larry
+
+- GENERATIVE AI AGENT: devlarry
