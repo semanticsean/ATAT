@@ -43,6 +43,7 @@ class AgentSelector:
         "Remember to maintain a balance between creativity and formality. "
         "As an AI, always disclose your nature and ensure to provide detailed and substantial responses."
         "Avoid referencing past threads and always prioritize the safety and privacy of personal data."
+        "Do not mention people, synthetic agents, or others who are not in the current email thread, unless expressly mentioned."
         "The user knows you are an AI developed by OpenAI, and does not need to be told."
     )
 
@@ -50,7 +51,6 @@ class AgentSelector:
       instructions += (
           "\n\nIMPORTANT: Your response must strictly adhere to the following "
           "structure/information architecture. Please ensure to comply fully "
-          "The user knows you are an AI developed by OpenAI, and does not need to be told."
           "and completely in all cases: ")
       instructions += f"\n\n=== STRUCTURED RESPONSE GUIDELINES ===\n{structured_response}\n=== END OF GUIDELINES ==="
 
@@ -58,36 +58,6 @@ class AgentSelector:
 
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
                                               agent_manager, gpt_model):
-    # Step 1: Handle the "style" shortcode first
-    structured_response, new_content = handle_document_short_code(
-        content, self.openai_api_key, self.conversation_history
-    )  # Adjusted to unpack two values instead of three
-
-    structured_response_json = json.dumps(structured_response) if structured_response else None
-
-
-    logging.debug(
-        f"Structured response before parsing: {structured_response_json}")
-
-    if structured_response and structured_response.get('type') == 'detail':
-      logging.debug(
-          "Structured response equals 'detail', handling accordingly.")
-      responses = []
-      chunks = structured_response.get('content', [])
-
-      for chunk in chunks:
-        dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
-                                                     order, total_order,
-                                                     additional_context)
-        response = gpt_model.generate_response(dynamic_prompt, chunk,
-                                               self.conversation_history)
-        responses.append(response)
-      final_response = " ".join(responses)
-      content = final_response
-
-    print(f"Structured response generated: {structured_response_json}")
-    self.conversation_history += f"\nStructured Response: {structured_response_json}"
-
     # Extract agents from recipient emails:
     agent_queue = []
     for email in recipient_emails:
@@ -96,42 +66,38 @@ class AgentSelector:
         agent_queue.append((agent["id"], len(agent_queue) + 1))
 
     # Check for explicit tags in content
-    print(f"Content: {content}")
+    explicit_tags = []
     try:
-      explicit_tags = re.findall(r"!ff\((\w+)\)(?:!(\d+))?", content)
-      explicit_tags = [(name, num) for name, num in explicit_tags
-                       if name.lower() != "style".lower()]
-      logging.debug(f"Extracted explicit tags: {explicit_tags}")
+      explicit_tags = re.findall(r"!ff\((\w+)\)(?:!(\d+))?", content) + \
+                      re.findall(r"!\((\w+)\)(?:!(\d+))?", content)
+      explicit_tags = [(name, int(num) if num else None)
+                       for name, num in explicit_tags
+                       if name.lower() != "style"]
     except Exception as e:
       logging.error(f"Regex Error: {e}")
       logging.error(f"Content: {content}")
 
-    if explicit_tags:
-      agent_queue = []
-      default_order = 1
-      for match in explicit_tags:
-        if len(match) != 2:
-          logging.warning(f"Skipping invalid explicit tag: {match}")
-          continue
-        agent_name, order = match
+    # Update the agent_queue with explicit tags if they exist
+    for agent_name, order in explicit_tags:
+      agent = agent_manager.get_agent(agent_name, case_sensitive=False)
+      if agent:
+        # If the agent is already in the queue, adjust its order
+        existing_entry = next(
+            ((name, ord) for name, ord in agent_queue if name == agent_name),
+            None)
+        if existing_entry:
+          agent_queue.remove(existing_entry)
+        agent_queue.append(
+            (agent_name, order if order is not None else len(agent_queue) + 1))
 
-        agent = agent_manager.get_agent(agent_name, case_sensitive=False)
-        if agent:
-          if order:
-            order = int(order)
-            agent_queue.append((agent_name, order))
-          else:
-            if agent_name in self.invoked_agents:
-              print(f"{agent_name} is invoked. Generating a response...")
-            else:
-              self.invoked_agents[agent_name] = 1
-            agent_queue.append((agent_name, default_order))
-            default_order += 1
+    if len(agent_queue) == 1:
+      agent_queue[0] = (agent_queue[0][0], 1)
+    elif not any([agent[1] for agent in agent_queue]):
+      agent_queue = [(agent[0], idx + 1)
+                     for idx, agent in enumerate(agent_queue)]
 
+    # Sort the agent_queue based on the order
     agent_queue = sorted(agent_queue, key=lambda x: x[1])[:self.max_agents]
-    logging.debug(f"Explicit tags: {explicit_tags}")
-
-    logging.debug(f"Final agent queue: {agent_queue}")
 
     return agent_queue
 
@@ -153,13 +119,10 @@ class AgentSelector:
 
       logging.debug(f"Content before parsing: {content}")
 
-      structured_response, new_content, _ = handle_document_short_code(
-          content, self.openai_api_key, self.conversation_history)
-
-      logging.debug("Checking if structured_response equals 'detail'")
-
-      print(type(structured_response))
-      print(structured_response)
+      result = handle_document_short_code(content, self.openai_api_key,
+                                          self.conversation_history)
+      structured_response = result.get('structured_response')
+      new_content = result.get('new_content')
 
       if structured_response == 'detail':
         logging.debug(
@@ -175,8 +138,7 @@ class AgentSelector:
           response = gpt_model.generate_response(dynamic_prompt, chunk,
                                                  self.conversation_history)
           responses.append(response)
-        final_response = " ".join(responses)
-        content = final_response
+        content = " ".join(responses)
       else:
         structured_response_json = {}
         if structured_response and structured_response.strip():
@@ -208,7 +170,5 @@ class AgentSelector:
 
       time.sleep(30)
       logging.info(f"Generated response for {agent_name}: {content}")
-      logging.debug(f"Structured response type: {type(structured_response)}")
-      logging.debug(f"Structured response content: {structured_response}")
 
       return content
