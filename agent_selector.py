@@ -104,13 +104,13 @@ class AgentSelector:
         return agent_queue
 
     def get_response_for_agent(self,
-                           agent_manager,
-                           gpt_model,
-                           agent_name,
-                           order,
-                           total_order,
-                           content,
-                           additional_context=None):
+                       agent_manager,
+                       gpt_model,
+                       agent_name,
+                       order,
+                       total_order,
+                       content,
+                       additional_context=None):
         with self.lock:
             responses = []  # List to hold responses for each split section
             dynamic_prompt = ""
@@ -131,10 +131,10 @@ class AgentSelector:
                 logging.debug("Handling detail shortcode with split content.")
                 
                 chunks = result.get('content', [])
-    
+        
                 # Logging the split chunks
                 logging.info(f"Identified {len(chunks)} chunks using !detail and !split shortcodes: {chunks}")
-
+    
                 # Limit the length of conversation history to roughly 4k tokens
                 self.conversation_history = self.conversation_history[-16000:]
                 
@@ -142,22 +142,22 @@ class AgentSelector:
                     # Add custom note for !detail calls 
                     additional_context_chunk = (
                         f"This is part {idx + 1} of {len(chunks)} detail responses. "
-                        "Maintain consistency and avoid redundant comments."
-                        "Stay focused and avoid digressions."
-                        "Answer queries clearly and directly, ensuring well-formatted responses without simply repeating instructions."
-                        "For open-ended questions, provide comprehensive answers; for concise queries, be succinct."
-                        "Directly address forms or applications without discussing the instructions."
-                        "Remember your audience is human and desires meaningful answers."
-                        "Stick to word counts; when unspecified, be verbose."
-                        "Answer numerical questions precisely, e.g., provide actual budgets rather than discussing them."
-                        "Avoid placeholders and always be genuinely creative."
-                        "Aim for detailed, relevant content, preferring excess over scarcity."
-                        "When necessary, provide justified solutions."
-                        "Refrain from posing questions unless asked."
-                        "Communicate with charisma and clarity."
-                        "If playing an eccentric role, commit fully."
-                        "For forms or applications, retain section headers, numbering, and questions above your response."
-                        "For example, if asked 'Organization's Name?', answer as 'Organization's Name? \n\n ACME Corporation'."
+                            "Maintain consistency and avoid redundant comments."
+                            "Stay focused and avoid digressions."
+                            "Answer queries clearly and directly, ensuring well-formatted responses without simply repeating instructions."
+                            "For open-ended questions, provide comprehensive answers; for concise queries, be succinct."
+                            "Directly address forms or applications without discussing the instructions."
+                            "Remember your audience is human and desires meaningful answers."
+                            "Stick to word counts; when unspecified, be verbose."
+                            "Answer numerical questions precisely, e.g., provide actual budgets rather than discussing them."
+                            "Avoid placeholders and always be genuinely creative."
+                            "Aim for detailed, relevant content, preferring excess over scarcity."
+                            "When necessary, provide justified solutions."
+                            "Refrain from posing questions unless asked."
+                            "Communicate with charisma and clarity."
+                            "If playing an eccentric role, commit fully."
+                            "For forms or applications, retain section headers, numbering, and questions above your response."
+                            "For example, if asked 'Organization's Name?', answer as 'Organization's Name? \n\n ACME Corporation'."
                     )
                     
                     dynamic_prompt = self._create_dynamic_prompt(agent_manager,
@@ -171,7 +171,6 @@ class AgentSelector:
                     
                     # Update conversation history for each chunk
                     self.conversation_history += f"\n{agent_name} said: {response}"
-                
             else:  # Handling the content normally (without split)
                 structured_response_json = {}
                 if structured_response and structured_response.strip():
@@ -208,4 +207,4 @@ class AgentSelector:
             logging.info(f"Generated response for {agent_name}: {final_response}")
     
             return final_response
-    
+  
