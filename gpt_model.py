@@ -1,11 +1,11 @@
 import os
 import time
 from random import uniform
+import json
 
 import openai
 
 openai_api_key = os.environ['OPENAI_API_KEY']
-
 
 class GPTModel:
 
@@ -43,9 +43,9 @@ class GPTModel:
                     excess_tokens = total_tokens - 8000
                     conversation_history = " ".join(conversation_history.split()[:-excess_tokens])
 
-                response = openai.ChatCompletion.create(
-                    model="gpt-4",
-                    messages=[
+                request_payload = {
+                    "model": "gpt-4",
+                    "messages": [
                         {
                             "role": "system",
                             "content": dynamic_prompt
@@ -55,12 +55,21 @@ class GPTModel:
                             "content": full_content
                         }
                     ],
-                    max_tokens=4000,
-                    top_p=0.7,  # variable
-                    frequency_penalty=0.5,  # variable
-                    presence_penalty=0.5,  # variable
-                    temperature=0.3  # variable
-                )
+                    "max_tokens": 4000,
+                    "top_p": 0.7,
+                    "frequency_penalty": 0.2,
+                    "presence_penalty": 0.2,
+                    "temperature": 0.6
+                }
+
+                print("\n--- API Request Payload ---")
+                print(json.dumps(request_payload, indent=4))
+
+                response = openai.ChatCompletion.create(**request_payload)
+
+                print("\n--- API Response ---")
+                print(json.dumps(response, indent=4))
+                
                 break
 
             except openai.OpenAIError as e:
