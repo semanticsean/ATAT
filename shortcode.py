@@ -55,7 +55,9 @@ def handle_document_short_code(email_content, api_key, conversation_history=None
         return result
 
     # Handling !detail short-code
-    detail_matches = re.findall(r"!detail\((.*?)\)", email_content, re.DOTALL)
+    detail_matches = re.findall(r"!detail\((.*?)\)!detail", email_content, re.DOTALL)
+    if not detail_matches:
+        detail_matches = re.findall(r"!detail\((.*?)$", email_content, re.DOTALL)
     print(f"Found {len(detail_matches)} detail matches in the content.")
     if detail_matches:
         detailed_responses = []
@@ -65,7 +67,9 @@ def handle_document_short_code(email_content, api_key, conversation_history=None
             split_sections = re.split(r'!split', detail_content)
             detailed_responses.extend([section.strip() for section in split_sections if section.strip()])
 
-        new_email_content = re.sub(r"!detail\((.*?)\)", "", email_content, flags=re.DOTALL).strip()
+        new_email_content = re.sub(r"!detail\((.*?)\)!detail", "", email_content, flags=re.DOTALL)
+        if not new_email_content:
+            new_email_content = re.sub(r"!detail\((.*?)$", "", email_content, flags=re.DOTALL).strip()
         result['type'] = 'detail'
         result['content'] = detailed_responses
         result['new_content'] = new_email_content
@@ -73,6 +77,7 @@ def handle_document_short_code(email_content, api_key, conversation_history=None
         return result
     
     return result
+
 
 def split_content_into_chunks(content, max_char_count=6000):
   chunks = []
