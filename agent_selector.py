@@ -16,6 +16,7 @@ class AgentSelector:
     self.conversation_structure = {}
     self.conversation_history = ""
     self.invoked_agents = {}
+    self.last_agent_response = ""
 
   def reset_for_new_thread(self):
     self.invoked_agents.clear()
@@ -107,88 +108,94 @@ class AgentSelector:
                              content,
                              additional_context=None):
     with self.lock:
-      responses = []
-      dynamic_prompt = ""
-      agent = agent_manager.get_agent(agent_name, case_sensitive=False)
+      # Check if the !useLastResponse shortcode exists
+      if "!useLastResponse" in content:
+        # If it exists, wrap the last agent's response in !detail() and prepend to content
+        content = f"!detail({self.last_agent_response}) {content.replace('!useLastResponse', '').strip()}"
+    responses = []
+    dynamic_prompt = ""
+    agent = agent_manager.get_agent(agent_name, case_sensitive=False)
 
-      if not agent:
-        logging.warning(f"No agent found for name {agent_name}. Skipping...")
-        return ""
+    if not agent:
+      logging.warning(f"No agent found for name {agent_name}. Skipping...")
+      return ""
 
-      logging.debug(f"Content before parsing: {content}")
+    logging.debug(f"Content before parsing: {content}")
 
-      result = handle_document_short_code(content, self.openai_api_key,
-                                          self.conversation_history)
-      structured_response = result.get('structured_response')
-      new_content = result.get('new_content')
+    result = handle_document_short_code(content, self.openai_api_key,
+                                        self.conversation_history)
+    structured_response = result.get('structured_response')
+    new_content = result.get('new_content')
 
-      if result['type'] == 'detail':
-        logging.debug("Handling detail shortcode with split content.")
-        chunks = result.get('content', [])
-        logging.info(
-            f"Identified {len(chunks)} chunks using !detail and !split shortcodes: {chunks}"
+    if result['type'] == 'detail':
+      logging.debug("Handling detail shortcode with split content.")
+      chunks = result.get('content', [])
+      logging.info(
+          f"Identified {len(chunks)} chunks using !detail and !split shortcodes: {chunks}"
+      )
+      self.conversation_history = self.conversation_history[-16000:]
+
+      for idx, chunk in enumerate(chunks):
+        additional_context_chunk = (
+            "This is part {idx + 1} of {len(chunks)} detail responses. "
+            "Maintain consistency and avoid redundant comments. "
+            "Stay focused and avoid digressions. "
+            "Answer queries clearly and directly, ensuring well-formatted responses without simply repeating instructions. "
+            "For open-ended questions, provide comprehensive answers; for concise queries, be succinct. "
+            "Directly address forms or applications without discussing the instructions. "
+            "Remember your audience is human and desires meaningful answers. "
+            "Stick to word counts; when unspecified, be verbose. "
+            "Answer numerical questions precisely, e.g., provide actual budgets rather than discussing them. "
+            "Avoid placeholders and always be genuinely creative. "
+            "Aim for detailed, relevant content, preferring excess over scarcity. "
+            "When necessary, provide justified solutions. "
+            "Refrain from posing questions unless asked. "
+            "Communicate with charisma and clarity. "
+            "If playing an eccentric role, commit fully. "
+            "For forms or applications, retain section headers, numbering, and questions above your response. "
+            "For example, if asked 'Organization's Name?', answer as 'Organization's Name? \n\n ACME Corporation'."
         )
-        self.conversation_history = self.conversation_history[-16000:]
 
-        for idx, chunk in enumerate(chunks):
-          additional_context_chunk = (
-              "This is part {idx + 1} of {len(chunks)} detail responses. "
-              "Maintain consistency and avoid redundant comments. "
-              "Stay focused and avoid digressions. "
-              "Answer queries clearly and directly, ensuring well-formatted responses without simply repeating instructions. "
-              "For open-ended questions, provide comprehensive answers; for concise queries, be succinct. "
-              "Directly address forms or applications without discussing the instructions. "
-              "Remember your audience is human and desires meaningful answers. "
-              "Stick to word counts; when unspecified, be verbose. "
-              "Answer numerical questions precisely, e.g., provide actual budgets rather than discussing them. "
-              "Avoid placeholders and always be genuinely creative. "
-              "Aim for detailed, relevant content, preferring excess over scarcity. "
-              "When necessary, provide justified solutions. "
-              "Refrain from posing questions unless asked. "
-              "Communicate with charisma and clarity. "
-              "If playing an eccentric role, commit fully. "
-              "For forms or applications, retain section headers, numbering, and questions above your response. "
-              "For example, if asked 'Organization's Name?', answer as 'Organization's Name? \n\n ACME Corporation'."
-          )
-
-          dynamic_prompt = self._create_dynamic_prompt(
-              agent_manager, agent_name, order, total_order,
-              additional_context_chunk or additional_context)
-          response = gpt_model.generate_response(dynamic_prompt, chunk,
-                                                 self.conversation_history)
-          responses.append(response)
-          self.conversation_history += f"\n{agent_name} said: {response}"
-
-      else:
-        structured_response_json = {}
-        if structured_response and structured_response.strip():
-          try:
-            structured_response_dict = json.loads(structured_response)
-            structured_response_type = structured_response_dict.get(
-                'type', None)
-            structured_response_content = structured_response_dict.get(
-                'structured_response', None)
-            if structured_response_type and structured_response_content:
-              additional_context = f"\nGuidelines for crafting response:\n{json.dumps(structured_response_content, indent=4)}"
-              content = new_content
-          except json.JSONDecodeError:
-            logging.warning("Unable to parse structured response as JSON.")
-            additional_context = structured_response
-
-        dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
-                                                     order, total_order,
-                                                     additional_context)
-        response = gpt_model.generate_response(dynamic_prompt, content,
+        dynamic_prompt = self._create_dynamic_prompt(
+            agent_manager, agent_name, order, total_order,
+            additional_context_chunk or additional_context)
+        response = gpt_model.generate_response(dynamic_prompt, chunk,
                                                self.conversation_history)
         responses.append(response)
         self.conversation_history += f"\n{agent_name} said: {response}"
 
-      final_response = " ".join(responses)
-      signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
-      final_response += signature
+    else:
+      structured_response_json = {}
+      if structured_response and structured_response.strip():
+        try:
+          structured_response_dict = json.loads(structured_response)
+          structured_response_type = structured_response_dict.get('type', None)
+          structured_response_content = structured_response_dict.get(
+              'structured_response', None)
+          if structured_response_type and structured_response_content:
+            additional_context = f"\nGuidelines for crafting response:\n{json.dumps(structured_response_content, indent=4)}"
+            content = new_content
+        except json.JSONDecodeError:
+          logging.warning("Unable to parse structured response as JSON.")
+          additional_context = structured_response
 
-      self.conversation_structure.setdefault("responses", []).append(
-          (agent_name, final_response))
-      logging.info(f"Generated response for {agent_name}: {final_response}")
+      dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
+                                                   order, total_order,
+                                                   additional_context)
+      response = gpt_model.generate_response(dynamic_prompt, content,
+                                             self.conversation_history)
+      responses.append(response)
+      self.conversation_history += f"\n{agent_name} said: {response}"
 
-      return final_response
+    final_response = " ".join(responses)
+    signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
+    final_response += signature
+
+    self.conversation_structure.setdefault("responses", []).append(
+        (agent_name, final_response))
+    logging.info(f"Generated response for {agent_name}: {final_response}")
+
+    # Update the last agent's response
+    self.last_agent_response = final_response
+
+    return final_response
