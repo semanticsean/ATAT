@@ -1,7 +1,8 @@
 import os
 import time
-from random import uniform
+from random import uniform, randint
 import json
+import datetime
 
 import openai
 
@@ -11,6 +12,14 @@ class GPTModel:
 
     def __init__(self):
         openai.api_key = openai_api_key
+        self.tokens_this_minute = 0
+        self.token_reset_time = datetime.datetime.now() + datetime.timedelta(minutes=1)
+
+    def _reset_tokens(self):
+        now = datetime.datetime.now()
+        if now >= self.token_reset_time:
+            self.tokens_this_minute = 0
+            self.token_reset_time = now + datetime.timedelta(minutes=1)
 
     def generate_response(self,
                           dynamic_prompt,
@@ -26,22 +35,28 @@ class GPTModel:
             full_content += f"\n{note}"
 
         response = None
-        max_retries = 99
-        delay = 30  # variable
-        max_delay = 30  # variable
+        max_retries = 5
+        delay = 1  # Initial delay duration in seconds
 
         for i in range(max_retries):
-            try:
-                # Check and truncate content and conversation_history if total tokens exceed the maximum limit
-                total_tokens = len(content.split()) + len(conversation_history.split()) + 4000
-                if additional_context:
-                    total_tokens += len(additional_context.split())
-                if note:
-                    total_tokens += len(note.split())
+            self._reset_tokens()  # Check and reset the token counter if needed
 
-                if total_tokens > 8000:
-                    excess_tokens = total_tokens - 8000
-                    conversation_history = " ".join(conversation_history.split()[:-excess_tokens])
+            # Calculate tokens for the current request
+            tokens_for_request = len(full_content.split()) + 4000
+
+            # Check if tokens would exceed the limit
+            if self.tokens_this_minute + tokens_for_request > 10000:
+                sleep_seconds = (self.token_reset_time - datetime.datetime.now()).seconds + 1
+                print(f"Token limit exceeded. Sleeping for {sleep_seconds} seconds.")
+                time.sleep(sleep_seconds)
+                self._reset_tokens()
+
+            try:
+                message_tokens = len(full_content.split())
+                if message_tokens > 8100:
+                    max_tokens = 8192 - message_tokens
+                else:
+                    max_tokens = 4000
 
                 request_payload = {
                     "model": "gpt-4",
@@ -55,7 +70,7 @@ class GPTModel:
                             "content": full_content
                         }
                     ],
-                    "max_tokens": 4000,
+                    "max_tokens": max_tokens,
                     "top_p": 0.7,
                     "frequency_penalty": 0.2,
                     "presence_penalty": 0.2,
@@ -66,6 +81,7 @@ class GPTModel:
                 print(json.dumps(request_payload, indent=4))
 
                 response = openai.ChatCompletion.create(**request_payload)
+                self.tokens_this_minute += tokens_for_request  # Update the token counter
 
                 print("\n--- API Response ---")
                 print(json.dumps(response, indent=4))
@@ -74,11 +90,11 @@ class GPTModel:
 
             except openai.OpenAIError as e:
                 print(e)
-                sleep_time = min(delay * (2**i) + uniform(0.0, 0.1 * (2**i)), max_delay)
+                jitter = randint(0, 1000) / 1000.0  # Random jitter between 0 and 1 second
+                sleep_time = min(delay, 60) + jitter  # Adding jitter to delay
                 print(f"Retrying in {sleep_time:.2f} seconds.")
                 time.sleep(sleep_time)
-            else:
-                break
+                delay *= 2  # Double the delay duration for exponential backoff
 
         if response is None:
             print("Max retries reached. Could not generate a response.")

@@ -532,7 +532,7 @@ class EmailServer:
     msg = MIMEMultipart()
     msg['From'] = f'"{from_alias}" <{from_alias}>'
     msg['Reply-To'] = f'"{from_alias}" <{from_alias}>'
-    msg['Sender'] = from_email
+    msg['Sender'] = f'"{from_alias}" <{from_email}>'
     msg['To'] = ', '.join(to_emails)
     if cc_emails:
       msg['Cc'] = ', '.join(cc_emails)
