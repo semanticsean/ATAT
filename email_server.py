@@ -153,17 +153,17 @@ class EmailServer:
         content = email_message.get_payload()
 
       # Adjust character limit based on the presence of !detail shortcode
-      MAX_LIMIT = 10000
+      MAX_LIMIT = 15000
       if "!detail" in content:
-          MAX_LIMIT = 200000
-      
+        MAX_LIMIT = 200000
+
       # Check if the content is too long
       if len(content) > MAX_LIMIT:
-          print(f"Content too long for UID {num}: {len(content)} characters.")
-          self.send_error_email(from_, subject, "Content too long")
-          self.mark_as_seen(num)
-          self.update_processed_threads(message_id, num, subject)
-          return None, None, None, None, None, None, None, None
+        print(f"Content too long for UID {num}: {len(content)} characters.")
+        self.send_error_email(from_, subject, "Content too long")
+        self.mark_as_seen(num)
+        self.update_processed_threads(message_id, num, subject)
+        return None, None, None, None, None, None, None, None
 
       # Check if the email contains attachments
       if email_message.is_multipart() and any(
@@ -304,28 +304,30 @@ class EmailServer:
     print(f"Handling email from: {from_}")
     print(f"To emails: {to_emails}")
     print(f"CC emails: {cc_emails}")
-    print(f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:100]}...")
+    print(
+        f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:100]}..."
+    )
     result = handle_document_short_code(
         thread_content, self.agent_selector.openai_api_key,
         self.agent_selector.conversation_history)
     structured_response = result.get('structured_response')
-    
+
     # Replace the shortcodes to prevent them from being processed again
     thread_content = re.sub(r'!\w+\(.*?\)', '', thread_content)
 
     if structured_response is not None:
-        shortcode_type = structured_response.get("type")
+      shortcode_type = structured_response.get("type")
 
     if shortcode_type in ["style", "detail"]:
-        structured_response = result.get('content', None)
-        new_content = result.get('new_content', thread_content)
+      structured_response = result.get('content', None)
+      new_content = result.get('new_content', thread_content)
 
     if shortcode_type == "detail":
-        # Stitch the detailed responses together
-        stitched_response = "\n\n".join(structured_response)
-        # Use the stitched response as the thread_content for further processing
-        thread_content = stitched_response
-      
+      # Stitch the detailed responses together
+      stitched_response = "\n\n".join(structured_response)
+      # Use the stitched response as the thread_content for further processing
+      thread_content = stitched_response
+
     elif shortcode_type is not None:
       print("Unhandled response_data type.")
 
@@ -423,9 +425,12 @@ class EmailServer:
         continue
 
       # If the previous message in the thread was from an agent, skip sending the response
-      if previous_responses and isinstance(previous_responses[-1], dict) and 'from_' in previous_responses[-1] and previous_responses[-1]['from_'] in [
-    agent["email"] for agent in self.agent_manager.agents.values()
-]:
+      if previous_responses and isinstance(
+          previous_responses[-1], dict) and 'from_' in previous_responses[
+              -1] and previous_responses[-1]['from_'] in [
+                  agent["email"]
+                  for agent in self.agent_manager.agents.values()
+              ]:
 
         # Check for explicit tags or 'ff!' shortcode in the content
         if "!ff!" not in thread_content and not any(
