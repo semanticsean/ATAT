@@ -108,10 +108,13 @@ class AgentSelector:
                              content,
                              additional_context=None):
     with self.lock:
-      # Check if the !useLastResponse shortcode exists
-      if "!useLastResponse" in content:
-        # If it exists, wrap the last agent's response in !detail() and prepend to content
-        content = f"!detail({self.last_agent_response}) {content.replace('!useLastResponse', '').strip()}"
+      # Check if the !previousResponse keyword exists
+      if "!previousResponse" in content:
+        # If it exists, replace it with the last agent's response
+        content = content.replace('!previousResponse',
+                                  self.last_agent_response)
+        content = content.replace('!useLastResponse', '').strip()
+
     responses = []
     dynamic_prompt = ""
     agent = agent_manager.get_agent(agent_name, case_sensitive=False)
