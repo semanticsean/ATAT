@@ -38,22 +38,28 @@ def handle_document_short_code(email_content,
     result = {'type': None, 'content': None, 'new_content': email_content}
 
     # Handling !detail short-code using unique delimiters
-    detail_matches = re.findall(r"!detail_start!(.*?)!detail_stop!",
-                                email_content, re.DOTALL)
+    detail_matches = re.findall(r"!detail_start!(.*?)!detail_stop!", email_content, re.DOTALL)
     if detail_matches:
         detailed_responses = []
         for match in detail_matches:
             detail_content = match.strip()
-
+            
+            print(f"Matched !detail content: {detail_content[:100]}...")  # Debug: print the first 100 characters
+    
             # Check if the content has the !previousResponse keyword and replace it
             if "!previousResponse" in detail_content:
-                detail_content = detail_content.replace('!previousResponse',
-                                                        last_agent_response)
-
+                detail_content = detail_content.replace('!previousResponse', last_agent_response)
+    
             # Split content based on !split and treat each section as a separate chunk
             split_sections = re.split(r'!split!', detail_content)
-            detailed_responses.extend(
-                [section.strip() for section in split_sections if section.strip()])
+            
+            for section in split_sections:  # Debug: print each split section
+                print(f"Split section (first 100 characters): {section.strip()[:100]}...")
+    
+            detailed_responses.extend([section.strip() for section in split_sections if section.strip()])
+    
+        # Rest of the code...
+    
 
         new_email_content = re.sub(r"!detail_start!(.*?)!detail_stop!",
                                    "",
