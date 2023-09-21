@@ -40,7 +40,7 @@ def handle_document_short_code(email_content,
   result = {'type': None, 'content': None, 'new_content': email_content}
 
   # Handling !detail short-code using unique delimiters
-  detail_matches = re.findall(r"!detail_start!(.*?)!detail_end!",
+  detail_matches = re.findall(r"!detail_start!(.*?)!detail_stop!",
                               email_content, re.DOTALL)
   if detail_matches:
     detailed_responses = []
@@ -53,11 +53,11 @@ def handle_document_short_code(email_content,
                                                 last_agent_response)
 
       # Split content based on !split and treat each section as a separate chunk
-      split_sections = re.split(r'!split', detail_content)
+      split_sections = re.split(r'!split!', detail_content)
       detailed_responses.extend(
           [section.strip() for section in split_sections if section.strip()])
 
-    new_email_content = re.sub(r"!detail_start!(.*?)!detail_end!",
+    new_email_content = re.sub(r"!detail_start!(.*?)!detail_stop!",
                                "",
                                email_content,
                                flags=re.DOTALL).strip()
@@ -68,7 +68,7 @@ def handle_document_short_code(email_content,
 
   # Handling !summarize short-code using unique delimiters
   summarize_matches = re.findall(
-      r"!summarize\.(.*?)_start!(.*?)!summarize_end!", email_content,
+      r"!summarize\.(.*?)_start!(.*?)!summarize_stop!", email_content,
       re.DOTALL)
   if summarize_matches:
     modality, summarize_content = summarize_matches[0]
@@ -85,10 +85,11 @@ def handle_document_short_code(email_content,
     else:
       summarized_responses = [summarize_content]
 
-    new_email_content = re.sub(r"!summarize\.(.*?)_start!(.*?)!summarize_end!",
-                               "",
-                               email_content,
-                               flags=re.DOTALL).strip()
+    new_email_content = re.sub(
+        r"!summarize\.(.*?)_start!(.*?)!summarize_stop!",
+        "",
+        email_content,
+        flags=re.DOTALL).strip()
     result['type'] = 'summarize'
     result['content'] = summarized_responses
     result['modality'] = modality
