@@ -2746,3 +2746,57 @@ This budget will ensure that we can effectively implement the ASU Prep Microscho
 2023-09-21 23:03:47,885 [ERROR]: Exception while processing emails: 'idx + 1'
 2023-09-21 23:09:00,201 [ERROR]: Exception while processing emails: 'idx + 1'
 2023-09-21 23:10:30,931 [ERROR]: Exception while processing emails: 'structured_response_guidelines'
+2023-09-21 23:14:05,691 [INFO]: Generated response for devrinn: Overview
+
+What is the name of your organization?
+SUNSCHOOL
+
+What is the name of your innovation?
+Emergent Learning Principle-based Curriculum and Community Engagement Model
+
+Which of the following describes your organization?*
+● A nonprofit corporation recognized by the Internal Revenue Service (the “IRS”) as a tax-exempt organization described in Section 501(c)(3) of the Internal Revenue Code of 1986, as amended (the “Code”) and a public charity within the meaning of Code Section 509(a)(1) or 509(a)(2);
+
+For which theme are you applying?
+● Career Exploration for Young Adolescents
+
+What is your innovation?
+Our innovation is a unique co-working and co-learning model that integrates AI-driven creative storytelling, real-world education, and community engagement. The curriculum is driven by the emergent learning principle, making SUNSCHOOL a hub for homeschoolers, un-schoolers, and after-schoolers. Our expansive schedule includes Robotics Workshop, AI Generated Stories, Financial Literacy for Women, Virtual Reality Adventures, Astronomy Nights, and more.
+
+Where is your organization's primary location?
+Austin, Texas
+
+Where will you pilot your innovation?
+Santa Monica, California and Tempe, Arizona
+
+Which learner age range(s) does your innovation ultimately aim to serve?
+● Ages 11-13
+● Ages 14-18
+
+What is your innovation's stage of development?
+Our innovation is in its expansion phase. We have successfully implemented our model with 70 families in Austin and are now ready to expand our reach to Santa Monica and Tempe. Innovation & Potential for Impact
+What specific problem does your innovation address?
+Our innovation addresses the challenge of providing a holistic, engaging, and real-world education that fosters individual growth and community bonding. Traditional educational models often fail to cater to diverse learning styles, leaving some learners feeling disengaged or left behind. Our emergent learning principle-based curriculum and community engagement model aim to bridge this gap.
+
+Who does your innovation primarily serve?
+Our innovation primarily serves families with children aged 5-18, including homeschoolers, un-schoolers, and after-schoolers. We also offer adult programs, serving individuals as old as 105.
+
+Which historically underserved groups does your innovation primarily aim to serve?
+We aim to serve historically underserved groups such as low-income families and communities lacking access to quality educational resources and enrichment opportunities.
+
+What percentage of total learners represent historically underserved groups?
+Approximately 30% of our total learners represent historically underserved groups.
+
+Of the groups you selected, which learners from historically underserved groups do you aim to focus on?
+We aim to focus on low-income families who often lack access to quality education and enrichment opportunities due to financial constraints.
+
+How does your innovation address inequities faced by learners from the historically underserved groups you selected above?
+SUNSCHOOL's innovative model addresses these inequities by providing equal access to our unique co-learning and co-working model regardless of socioeconomic status. We offer scholarships and financial aid programs, ensuring that families from all backgrounds can access our quality education without financial constraints. Our diverse learning avenues and emphasis on community building also provide an inclusive environment for all learners.
+
+What unique value does your innovation offer to your primary learner population?
+Our innovation offers a unique blend of academic learning, real-world application, and community engagement. We provide a flexible and diverse learning environment that caters to different learning styles and interests. Furthermore, our emphasis on community building fosters a sense of belonging and mutual support among our learners.
+
+How will you measure the effectiveness of your innovation?
+We will measure the effectiveness of our innovation through a combination of qualitative and quantitative methods, including learner feedback, academic performance tracking, participation rates in community events, and the number of successful graduates who transition to further education or employment. We will also track the number of historically underserved learners we reach and their progress over time.
+
+- GENERATIVE AI AGENT: devrinn
