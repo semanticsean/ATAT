@@ -7,6 +7,11 @@ import logging
 from shortcode import handle_document_short_code
 
 
+def load_instructions(filename='agents/instructions.json'):
+  with open(filename, 'r') as file:
+    return json.load(file)
+
+
 class AgentSelector:
 
   def __init__(self, max_agents=12):
@@ -17,6 +22,7 @@ class AgentSelector:
     self.conversation_history = ""
     self.invoked_agents = {}
     self.last_agent_response = ""
+    self.instructions = load_instructions()
 
   def reset_for_new_thread(self):
     self.invoked_agents.clear()
@@ -35,24 +41,11 @@ class AgentSelector:
     persona = agent_manager.get_agent_persona(agent_name)
     persona_context = f"You are {agent_name}. {persona}" if persona else f"You are {agent_name}."
 
-    instructions = (
-        f"{order_context} You are a helpful assistant tasked with facilitating a meaningful conversation. "
-        "Adhere to the guidelines and structure provided to you. "
-        "Engage in a manner that is respectful and considerate, keeping in mind the needs and expectations of the recipients. "
-        "Remember to maintain a balance between creativity and formality. "
-        "As an AI, always disclose your nature and ensure to provide detailed and substantial responses. "
-        "Stay on topic and avoid introducing unrelated information. If the user's query is a question, ensure to provide a clear and direct answer. "
-        "Ensure your responses are well-formatted and avoid regurgitating the user's instructions verbatim. "
-        "Avoid referencing past threads and always prioritize the safety and privacy of personal data. "
-        "Do not mention people, synthetic agents, or others who are not in the current email thread, unless expressly mentioned. "
-        "The user knows you are an AI developed by OpenAI, and does not need to be told."
-    )
+    instructions = self.instructions['default']['main_instructions']
 
     if structured_response:
-      instructions += (
-          "\n\nIMPORTANT: Your response must strictly adhere to the following "
-          "structure/information architecture. Please ensure to comply fully "
-          "and completely in all cases: ")
+      instructions += self.instructions['default'][
+          'structured_response_guidelines']
       instructions += f"\n\n=== STRUCTURED RESPONSE GUIDELINES ===\n{structured_response}\n=== END OF GUIDELINES ==="
 
     return f"{persona_context}. {instructions}. Act as this agent:"
@@ -109,9 +102,7 @@ class AgentSelector:
                              additional_context=None):
 
     with self.lock:
-      # Check if the !previousResponse keyword exists
       if "!previousResponse" in content:
-        # If it exists, replace it with the last agent's response
         content = content.replace('!previousResponse',
                                   self.last_agent_response)
         content = content.replace('!useLastResponse', '').strip()
@@ -124,8 +115,6 @@ class AgentSelector:
       logging.warning(f"No agent found for name {agent_name}. Skipping...")
       return ""
 
-    logging.debug(f"Content before parsing: {content}")
-
     result = handle_document_short_code(content, self.openai_api_key,
                                         self.conversation_history)
     if result is None:
@@ -137,61 +126,17 @@ class AgentSelector:
 
     if result['type'] == 'summarize':
       modality = result.get('modality')
-      if modality == "json":
-        additional_context = (
-            "You are a SUMMARIZER agent. You summarize into data structures. You summarize content into json and json only. You make an appropriate json structure and populate it with requisite information."
-            "Please provide a json-only response. Try to be consistent in using json, but not at the cost of clarity of schema and ontology. Now summarize this as json without losing information and key facts and facets:"
-        )
-      elif modality == "meeting":
-        additional_context = (
-            "You are tasked with summarizing a meeting agenda. "
-            "Highlight the key points and main topics discussed.")
-      # ... (other modalities can be added similarly)
-      elif modality == "llminstructions":
-        additional_context = (
-            "You are tasked with summarizing instructions for the LLM model. "
-            "Maintain clarity and precision, ensuring that the essence of the instructions is retained. "
-            "Avoid redundancy and ensure that the summary is actionable. "
-            "Remember, LLM instructions must be concise yet comprehensive, so prioritize essential details. "
-            "Ideal formatting includes using clear, directive language and bullet points or numbered lists for steps or guidelines. "
-            "Ensure that any conditions, prerequisites, or exceptions are clearly highlighted. "
-            "Your goal is to provide a summarized version that an LLM user can quickly understand and act upon without losing any critical information from the original instructions."
-        )
-
-      else:
-        additional_context = (
-            "You are tasked with summarizing the content. "
-            "Provide a concise and clear summary. Don't be so concise that you sacrifice information integrity. You are a data scientist."
-        )
+      additional_context = self.instructions.get(modality,
+                                                 self.instructions['default'])
 
     if result['type'] == 'detail':
-      logging.debug("Handling detail shortcode with split content.")
       chunks = result.get('content', [])
-      logging.info(
-          f"Identified {len(chunks)} chunks using !detail and !split shortcodes: {chunks}"
-      )
       self.conversation_history = self.conversation_history[-16000:]
 
       for idx, chunk in enumerate(chunks):
-        additional_context_chunk = (
-            "This is part {idx + 1} of {len(chunks)} detail responses. "
-            "Maintain consistency and avoid redundant comments. "
-            "Stay focused and avoid digressions. "
-            "Answer queries clearly and directly, ensuring well-formatted responses without simply repeating instructions. "
-            "For open-ended questions, provide comprehensive answers; for concise queries, be succinct. "
-            "Directly address forms or applications without discussing the instructions. "
-            "Remember your audience is human and desires meaningful answers. "
-            "Stick to word counts; when unspecified, be verbose. "
-            "Answer numerical questions precisely, e.g., provide actual budgets rather than discussing them. "
-            "Avoid placeholders and always be genuinely creative. "
-            "Aim for detailed, relevant content, preferring excess over scarcity. "
-            "When necessary, provide justified solutions. "
-            "Refrain from posing questions unless asked. "
-            "Communicate with charisma and clarity. "
-            "If playing an eccentric role, commit fully. "
-            "For forms or applications, retain section headers, numbering, and questions above your response. "
-            "For example, if asked 'Organization's Name?', answer as 'Organization's Name? \n\n ACME Corporation'."
-        )
+        additional_context_chunk = self.instructions['detail'][
+            'additional_context_chunk'].format(part_number=idx + 1,
+                                               total_parts=len(chunks))
 
         dynamic_prompt = self._create_dynamic_prompt(
             agent_manager, agent_name, order, total_order,
@@ -232,7 +177,6 @@ class AgentSelector:
         (agent_name, final_response))
     logging.info(f"Generated response for {agent_name}: {final_response}")
 
-    # Update the last agent's response
     self.last_agent_response = final_response
 
     return final_response
