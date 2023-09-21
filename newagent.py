@@ -6,14 +6,17 @@ import openai
 from jsonschema import validate, ValidationError, SchemaError
 
 
-def read_description(description_or_path):
-  if os.path.isfile(description_or_path):
-    with open(description_or_path, 'r') as file:
-      return file.read().strip()
-  return description_or_path
+def read_description(file_path):
+  with open(file_path, 'r') as file:
+    return file.read().strip()
 
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+def read_generic_agent():
+  with open("newagent-generic.json", "r") as file:
+    return json.load(file)['generic']['persona']
+
+
+openai.api_key = os.getenv("OPENAI_API_KEY_2")
 
 # JSON Schema for the agent entries
 schema = {
@@ -48,7 +51,7 @@ def generate_persona(base_persona, modification_instructions):
           "role":
           "system",
           "content":
-          "You are a capable AI that can generate persona descriptions based on existing ones."
+          "You are an advanced AI model designed to generate detailed persona descriptions based on prior information and additional instructions. If you are told about a generic agent as inspiration, you provide all the same details, but in high resolution for the agent you are creating. "
       }, {
           "role": "user",
           "content": f"{base_persona}"
@@ -70,34 +73,25 @@ def validate_json(json_data):
 
 
 def add_new_agent(base_agent_id, modification_instructions, new_name):
-  # Load agents
   with open("agents/agents.json", "r") as file:
     agents = json.load(file)
 
   if validate_json(agents):
     backup_file("agents/agents.json")
-
-    # Find base agent
     base_agent = next((a for a in agents if a['id'] == base_agent_id), None)
     if not base_agent:
       print(f"No agent found with id: {base_agent_id}")
       return
 
-    # Generate new persona based on modification instructions
     new_persona = generate_persona(base_agent['persona'],
                                    modification_instructions)
-
-    # Create new agent
     new_agent = {
         "id": new_name,
         "email": base_agent['email'],
         "persona": new_persona
     }
-
-    # Append new agent
     agents.append(new_agent)
 
-    # Check if it is still valid json
     if validate_json(agents):
       with open("agents/agents.json", "w") as file:
         json.dump(agents, file, indent=4)
@@ -109,18 +103,47 @@ def add_new_agent(base_agent_id, modification_instructions, new_name):
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(
       description=
-      'Create a new agent based on an existing agent and description.')
-  parser.add_argument('existingAgentReference',
-                      type=str,
-                      help='ID of the existing agent')
+      'Create a new agent based on an existing agent or a generic profile and a local text file description.'
+  )
   parser.add_argument('newAgentName',
                       type=str,
                       help='New name (ID) for the agent')
   parser.add_argument(
-      'description',
+      'descriptionFilePath',
       type=str,
-      help='Description for the new persona or file path to a txt or md file')
+      help=
+      'Path to a .txt or .md file containing the description for the new persona'
+  )
+  parser.add_argument(
+      '--parent', type=str, help='ID of the existing agent',
+      default=None)  # Added this line for the --parent argument
   args = parser.parse_args()
 
-  description = read_description(args.description)
-  add_new_agent(args.existingAgentReference, description, args.newAgentName)
+  description = read_description(args.descriptionFilePath)
+
+  if args.parent:  # If --parent is provided
+    add_new_agent(args.parent, description, args.newAgentName)
+  else:  # If --parent is not provided
+    generic_persona = read_generic_agent()
+    new_agent_persona = generate_persona(generic_persona, description)
+
+    # Assuming a default email for the generic agent, replace 'default@email.com' with an appropriate email
+    new_agent = {
+        "id": args.newAgentName,
+        "email": "agent@semantic-life.com",
+        "persona": new_agent_persona
+    }
+
+    with open("agents/agents.json", "r") as file:
+      agents = json.load(file)
+
+    if validate_json(agents):
+      backup_file("agents/agents.json")
+      agents.append(new_agent)
+
+      if validate_json(agents):
+        with open("agents/agents.json", "w") as file:
+          json.dump(agents, file, indent=4)
+      else:
+        print("New agent not valid. Restoring backup...")
+        restore_backup("agents/agents.json")
