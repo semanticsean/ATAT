@@ -137,6 +137,7 @@ class AgentSelector:
       print(
           "Error: agent_selector - handle_document_short_code returned None.")
       return False
+
     structured_response = result.get('structured_response')
     new_content = result.get('new_content')
 
@@ -172,47 +173,41 @@ class AgentSelector:
 
     if result['type'] == 'detail':
       logging.debug("Handling detail shortcode with split content.")
-      chunks = result.get('content', [])
-      logging.info(
-          f"Identified {len(chunks)} chunks using !detail and !split shortcodes: {chunks}"
-      )
+      chunks = result.get('content')
+      if not isinstance(chunks, list):
+        chunks = []
+
       self.conversation_history = self.conversation_history[-16000:]
 
-      print(
-          "=== Processing !summarize shortcode in get_response_for_agent ===")
-
       for idx, chunk in enumerate(chunks):
-        print(f"Chunk {idx+1} (first 100 characters): {chunk[:100]}...")
+        additional_context_chunk = (
+            f"This is part {idx + 1} of {len(chunks)} detail responses."
+            "Maintain consistency and avoid redundant comments. "
+            "Stay focused and avoid digressions. "
+            "Answer queries clearly and directly, ensuring well-formatted responses without simply repeating instructions. "
+            "For open-ended questions, provide comprehensive answers; for concise queries, be succinct. "
+            "Directly address forms or applications without discussing the instructions. "
+            "Remember your audience is human and desires meaningful answers. "
+            "Stick to word counts; when unspecified, be verbose. "
+            "Answer numerical questions precisely, e.g., provide actual budgets rather than discussing them. "
+            "Avoid placeholders and always be genuinely creative. "
+            "Aim for detailed, relevant content, preferring excess over scarcity. "
+            "When necessary, provide justified solutions. "
+            "Refrain from posing questions unless asked. "
+            "Communicate with charisma and clarity. "
+            "If playing an eccentric role, commit fully. "
+            "For forms or applications, retain section headers, numbering, and questions above your response. "
+            "For example, if asked 'Organization's Name?', answer as 'Organization's Name? \n\n ACME Corporation'."
+        )
 
-      additional_context_chunk = (
-          "This is part {idx + 1} of {len(chunks)} detail responses."
-          "Maintain consistency and avoid redundant comments. "
-          "Stay focused and avoid digressions. "
-          "Answer queries clearly and directly, ensuring well-formatted responses without simply repeating instructions. "
-          "For open-ended questions, provide comprehensive answers; for concise queries, be succinct. "
-          "Directly address forms or applications without discussing the instructions. "
-          "Remember your audience is human and desires meaningful answers. "
-          "Stick to word counts; when unspecified, be verbose. "
-          "Answer numerical questions precisely, e.g., provide actual budgets rather than discussing them. "
-          "Avoid placeholders and always be genuinely creative. "
-          "Aim for detailed, relevant content, preferring excess over scarcity. "
-          "When necessary, provide justified solutions. "
-          "Refrain from posing questions unless asked. "
-          "Communicate with charisma and clarity. "
-          "If playing an eccentric role, commit fully. "
-          "For forms or applications, retain section headers, numbering, and questions above your response. "
-          "For example, if asked 'Organization's Name?', answer as 'Organization's Name? \n\n ACME Corporation'."
-      )
+        dynamic_prompt_chunk = self._create_dynamic_prompt(
+            agent_manager, agent_name, order + idx, total_order + len(chunks),
+            additional_context_chunk or additional_context)
 
-      dynamic_prompt_chunk = self._create_dynamic_prompt(
-          agent_manager, agent_name, order + idx, total_order + len(chunks),
-          additional_context_chunk.format(idx=idx, total_len=len(chunks))
-          or additional_context)
-
-      response = gpt_model.generate_response(dynamic_prompt_chunk, chunk,
-                                             self.conversation_history)
-      responses.append(response)
-      self.conversation_history += f"\n{agent_name} said: {response}"
+        response = gpt_model.generate_response(dynamic_prompt_chunk, chunk,
+                                               self.conversation_history)
+        responses.append(response)
+        self.conversation_history += f"\n{agent_name} said: {response}"
 
     elif result['type'] == 'summarize':
       # Handling summarize shortcode with split content
