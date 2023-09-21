@@ -29,46 +29,81 @@ def auto_split_content(content, char_limit=3000):
   return chunks
 
 
-def handle_document_short_code(email_content, api_key, conversation_history=None, last_agent_response=""):
+def handle_document_short_code(email_content,
+                               api_key,
+                               conversation_history=None,
+                               last_agent_response=""):
+  """
+    This function handles both the !detail and !summarize shortcodes.
     """
-    This modified function will handle the !detail shortcode and split the content based on the !split delimiter.
-    """
-    # Initialize the result dictionary
-    result = {'type': None, 'content': None, 'new_content': email_content}
-    
-    # ... [rest of the function up to the Handling !detail short-code section]
+  # Initialize the result dictionary
+  result = {'type': None, 'content': None, 'new_content': email_content}
 
-    # Handling !detail short-code
-    detail_matches = re.findall(r"!detail\((.*?)\)!detail", email_content, re.DOTALL)
-    if not detail_matches:
-        detail_matches = re.findall(r"!detail\((.*?)$", email_content, re.DOTALL)
+  # Handling !detail short-code using unique delimiters
+  detail_matches = re.findall(r"!detail_start!(.*?)!detail_end!",
+                              email_content, re.DOTALL)
+  if detail_matches:
+    detailed_responses = []
+    for match in detail_matches:
+      detail_content = match.strip()
 
-    if detail_matches:
-        detailed_responses = []
-        for match in detail_matches:
-            detail_content = match.strip()
+      # Check if the content has the !previousResponse keyword and replace it
+      if "!previousResponse" in detail_content:
+        detail_content = detail_content.replace('!previousResponse',
+                                                last_agent_response)
 
-            # Check if the content has the !previousResponse keyword and replace it
-            if "!previousResponse" in detail_content:
-                detail_content = detail_content.replace('!previousResponse', last_agent_response)
+      # Split content based on !split and treat each section as a separate chunk
+      split_sections = re.split(r'!split', detail_content)
+      detailed_responses.extend(
+          [section.strip() for section in split_sections if section.strip()])
 
-            # Split content based on !split and treat each section as a separate chunk
-            split_sections = re.split(r'!split', detail_content)
-            detailed_responses.extend([section.strip() for section in split_sections if section.strip()])
-
-        new_email_content = re.sub(r"!detail\((.*?)\)!detail", "", email_content, flags=re.DOTALL)
-        if not new_email_content:
-            new_email_content = re.sub(r"!detail\((.*?)$", "", email_content, flags=re.DOTALL).strip()
-        result['type'] = 'detail'
-        result['content'] = detailed_responses
-        result['new_content'] = new_email_content
-        print(f"Split sections: {split_sections}")
-        return result
-    
+    new_email_content = re.sub(r"!detail_start!(.*?)!detail_end!",
+                               "",
+                               email_content,
+                               flags=re.DOTALL).strip()
+    result['type'] = 'detail'
+    result['content'] = detailed_responses
+    result['new_content'] = new_email_content
     return result
 
+  # Handling !summarize short-code using unique delimiters
+  summarize_matches = re.findall(
+      r"!summarize\.(.*?)_start!(.*?)!summarize_end!", email_content,
+      re.DOTALL)
+  if summarize_matches:
+    modality, summarize_content = summarize_matches[0]
+    summarize_content = summarize_content.strip()
 
-def split_content_into_chunks(content, max_char_count=6000):
+    # Check if the content has the !previousResponse keyword and replace it
+    if "!previousResponse" in summarize_content:
+      summarize_content = summarize_content.replace('!previousResponse',
+                                                    last_agent_response)
+
+    # Check if the summarize_content is too long and needs splitting
+    if len(summarize_content) > 3000:  # or any other limit you prefer
+      summarized_responses = auto_split_content(summarize_content)
+    else:
+      summarized_responses = [summarize_content]
+
+    new_email_content = re.sub(r"!summarize\.(.*?)_start!(.*?)!summarize_end!",
+                               "",
+                               email_content,
+                               flags=re.DOTALL).strip()
+    result['type'] = 'summarize'
+    result['content'] = summarized_responses
+    result['modality'] = modality
+    result['new_content'] = new_email_content
+    return result
+
+  # Ensuring result is a dictionary before returning
+  if not isinstance(result, dict):
+    result = {'type': None, 'content': None, 'new_content': email_content}
+
+  # Ensuring result is a dictionary before returning
+  return {'type': None, 'content': None, 'new_content': email_content}
+
+
+def split_content_into_chunks(content, max_char_count=9000):
   chunks = []
   # Split the content into sentences
   sentences = re.split('(?<=[.!?]) +', content.strip())

@@ -152,9 +152,9 @@ class EmailServer:
       else:
         content = email_message.get_payload()
 
-      # Adjust character limit based on the presence of !detail shortcode
-      MAX_LIMIT = 15000
-      if "!detail" in content:
+      # Adjust character limit based on the presence of !detail or !summarize shortcodes
+      MAX_LIMIT = 35000
+      if "!detail" in content or re.search(r"!summarize\.", content):
         MAX_LIMIT = 200000
 
       # Check if the content is too long
@@ -310,6 +310,10 @@ class EmailServer:
     result = handle_document_short_code(
         thread_content, self.agent_selector.openai_api_key,
         self.agent_selector.conversation_history)
+    
+    if result is None:
+        print("Error: email server - handle_document_short_code returned None.")
+        return False
     structured_response = result.get('structured_response')
 
     # Replace the shortcodes to prevent them from being processed again

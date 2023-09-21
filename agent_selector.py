@@ -107,6 +107,7 @@ class AgentSelector:
                              total_order,
                              content,
                              additional_context=None):
+
     with self.lock:
       # Check if the !previousResponse keyword exists
       if "!previousResponse" in content:
@@ -127,8 +128,41 @@ class AgentSelector:
 
     result = handle_document_short_code(content, self.openai_api_key,
                                         self.conversation_history)
+    if result is None:
+      print(
+          "Error: agent_selector - handle_document_short_code returned None.")
+      return False
     structured_response = result.get('structured_response')
     new_content = result.get('new_content')
+
+    if result['type'] == 'summarize':
+      modality = result.get('modality')
+      if modality == "json":
+        additional_context = (
+            "You are a SUMMARIZER agent. You summarize into data structures. You summarize content into json and json only. You make an appropriate json structure and populate it with requisite information."
+            "Please provide a json-only response. Try to be consistent in using json, but not at the cost of clarity of schema and ontology. Now summarize this as json without losing information and key facts and facets:"
+        )
+      elif modality == "meeting":
+        additional_context = (
+            "You are tasked with summarizing a meeting agenda. "
+            "Highlight the key points and main topics discussed.")
+      # ... (other modalities can be added similarly)
+      elif modality == "llminstructions":
+        additional_context = (
+            "You are tasked with summarizing instructions for the LLM model. "
+            "Maintain clarity and precision, ensuring that the essence of the instructions is retained. "
+            "Avoid redundancy and ensure that the summary is actionable. "
+            "Remember, LLM instructions must be concise yet comprehensive, so prioritize essential details. "
+            "Ideal formatting includes using clear, directive language and bullet points or numbered lists for steps or guidelines. "
+            "Ensure that any conditions, prerequisites, or exceptions are clearly highlighted. "
+            "Your goal is to provide a summarized version that an LLM user can quickly understand and act upon without losing any critical information from the original instructions."
+        )
+
+      else:
+        additional_context = (
+            "You are tasked with summarizing the content. "
+            "Provide a concise and clear summary. Don't be so concise that you sacrifice information integrity. You are a data scientist."
+        )
 
     if result['type'] == 'detail':
       logging.debug("Handling detail shortcode with split content.")
