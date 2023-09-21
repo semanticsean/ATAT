@@ -1,0 +1,198 @@
+Bradley Reynolds  3rd degree connection3rd
+AI Consultant - Enterprise LLM
+
+Yellowfin Holdings
+Cleveland, Ohio, United States  Contact info
+
+
+Connect
+
+Message
+
+More
+AboutAbout
+Enterprise Large Language Models combine the power of ChatGPT-type engines within the data governance policies of the enterprise. At Yellowfin we can help you through any step of the process from high-level strategy to architecture, implementation and ongoing operations. 
+
+If employees use ChatGPT or other public LLMs, intellectual property can easily leak into the public sphere. By creating and hosting your own ChatGPT-like LLM, you can harness the power of ChatGPT responsibly while deeply coupling it with internal data. 
+
+Start having conversations with your company's data today and unlock the power of LLM in your organization.Enterprise Large Language Models combine the power of ChatGPT-type engines within the data governance policies of the enterprise. At Yellowfin we can help you through any step of the process from high-level strategy to architecture, implementation and ongoing operations. If employees use ChatGPT or other public LLMs, intellectual property can easily leak into the public sphere. By creating and hosting your own ChatGPT-like LLM, you can harness the power of ChatGPT responsibly while deeply coupling it with internal data. Start having conversations with your company's data today and unlock the power of LLM in your organization.…see more
+Top skillsTop skills
+Enterprise LLM • ChatGPT • Vector Databases - Pinecone Weaviate ChromaDB Milvus • Large Language Models (LLM)Enterprise LLM • ChatGPT • Vector Databases - Pinecone Weaviate ChromaDB Milvus • Large Language Models (LLM)
+ActivityActivity
+20,071 followers20,071 followers
+
+
+Posts
+
+Comments
+
+Images
+Loaded 3 Posts posts
+Bradley Reynolds posted this • 2d2d
+Microsoft 38TB AI Training Data Leak: While I'm all for accelerating AI progress, the data used to train can often be highly proprietary if not consequential from a security perspective. Proper data controls should exist over everything including things like PII / confidential information redaction from folks like Skyflow and others. 
+
+Because AI consumes huge amounts of data both in pretraining and steady-state inference augmentation, appropriate safeguards need to be taken to avoid leaking information outside of the data governance policies of an organization. It further focuses attention on the public vs private debate in terms and the need to keep very tight controls on anything that may end up in a public setting.
+
+For instance, while SaaS AI vendors may say that your data is protected, not used in training, etc, once that data leaves your company's control, assume all bets are off. 
+
+https://lnkd.in/gKmHMXcA
+…show more
+
+38TB of data accidentally exposed by Microsoft AI researchers | Wiz Blog
+wiz.io • 1 min read
+likeinsightful
+5
+Bradley Reynolds posted this • 4d4d
+I'll be at Anyscale's Ray Summit in SF 9/18 and 9/19. Anyscale's Ray has been used by a lot of major firms to deploy GenAI/LLM/Inference at scale. As enterprise GenAI architectures are moving from POC to deployment, Anyscale addresses a lot of the engineering concerns. Its going to be a technical firehose, and most importantly there will be a lot of real-world use cases to discuss and debate. This conference is the cutting edge of enterprise GenAI deployment. 
+
+Excited to learn more from folks like Ben Horowitz, Jerry Liu, Harrison Chase, Robert Nishihara, Ion Stoica, Ya Xu, Brian McClendon and many many others. 
+
+Happy to meet up with any enterprise AI folks to talk shop, just message me or email me at brad@yellowfinholdings.com 
+
+https://lnkd.in/ge5MgJPw
+…show more
+
+Ray Summit 2023
+raysummit.anyscale.com • 1 min read
+like
+2
+Bradley Reynolds reposted this • 5d5d
+
+Nice post from Peter Walker on options grant ranges startups give to advisors based on stats from over 20,000 grants. Having the right early advisors can add tremendous value by opening doors and helping with strategy, but you don't want to over or under grant for many reasons. 
+
+Some of the Ohio VC/Seed crew, you may find this informative: Ry Walker Tim Metzner Todd Federman Daniel Luketic Ray Leach Hardik Desai Morris H Wheeler…show more
+like
+2
+2 comments
+Show all posts
+ExperienceExperience
+Yellowfin Holdings logo
+AI Consultant - Enterprise LLMAI Consultant - Enterprise LLM
+Yellowfin Holdings · Full-timeYellowfin Holdings · Full-time
+Feb 2022 - Present · 1 yr 8 mosFeb 2022 - Present · 1 yr 8 mos
+Cleveland, Ohio, United States · On-siteCleveland, Ohio, United States · On-site
+Helping Enterprises create Private ChatGPTs so they can harness the power of Large Language Models while protecting confidential company information.
+
+Areas of Service:
+
+* General AI strategic planning - Map out quick hits and long term plans
+* LLM Strategy / Planning - What is the current landscape? how does it comply with data governance requirements
+* Vector Database Design/Planning/Implementation (Pincone/Milvus/Elastic/Weaviate/ChromaDB and others)
+* Language Model pretraining/fine-tuning. Options to use public or proprietary/internal models.
+* Chat interface design/implementation/UX/UI (Chatbot)
+* Central Orchestration (LangChain/LLamaIndex)
+* Datastores/Data Lakes (Databricks, VAST, Amazon, Snowflake, Elastic)
+* Backend resources, inference engine deployment and scaling.Helping Enterprises create Private ChatGPTs so they can harness the power of Large Language Models while protecting confidential company information. Areas of Service: * General AI strategic planning - Map out quick hits and long term plans * LLM Strategy / Planning - What is the current landscape? how does it comply with data governance requirements * Vector Database Design/Planning/Implementation (Pincone/Milvus/Elastic/Weaviate/ChromaDB and others) * Language Model pretraining/fine-tuning. Options to use public or proprietary/internal models. * Chat interface design/implementation/UX/UI (Chatbot) * Central Orchestration (LangChain/LLamaIndex) * Datastores/Data Lakes (Databricks, VAST, Amazon, Snowflake, Elastic) * Backend resources, inference engine deployment and scaling.…see more
+Skills: ChatGPT / OpenAI integrations · AI - Open Source LLMs · AI - LambdaLabs Deployment · AI Orchestration - LangChain / LLamaIndex · Vector Databases - Pinecone Weaviate ChromaDB Milvus · AI Embedding Models - OpenAI Cohere Huggingface · Data Pipelines - Databricks / Airflow · Pinecone · Vector Databases · LangChain · Large Language Models (LLM)Skills: ChatGPT / OpenAI integrations · AI - Open Source LLMs · AI - LambdaLabs Deployment · AI Orchestration - LangChain / LLamaIndex · Vector Databases - Pinecone Weaviate ChromaDB Milvus · AI Embedding Models - OpenAI Cohere Huggingface · Data Pipelines - Databricks / Airflow · Pinecone · Vector Databases · LangChain · Large Language Models (LLM)…see more
+ChairmanChairman
+BER Holdings, LLCBER Holdings, LLC
+2005 - Present · 18 yrs 9 mos2005 - Present · 18 yrs 9 mos
+BER Holdings invests in early to mid-stage technology companies focused on delivering telephony or SaaS products.BER Holdings invests in early to mid-stage technology companies focused on delivering telephony or SaaS products.
+Skills: AI - Open Source LLMs · AI - LambdaLabs Deployment · Business Strategy · Mergers and Acquisitions · EntrepreneurshipSkills: AI - Open Source LLMs · AI - LambdaLabs Deployment · Business Strategy · Mergers and Acquisitions · Entrepreneurship
+North Coast Ventures logo
+Member / InvestorMember / Investor
+North Coast Angel FundNorth Coast Angel Fund
+Jul 2015 - Present · 8 yrs 3 mosJul 2015 - Present · 8 yrs 3 mos
+North Coast Angel Fund (NCAF) is a contributed capital and “sidecar” pre-seed investment fund with a focus on early-stage technology investments. Our membership consists of over 180 of the region’s leading investors, entrepreneurs, and business leaders who are dedicated to accelerating early-stage ventures.North Coast Angel Fund’s members play an active role by generating deal flow, serving on due diligence teams, working with portfolio companies, or serving on the Investment Screening and Executive Committees. Through this involvement, our goal is to provide a supportive environment for our portfolio companies and ultimately enhance the performance of our Fund.Northeast Ohio has a long tradition of active and successful angel investing, but until recently, the success of this crucial form of funding has hinged on the efforts of a relatively small number of individual investors. As the region’s first professionally managed angel fund, North Coast Angel Fund works to improve the early-stage funding environment for both entrepreneurs and investors.North Coast Angel Fund (NCAF) is a contributed capital and “sidecar” pre-seed investment fund with a focus on early-stage technology investments. Our membership consists of over 180 of the region’s leading investors, entrepreneurs, and business leaders who are dedicated to accelerating early-stage ventures.North Coast Angel Fund’s members play an active role by generating deal flow, serving on due diligence teams, working with portfolio companies, or serving on the Investment Screening and Executive Committees. Through this involvement, our goal is to provide a supportive environment for our portfolio companies and ultimately enhance the performance of our Fund.Northeast Ohio has a long tradition of active and successful angel investing, but until recently, the success of this crucial form of funding has hinged on the efforts of a relatively small number of individual investors. As the region’s first professionally managed angel fund, North Coast Angel Fund works to improve the early-stage funding environment for both entrepreneurs and investors.…see more
+Skills: Mergers and Acquisitions · EntrepreneurshipSkills: Mergers and Acquisitions · Entrepreneurship
+ExpandMyReach.io logo
+CEOCEO
+ExpandMyReach.ioExpandMyReach.io
+Aug 2017 - Apr 2023 · 5 yrs 9 mosAug 2017 - Apr 2023 · 5 yrs 9 mos
+Cleveland/Akron, Ohio AreaCleveland/Akron, Ohio Area
+ExpandMyReach helps businesses identify and engage website prospects at the top of the marketing funnel.
+
+• Designed and implemented software architecture to identify and engage anonymous website visitors.
+• Sold first 30 clients (ARPU $750)
+• Created over 500M identity graphs of multi-device relationships.
+• Implemented an AI/ML system to employ fuzzy logic in identifying prospects based on incomplete information.
+• Created integrations with various lead-engagement tools like Pardot, Hubspot, Outreach, Salesloft, Salesforce
+• Created integrations with ad networks (Google, Microsoft, Adroll, and others) to programmatically deliver display advertisements to the identified prospects.ExpandMyReach helps businesses identify and engage website prospects at the top of the marketing funnel. • Designed and implemented software architecture to identify and engage anonymous website visitors. • Sold first 30 clients (ARPU $750) • Created over 500M identity graphs of multi-device relationships. • Implemented an AI/ML system to employ fuzzy logic in identifying prospects based on incomplete information. • Created integrations with various lead-engagement tools like Pardot, Hubspot, Outreach, Salesloft, Salesforce • Created integrations with ad networks (Google, Microsoft, Adroll, and others) to programmatically deliver display advertisements to the identified prospects.…see more
+Skills: Business Strategy · EntrepreneurshipSkills: Business Strategy · Entrepreneurship
+Expedient logo
+VP of Strategic Business InitiativesVP of Strategic Business Initiatives
+Expedient · Full-timeExpedient · Full-time
+Apr 2020 - Sep 2021 · 1 yr 6 mosApr 2020 - Sep 2021 · 1 yr 6 mos
+Cleveland, Ohio, United StatesCleveland, Ohio, United States
+Expedient is one of the leading national cloud and datacenter providers positioned between the build-your-own providers like AWS/Azure and self-hosting. I reported directly to the CRO/CSO with a responsibility for evaluating and implementing plans that would affect the business in a material fashion. Many items were cross functional and spanned either the Sales/Marketing organization or the entire organization.
+
+• Responsible for driving material strategic projects primarily on the revenue-generating side of the business with an additional concentration on corporate development work.
+• OKR: Implemented OKR management system across the entire business to improve strategic alignment and quantitative accountability. Selected and implemented the management software. Ensured buy-in across all executives of the business. Migrated the initial OKR system to a system that involved OKRs and 1:1s. Ultimately responsible for the overall strategic alignment and objective relationships across the organization.
+• SDR: Automated significant process in the SDR organization resulting in 10x increase in new meeting count. Hired and managed additional headcount (7 total) to scale out the SDR team on a national basis.
+• Corp Dev: Evaluated dozens of strategic acquisition candidates in the $20M to $400M enterprise value level. 
+• Implemented Lead Routing software architecture to ensure inbound lead distribution in a reliable and consistent fashion across the entire sales organization. 
+• Built and implemented process to evaluate funnel health on a per-rep and per-market basis. Supervised management calls to ensure deals were being qualified across all markets on a consistent basis. 
+• HR: Implemented a sophisticated DISC-based personality profile for all new senior hires. 
+• HR: Built automations to increase the engagement of the internal recruiters with candidates via LinkedIn which resulted in a 5x increase in quality conversations and drove many new hires.Expedient is one of the leading national cloud and datacenter providers positioned between the build-your-own providers like AWS/Azure and self-hosting. I reported directly to the CRO/CSO with a responsibility for evaluating and implementing plans that would affect the business in a material fashion. Many items were cross functional and spanned either the Sales/Marketing organization or the entire organization. • Responsible for driving material strategic projects primarily on the revenue-generating side of the business with an additional concentration on corporate development work. • OKR: Implemented OKR management system across the entire business to improve strategic alignment and quantitative accountability. Selected and implemented the management software. Ensured buy-in across all executives of the business. Migrated the initial OKR system to a system that involved OKRs and 1:1s. Ultimately responsible for the overall strategic alignment and objective relationships across the organization. • SDR: Automated significant process in the SDR organization resulting in 10x increase in new meeting count. Hired and managed additional headcount (7 total) to scale out the SDR team on a national basis. • Corp Dev: Evaluated dozens of strategic acquisition candidates in the $20M to $400M enterprise value level. • Implemented Lead Routing software architecture to ensure inbound lead distribution in a reliable and consistent fashion across the entire sales organization. • Built and implemented process to evaluate funnel health on a per-rep and per-market basis. Supervised management calls to ensure deals were being qualified across all markets on a consistent basis. • HR: Implemented a sophisticated DISC-based personality profile for all new senior hires. • HR: Built automations to increase the engagement of the internal recruiters with candidates via LinkedIn which resulted in a 5x increase in quality conversations and drove many new hires.…see more
+Skills: Business Strategy · Mergers and AcquisitionsSkills: Business Strategy · Mergers and Acquisitions
+Show all 9 experiences
+EducationEducation
+Case Western Reserve University logo
+Case Western Reserve UniversityCase Western Reserve University
+1996 - 19981996 - 1998
+Mentor HSMentor HS
+High School DiplomaHigh School Diploma
+1993 - 19961993 - 1996
+Licenses & certificationsLicenses & certifications
+Coursera logo
+Mathematics for Machine Learning and Data Science - Linear Algebra, Calculus and Probability/StatisticsMathematics for Machine Learning and Data Science - Linear Algebra, Calculus and Probability/Statistics
+CourseraCoursera
+Issued Aug 2023Issued Aug 2023
+Credential ID 5W7KUYEFLBHRCredential ID 5W7KUYEFLBHR
+Show credential
+Coursera logo
+Probability and Statistics for Machine Learning and Data ScienceProbability and Statistics for Machine Learning and Data Science
+CourseraCoursera
+Issued Aug 2023Issued Aug 2023
+Credential ID 9GDLAZ7S6VQACredential ID 9GDLAZ7S6VQA
+Show credential
+Show all 8 licenses & certifications
+VolunteeringVolunteering
+Urban Squash Cleveland logo
+Board MemberBoard Member
+Urban Squash ClevelandUrban Squash Cleveland
+Apr 2022 - Present · 1 yr 6 mosApr 2022 - Present · 1 yr 6 mos
+EducationEducation
+Urban Squash Cleveland uses the sport of squash as a vehicle to build community, responsibility, and stability for students in difficult socio-economic environments . It is geared to invest over 3000 hours per student with the goal of supporting them as they navigate adolescence to become upstanding citizens and beacons of success.Urban Squash Cleveland uses the sport of squash as a vehicle to build community, responsibility, and stability for students in difficult socio-economic environments . It is geared to invest over 3000 hours per student with the goal of supporting them as they navigate adolescence to become upstanding citizens and beacons of success.…see more
+Julie Billiart Schools logo
+Board MemberBoard Member
+Julie Billiart SchoolsJulie Billiart Schools
+Sep 2015 - Aug 2018 · 3 yrsSep 2015 - Aug 2018 · 3 yrs
+EducationEducation
+Julie Billiart School nurtures and empowers students with special learning needs.Julie Billiart School nurtures and empowers students with special learning needs.
+Show all 3 volunteer experiences
+SkillsSkills
+Enterprise LLMEnterprise LLM
+Steve McGarry has given an endorsement for this skillSteve McGarry has given an endorsement for this skill
+1 endorsement1 endorsement
+ChatGPTChatGPT
+
+Endorsed by 1 people in the last 6 monthsEndorsed by 1 people in the last 6 months
+1 endorsement1 endorsement
+Show all 50 skills
+RecommendationsRecommendations
+ReceivedReceived
+GivenGiven
+Tim G. profile picture
+Tim G.Tim G.
+· 3rdThird degree connection
+Vice President of Network Engineering & Planning at Fusion ConnectVice President of Network Engineering & Planning at Fusion Connect
+February 29, 2008, Bradley was senior to Tim but didn't manage Tim directlyFebruary 29, 2008, Bradley was senior to Tim but didn't manage Tim directly
+Brad is someone who knows how to get the job done on time & on budget. He is very much a hands on, no nonsense, highly technical individual with an ability to motivate and manage others. Brad always stands behind his team and I would gladly work with him again.Brad is someone who knows how to get the job done on time & on budget. He is very much a hands on, no nonsense, highly technical individual with an ability to motivate and manage others. Brad always stands behind his team and I would gladly work with him again.
+PatentsPatents
+Phone-call triggered system and method for transmitting information via network-enabled serverPhone-call triggered system and method for transmitting information via network-enabled server
+US 8817957 · Issued Aug 26, 2014US 8817957 · Issued Aug 26, 2014
+See patent
+In one embodiment, a phone number is used in connection with an advertising or marketing campaign. The account associated with the phone number may be configured to specify the type of information and the type of actions to be taken when a phone call is placed to the phone number. After the call that has placed to the phone number has completed, information relating to the call is compiled. Upon compilation, the information is transmitted by a network-enabled device using a protocol, where in one embodiment, the protocol is HTTP.In one embodiment, a phone number is used in connection with an advertising or marketing campaign. The account associated with the phone number may be configured to specify the type of information and the type of actions to be taken when a phone call is placed to the phone number. After the call that has placed to the phone number has completed, information relating to the call is compiled. Upon compilation, the information is transmitted by a network-enabled device using a protocol, where in one embodiment, the protocol is HTTP.…see more
+System and Method to Analyze Human Voice ConversationsSystem and Method to Analyze Human Voice Conversations
+US 8687776 · Issued Apr 3, 2014US 8687776 · Issued Apr 3, 2014
+See patent
+System and Method to Analyze Human Voice Conversations - Speech analytics and scoring patterns for voice communication. System and Method to Analyze Human Voice Conversations - Speech analytics and scoring patterns for voice communication. 
+Honors & awardsHonors & awards
+Case Weatherhead 100 #1 Fastest Growing Company In Northeast OhioCase Weatherhead 100 #1 Fastest Growing Company In Northeast Ohio
+Issued by Case Weatherhead School of Management · Dec 2014Issued by Case Weatherhead School of Management · Dec 2014
+Associated with Mongoose MetricsAssociated with Mongoose Metrics
+Mongoose Metrics experienced over 6000% revenue growth from 2009 to 2013. This ranked it as the #1 fastest growing company in Northeast Ohio during this time period. The Case Weatherhead School of Management recognized Mongoose Metrics for this achievement. Mongoose Metrics was sold in 2014 to Ifbyphone. Mongoose Metrics experienced over 6000% revenue growth from 2009 to 2013. This ranked it as the #1 fastest growing company in Northeast Ohio during this time period. The Case Weatherhead School of Management recognized Mongoose Metrics for this achievement. Mongoose Metrics was sold in 2014 to Ifbyphone. …see more
+Crain's Cleveland 40 Under 40Crain's Cleveland 40 Under 40
+Issued by Crain's Cleveland · Oct 2010Issued by Crain's Cleveland · Oct 2010
+Associated with Mongoose Metrics

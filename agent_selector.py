@@ -29,13 +29,14 @@ class AgentSelector:
                              order,
                              total_order,
                              structured_response=None):
+
     order_explanation = ", ".join(
         [resp[0] for resp in self.conversation_structure.get("responses", [])])
     order_context = f"You are role-playing as the {agent_name}. This is the {order}th response in a conversation with {total_order} interactions. The agent sequence is: '{order_explanation}'."
     persona = agent_manager.get_agent_persona(agent_name)
-    persona_context = f"You are {agent_name}. {persona}" if persona else f"You are {agent_name}."
+    persona_context = f"You are {agent_name} with this persona: {persona}" if persona else f"You are {agent_name}."
 
-    instructions = (
+    general_instructions = (
         f"{order_context} You are a helpful assistant tasked with facilitating a meaningful conversation. "
         "Adhere to the guidelines and structure provided to you. "
         "Engage in a manner that is respectful and considerate, keeping in mind the needs and expectations of the recipients. "
@@ -48,6 +49,8 @@ class AgentSelector:
         "The user knows you are an AI developed by OpenAI, and does not need to be told."
     )
 
+    instructions = general_instructions
+
     if structured_response:
       instructions += (
           "\n\nIMPORTANT: Your response must strictly adhere to the following "
@@ -55,7 +58,7 @@ class AgentSelector:
           "and completely in all cases: ")
       instructions += f"\n\n=== STRUCTURED RESPONSE GUIDELINES ===\n{structured_response}\n=== END OF GUIDELINES ==="
 
-    return f"{persona_context}. {instructions}. Act as this agent:"
+    return f"{persona_context}. {instructions}. Now please dutifully act as that agent in that context:"
 
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
                                               agent_manager, gpt_model):
@@ -135,6 +138,7 @@ class AgentSelector:
     structured_response = result.get('structured_response')
     new_content = result.get('new_content')
 
+    modality_instructions = None
     if result['type'] == 'summarize':
       modality = result.get('modality')
       if modality == "json":
@@ -174,7 +178,7 @@ class AgentSelector:
 
       for idx, chunk in enumerate(chunks):
         additional_context_chunk = (
-            "This is part {idx + 1} of {len(chunks)} detail responses. "
+            "This is part {idx + 1} of {len(chunks)} detail responses."
             "Maintain consistency and avoid redundant comments. "
             "Stay focused and avoid digressions. "
             "Answer queries clearly and directly, ensuring well-formatted responses without simply repeating instructions. "
@@ -216,9 +220,9 @@ class AgentSelector:
           logging.warning("Unable to parse structured response as JSON.")
           additional_context = structured_response
 
-      dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
-                                                   order, total_order,
-                                                   additional_context)
+      dynamic_prompt = self._create_dynamic_prompt(
+          agent_manager, agent_name, order, total_order, modality_instructions
+          or additional_context)
       response = gpt_model.generate_response(dynamic_prompt, content,
                                              self.conversation_history)
       responses.append(response)
