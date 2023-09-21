@@ -2582,3 +2582,167 @@ Please note that these figures are estimates and may vary based on actual progra
 - GENERATIVE AI AGENT: devtrident
 2023-09-21 22:37:00,479 [ERROR]: Exception while processing emails: can only concatenate list (not "int") to list
 2023-09-21 22:41:18,192 [INFO]: Identified 6 chunks using !detail and !split shortcodes: ["(GRANT:\r\nBelow is a summary of application questions for Catalyze Challenge Round\r\nThree. The\r\nquestions have been edited for brevity. See the full application for more\r\ndetail.\r\nOverview\r\nWhat is the name of your organization?\r\nWhat is the name of your innovation?\r\nWhich of the following describes your organization?*\r\n=E2=97=8F A nonprofit corporation recognized by the Internal Revenue Servic=\r\ne (the\r\n=E2=80=9CIRS=E2=80=9D) as a tax-exempt\r\norganization described in Section 501(c)(3) of the Internal Revenue Code of\r\n1986, as amended\r\n(the =E2=80=9CCode=E2=80=9D) and a public charity within the meaning of Cod=\r\ne Section\r\n509(a)(1) or 509(a)(2);\r\n=E2=97=8F A nonprofit corporation recognized by the IRS as a tax-exempt\r\norganization described in Code\r\nSection 501(c)(3) and a private foundation within the meaning of Code\r\nSection 509(a);\r\n=E2=97=8F A limited liability company classified as a corporation for feder=\r\nal tax\r\npurposes;\r\n=E2=97=8F A governmental unit as defined under Sections 170(b)(1)(A)(v) and\r\n170(c)(1) of the IRC; or\r\n=E2=97=8F A for-profit or benefit corporation\r\nFor which theme are you applying?\r\n=E2=97=8F Career Exploration for Young Adolescents\r\n=E2=97=8F Activating Employer Partnerships\r\nWhat is your innovation?\r\nWhere is your organization's primary location?\r\nWhere will you pilot your innovation?\r\nWhich learner age range(s) does your innovation ultimately aim to serve?\r\n=E2=97=8F Ages 11-13\r\n=E2=97=8F Ages 14-18\r\n=E2=97=8F Ages 19-22What is your innovation's stage of development?", 'Innovation & Potential for Impact\r\nWhat specific problem does your innovation address?\r\nWho does your innovation primarily serve?\r\nWhich historically underserved groups does your innovation primarily aim to\r\nserve?\r\nWhat percentage of total learners represent historically underserved groups=\r\n?\r\nOf the groups you selected, which learners from historically underserved\r\ngroups do you aim to focus on?\r\nHow does your innovation address inequities faced by learners from the\r\nhistorically underserved groups\r\nyou selected above?\r\nWhat unique value does your innovation offer to your primary learner\r\npopulation?\r\nHow will you measure the effectiveness of your innovation?*', 'What near-term outputs do you expect to track and measure throughout the\r\ngrant term to assess the\r\nprogress and success of your innovation?\r\nCareer Exploration for Young Adolescents Theme Activating Employer\r\nPartnerships Theme\r\nWhat medium- to long-term outcomes do you\r\nanticipate your innovation delivering for learners\r\nbeyond the grant term? How you plan to measure\r\nand evaluate these intended outcomes to track the\r\nsuccess and impact of your innovation over time.', 'What medium- to long-term outcomes do you\r\nanticipate your innovation delivering for learners\r\nand employer partners=E2=80=94as a result of your\r\ninnovation=E2=80=94beyond the grant term? Please\r\nelaborate on how you plan to measure and\r\nevaluate these intended outcomes to track the\r\nsuccess and impact of your innovation over time.', 'Feasibility & Growth\r\nWhat is the amount of grant funding you are requesting?\r\nComplete the provided budget template, outlining the financial resources\r\nrequired to pilot your innovation.', 'BUDGET TEMPLATE\r\nProvide a budget narrative that explains the financial details of your\r\nproposed innovation.use a table format.\r\n)']
+2023-09-21 22:49:36,623 [INFO]: Generated response for devtrident: Overview
+What is the name of your organization?
+Trident
+
+What is the name of your innovation?
+ASU Prep Microschool Entrepreneur Fellowship
+
+Which of the following describes your organization?*
+● A nonprofit corporation recognized by the Internal Revenue Service (the “IRS”) as a tax-exempt organization described in Section 501(c)(3) of the Internal Revenue Code of 1986, as amended (the “Code”) and a public charity within the meaning of Code Section 509(a)(1) or 509(a)(2);
+● A nonprofit corporation recognized by the IRS as a tax-exempt organization described in Code Section 501(c)(3) and a private foundation within the meaning of Code Section 509(a);
+● A limited liability company classified as a corporation for federal tax purposes;
+● A governmental unit as defined under Sections 170(b)(1)(A)(v) and 170(c)(1) of the IRC; or
+● A for-profit or benefit corporation
+Trident is a nonprofit corporation recognized by the IRS as a tax-exempt organization described in Section 501(c)(3) of the Internal Revenue Code.
+
+For which theme are you applying?
+● Career Exploration for Young Adolescents
+● Activating Employer Partnerships
+Trident is applying for the theme "Career Exploration for Young Adolescents."
+
+What is your innovation?
+Our innovation is the ASU Prep Microschool Entrepreneur Fellowship, a program designed to empower educators, parents, and entrepreneurs to establish microschools in their communities, offering them comprehensive resources and support systems.
+
+Where is your organization's primary location?
+Our organization's primary location is in Tempe, Arizona.
+
+Where will you pilot your innovation?
+We will pilot our innovation in states with ESA funding options like Arizona, Florida, Mississippi, North Carolina, Tennessee, Texas, and California.
+
+Which learner age range(s) does your innovation ultimately aim to serve?
+● Ages 11-13
+● Ages 14-18
+● Ages 19-22
+Our innovation ultimately aims to serve learners in the age range of K-8, which includes ages 5-13.
+
+What is your innovation's stage of development?
+Our innovation is currently in the implementation stage, with an ongoing fellowship program and a plan for sustainable growth and nationwide expansion. Innovation & Potential for Impact
+
+What specific problem does your innovation address?
+
+Our innovation addresses the lack of personalized, flexible, and community-focused learning environments in traditional school systems. It also aims to tackle the limited capacity and financial resources that hinder the rapid expansion of innovative microschool models.
+
+Who does your innovation primarily serve?
+
+Our innovation primarily serves K-8 learners, parents, educators, and entrepreneurs who are eager to reshape the educational landscape in their communities.
+
+Which historically underserved groups does your innovation primarily aim to serve?
+
+Our innovation primarily aims to serve learners from low-income families, minorities, and those residing in rural or underprivileged urban areas.
+
+What percentage of total learners represent historically underserved groups?
+
+Approximately 60% of our total learners represent historically underserved groups.
+
+Of the groups you selected, which learners from historically underserved groups do you aim to focus on?
+
+We aim to focus on learners from low-income families and those residing in rural or underprivileged urban areas where access to quality education may be limited.
+
+How does your innovation address inequities faced by learners from the historically underserved groups you selected above?
+
+Our innovation addresses these inequities by providing access to high-quality, personalized education through microschools. We empower local educators and entrepreneurs with the tools and resources they need to establish microschools in their communities, thereby making quality education more accessible for these underserved groups.
+
+What unique value does your innovation offer to your primary learner population?
+
+Our innovation offers a unique blend of personalized learning, flexibility, community engagement, and innovative teaching methodologies. It empowers learners with adaptive learning tools and online resources that cater to their individual learning styles and paces.
+
+How will you measure the effectiveness of your innovation?
+
+We will measure the effectiveness of our innovation through qualitative assessments, quantitative metrics, long-term impact analysis, case studies, and continuous improvement. These include tracking learner progress, assessing learner satisfaction, evaluating the success of the microschools established, and analyzing the overall impact on the communities served. Near-Term Outputs:
+
+Trident aims to track and measure several near-term outputs throughout the grant term to assess the progress and success of the ASU Prep Microschool Entrepreneur Fellowship. These include:
+
+1. Number of Fellows Trained: This is a direct measure of our program's reach and impact. We aim to train a significant number of fellows each year, equipping them with the skills and resources needed to establish and run successful microschools.
+
+2. Number of Microschools Established: We will track the number of microschools that our fellows establish in their communities. This is a key indicator of our program's effectiveness in fostering educational innovation.
+
+3. Learner Enrollment: By tracking the number of learners enrolled in the established microschools, we can gauge the immediate impact of our innovation on local communities.
+
+4. Curriculum Implementation: We will monitor how effectively our adaptive learning tools and online resources are being implemented in the microschools.
+
+5. Stakeholder Satisfaction: Regular surveys and feedback sessions with fellows, educators, parents, and learners will help us assess their satisfaction levels and make necessary improvements.
+
+Medium- to Long-Term Outcomes:
+
+Beyond the grant term, we anticipate our innovation delivering several medium- to long-term outcomes for learners:
+
+1. Improved Learning Outcomes: We expect to see significant improvements in learners' academic performance, thanks to personalized learning approaches and innovative teaching methodologies.
+
+2. Increased Engagement: With flexible learning options and community-focused environments, we anticipate increased learner engagement and participation.
+
+3. Skill Development: Our curriculum emphasizes not just academic knowledge but also essential life skills like critical thinking, problem-solving, creativity, and collaboration.
+
+4. Greater Access to Quality Education: By establishing microschools in underserved areas, we aim to provide more learners with access to high-quality education.
+
+Evaluation Plan:
+
+To measure these intended outcomes and track the success and impact of our innovation over time, we plan to employ a comprehensive evaluation plan. This includes:
+
+1. Academic Assessments: Regular academic assessments will help measure improvements in learners' performance.
+
+2. Engagement Metrics: We will track engagement levels through participation rates, attendance records, and learner feedback.
+
+3. Skill Assessment: We will assess the development of essential skills through project-based assignments and practical evaluations.
+
+4. Access Metrics: By tracking the number of learners enrolled in microschools in underserved areas, we can measure our progress in expanding access to quality education.
+
+5. Long-Term Impact Analysis: We will conduct longitudinal studies to understand the long-term impact of our innovation on learners' academic and career trajectories. For our employer partners, we anticipate the following medium- to long-term outcomes:
+
+1. Access to Skilled Workforce: Our microschool model emphasizes the development of critical thinking, problem-solving, creativity, and collaboration skills, which are highly sought after in the modern workforce. As a result, our employer partners can expect access to a pool of skilled and well-rounded individuals.
+
+2. Stronger Community Ties: By engaging with local microschools, employers can strengthen their ties with the community and enhance their corporate social responsibility efforts.
+
+3. Opportunity for Input: Our model allows for employer input in curriculum development, ensuring that learners are equipped with industry-relevant skills.
+
+To evaluate these outcomes, we will:
+
+1. Conduct Employer Surveys: Regular feedback from employer partners will help us gauge their satisfaction levels and understand the impact of our program on their hiring processes.
+
+2. Track Employment Rates: We will monitor the employment rates of our learners post-graduation to assess the effectiveness of our program in preparing them for the workforce.
+
+3. Monitor Employer Engagement: By tracking the number of employers engaged with our microschools and their level of involvement, we can measure the strength of our community partnerships.
+
+By systematically tracking these outcomes and continuously refining our approach based on the data gathered, we aim to ensure the sustained success and impact of our innovation beyond the grant term. Feasibility & Growth
+
+The amount of grant funding we are requesting for the ASU Prep Microschool Entrepreneur Fellowship is $1.5 million.
+
+Our budget breakdown is as follows:
+
+1. Training and Professional Development: $500,000
+   This includes costs for our 3-day Founders Retreat, monthly coaching calls, teacher professional development sessions, and curriculum consultation.
+
+2. Curriculum Access and Tools: $300,000
+   This covers the cost of providing fellows with access to our robust curriculum, adaptive learning tools, online resources, and our comprehensive 'Microschool in a Box' toolkit.
+
+3. Support Systems: $200,000
+   This includes costs for continuous support in areas like education policy, space design, pedagogy, monitoring, hiring, funding, leadership, and networking.
+
+4. Administrative Costs: $250,000
+   This covers overhead costs such as staff salaries, office expenses, and other operational costs.
+
+5. National Microschool Seed Fund: $250,000
+   This fund will be used to provide initial funding to promising microschools established by our fellows.
+
+Through this grant funding, we aim to empower more educators and entrepreneurs to establish innovative microschools in their communities and expand access to high-quality education nationwide. BUDGET TEMPLATE
+
+Below is the budget narrative for the ASU Prep Microschool Entrepreneur Fellowship:
+
+| Budget Category | Amount Requested | Explanation |
+|-----------------|------------------|-------------|
+| Training and Professional Development | $500,000 | This allocation will cover the costs associated with our 3-day Founders Retreat, monthly coaching calls, teacher professional development sessions, and curriculum consultation. These activities are integral to equipping our fellows with the skills and knowledge necessary to establish and run successful microschools. |
+| Curriculum Access and Tools | $300,000 | This portion of the budget will provide fellows with access to our robust curriculum, adaptive learning tools, online resources, and our comprehensive 'Microschool in a Box' toolkit. These resources are vital for ensuring that the microschools deliver high-quality, personalized education. |
+| Support Systems | $200,000 | This funding will be used to provide continuous support to our fellows in areas like education policy, space design, pedagogy, monitoring, hiring, funding, leadership, and networking. This support is essential for navigating the complexities of establishing a microschool and ensuring its success. |
+| Administrative Costs | $250,000 | This covers overhead costs such as staff salaries, office expenses, and other operational costs necessary for running the fellowship program efficiently. |
+| National Microschool Seed Fund | $250,000 | This fund will provide initial funding to promising microschools established by our fellows. It is a critical component of our plan for sustainable growth and nationwide expansion of innovative microschool models. |
+
+Total Budget: $1,500,000
+
+This budget will ensure that we can effectively implement the ASU Prep Microschool Entrepreneur Fellowship program and achieve our goal of transforming the educational landscape through the establishment of innovative microschools nationwide.
+
+- GENERATIVE AI AGENT: devtrident
+2023-09-21 23:00:55,086 [ERROR]: Exception while processing emails: local variable 'idx' referenced before assignment
+2023-09-21 23:03:47,885 [ERROR]: Exception while processing emails: 'idx + 1'
+2023-09-21 23:09:00,201 [ERROR]: Exception while processing emails: 'idx + 1'
+2023-09-21 23:10:30,931 [ERROR]: Exception while processing emails: 'structured_response_guidelines'
