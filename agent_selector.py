@@ -29,18 +29,28 @@ class AgentSelector:
     self.conversation_structure = {}
     self.conversation_history = ""
 
+  def replace_agent_shortcodes(self, content):
+    """
+        Replaces !ff(agent_name)! shortcodes with the agent's name.
+        """
+    return re.sub(r"!ff\((\w+)\)!", r"\1", content)
+
   def _create_dynamic_prompt(self,
                              agent_manager,
                              agent_name,
                              order,
                              total_order,
                              structured_response=None,
-                             modality=None):  # Add modality parameter
-    order_explanation = ", ".join(
-        [resp[0] for resp in self.conversation_structure.get("responses", [])])
+                             modality=None,
+                             content=None):  # Added content parameter
+
+    order_explanation = ", ".join([
+        f"('{resp[0]}', {resp[1]})"
+        for resp in self.conversation_structure.get("responses", [])
+    ])
 
     # Order and Persona Context
-    order_context = f"You are role-playing as the {agent_name}. This is the {order}th response in a conversation with {total_order} interactions. The agent sequence is: '{order_explanation}'."
+    order_context = f"You are role-playing as the {agent_name}. This is the {order}th response in a conversation with {total_order} interactions. The agent sequence is: [{order_explanation}]."
     persona = agent_manager.get_agent_persona(agent_name)
     persona_context = f"You are {agent_name}. {persona}" if persona else f"You are {agent_name}."
 
@@ -58,8 +68,16 @@ class AgentSelector:
       instructions = self.instructions['summarize'][
           modality]  # Override the instruction with modality-specific one
 
-    # Creating the dynamic prompt in the new order
-    return f"{instructions}. {order_context}. {persona_context}. Act as this agent:"
+    # Creating the dynamic prompt in the specified order
+    dynamic_prompt = f"{order_context}"
+
+    # Inserting the email content
+    if content:
+      dynamic_prompt += f"YOU ARE ON AN EMAIL THREAD. YOU ONLY RESPOND AS THE APPROPRIATE AGENT. THE EMAIL YOU NEED TO RESPOND TO IS AS FOLLOWS: '''{content}'''."
+
+    dynamic_prompt += f" {instructions}. {persona_context}. Act as this agent."
+
+    return dynamic_prompt
 
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
                                               agent_manager, gpt_model):
@@ -86,7 +104,7 @@ class AgentSelector:
     for agent_name, order in explicit_tags:
       agent = agent_manager.get_agent(agent_name, case_sensitive=False)
       if agent:
-        if "ff" in content:  # If the agent is identified through !ff(), add to the ff_agent_queue
+        if "ff" in content:
           ff_agent_queue.append(
               (agent_name,
                order if order is not None else len(ff_agent_queue) + 1))
@@ -122,6 +140,7 @@ class AgentSelector:
                              content,
                              additional_context=None):
 
+    content = self.replace_agent_shortcodes(content)
     modality = 'default'
     with self.lock:
       if "!previousResponse" in content:
