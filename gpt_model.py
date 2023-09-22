@@ -12,8 +12,6 @@ class GPTModel:
   def __init__(self):
     openai.api_key = openai_api_key
     self.last_api_call_time = 0
-    
-  
 
   def generate_response(self,
                         dynamic_prompt,
@@ -27,11 +25,12 @@ class GPTModel:
     max_retries = 99
     delay = 60  # variable
     max_delay = 3000  # variable
-    tokens_limit = 1024 if is_summarize else 4000 
+    tokens_limit = 1024 if is_summarize else 4000
     base_value = 8192 - tokens_limit if is_summarize else 4192
-    print(f"Set tokens_limit to {tokens_limit} based on is_summarize={is_summarize}.")
+    print(
+        f"Set tokens_limit to {tokens_limit} based on is_summarize={is_summarize}."
+    )
 
-    
     full_content = f"{content}\n\n{conversation_history}"
     if additional_context:
       full_content += f"\n{additional_context}"
@@ -48,7 +47,8 @@ class GPTModel:
       time.sleep(sleep_duration)
 
     # Calculate the maximum tokens allowed for the conversation content.
-    max_tokens_allowed = base_value - len(content.split()) - len(dynamic_prompt.split())
+    max_tokens_allowed = base_value - len(content.split()) - len(
+        dynamic_prompt.split())
     if additional_context:
       max_tokens_allowed -= len(additional_context.split())
     if note:
@@ -56,14 +56,15 @@ class GPTModel:
 
     # Check and truncate conversation_history if total tokens exceed the maximum limit
     while len(conversation_history.split()) > max_tokens_allowed:
-        # Check if there's a newline character in the conversation_history
-        if "\n" not in conversation_history:
-            print("WARNING: No newline character found in conversation_history. Breaking out of truncation loop.")
-            break
-    
-        # Drop the oldest message (assumes each message in the history is separated by a newline)
-        conversation_history = "\n".join(conversation_history.split("\n")[1:])
-    
+      # Check if there's a newline character in the conversation_history
+      if "\n" not in conversation_history:
+        print(
+            "WARNING: No newline character found in conversation_history. Breaking out of truncation loop."
+        )
+        break
+
+      # Drop the oldest message (assumes each message in the history is separated by a newline)
+      conversation_history = "\n".join(conversation_history.split("\n")[1:])
 
     # Update the full_content after potentially truncating the conversation_history
     full_content = f"{content}\n\n{conversation_history}"
@@ -71,8 +72,6 @@ class GPTModel:
       full_content += f"\n{additional_context}"
     if note:
       full_content += f"\n{note}"
-
-    
 
     print(f"Token limit for this request: {tokens_limit}")
 
@@ -101,7 +100,7 @@ class GPTModel:
         }
 
         print("\n--- API Request Payload ---")
-        print((json.dumps(request_payload, indent=4))[:142])
+        print((json.dumps(request_payload, indent=4))[:512])
 
         response = openai.ChatCompletion.create(
             **request_payload)  # Updated this line

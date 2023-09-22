@@ -300,6 +300,7 @@ class EmailServer:
     human_threads = set()
     if from_ == self.smtp_username:
       print("Ignoring self-sent email.")
+      print("Thread Content:", thread_content)
       return False
     print(f"Handling email from: {from_}")
     print(f"To emails: {to_emails}")
@@ -439,6 +440,7 @@ class EmailServer:
         # Check for explicit tags or 'ff!' shortcode in the content
         if "!ff!" not in thread_content and not any(
             f"!({name})" in thread_content for name, _ in agents):
+          print("Thread Content:", thread_content)
           print(
               f"Skipping response from {agent_name} to prevent agent-to-agent loop."
           )
