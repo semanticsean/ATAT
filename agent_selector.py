@@ -106,6 +106,7 @@ class AgentSelector:
                            content,
                            additional_context=None):
 
+    modality = 'default'
     with self.lock:
         if "!previousResponse" in content:
             content = content.replace('!previousResponse',
@@ -181,7 +182,7 @@ class AgentSelector:
                                                          additional_context,
                                              modality=modality)
             response = gpt_model.generate_response(dynamic_prompt, content,
-                                                   self.conversation_history, is_summarize=True)
+                                                   self.conversation_history, is_summarize=False)
             responses.append(response)
             self.conversation_history += f"\n{agent_name} said: {response}"
 
