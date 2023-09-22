@@ -73,8 +73,6 @@ def handle_document_short_code(email_content,
   if summarize_matches:
     modality, summarize_content = summarize_matches[0]
     summarize_content = summarize_content.strip()
-    print("Detected !summarize in content.")
-
 
     # Check if the content has the !previousResponse keyword and replace it
     if "!previousResponse" in summarize_content:
@@ -82,7 +80,7 @@ def handle_document_short_code(email_content,
                                                     last_agent_response)
 
     # Check if the summarize_content is too long and needs splitting
-    if len(summarize_content) > 3000:  # or any other limit you prefer
+    if len(summarize_content) > 10000:  # or any other limit you prefer
       summarized_responses = auto_split_content(summarize_content)
     else:
       summarized_responses = [summarize_content]
@@ -97,10 +95,6 @@ def handle_document_short_code(email_content,
     result['modality'] = modality
     result['new_content'] = new_email_content
     return result
-
-  # Ensuring result is a dictionary before returning
-  if not isinstance(result, dict):
-    result = {'type': None, 'content': None, 'new_content': email_content}
 
   # Ensuring result is a dictionary before returning
   return {'type': None, 'content': None, 'new_content': email_content}
