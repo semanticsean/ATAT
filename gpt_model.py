@@ -100,7 +100,7 @@ class GPTModel:
         }
 
         print("\n--- API Request Payload ---")
-        print((json.dumps(request_payload, indent=4))[:512])
+        print((json.dumps(request_payload, indent=4))[:200000])
 
         response = openai.ChatCompletion.create(
             **request_payload)  # Updated this line
