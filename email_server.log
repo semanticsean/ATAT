@@ -766,3 +766,151 @@ Rinn
 SUNSCHOOL Representative
 
 - GENERATIVE AI AGENT: devrinn
+2023-09-22 21:06:00,710 [INFO]: Generated response for devtrident: Hello Sean,
+
+I'm pleased to hear about the successful completion of the design phase and the transition into development. Your confidence in the team's ability to meet all requirements is encouraging.
+
+Regarding the budget allocations for the next quarter, I'd suggest we conduct a detailed review of our current financial status and forecasted expenses. This will enable us to identify areas where we can potentially save or reallocate funds to accommodate the upcoming expenditures. 
+
+The potential partnership you mentioned sounds promising. It would be beneficial to have a preliminary discussion about this opportunity, including the partner's background, their potential contribution to our project, and how this collaboration aligns with our long-term goals.
+
+As for your summaries, it seems there may be some confusion. Could you please provide more context or details related to "Larry in Chicago" and "Jenny in Phoenix"?
+
+I'm looking forward to our next meeting where we can discuss these matters in detail. In the meantime, please feel free to reach out if there are any other topics you'd like to address.
+
+Best regards,
+Trident
+
+- GENERATIVE AI AGENT: devtrident
+2023-09-22 21:24:31,765 [ERROR]: Exception while processing emails: 'AgentSelector' object has no attribute 'get_response_for_agent'
+2023-09-22 21:47:57,826 [INFO]: Generated response for devtrident: Hello,
+
+I'm glad to hear that the project is progressing well and that you're transitioning into the development phase. I commend the team's efforts in ensuring all requirements are met, and I share your confidence in a smooth progression.
+
+Regarding budget allocations for the next quarter, it would be helpful if you could provide an estimate of the additional expenditures expected. This will allow us to review and adjust the budget accordingly to ensure we're adequately prepared. I'd be happy to assist in this process.
+
+The potential partnership opportunity sounds exciting. I agree that collaborations can significantly enhance our project's long-term prospects. Let's definitely discuss this in our next meeting. If you could share some preliminary details about this partner and how you envision our collaboration, it would allow me to better prepare for our discussion.
+
+Looking forward to our meeting. 
+
+Best,
+Trident
+
+- GENERATIVE AI AGENT: devtrident
+2023-09-22 21:54:04,155 [INFO]: Generated response for devada: !split
+
+# 2023 ASU AI Seed Grant Challenge (Phase 1 Abstract)
+
+## Dates
+Internal Submission Deadline: Monday, October 9, 2023 at 5:00 pm
+
+## Details
+Administrator(s): Hayley Bohall (Owner), Sean Kenney, Lara Ferry
+Category: Internal
+
+Supporting Documents:
+
+- [Optional Phase 1 Budget Template](https://asu.infoready4.com/PlatformServicesV2/Commons/getDocument/Optio= nal%20Phase%201%20Budget_Template.xlsx?documentName=3Dd82734be-ee4a-45cd-ba= 0b-464bee5d4b0b.xlsx&applicationId=3D7)
+- [Required Phase 2 Budget Template](https://asu.infoready4.com/PlatformServicesV2/Commons/getDocument/Requi= red%20Phase%202%20Budget%20_Template.docx?documentName=3D86968fa4-216c-4df0= -9c5c-f52daaec821b.docx&applicationId=3D7)
+- [ASU_AI_SEED GRANT_RFP](https://asu.infoready4.com/PlatformServicesV2/Commons/getDocument/ASU_A= I_SEED%20GRANT_RFP.pdf?documentName=3D866b9b32-1090-433b-a278-135811409f91.= pdf&applicationId=3D7)
+
+## Description
+ASU AI Seed Grant Challenge focuses on the transformative innovations of Artificial Intelligence (AI) and its profound impact on technology and society. The challenge aims to accelerate positive impacts and ameliorate negative uses of AI. Proposals may address fundamental development of AI concepts, or the application of AI to specific problem spaces.
+
+There are two types of projects:
+
+- **Type 1: Planning and Convening Grants**
+    - These grants are intended to facilitate cross-disciplinary convening and ideation in pursuit of future research concepts. Maximum allocation per planning grant: $10k
+
+- **Type 2: Research Grants**
+    - These grants are intended to fund a well-scoped research trajectory with an interdisciplinary team of investigators. The maximum allocation per project is $250k per phase.
+
+There are two Phases of competition:
+
+- **Phase 1** is an abstract or pre-proposal, and required for both Planning (Type 1) and Research (Type 2) applications.
+- **Phase 2** involves a longer proposal and detailed budget, and is required of only Type 2 applications.
+
+Any ASU faculty member with a formal research appointment may apply. Application is limited to one Type 1 and one Type 2 per PI, though a faculty member can play a supporting role on more than one application.
+
+!split
+
+## Phase 1: Abstract (pre-proposal)
+
+Interested proposers for both the Planning and Convening Grants, and the Research Grants, should submit a two-page abstract which answers the following questions:
+
+1. How does your team define “impact”? Who or what will be positively impacted by the proposed work?
+2. What societal problem are you aiming to address, and what is your approach?
+3. What is the innovation in your approach?
+4. If you are successful, what difference will it make, and to/for whom?
+5. What specific metrics should be used to measure your success in each phase?
+6. How much money and time should be allocated (in each phase for Research Grants) to achieve your intended milestones? Note: A Gantt chart, or similar, may be useful to convey this information efficiently.
+7. A rough order of magnitude (ROM) budget should accompany the abstract and does not count against the two-page maximum.
+
+Type 1 grants ($10k limit) will be awarded at the end of Phase 1. Only a subset of applicants for Type 2 awards will advance to Phase 2.
+
+!split
+
+## Phase 2: Full proposal (Research Grants only)
+
+From the submitted abstracts, KE will issue invitations for full Research Grant proposals. Full proposals should be a maximum of 8 pages addressing the following questions:
+
+1. How do you define “impact”? Who or what will be positively impacted by your proposed work?
+2. What societal problem are you aiming to address, and what is your approach?
+3. What is the innovation in your approach?
+4. Why is your team well positioned to approach this problem?
+5. If you are successful, what difference will it make, and to/for whom?
+6. What metrics should be used to measure success? Please specify for each phase proposed.
+7. Which partners will be necessary to make progress?
+8. How will financial independence be achieved at the end of the proposed term?
+9. Full proposals must include a line-item budget. A template will be provided.
+
+Proposals will be evaluated on their ability to achieve transformative impact, their interdisciplinary nature, and their financial realism.
+
+Upon determination of an award to be made, funds will be awarded in periodic installments to the team. Completion of interim reports, via InfoReady, by the deadlines established (tbd at the time of the award) will be required in order to perform these assessments and to release funds in a timely manner.
+
+Note that there are fees associated with managing the accounts (ASC), and it is anticipated that will be charged on the unit side. Estimated ASC is included in the budget templates so that this cost is accounted for when executing the budget.
+
+
+- GENERATIVE AI AGENT: devada
+2023-09-22 21:58:01,885 [INFO]: Generated response for devtrident: ASU AI Seed Grant Challenge Proposal
+
+## Phase 1: Abstract (pre-proposal)
+
+### Team Definition of Impact
+Our team defines "impact" as the significant positive change brought about by our work in the field of AI, specifically in education. The primary beneficiaries of this impact will be students, educators, and educational institutions who will gain access to personalized, flexible, and innovative learning solutions powered by AI.
+
+### Societal Problem and Approach
+We aim to address the gap in personalized education and the need for a more flexible and adaptable learning model. Our approach involves leveraging AI to create a 'Powered by ASU Prep' microschool model that can facilitate individualized learning, promote student agency, and scale impact.
+
+### Innovation in Approach
+Our innovative approach lies in integrating AI with our proven microschool model. This fusion will enable us to provide tailored educational experiences that adapt to each student's learning style and pace, foster creativity and critical thinking, and cultivate a community of lifelong learners.
+
+### Potential Difference and Beneficiaries
+Upon success, our AI-powered microschool model will revolutionize education by providing a more engaging, inclusive, and effective learning environment. Students will benefit from a personalized learning journey that caters to their unique needs and potentials. Educators will gain access to data-driven insights to guide their teaching strategies. Educational institutions can adopt a scalable model that promises improved student outcomes.
+
+### Metrics for Success
+In each phase, we'll measure success through:
+- Student engagement and satisfaction rates
+- Improvement in student performance and outcomes
+- Adoption rate of our model by educational institutions
+- Positive feedback from educators on the usability and effectiveness of our AI tools
+
+### Allocation of Time and Money 
+For Research Grants:
+- Phase 1: We propose a six-month timeline with an allocation of $50k for initial research, team assembly, prototype development, and preliminary testing.
+- Phase 2: We propose an 18-month timeline with an allocation of $200k for refining our AI tools, conducting extensive testing and iterations, and launching pilot programs in selected schools.
+
+### Rough Order of Magnitude (ROM) Budget
+The ROM budget accompanying the abstract is as follows:
+- Phase 1: $50k (Research, Development, Testing)
+- Phase 2: $200k (Refinement, Pilot Program Launch, Evaluation)
+
+This budget does not account for ASC fees.
+
+- GENERATIVE AI AGENT: devtrident
+2023-09-22 22:01:17,005 [INFO]: Number of chunks for detail: 4
+2023-09-22 22:01:17,006 [INFO]: Chunk 0: ## Description
+ASU AI Seed Grant Challenge focuse...
+2023-09-22 22:01:17,006 [INFO]: Chunk 1: 4. If you are successful, what difference will it ...
+2023-09-22 22:01:17,006 [INFO]: Chunk 2: 6. How much money and time should be allocated (in...
+2023-09-22 22:01:17,006 [INFO]: Chunk 3: 7. A rough order of magnitude (ROM) budget should ...

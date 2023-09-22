@@ -202,6 +202,30 @@ class AgentSelector:
           responses.append(response)
           self.conversation_history += f"\n{agent_name} said: {response}"
 
+      # Handle Detail Type
+      elif result['type'] == 'detail':
+          chunks = result.get('content', [])
+          self.conversation_history = self.conversation_history[-16000:]
+          logging.info(f"Number of chunks for detail: {len(chunks)}")
+          for i, c in enumerate(chunks):
+              logging.info(f"Chunk {i}: {c[:50]}...")
+      
+          for idx, chunk in enumerate(chunks):
+              dynamic_prompt = self._create_dynamic_prompt(agent_manager,
+                                                           agent_name,
+                                                           order,
+                                                           total_order,
+                                                           additional_context,
+                                                           modality=modality)
+      
+              response = gpt_model.generate_response(dynamic_prompt,
+                                                     chunk,
+                                                     self.conversation_history,
+                                                     is_summarize=False)
+      
+              responses.append(response)
+              self.conversation_history += f"\n{agent_name} said: {response}"
+
       # Handle Default Type
       else:
         structured_response_json = {}
