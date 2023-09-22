@@ -58,40 +58,46 @@ class AgentSelector:
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
                                               agent_manager, gpt_model):
     agent_queue = []
+    ff_agent_queue = []
 
     for email in recipient_emails:
-      agent = agent_manager.get_agent_by_email(email)
-      if agent:
-        agent_queue.append((agent["id"], len(agent_queue) + 1))
+        agent = agent_manager.get_agent_by_email(email)
+        if agent:
+            agent_queue.append((agent["id"], len(agent_queue) + 1))
 
     explicit_tags = []
     try:
-      explicit_tags = re.findall(r"!ff\((\w+)\)(?:!(\d+))?",
-                                 content) + re.findall(
-                                     r"!\((\w+)\)(?:!(\d+))?", content)
-      explicit_tags = [(name, int(num) if num else None)
-                       for name, num in explicit_tags
-                       if name.lower() != "style"]
+        explicit_tags = re.findall(r"!ff\((\w+)\)(?:!(\d+))?",
+                                   content) + re.findall(
+                                       r"!\((\w+)\)(?:!(\d+))?", content)
+        explicit_tags = [(name, int(num) if num else None)
+                         for name, num in explicit_tags
+                         if name.lower() != "style"]
     except Exception as e:
-      logging.error(f"Regex Error: {e}")
-      logging.error(f"Content: {content}")
+        logging.error(f"Regex Error: {e}")
+        logging.error(f"Content: {content}")
 
     for agent_name, order in explicit_tags:
-      agent = agent_manager.get_agent(agent_name, case_sensitive=False)
-      if agent:
-        existing_entry = next(
-            ((name, ord) for name, ord in agent_queue if name == agent_name),
-            None)
-        if existing_entry:
-          agent_queue.remove(existing_entry)
-        agent_queue.append(
-            (agent_name, order if order is not None else len(agent_queue) + 1))
+        agent = agent_manager.get_agent(agent_name, case_sensitive=False)
+        if agent:
+            if "ff" in content:  # If the agent is identified through !ff(), add to the ff_agent_queue
+                ff_agent_queue.append((agent_name, order if order is not None else len(ff_agent_queue) + 1))
+            else:
+                existing_entry = next(
+                    ((name, ord) for name, ord in agent_queue if name == agent_name),
+                    None)
+                if existing_entry:
+                    agent_queue.remove(existing_entry)
+                agent_queue.append(
+                    (agent_name, order if order is not None else len(agent_queue) + 1))
+
+    agent_queue.extend(ff_agent_queue)  # Merge the !ff() list with the agent_queue
 
     if len(agent_queue) == 1:
-      agent_queue[0] = (agent_queue[0][0], 1)
+        agent_queue[0] = (agent_queue[0][0], 1)
     elif not any([agent[1] for agent in agent_queue]):
-      agent_queue = [(agent[0], idx + 1)
-                     for idx, agent in enumerate(agent_queue)]
+        agent_queue = [(agent[0], idx + 1)
+                       for idx, agent in enumerate(agent_queue)]
 
     agent_queue = sorted(agent_queue, key=lambda x: x[1])[:self.max_agents]
 
