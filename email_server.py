@@ -337,7 +337,7 @@ class EmailServer:
 
     style_info = structured_response.get('structured_response',
                                          '') if structured_response else ''
-    print(f"Structured response generated: {structured_response}")
+    print(f"Structured response generated: ")
     self.agent_selector.conversation_history += f"\nStructured Response: {structured_response}"  # Update conversation history
     thread_content = new_content
 
@@ -501,7 +501,7 @@ class EmailServer:
 
       if message_id in self.conversation_threads:
         conversation_history = '\n'.join(self.conversation_threads[message_id])
-        print(f"Conversation history: {conversation_history[:42]}")
+        print(f"Conversation history: {conversation_history[:142]}")
 
     return all_responses_successful
 
