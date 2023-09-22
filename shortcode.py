@@ -3,7 +3,7 @@ import re
 from doc_gen import gpt4_generate_structured_response
 
 
-def auto_split_content(content, char_limit=3000):
+def auto_split_content(content, char_limit=11000):
   """
     Split the content based on character count and paragraph breaks.
     """

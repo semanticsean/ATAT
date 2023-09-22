@@ -101,13 +101,13 @@ class GPTModel:
         }
 
         print("\n--- API Request Payload ---")
-        print((json.dumps(request_payload, indent=4))[:42])
+        print((json.dumps(request_payload, indent=4))[:142])
 
         response = openai.ChatCompletion.create(
             **request_payload)  # Updated this line
 
         print("\n--- API Response ---")
-        print(json.dumps(response, indent=4)[:42])
+        print(json.dumps(response, indent=4)[:142])
 
         break
 

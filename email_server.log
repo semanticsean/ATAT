@@ -119,3 +119,244 @@ ensure that the cont...
 }
 
 - GENERATIVE AI AGENT: devrinn
+2023-09-22 17:56:10,882 [INFO]: Number of chunks: 11
+2023-09-22 17:56:10,882 [INFO]: Chunk 0: Description of Model & Objective
+
+(Please includ...
+2023-09-22 17:56:10,882 [INFO]: Chunk 1: academic progress but also introduces them to coll...
+2023-09-22 17:56:10,882 [INFO]: Chunk 2: designed with accessibility in mind. We ensure tha...
+2023-09-22 17:56:10,882 [INFO]: Chunk 3: of. Note, these outcomes are from Microschools co-...
+2023-09-22 17:56:10,882 [INFO]: Chunk 4: ASU campuses, accommodating students from diverse ...
+2023-09-22 17:56:10,882 [INFO]: Chunk 5: duration. This includes regular surveys, assessmen...
+2023-09-22 17:56:10,882 [INFO]: Chunk 6: The concept of the co-located ASU Prep Microschool...
+2023-09-22 17:56:10,882 [INFO]: Chunk 7: made during its inaugural year of operation. These...
+2023-09-22 17:56:10,882 [INFO]: Chunk 8: University where she received her Master=E2=80=99s...
+2023-09-22 17:56:10,883 [INFO]: Chunk 9: access to high quality career development opportun...
+2023-09-22 17:56:10,883 [INFO]: Chunk 10: 2. Grant Funding: The application for the grant, f...
+2023-09-22 18:00:11,707 [INFO]: Number of chunks: 11
+2023-09-22 18:00:11,707 [INFO]: Chunk 0: Description of Model & Objective
+
+(Please includ...
+2023-09-22 18:00:11,707 [INFO]: Chunk 1: academic progress but also introduces them to coll...
+2023-09-22 18:00:11,707 [INFO]: Chunk 2: designed with accessibility in mind. We ensure tha...
+2023-09-22 18:00:11,707 [INFO]: Chunk 3: of. Note, these outcomes are from Microschools co-...
+2023-09-22 18:00:11,707 [INFO]: Chunk 4: ASU campuses, accommodating students from diverse ...
+2023-09-22 18:00:11,708 [INFO]: Chunk 5: duration. This includes regular surveys, assessmen...
+2023-09-22 18:00:11,708 [INFO]: Chunk 6: The concept of the co-located ASU Prep Microschool...
+2023-09-22 18:00:11,708 [INFO]: Chunk 7: made during its inaugural year of operation. These...
+2023-09-22 18:00:11,708 [INFO]: Chunk 8: University where she received her Master=E2=80=99s...
+2023-09-22 18:00:11,708 [INFO]: Chunk 9: access to high quality career development opportun...
+2023-09-22 18:00:11,708 [INFO]: Chunk 10: 2. Grant Funding: The application for the grant, f...
+2023-09-22 18:02:51,055 [INFO]: Number of chunks: 3
+2023-09-22 18:02:51,056 [INFO]: Chunk 0: Description of Model & Objective
+
+(Please includ...
+2023-09-22 18:02:51,056 [INFO]: Chunk 1: across four ASU campuses, including ASU West, ASU ...
+2023-09-22 18:02:51,056 [INFO]: Chunk 2: the last eleven years working with Arizona State U...
+2023-09-22 18:07:56,333 [INFO]: Generated response for devtrident: {
+  "DescriptionOfModelAndObjective": {
+    "ModelType": "ASU Prep Local Microschool",
+    "GradesServed": "9-12th grade",
+    "StudentDemographics": {
+      "FemalePercentage": "%%",
+      "MalePercentage": "%%",
+      "NonBinaryPercentage": "%%",
+      "NonWhitePercentage": "%%"
+    },
+    "ModelNature": "Hybrid (on-campus and online)",
+    "Foundation": "Project-based learning"
+  },
+  "MicroschoolModelOrInnovativeIdea": {
+    "Idea": "Co-locate an ASU Prep Microschool within the corporate facility of an industry partner",
+    "Benefits": [
+      {
+        "RealWorldRelevance": {
+          "Description": "Immerse students in authentic workplace environments"
+        }
+      },
+      {
+        "21stCenturySkillDevelopment": {
+          "Description": "Emphasize critical thinking, problem-solving, communication, collaboration, and adaptability"
+        }
+      },
+      {
+        "SeamlessTransition": {
+          "Description": "Remove barriers between high school, college, and the professional world"
+        }
+      },
+      {
+        "DualCreditOpportunities": {
+          "Description": "Offer both high school and college credits simultaneously"
+        }
+      },
+      {
+        "IndustryExposure": {
+          "Description": "Provide insight into industry-specific practices, trends, and challenges"
+        }
+      },
+      {
+        "MentorshipAndNetworking": {
+          "Description": "Collaborate with industry experts for mentorship opportunities and building a professional network"
+        }
+      }
+    ]
+  },
+  "ProblemAddressedAndChangeInLearningExperience": {
+    "ProblemAddressed": [
+      {
+        "GraduatesLackSkillsAndConfidenceForRealWorldSettings": true
+      },
+      {
+        "StudentsStruggleWithTransitionFromHighSchoolToCollegeOrWorkforce": true
+      },
+      {
+        "LackOfExposureToIndustrySpecificPracticesAndOpportunities": true
+      },
+      {
+        "LimitedOpportunitiesForHandsOnProjectBasedLearning": true
+      },
+      {
+        "DifficultyInRetainingStudentEngagementAndMotivation": true
+      }
+    ],
+    "ChangeInLearningExperience": "Revolutionize students' learning experiences, ensuring education is a dynamic and immersive journey"
+  },
+  "ModelSupportForInclusionOfAllLearners": {
+    "DiverseStudentPopulation": true,
+    "IndividualizedLearning": true,
+    "AccessibilityFeatures": true,
+    "InclusiveCurriculum": true,
+    "SupportServices": true,
+    "InclusiveProjectBasedLearning": true,
+    "CulturalCompetencyTrainingForEducators": true,
+    "OngoingFeedbackAndImprovement": true,
+    "AddressingPotentialExclusion": [
+      {
+        "EnsuringAccessibility": true
+      },
+      {
+        "FlexibleLearningOptions": true
+      },
+      {
+        "ClearExpectationsCommunication": true
+      }
+    ]
+  },
+  "MicroschoolOperationalPeriod": {
+    "YearsOpen": 1
+  },
+  "MicroschoolAccomplishments": [
+    {
+      "HighAcademicAchievement": {
+        "PassingRateInAllCoursesPercentage": 93.55
+      }
+    },
+    {
+      "SeamlessTransitionToCollege": {
+        "AdmissionAndPlanToAttendASUPercentageAmongGraduatingSeniors": 100
+      }
+    },
+    {
+      "RetentionAndReEnrollmentRates": {
+        "RetentionRatePercentagePerSemester": 96,
+        "ReEnrollmentRatePercentageFor2023_2024SchoolYear": 67
+      }
+    },
+    {
+      "StudentAndFamilySatisfaction": {
+        "OverallSatisfactionRatingPercentage": 90
+      }
+    },
+    {
+      "EndOfYearShowcase": {
+        "AttendeesCount": 150
+      }
+    },
+    {
+      "StudentSuccessAcrossCampuses": true
+    }
+  ]
+} {
+  "ProgressReportVideo": "https://youtu.be/HvBvGdBV12o",
+  "ProofOfConcept": {
+    "PositiveResults": true,
+    "GeographicDiversity": true,
+    "Scalability": true,
+    "OpennessToFeedback": true,
+    "ContinuousImprovement": true
+  },
+  "AssessmentOfEffectiveness": {
+    "ToolsForAssessment": ["Student feedback mechanisms", "Performance metrics", "External evaluations"],
+    "KeyAssessmentIndicators": ["Student engagement levels", "Mastery of content", "Overall academic performance", "Social and emotional wellness indicators"],
+    "SupportRequestedFromEvaluationPartner": ["Evaluation Framework Development", "Data Collection and Analysis", "Baseline Assessment", "Ongoing Data Collection", "Impact Assessment", "Comparative Analysis", "Feedback Analysis", "Reporting and Recommendations", "Program Impact Assessment", "Scalability Assessment", "Stakeholder Engagement", "Continuous Improvement"]
+  },
+  "EvolutionaryTimelineOfIdea": {
+    "PresentStatus": {
+      "Status": ["Pilots active in four local schools", "Aim to open new campus in Fall of 2024"],
+      "DurationOfPursuit": 1,
+      "DetailsOnEvolution": ["Inception and Concept Development", "Collaborative Partnerships", "Curriculum Design", "Pilot Program", "Student and Family Feedback", "College Transition Support",  "Continuous Improvement",  "Expansion Plans"]
+    }
+  },
+  "LeadershipIdentification": {
+    "LeadershipTeam": [
+      {
+        "Name": "Betsy Fowler",
+        "Position": ["Head of Schools, ASU Preparatory Academy"],
+        "RoleInModelOrIdea": ["Designs and leads 11 charter schools in the greater Phoenix area"],
+        "PriorExperience": ["Started teaching career in the Midwest"]
+      }
+    ]
+  }
+} {
+  "ASU_Prep_Microschool_Entrepreneur_Fellowship": {
+    "Description": "An initiative to nurture and collaborate with minds eager to reshape the educational landscape with groundbreaking microschool concepts.",
+    "Objective": "Empower parents, educators, and entrepreneurs to bring forth fresh educational models to their communities, offering them the foundation of a nationally respected partner in ASU Prep Digital.",
+    "Program_Duration": "1 year",
+    "Focus_Age_Group": "K-8 learners",
+    "Resources_Provided": ["Training programs", "Curriculum", "Teaching methodologies", "Professional development"],
+    "Experiences_Provided": ["3-day retreat in Tempe, AZ", "Monthly coaching calls", "Teacher professional development sessions"],
+    "Insights_Provided": ["Hiring", "Funding structures", "Leadership training", "Networking opportunities"],
+    "Vision": "A future where dozens of microschools bloom nationwide, tapping into ESA funding options for financial sustainability."
+  },
+  "Key_Personnel": [
+    {
+      "Name": "Betsy",
+      "Role": ["Deputy Head of Schools", "Executive Director of School Design"],
+      "Experience": ["Turnaround school leadership", "STEM academy leadership", "Digital curriculum expertise", "Launch team member for ASU Prep Digital"],
+      "Education": ["Bachelor's in English", "Master's in Educational Leadership", "Pursuing doctorate in Leadership and Innovation"]
+    },
+    {
+      "Name": "Megan Hanley",
+      "Role": ["Executive Director of School Design"],
+      "Experience": ["15 years in education", "Roles as teacher, family advocate, program manager, educational coordinator, Assistant Principal"],
+      "Education": ["Bachelor's in Arts from George Washington University", "Master's in Education from George Mason University"]
+    },
+    {
+      "Name": "Trista Zobitz",
+      "Role": ["Microschool Program Manager"],
+      "Experience": ["15 years in education", "Roles as teacher, supervisor, mentor, project manager"],
+      "Education": ["Master's in Education from University of Minnesota", "Bachelor's in Communication from Purdue University", "Bachelor's in Education from Winona State University", "Pursuing Doctorate in Educational Leadership and Innovation"]
+    },
+    {
+      "Name": "Kalen Davis",
+      "Role": ["Microschool Program Manager"],
+      "Experience": ["17 years in education", "Roles as teacher, curriculum developer, program developer, academic coach, senior lead coach, supervisor, advisor, project manager"],
+      "Mission": "Disrupting education on a broader scale creating new models and innovative approaches to learning."
+    }
+  ],
+  "Target_Students": {
+    "Description": "ASU Prep by its charter reaches out to those who are historically not included in college-going enrichment activities. An overarching purpose of the program is to increase access to resources that promote college attendance."
+  },
+  "Stakeholder_Partnerships_and_Coalitions": {
+    "Partners": ["CAPS Network", "ASU corporate partners"]
+  },
+  "Funding_and_Sustainability": {
+    "Existing_Sources_of_Funding": ["Charter School Funding", "Arizona State University (ASU) Support", "Grants and Philanthropic Contributions"],
+    "Planned_Sources_of_Funding": ["Grant Funding", "Industry Partnerships", "State and Federal Grants", "Community Fundraising"]
+  },
+  "Financial_Plan": {
+    "Key_Components": ["Diverse Funding Streams", "Grant Funding", "Industry Partnerships", "Cost-Effective Operations", "Budget Flexibility"]
+  }
+}
+
+- GENERATIVE AI AGENT: devtrident
