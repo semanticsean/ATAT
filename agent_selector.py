@@ -30,11 +30,12 @@ class AgentSelector:
     self.conversation_history = ""
 
   def _create_dynamic_prompt(self,
-                             agent_manager,
-                             agent_name,
-                             order,
-                             total_order,
-                             structured_response=None):
+                           agent_manager,
+                           agent_name,
+                           order,
+                           total_order,
+                           structured_response=None,
+                           modality=None):  # Add modality parameter
     order_explanation = ", ".join(
         [resp[0] for resp in self.conversation_structure.get("responses", [])])
     order_context = f"You are role-playing as the {agent_name}. This is the {order}th response in a conversation with {total_order} interactions. The agent sequence is: '{order_explanation}'."
@@ -44,11 +45,15 @@ class AgentSelector:
     instructions = self.instructions['default']['main_instructions']
 
     if structured_response:
-      instructions += self.instructions['default'][
-          'structured_response_guidelines']
-      instructions += f"\n\n=== STRUCTURED RESPONSE GUIDELINES ===\n{structured_response}\n=== END OF GUIDELINES ==="
+        instructions += self.instructions['default']['structured_response_guidelines']
+        instructions += f"\n\n=== STRUCTURED RESPONSE GUIDELINES ===\n{structured_response}\n=== END OF GUIDELINES ==="
+
+    # Check for modality-specific instructions
+    if modality and modality in self.instructions['summarize']:
+        instructions = self.instructions['summarize'][modality]  # Override the instruction with modality-specific one
 
     return f"{persona_context}. {instructions}. Act as this agent:"
+
 
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
                                               agent_manager, gpt_model):
@@ -146,7 +151,8 @@ class AgentSelector:
 
                 dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
                                                              order, total_order,
-                                                             additional_context_chunk)
+                                                             additional_context_chunk,
+                                             modality=modality)
 
                 response = gpt_model.generate_response(dynamic_prompt, chunk,
                                                        self.conversation_history, is_summarize=True)
@@ -172,7 +178,8 @@ class AgentSelector:
 
             dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
                                                          order, total_order,
-                                                         additional_context)
+                                                         additional_context,
+                                             modality=modality)
             response = gpt_model.generate_response(dynamic_prompt, content,
                                                    self.conversation_history, is_summarize=True)
             responses.append(response)

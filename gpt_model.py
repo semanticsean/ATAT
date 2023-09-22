@@ -27,7 +27,7 @@ class GPTModel:
     max_retries = 99
     delay = 60  # variable
     max_delay = 3000  # variable
-    tokens_limit = 512 if is_summarize else 4000 
+    tokens_limit = 1024 if is_summarize else 4000 
     base_value = 8192 - tokens_limit if is_summarize else 4192
     print(f"Set tokens_limit to {tokens_limit} based on is_summarize={is_summarize}.")
 
@@ -101,13 +101,13 @@ class GPTModel:
         }
 
         print("\n--- API Request Payload ---")
-        print((json.dumps(request_payload, indent=4)))
+        print((json.dumps(request_payload, indent=4))[:42])
 
         response = openai.ChatCompletion.create(
             **request_payload)  # Updated this line
 
         print("\n--- API Response ---")
-        print(json.dumps(response, indent=4))
+        print(json.dumps(response, indent=4)[:42])
 
         break
 
