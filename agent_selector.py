@@ -128,25 +128,30 @@ class AgentSelector:
       modality = result.get('modality')
       additional_context = self.instructions.get(modality,
                                                  self.instructions['default'])
-
-    if result['type'] == 'detail':
       chunks = result.get('content', [])
       self.conversation_history = self.conversation_history[-16000:]
+      logging.info(f"Number of chunks: {len(chunks)}")
+      for i, c in enumerate(chunks):
+        logging.info(
+            f"Chunk {i}: {c[:50]}...")  
 
       for idx, chunk in enumerate(chunks):
-        additional_context_chunk = self.instructions['detail'][
-            'additional_context_chunk'].format(part_number=idx + 1,
-                                               total_parts=len(chunks))
+            print(f"Processing chunk {idx + 1} of {len(chunks)}")
+            additional_context_chunk = self.instructions['summarize'][
+                'additional_context_chunk'].format(part_number=idx + 1,
+                                                   total_parts=len(chunks))
+            logging.info(f"Processing chunk {idx + 1}/{len(chunks)}")
 
-        dynamic_prompt = self._create_dynamic_prompt(
-            agent_manager, agent_name, order, total_order,
-            additional_context_chunk or additional_context)
-        response = gpt_model.generate_response(dynamic_prompt, chunk,
-                                               self.conversation_history)
-        responses.append(response)
-        self.conversation_history += f"\n{agent_name} said: {response}"
+            dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
+                                                     order, total_order,
+                                                     additional_context)
+            response = gpt_model.generate_response(dynamic_prompt, content,
+                                       self.conversation_history, is_summarize=True)
+            responses.append(response)
+            self.conversation_history += f"\n{agent_name} said: {response}"
 
     else:
+
       structured_response_json = {}
       if structured_response and structured_response.strip():
         try:
