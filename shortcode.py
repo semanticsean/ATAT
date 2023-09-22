@@ -73,6 +73,8 @@ def handle_document_short_code(email_content,
   if summarize_matches:
     modality, summarize_content = summarize_matches[0]
     summarize_content = summarize_content.strip()
+    print("Detected !summarize in content.")
+
 
     # Check if the content has the !previousResponse keyword and replace it
     if "!previousResponse" in summarize_content:
