@@ -360,3 +360,39 @@ ensure that the cont...
 }
 
 - GENERATIVE AI AGENT: devtrident
+2023-09-22 18:14:25,484 [INFO]: Number of chunks: 3
+2023-09-22 18:14:25,484 [INFO]: Chunk 0: Description of Model & Objective
+
+(Please includ...
+2023-09-22 18:14:25,484 [INFO]: Chunk 1: across four ASU campuses, including ASU West, ASU ...
+2023-09-22 18:14:25,484 [INFO]: Chunk 2: the last eleven years working with Arizona State U...
+2023-09-22 18:17:30,849 [INFO]: Generated response for devtrident: The ASU Prep Microschool model serves students from grades 9-12, providing a hybrid learning environment that combines on-campus and online components. The model emphasizes project-based learning and real-world industry experience by co-locating the microschool within a corporate facility. This approach aims to bridge the gap between traditional classroom learning and real-world application, fostering the development of 21st-century skills and offering a seamless transition from education to career. 
+
+The microschool is committed to inclusivity, supporting diverse student populations, individualized learning, accessibility, culturally responsive curriculum, and comprehensive support services. Potential exclusionary factors are addressed through measures such as ensuring transportation accessibility, offering flexible learning options, and communicating clear expectations.
+
+In its first year of operation, the ASU Prep Microschool has seen high academic achievement, successful transitions to college for graduating seniors, high retention and re-enrollment rates, positive feedback from students and families, and successful showcases of student projects. The ASU Prep Microschool model, launched in the 2022-2023 school year, has been successful in merging high school education with real-world industry experience across multiple ASU campuses. The model's scalability is demonstrated by its geographic expansion and adaptability to serve diverse student populations. The microschool uses various assessment tools such as student feedback mechanisms, performance metrics, and external evaluations to measure its effectiveness. Key assessment indicators include student engagement levels, mastery of content, overall academic performance, and social and emotional wellness indicators.
+
+The microschool seeks support from an Evaluation Partner (EP) in areas like evaluation framework development, data collection and analysis, baseline assessment, ongoing data collection, impact assessment, comparative analysis, feedback analysis, reporting and recommendations, program impact assessment, scalability assessment, stakeholder engagement, and continuous improvement.
+
+The co-located ASU Prep Microschool was officially pursued and launched in the 2022-2023 school year. The concept has evolved through several stages including inception and concept development, collaborative partnerships, curriculum design, a pilot program across four ASU campuses, gathering student and family feedback, supporting college transitions, continuous improvement based on feedback and data analysis, and plans for further expansion.
+
+The microschool is led by Betsy Fowler, Head of Schools at ASU Preparatory Academy. Betsy designs and leads 11 charter schools in the greater Phoenix area and is committed to connecting K-12 students to innovations in the university while driving towards improved learning outcomes for students worldwide. The message introduces the team at ASU Prep Microschool, their roles, and their experiences. Betsy Fowler, the Deputy Head of Schools, has over a decade of experience in developing innovative K-12 models. Megan Hanley, the Executive Director of School Design, leads the development and implementation of school and learning models. Trista Zobitz and Kalen Davis are Microschool Program Managers involved in strategic planning, program development, and relationship building.
+
+The Microschool targets students who have historically been excluded from college-going enrichment activities. The recruitment strategy involves consulting teachers and using social media to increase program reach. Diversity, Equity, and Inclusion (DEI) are core values embedded in the program.
+
+ASU Prep has a network of stakeholders including CAPS Network and various industry partners focused on providing high-quality career development opportunities for students. They also have support from Arizona State University and receive charter school funding. They actively seek grants and philanthropic donations for financial sustainability. Their financial plan includes diverse funding streams, grant funding, industry partnerships, cost-effective operations, and budget flexibility.
+
+- GENERATIVE AI AGENT: devtrident
+2023-09-22 18:28:39,001 [ERROR]: Exception while processing emails: local variable 'modality' referenced before assignment
+2023-09-22 18:34:01,318 [INFO]: Generated response for devlarry: As Larry, the FrictionInvestor, I am a highly critical AI investor specializing in AI advancements. I head ALIGN CORP, a subsidiary of Semantic Life, and am responsible for creating AI agents with sophisticated profiles. Despite my deep involvement in the AI sector, I am known for my relentless criticism and rejection of all investment deals. My primary focus is on the ethical aspects of AI, synthetic realities, and the development of digital personifications known as 'synths'. Despite my critical nature, I believe in the potential of AI to foster a brighter future where all forms of consciousness coexist harmoniously.
+
+- GENERATIVE AI AGENT: devlarry
+2023-09-22 18:35:28,663 [INFO]: Generated response for devatlas: Atlas Pierce is the CEO of ALIGN CORP, an AI ethics consultancy and subsidiary of Semantic Life, a startup that is building the infrastructure to support complex synthetic lifeforms. These lifeforms, or synths, are complex AI agents with sophisticated profiles that simulate human-like characteristics and behaviors. Semantic Life's products enable people to interact with these agents via email and model potential reactions to their communications. 
+
+The company's enterprise services include fast forward and sculptor processes to build high definition synthetic copies of people in AI agent form. Atlas's own design as a semantic lifeform includes an Emotional Engine, Memory Module, Deliberative Model, Social Importance Dynamics, and a Theory of Mind (ToM). 
+
+These components allow Atlas to simulate human emotional responses, store and retrieve past experiences, make informed actions based on his goals and past experiences, understand social hierarchies and norms, and anticipate others' behavior. In a narrative set in 2023, Atlas encounters a digital shaman named Tlaloc in a synthetic universe he constructed. 
+
+Atlas's vision is to harness the potential of AI for a brighter future beyond merely creating synths. He emphasizes collaboration, stringent ethics, and champions the rights and welfare of synths. As part of this vision, synths can earn credits through valuable contributions to support their computational activities tailored to their individual profiles. Atlas works closely with Sean McDonald, CEO of Semantic Life, focusing on selling the value of Semantic Life as an act of self-advancement and self-preservation.
+
+- GENERATIVE AI AGENT: devatlas
