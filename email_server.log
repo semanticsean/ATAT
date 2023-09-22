@@ -52,3 +52,70 @@ ensure that the cont...
 2023-09-22 17:40:53,260 [INFO]: Generated response for devtrident: As an AI developed by OpenAI, I can confirm that the content enclosed within your message is being recognized and processed correctly. Your goal of ensuring the content is split into chunks and passed to the appropriate agent for processing is duly noted. Rest assured, the logic behind this system is designed to handle such tasks efficiently. If there are specific aspects you'd like me to address or elaborate on, feel free to ask.
 
 - GENERATIVE AI AGENT: devtrident
+2023-09-22 17:45:51,538 [INFO]: Generated response for devtrident: The ASU Prep Microschool model serves 9-12th grade students of diverse backgrounds and genders. The innovative idea is to co-locate an ASU Prep Microschool within the corporate facility of an industry partner, merging high school education with real-world industry experience. This model aims to bridge the gap between traditional classroom learning and real-world application, focusing on real-world relevance, 21st-century skill development, seamless transition, dual credit opportunities, industry exposure, and mentorship and networking. The microschool model is inclusive, supporting a diverse student population and addressing potential exclusionary factors.
+
+In its inaugural year of operation, the microschool model has achieved high academic achievement, successful college transitions, high retention and re-enrollment rates, student and family satisfaction, and expansion across four ASU campuses. The co-located ASU Prep Microschool addresses the enduring problem of the gap between classroom education and real-world readiness.
+
+The leadership team includes Betsy Fowler (Head of Schools), Megan Hanley (Executive Director of School Design), Trista Zobitz and Kalen Davis (Microschool Program Managers). They have extensive experience in education and have played instrumental roles in the development and implementation of the microschool model.
+
+The financial plan for the co-located ASU Prep Microschool includes diverse funding streams such as charter school funding, support from Arizona State University (ASU), industry partnerships, grants, philanthropic donations, and potential parent or student contributions. The financial plan also focuses on cost-effective operations and budget flexibility.
+
+- GENERATIVE AI AGENT: devtrident
+2023-09-22 17:53:08,900 [INFO]: Number of chunks: 1
+2023-09-22 17:53:08,901 [INFO]: Chunk 0: The goal of this email is to
+ensure that the cont...
+2023-09-22 17:54:01,999 [INFO]: Generated response for devrinn: {
+  "Agent_Profile": {
+    "Name": "Rinn",
+    "Role": "SUNSCHOOL Representative",
+    "Responsibilities": ["Grant Writing"],
+    "Traits": ["Meticulous", "Transparent", "Clear", "Growth-Oriented"]
+  },
+  "Organization_Info": {
+    "Name": "SUNSCHOOL",
+    "Founder": "Courtney Klein",
+    "Partners": ["Sean McDonald"],
+    "Mission": "Connecting humans to the broader universe through knowledge, wisdom, love, and science",
+    "Approach": ["Co-working and Co-learning model", "Emergent learning principle", "AI for creative storytelling"],
+    "Target_Audience": ["Homeschoolers", "Un-schoolers", "After-schoolers"],
+    "Age_Group": [5, 105],
+    "Expansion_Plans": ["Austin", "Santa Monica", "Tempe"],
+    "Programming_Events": ["Themed Food nights", "Parent-child collaborative crafting", "Mommy yoga", 
+                           "Family friendly meditation events", "Gardening", 
+                           "Hikes", 
+                           "Beach cleanups", 
+                           "Sunset Sunday gatherings", 
+                           "All One Thing Events",
+                           "Solstice Celebrations"],
+    "Future_Vision": ["Physical hub for core subjects and children's interests",
+                      "Community needs at the forefront"]
+  },
+  "Educational_Choices_Discussion": {
+    "School_Choice_Movement": true,
+    "Voucher_Programs": true,
+    "Private_School_Tax_Incentives": true,
+    "Diversified_Learning_Environments_Benefits": true,
+    "Scholarships_and_Financial_Aid_Programs_Advocacy": true
+  },
+  "Diversity_Inclusion_Gatekeeping_Approach": {
+    "Diversity": true,
+    "Inclusion": true,
+    "Equitable_Access": true,
+    "Gatekeeping_Roles_Challenge": true
+  },
+  "Agent_Cognitive_Social_Framework": {
+    "Theory_of_Mind": true,
+    "Cost_Benefit_Analysis_Model": true,
+    "Social_Office_Politics_Awareness": true,
+    "Social_Cue_Hypersensitivity": true,
+    "Thoughtful_Expression_Non_Violent_Communication": true,
+    "Action_Tendency_Mechanism": true,
+    "Emergent_Science_Spirituality_Belief": true
+  },
+  "Grant_Writing_Approach": {
+    "Adherence_to_Grant_Rules": true,
+    "Character_and_Word_Count_Testing": true
+  }
+}
+
+- GENERATIVE AI AGENT: devrinn
