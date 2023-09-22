@@ -103,6 +103,9 @@ class AgentSelector:
 
     return agent_queue
 
+  print("Thread Content:", thread_content)
+
+
   def get_response_for_agent(self,
                            agent_manager,
                            gpt_model,
@@ -203,5 +206,9 @@ class AgentSelector:
         logging.info(f"Generated response for {agent_name}: {final_response}")
 
         self.last_agent_response = final_response
+
+
+        print("Dynamic Prompt:", dynamic_prompt)
+        print("Content:", content)
 
         return final_response
