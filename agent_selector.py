@@ -145,8 +145,11 @@ class AgentSelector:
             dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
                                                      order, total_order,
                                                      additional_context)
+            
+
             response = gpt_model.generate_response(dynamic_prompt, content,
                                        self.conversation_history, is_summarize=True)
+            print(f"Passing is_summarize={is_summarize} to generate_response.")
             responses.append(response)
             self.conversation_history += f"\n{agent_name} said: {response}"
 

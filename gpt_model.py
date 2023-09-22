@@ -23,6 +23,15 @@ class GPTModel:
                         note=None,
                         is_summarize=False):
     print("Generating Response from gpt-4 call")
+    response = None
+    max_retries = 99
+    delay = 60  # variable
+    max_delay = 3000  # variable
+    tokens_limit = 512 if is_summarize else 4000 
+    base_value = 8192 - tokens_limit if is_summarize else 4192
+    print(f"Set tokens_limit to {tokens_limit} based on is_summarize={is_summarize}.")
+
+    
     full_content = f"{content}\n\n{conversation_history}"
     if additional_context:
       full_content += f"\n{additional_context}"
@@ -63,12 +72,7 @@ class GPTModel:
     if note:
       full_content += f"\n{note}"
 
-    response = None
-    max_retries = 99
-    delay = 60  # variable
-    max_delay = 3000  # variable
-    tokens_limit = 512 if is_summarize else 4000 
-    base_value = 8192 - tokens_limit if is_summarize else 4192
+    
 
     print(f"Token limit for this request: {tokens_limit}")
 
@@ -97,7 +101,7 @@ class GPTModel:
         }
 
         print("\n--- API Request Payload ---")
-        print(json.dumps(request_payload, indent=4))
+        print((json.dumps(request_payload, indent=4)))
 
         response = openai.ChatCompletion.create(
             **request_payload)  # Updated this line
