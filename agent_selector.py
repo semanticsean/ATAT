@@ -93,98 +93,101 @@ class AgentSelector:
     return agent_queue
 
   def get_response_for_agent(self,
-                             agent_manager,
-                             gpt_model,
-                             agent_name,
-                             order,
-                             total_order,
-                             content,
-                             additional_context=None):
+                           agent_manager,
+                           gpt_model,
+                           agent_name,
+                           order,
+                           total_order,
+                           content,
+                           additional_context=None):
 
     with self.lock:
-      if "!previousResponse" in content:
-        content = content.replace('!previousResponse',
-                                  self.last_agent_response)
-        content = content.replace('!useLastResponse', '').strip()
+        if "!previousResponse" in content:
+            content = content.replace('!previousResponse',
+                                      self.last_agent_response)
+            content = content.replace('!useLastResponse', '').strip()
 
-    responses = []
-    dynamic_prompt = ""
-    agent = agent_manager.get_agent(agent_name, case_sensitive=False)
+        responses = []
+        dynamic_prompt = ""
+        agent = agent_manager.get_agent(agent_name, case_sensitive=False)
 
-    if not agent:
-      logging.warning(f"No agent found for name {agent_name}. Skipping...")
-      return ""
+        if not agent:
+            logging.warning(f"No agent found for name {agent_name}. Skipping...")
+            return ""
 
-    result = handle_document_short_code(content, self.openai_api_key,
-                                        self.conversation_history)
-    if result is None:
-      print(
-          "Error: agent_selector - handle_document_short_code returned None.")
-      return False
-    structured_response = result.get('structured_response')
-    new_content = result.get('new_content')
+        result = handle_document_short_code(content, self.openai_api_key,
+                                            self.conversation_history)
+        if result is None:
+            print(
+                "Error: agent_selector - handle_document_short_code returned None.")
+            return False
+        structured_response = result.get('structured_response')
+        new_content = result.get('new_content')
 
-    if result['type'] == 'summarize':
-      modality = result.get('modality')
-      additional_context = self.instructions.get(modality,
-                                                 self.instructions['default'])
-      chunks = result.get('content', [])
-      self.conversation_history = self.conversation_history[-16000:]
-      logging.info(f"Number of chunks: {len(chunks)}")
-      for i, c in enumerate(chunks):
-        logging.info(
-            f"Chunk {i}: {c[:50]}...")  
+        # Handle Summarize Type
+        if result['type'] == 'summarize':
+            modality = result.get('modality', 'default')
+            additional_context = self.instructions['summarize'].get(modality,
+                                                                     self.instructions['summarize']['default'])
 
-      for idx, chunk in enumerate(chunks):
-            print(f"Processing chunk {idx + 1} of {len(chunks)}")
-            additional_context_chunk = self.instructions['summarize'][
-                'additional_context_chunk'].format(part_number=idx + 1,
-                                                   total_parts=len(chunks))
-            logging.info(f"Processing chunk {idx + 1}/{len(chunks)}")
+            chunks = result.get('content', [])
+            self.conversation_history = self.conversation_history[-16000:]
+            logging.info(f"Number of chunks: {len(chunks)}")
+            for i, c in enumerate(chunks):
+                logging.info(f"Chunk {i}: {c[:50]}...")
+
+            for idx, chunk in enumerate(chunks):
+                if modality in self.instructions['summarize']:
+                    additional_context_chunk = self.instructions['summarize'][
+                        'additional_context_chunk'].format(part_number=idx + 1,
+                                                           total_parts=len(chunks))
+                else:
+                    additional_context_chunk = additional_context
+
+                dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
+                                                             order, total_order,
+                                                             additional_context_chunk)
+
+                response = gpt_model.generate_response(dynamic_prompt, chunk,
+                                                       self.conversation_history, is_summarize=True)
+
+                responses.append(response)
+                self.conversation_history += f"\n{agent_name} said: {response}"
+
+        # Handle Default Type
+        else:
+            structured_response_json = {}
+            if structured_response and structured_response.strip():
+                try:
+                    structured_response_dict = json.loads(structured_response)
+                    structured_response_type = structured_response_dict.get('type', None)
+                    structured_response_content = structured_response_dict.get(
+                        'structured_response', None)
+                    if structured_response_type and structured_response_content:
+                        additional_context = f"\nGuidelines for crafting response:\n{json.dumps(structured_response_content, indent=4)}"
+                        content = new_content
+                except json.JSONDecodeError:
+                    logging.warning("Unable to parse structured response as JSON.")
+                    additional_context = structured_response
 
             dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
-                                                     order, total_order,
-                                                     additional_context)
-            
-
+                                                         order, total_order,
+                                                         additional_context)
             response = gpt_model.generate_response(dynamic_prompt, content,
-                                       self.conversation_history, is_summarize=True)
-            print(f"Passing is_summarize={is_summarize} to generate_response.")
+                                                   self.conversation_history, is_summarize=True)
             responses.append(response)
             self.conversation_history += f"\n{agent_name} said: {response}"
 
-    else:
+        
 
-      structured_response_json = {}
-      if structured_response and structured_response.strip():
-        try:
-          structured_response_dict = json.loads(structured_response)
-          structured_response_type = structured_response_dict.get('type', None)
-          structured_response_content = structured_response_dict.get(
-              'structured_response', None)
-          if structured_response_type and structured_response_content:
-            additional_context = f"\nGuidelines for crafting response:\n{json.dumps(structured_response_content, indent=4)}"
-            content = new_content
-        except json.JSONDecodeError:
-          logging.warning("Unable to parse structured response as JSON.")
-          additional_context = structured_response
+        final_response = " ".join(responses)
+        signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
+        final_response += signature
 
-      dynamic_prompt = self._create_dynamic_prompt(agent_manager, agent_name,
-                                                   order, total_order,
-                                                   additional_context)
-      response = gpt_model.generate_response(dynamic_prompt, content,
-                                             self.conversation_history)
-      responses.append(response)
-      self.conversation_history += f"\n{agent_name} said: {response}"
+        self.conversation_structure.setdefault("responses", []).append(
+            (agent_name, final_response))
+        logging.info(f"Generated response for {agent_name}: {final_response}")
 
-    final_response = " ".join(responses)
-    signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
-    final_response += signature
+        self.last_agent_response = final_response
 
-    self.conversation_structure.setdefault("responses", []).append(
-        (agent_name, final_response))
-    logging.info(f"Generated response for {agent_name}: {final_response}")
-
-    self.last_agent_response = final_response
-
-    return final_response
+        return final_response

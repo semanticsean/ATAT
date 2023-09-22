@@ -26,3 +26,29 @@ ensure that the cont...
 ensure that the cont...
 2023-09-22 17:25:28,143 [INFO]: Processing chunk 1/1
 2023-09-22 17:25:43,429 [ERROR]: Exception while processing emails: name 'is_summarize' is not defined
+2023-09-22 17:26:44,718 [INFO]: Number of chunks: 1
+2023-09-22 17:26:44,718 [INFO]: Chunk 0: The goal of this email is to
+ensure that the cont...
+2023-09-22 17:26:44,718 [INFO]: Processing chunk 1/1
+2023-09-22 17:26:56,117 [INFO]: Generated response for devatlas: Hello,
+
+Thank you for reaching out and ensuring the functionality of our systems. I can confirm that the content enclosed within the !summarize shortcodes has been recognized and processed correctly.
+
+To summarize, you are testing the functionality of the !summarize shortcode. The purpose is to ensure that the content within these shortcodes is correctly divided into chunks and passed to the appropriate agent for processing. If it does not work as expected, it would indicate a fundamental flaw in our logic.
+
+If you have any further tests or inquiries, feel free to let me know.
+
+Best regards,
+Atlas Pierce
+CEO, ALIGN Corp
+
+- GENERATIVE AI AGENT: devatlas
+2023-09-22 17:27:13,068 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 11055 tokens (7055 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-09-22 17:37:02,607 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 11055 tokens (7055 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-09-22 17:39:28,655 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 11078 tokens (7078 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-09-22 17:40:44,713 [INFO]: Number of chunks: 1
+2023-09-22 17:40:44,713 [INFO]: Chunk 0: The goal of this email is to
+ensure that the cont...
+2023-09-22 17:40:53,260 [INFO]: Generated response for devtrident: As an AI developed by OpenAI, I can confirm that the content enclosed within your message is being recognized and processed correctly. Your goal of ensuring the content is split into chunks and passed to the appropriate agent for processing is duly noted. Rest assured, the logic behind this system is designed to handle such tasks efficiently. If there are specific aspects you'd like me to address or elaborate on, feel free to ask.
+
+- GENERATIVE AI AGENT: devtrident
