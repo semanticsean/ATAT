@@ -209,40 +209,24 @@ class EmailServer:
                               subject, message_id, references, num,
                               initial_to_emails, initial_cc_emails,
                               thread_emails, thread_id):
-
-        # 1. Identify human emails in this thread
         human_emails = [
             email_data for email_data in thread_emails
             if email_data['from_'] != self.smtp_username
         ]
         human_senders = [email_data['from_'] for email_data in human_emails]
-
-        # 2. Aggregate human responses
         aggregated_human_content = self.aggregate_human_responses(
             human_senders, thread_content)
-
-        # 3. Check who sent the last email in the thread
         last_email_sender = thread_emails[-1]['from_'] if thread_emails else None
-
-        # Initialize success flag and replied_threads for this thread
         all_responses_successful = True
         self.replied_threads[thread_id] = self.replied_threads.get(thread_id, {})
-
-        # 4. Identify agents to be invoked
         recipient_emails = to_emails + cc_emails
         agents = self.agent_selector.get_agent_names_from_content_and_emails(
             thread_content, recipient_emails, self.agent_manager, self.gpt_model)
-
         for agent_name, order in agents:
-            # Skip if this agent already replied to this thread
             if self.replied_threads[thread_id].get(agent_name, False):
                 continue
-
-            # Skip if the last email is from another AI agent
             if last_email_sender in [agent["email"] for agent in self.agent_manager.agents.values()]:
                 continue
-
-            # Generate response
             response = self.agent_selector.get_response_for_agent(
                 self.agent_manager,
                 self.gpt_model,
@@ -251,19 +235,16 @@ class EmailServer:
                 agents,
                 aggregated_human_content
             )
-
             if not response:
                 all_responses_successful = False
                 continue
-
-            # Send response email
             agent = self.agent_manager.get_agent(agent_name)
             if agent:
                 try:
                     self.send_email(
                         from_email=self.smtp_username,
                         from_alias=agent["email"],
-                        human_threads=human_emails,  # Pass the list of dictionaries
+                        human_threads=human_emails,
                         cc_emails=cc_emails,
                         subject=f"Re: {subject}",
                         body=response,
@@ -274,10 +255,8 @@ class EmailServer:
                 except Exception as e:
                     print(f"Exception while sending email: {e}")
                     all_responses_successful = False
-
         if all_responses_successful:
             self.update_processed_threads(message_id, num, subject)
-
         return all_responses_successful
 
     @contextmanager
@@ -407,18 +386,14 @@ class EmailServer:
 
     def send_email(self, from_email, from_alias, human_threads, cc_emails, subject, body, message_id=None, references=None):
         to_emails = [email_data['from_'] for email_data in human_threads]
-        all_recipients = to_emails + cc_emails  # Define all_recipients before the check
-    
-        # Remove the sending agent's email from the To and Cc fields
+        all_recipients = to_emails + cc_emails
         all_recipients = [
             email for email in all_recipients
             if email.lower() != from_email.lower()
         ]
-    
         if not all_recipients:
-          print("No valid recipients found. Aborting email send.")
-          return
-
+            print("No valid recipients found. Aborting email send.")
+            return
         msg = MIMEMultipart()
         msg['From'] = f'"{from_alias}" <{from_alias}>'
         msg['Reply-To'] = f'"{from_alias}" <{from_alias}>'
@@ -432,12 +407,9 @@ class EmailServer:
         if references:
             msg["References"] = references
         msg.attach(MIMEText(body, 'plain'))
-
-        # Clean the all_recipients list to remove the SMTP username to prevent sending emails to itself
         all_recipients = [
             email for email in all_recipients
             if email.lower() != self.smtp_username.lower()
         ]
-
         with self.smtp_connection() as server:
             server.sendmail(from_email, all_recipients, msg.as_string())
