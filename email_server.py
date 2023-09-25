@@ -31,6 +31,7 @@ class EmailServer:
     self.agent_selector = AgentSelector()
     self.conversation_threads = {}
     self.openai_api_key = os.getenv('OPENAI_API_KEY')
+    self.replied_threads = {}
 
   def setup_email_server(self):
     self.smtp_server = os.getenv('SMTP_SERVER')
@@ -73,7 +74,7 @@ class EmailServer:
         print("IMAP connection lost. Reconnecting...")
         self.connect_to_imap_server()
 
-      self.process_emails()
+      self.process_new_emails()
 
       print(
           f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Sleeping for {sleep_time} seconds."
@@ -120,20 +121,18 @@ class EmailServer:
     print("Restarting system...")
     self.connect_to_imap_server()
 
-  def aggregate_human_responses(self, human_threads, thread_content):
-    print(f"Inside aggregate_human_responses - human_threads: {human_threads}")
-    print(
-        f"Inside aggregate_human_responses - thread_content: {thread_content}")
-
+  def aggregate_human_responses(self, human_senders, thread_content):
     # Extract and aggregate human responses from the thread_content
     human_responses = [
         response for thread in thread_content.split("\n\n")
-        for response in human_threads if response in thread
+        for sender in human_senders if sender in thread
     ]
     aggregated_human_content = "\n\n---\n\n".join(human_responses)
     return aggregated_human_content
 
-  def process_email(self, num):
+
+
+  def process_single_email(self, num):
     try:
       # Fetch the email content by UID
       result, data = self.imap_server.uid('fetch', num, '(RFC822)')
@@ -209,7 +208,7 @@ class EmailServer:
       msg['Subject'] = subject
       server.sendmail(self.smtp_username, [to_email], msg.as_string())
 
-  def process_emails(self):
+  def process_new_emails(self):
     try:
       self.imap_server.select("INBOX")
       result, data = self.imap_server.uid('search', None, 'UNSEEN')
@@ -221,10 +220,9 @@ class EmailServer:
       if unseen_emails:
         print(f"Found {len(unseen_emails)} unseen emails.")
 
-        # Step 1: Categorize emails by thread (using subject as a placeholder for thread ID)
         threads = {}
         for num in unseen_emails:
-          message_id, num, subject, content, from_, to_emails, cc_emails, references = self.process_email(
+          message_id, num, subject, content, from_, to_emails, cc_emails, references = self.process_single_email(
               num)
           if message_id:
             thread_id = references.split()[0] if references else subject
@@ -241,10 +239,26 @@ class EmailServer:
                 "references": references
             })
 
-        # Step 2: Process each thread separately
         for thread_id, thread_emails in threads.items():
-          thread_content = " ".join(
-              [email_data['content'] for email_data in thread_emails])
+          thread_emails.sort(key=lambda x: x.get('timestamp', 0))
+
+          most_recent_human_email = None
+          for email_data in reversed(thread_emails):
+            if email_data['from_'] != self.smtp_username:
+              most_recent_human_email = email_data
+              break
+
+          if most_recent_human_email is None:
+            continue
+
+          if thread_id in self.replied_threads:
+            print(
+                f"Thread {thread_id} has already been processed by this agent."
+            )
+            continue
+
+          thread_content = " \n---NEW EMAIL---\n ".join([email_data['content'] for email_data in thread_emails])
+
           from_ = thread_emails[-1]['from_']
           to_emails = thread_emails[-1]['to_emails']
           cc_emails = thread_emails[-1]['cc_emails']
@@ -255,11 +269,17 @@ class EmailServer:
           references = thread_emails[-1]['references']
           num = thread_emails[-1]['num']
 
-          successful = self.handle_incoming_email(from_, to_emails, cc_emails,
-                                                  thread_content, subject,
-                                                  message_id, references, num,
-                                                  initial_to_emails,
-                                                  initial_cc_emails)
+          # Collect all human email data in this thread
+          human_threads = [
+              email_data['content'] for email_data in thread_emails
+              if email_data['from_'] != self.smtp_username
+          ]
+          aggregated_human_content = "\n\n---\n\n".join(human_threads)
+
+          successful = self.handle_incoming_email(
+              from_, to_emails, cc_emails, thread_content, subject, message_id,
+              references, num, initial_to_emails, initial_cc_emails,
+              thread_emails, thread_id, human_threads)
 
           if successful:
             for email_data in thread_emails:
@@ -301,201 +321,80 @@ class EmailServer:
     return re.sub(clean, '', html.unescape(text))
 
   def handle_incoming_email(self, from_, to_emails, cc_emails, thread_content,
-                            subject, message_id, references, num,
-                            initial_to_emails, initial_cc_emails):
+                          subject, message_id, references, num,
+                          initial_to_emails, initial_cc_emails,
+                          thread_emails, thread_id, human_threads):
 
-    shortcode_type = None
-    print("Entered handle_incoming_email")
-    new_content = thread_content
+    # 1. Identify human emails in this thread
+    human_emails = [
+        email_data for email_data in thread_emails
+        if email_data['from_'] != self.smtp_username
+    ]
+    human_senders = [email_data['from_'] for email_data in human_emails]
 
-    # Reset conversation history for a new email thread
-    self.agent_selector.reset_for_new_thread()
-    print("Before human_threads initialization:", from_, to_emails, cc_emails,
-          thread_content, subject, message_id, references, num)
-    human_threads = set()
+    # 2. Aggregate human responses
+    aggregated_human_content = self.aggregate_human_responses(
+        human_senders, thread_content)
 
-    if from_ == self.smtp_username:
-      print("Ignoring self-sent email.")
-      print("Thread Content:", thread_content)
-      return False
+    # 3. Check who sent the last email in the thread
+    last_email_sender = thread_emails[-1]['from_'] if thread_emails else None
 
-    print(f"Handling email from: {from_}")
-    print(f"To emails: {to_emails}")
-    print(f"CC emails: {cc_emails}")
-    print(
-        f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:100]}..."
-    )
+    # Initialize success flag and replied_threads for this thread
+    all_responses_successful = True
+    self.replied_threads[thread_id] = self.replied_threads.get(thread_id, {})
 
-    result = handle_document_short_code(
-        thread_content, self.agent_selector.openai_api_key,
-        self.agent_selector.conversation_history)
-
-    if result is None:
-      print("Error: email server - handle_document_short_code returned None.")
-      return False
-
-    structured_response = result.get('structured_response')
-    thread_content = re.sub(r'!\w+\(.*?\)', '', thread_content)
-
-    if structured_response is not None:
-      shortcode_type = structured_response.get("type")
-
-    if shortcode_type in ["style", "detail"]:
-      structured_response = result.get('content', None)
-      new_content = result.get('new_content', thread_content)
-
-    if shortcode_type == "detail":
-      # Stitch the detailed responses together
-      stitched_response = "\n\n".join(structured_response)
-      # Use the stitched response as the thread_content for further processing
-      thread_content = stitched_response
-    elif shortcode_type is not None:
-      print("Unhandled response_data type.")
-
-    style_info = structured_response.get('structured_response',
-                                         '') if structured_response else ''
-    print(f"Structured response generated: ")
-    self.agent_selector.conversation_history += f"\nStructured Response: {structured_response}"  # Update conversation history
-    thread_content = new_content
-
+    # 4. Identify agents to be invoked
     recipient_emails = to_emails + cc_emails
     agents = self.agent_selector.get_agent_names_from_content_and_emails(
         thread_content, recipient_emails, self.agent_manager, self.gpt_model)
 
-    print("Before agent assignment.")
-    print(
-        f"Agent queue from get_agent_names_from_content_and_emails: {agents}")
-    print(f"Raw agents list before filtering: {agents}")
-    # Filter out invalid agent info and ensure we unpack the expected format
-    agents = [
-        agent_info for agent_info in agents
-        if isinstance(agent_info, tuple) and len(agent_info) == 2
-    ]
-    print(f"Filtered agents: {agents}")
-    if not agents:
-      logging.warning("No valid agent info found")
-      return False
-    print("There are valid agents to process.")
-    print(f"Identified agents: {agents}")
+    for agent_name, order in agents:
+        # Skip if this agent already replied to this thread
+        if self.replied_threads[thread_id].get(agent_name, False):
+            continue
 
-    # Check if this thread has been processed before
-    if message_id in self.processed_threads:
-      print(f"Email with message_id {message_id} has already been processed.")
-      return False
+        # Skip if the last email is from another AI agent
+        if last_email_sender in [agent["email"] for agent in self.agent_manager.agents.values()]:
+            continue
 
-    # Prevent agents from responding to other agents
-    if from_ in [
-        agent["email"] for agent in self.agent_manager.agents.values()
-    ]:
-      print("Ignoring email from another agent.")
-      return False
-
-    all_responses_successful = True
-    previous_responses = []
-
-    # Ensure proper unpacking for the process_email function
-    message_id, num, subject, content, from_, to_emails, cc_emails, references = self.process_email(
-        num)
-    missing_values = [
-        var_name for var_name, value in locals().items()
-        if value is None and var_name in [
-            "message_id", "num", "subject", "content", "from_", "to_emails",
-            "cc_emails", "references"
-        ]
-    ]
-
-    if missing_values:
-      print(
-          f"Error processing email with UID {num}. Missing or None values: {', '.join(missing_values)}. Skipping this email."
-      )
-      return False
-
-    print(f"Unpacking agents: {agents}")
-
-    for agent_info in agents:
-      agent_name, order = agent_info
-
-      to_emails = list(initial_to_emails)
-      cc_emails = list(initial_cc_emails)
-
-      # Generate response
-      if order == len(agents):
+        # Generate response
         response = self.agent_selector.get_response_for_agent(
             self.agent_manager,
             self.gpt_model,
             agent_name,
             order,
             agents,
-            thread_content,
-            additional_context=f"Note: {style_info}")
-      else:
-        response = self.agent_selector.get_response_for_agent(
-            self.agent_manager, self.gpt_model, agent_name, order, agents,
-            aggregated_human_content)
+            aggregated_human_content
+        )
 
-      if not response:  # Skip empty responses
-        all_responses_successful = False
-        continue
+        if not response:
+            all_responses_successful = False
+            continue
 
-      # If the previous message in the thread was from an agent, skip sending the response
-      if previous_responses and isinstance(
-          previous_responses[-1], dict) and 'from_' in previous_responses[
-              -1] and previous_responses[-1]['from_'] in [
-                  agent["email"]
-                  for agent in self.agent_manager.agents.values()
-              ]:
-
-        # Check for explicit tags or 'ff!' shortcode in the content
-        if "!ff!" not in thread_content and not any(
-            f"!({name})" in thread_content for name, _ in agents):
-          print("Thread Content:", thread_content)
-          print(
-              f"Skipping response from {agent_name} to prevent agent-to-agent loop."
-          )
-          continue
-
-      human_threads.add(from_)
-      print(f"human_threads: {human_threads}")
-      print(f"thread_content: {thread_content}")
-      try:
-        aggregated_human_content = self.aggregate_human_responses(
-            human_threads, thread_content)
-      except TypeError as te:
-        print("TypeError occurred:", te)
-
-      if message_id not in self.conversation_threads:
-        self.conversation_threads[message_id] = [thread_content]
-      self.conversation_threads[message_id].append(response)
-      previous_responses.append(response)
-
-      agent = self.agent_manager.get_agent(agent_name)
-      if agent:
-        to_emails = [
-            email for email in to_emails if email.lower() != from_.lower()
-            and email.lower() != agent["email"].lower()
-        ]
-        cc_emails = [
-            email for email in cc_emails if email.lower() != from_.lower()
-            and email.lower() != agent["email"].lower()
-        ]
-
-        try:
-          self.send_email(from_email=self.smtp_username,
-                          from_alias=agent["email"],
-                          to_emails=to_emails,
-                          cc_emails=cc_emails,
-                          subject=f"Re: {subject}",
-                          body=response,
-                          message_id=message_id,
-                          references=references)
-        except Exception as e:
-          print(f"Exception while sending email: {e}")
-          all_responses_successful = False
+        # Send response email
+        agent = self.agent_manager.get_agent(agent_name)
+        if agent:
+            try:
+                self.send_email(
+                    from_email=self.smtp_username,
+                    from_alias=agent["email"],
+                    to_emails=human_senders,
+                    cc_emails=cc_emails,
+                    subject=f"Re: {subject}",
+                    body=response,
+                    message_id=message_id,
+                    references=references
+                )
+                self.replied_threads[thread_id][agent_name] = True
+            except Exception as e:
+                print(f"Exception while sending email: {e}")
+                all_responses_successful = False
 
     if all_responses_successful:
-      self.update_processed_threads(message_id, num, subject)
+        self.update_processed_threads(message_id, num, subject)
 
     return all_responses_successful
+
 
   @contextmanager
   def smtp_connection(self):
@@ -509,15 +408,8 @@ class EmailServer:
     finally:
       server.quit()
 
-  def send_email(self,
-                 from_email,
-                 from_alias,
-                 to_emails,
-                 cc_emails,
-                 subject,
-                 body,
-                 message_id=None,
-                 references=None):
+  def send_email(self, from_email, from_alias, human_threads, cc_emails, subject, body, message_id=None, references=None):
+    to_emails = [email_data['from_'] for email_data in human_threads]
     all_recipients = to_emails + cc_emails
 
     # Remove the sending agent's email from the To and Cc fields
@@ -525,6 +417,9 @@ class EmailServer:
         email for email in all_recipients
         if email.lower() != from_email.lower()
     ]
+
+    to_emails = [email_data['from_'] for email_data in human_threads]
+
 
     if not all_recipients:
       print("No valid recipients found. Aborting email send.")
