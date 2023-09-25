@@ -49,8 +49,9 @@ To execute the system, run the `main.py` script, which initializes the agent man
 - `__init__`: Initializes the email server with necessary credentials.
 - `connect_to_imap_server`: Connects to the IMAP server.
 - `disconnect_from_imap_server`: Disconnects from the IMAP server.
-- `process_emails`: Processes new emails from the IMAP server.
+- 'process_single_email': Processes new emails from the IMAP server.
 - `send_email`: Sends an email.
+- 'process_new_emails' - Processes inbox
 - `run_server_loop`: Runs the server loop, periodically checking for new emails and processing them.
 - `check_imap_connection`: Checks if the IMAP connection is still alive.
 - `load_processed_threads`: Loads already processed email threads.
