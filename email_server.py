@@ -394,7 +394,7 @@ class EmailServer:
         all_recipients = to_emails + cc_emails
         all_recipients = [
             email for email in all_recipients
-            if email.lower() != from_email.lower()
+            if email.lower() != from_alias.lower()  # Exclude the from_alias
         ]
         if not all_recipients:
             print("No valid recipients found. Aborting email send.")
