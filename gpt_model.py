@@ -12,39 +12,44 @@ class GPTModel:
   def __init__(self):
     openai.api_key = openai_api_key
     self.last_api_call_time = 0
+    self.first_call = True
 
-  def generate_response(self,
-                        dynamic_prompt,
-                        content,
-                        conversation_history,
-                        additional_context=None,
-                        note=None,
-                        is_summarize=False):
-    print("Generating Response from gpt-4 call")
-    response = None
-    max_retries = 99
-    delay = 60  # variable
-    max_delay = 3000  # variable
-    tokens_limit = 1024 if is_summarize else 4000
-    base_value = 8192 - tokens_limit if is_summarize else 4192
-    print(
-        f"Set tokens_limit to {tokens_limit} based on is_summarize={is_summarize}."
-    )
+  self.first_call = True  # Added this line to track the first API call
 
-    full_content = f"{content}\n\n{conversation_history}"
-    if additional_context:
-      full_content += f"\n{additional_context}"
-    if note:
-      full_content += f"\n{note}"
+    def generate_response(self,
+                          dynamic_prompt,
+                          content,
+                          conversation_history,
+                          additional_context=None,
+                          note=None,
+                          is_summarize=False):
+        print("Generating Response from gpt-4 call")
+        response = None
+        max_retries = 99
+        delay = 60  # variable
+        max_delay = 3000  # variable
+        tokens_limit = 1024 if is_summarize else 4000
+        base_value = 8192 - tokens_limit if is_summarize else 4192
+        print(
+            f"Set tokens_limit to {tokens_limit} based on is_summarize={is_summarize}."
+        )
 
-    current_time = time.time()
-    elapsed_time = current_time - self.last_api_call_time
+        full_content = f"{content}\n\n{conversation_history}"
+        if additional_context:
+            full_content += f"\n{additional_context}"
+        if note:
+            full_content += f"\n{note}"
 
-    # If it hasn't been 60 seconds since the last API call, wait for the remaining time
-    if elapsed_time < 60:
-      sleep_duration = 60 - elapsed_time
-      print(f"Sleeping for {sleep_duration:.2f} seconds to avoid rate limits.")
-      time.sleep(sleep_duration)
+        current_time = time.time()
+        elapsed_time = current_time - self.last_api_call_time
+
+        # Modified this section to skip the sleep during the first API call
+        if not self.first_call and elapsed_time < 60:
+            sleep_duration = 60 - elapsed_time
+            print(f"Sleeping for {sleep_duration:.2f} seconds to avoid rate limits.")
+            time.sleep(sleep_duration)
+        else:
+            self.first_call = False 
 
     # Calculate the maximum tokens allowed for the conversation content.
     max_tokens_allowed = base_value - len(content.split()) - len(
