@@ -31,6 +31,7 @@ class EmailServer:
         self.openai_api_key = os.getenv('OPENAI_API_KEY')
         self.replied_threads = {}
 
+
     def setup_email_server(self):
         self.smtp_server = os.getenv('SMTP_SERVER')
         self.smtp_port = os.getenv('SMTP_PORT')
@@ -212,11 +213,13 @@ class EmailServer:
     def handle_incoming_email(self, from_, to_emails, cc_emails, aggregated_thread_content,
                           subject, message_id, references, num, initial_to_emails,
                           initial_cc_emails, thread_emails, thread_id):
+        
 
         last_email_sender = thread_emails[-1]['from_'] if thread_emails else None
         if last_email_sender in [agent["email"] for agent in self.agent_manager.agents.values()]:
-            return True  # Skip if the last email was from an agent
-
+            return True
+        
+        
         human_emails = [
             email_data for email_data in thread_emails
             if email_data['from_'] != self.smtp_username
@@ -281,6 +284,8 @@ class EmailServer:
         if all_responses_successful:
             self.update_processed_threads(message_id, num, subject)
 
+        self.replied_threads[thread_id] = True
+
         return all_responses_successful
 
     @contextmanager
@@ -309,8 +314,7 @@ class EmailServer:
     
                 threads = {}
                 for num in unseen_emails:
-                    message_id, num, subject, content, from_, to_emails, cc_emails, references = self.process_single_email(
-                        num)
+                    message_id, num, subject, content, from_, to_emails, cc_emails, references = self.process_single_email(num)
                     if message_id:
                         thread_id = references.split()[0] if references else message_id  # Use message_id as a fallback
                         if thread_id not in threads:
@@ -348,7 +352,7 @@ class EmailServer:
                     
                     if has_non_agent_email:
                         # Handle the incoming email thread
-                        self.handle_incoming_email(
+                        processed_successfully = self.handle_incoming_email(
                             from_=last_email['from_'],
                             to_emails=last_email['to_emails'],
                             cc_emails=last_email['cc_emails'],
@@ -364,11 +368,10 @@ class EmailServer:
                         )
                         
                         # If the email thread was processed successfully, mark all emails in the thread as seen
-                        for email_data in thread_emails:
-                            self.mark_as_seen(email_data['num'])
-                            
-                else:
-                    print(f"Email thread {thread_id} failed to process, moving to the next thread.")
+                        if processed_successfully:
+                            for email_data in thread_emails:
+                                self.mark_as_seen(email_data['num'])
+                                
             else:
                 print("No unseen emails found.")
         except Exception as e:
@@ -376,6 +379,7 @@ class EmailServer:
             import traceback
             print(traceback.format_exc())
             logging.error(f"Exception while processing emails: {e}")
+    
     
 
     def mark_as_seen(self, num):
@@ -403,17 +407,10 @@ class EmailServer:
         return re.sub(clean, '', html.unescape(text))
 
     def send_email(self, from_email, from_alias, thread_emails, cc_emails, subject, body, message_id=None, references=None):
-        
-        print(f"From Email: {from_email}")
-        print(f"From Alias: {from_alias}")
-        print(f"Subject: {subject}")
-        print(f"Body: {body}")
-        print(f"Message ID: {message_id}")
-        print(f"References: {references}")
     
         # Extract unique 'From' email addresses from thread_emails
         original_senders = list(set([email_data['from_'] for email_data in thread_emails]))
-        print(f"Original senders: {original_senders}")
+      
     
         # Extract unique 'To' and 'Cc' email addresses from thread_emails
         all_recipients = list(set(
@@ -421,46 +418,47 @@ class EmailServer:
             [email for email_data in thread_emails for email in email_data['to_emails']] +
             [email for email_data in thread_emails for email in email_data['cc_emails']]
         ))
-        print(f"All recipients (before filtering): {all_recipients}")
+        
     
+        # Filter out from_email and from_alias
         all_recipients = [
             email for email in all_recipients
-            if email.lower() != from_email.lower() and email.lower() != from_alias.lower()  # Exclude the agent's own email and alias
+            if email.lower() != from_email.lower() and email.lower() != self.normalize_email(from_alias).lower()  # Exclude the agent's own email and alias
         ]
-
+        
         # Normalize all recipient emails
         all_recipients = [self.normalize_email(email) for email in all_recipients]
         cc_emails = [self.normalize_email(email) for email in cc_emails]  # Normalizing cc_emails
         
-        all_recipients = list(set(all_recipients))  # Remove duplicates
-        cc_emails = list(set(cc_emails))  # Remove duplicates in cc_emails
-    
+        # Remove duplicates
+        all_recipients = list(set(all_recipients))
+        cc_emails = list(set(cc_emails))
+        
+        # Create the email message
         msg = MIMEMultipart()
         msg['From'] = f'"{from_alias}" <{from_email}>'
-        msg['Reply-To'] = ', '.join(original_senders + [from_alias])
-        msg['To'] = ', '.join(all_recipients)
-        msg['Cc'] = ', '.join(cc_emails)  # Add this line to include Cc emails
+        msg['To'] = ', '.join(all_recipients)  
+        msg['Cc'] = ', '.join(cc_emails)
         msg['Subject'] = subject
         
         if message_id:
             msg["In-Reply-To"] = message_id
-            print(f"In-Reply-To: {msg['In-Reply-To']}")
+            
         
         if references:
             msg["References"] = references
-            print(f"References: {msg['References']}")
+            
         
         msg.attach(MIMEText(body, 'plain'))
         
         # Exception handling while sending email
         with self.smtp_connection() as server:
             try:
-                print(f"Sending email to all_recipients: {all_recipients}")
+                print(f"Sending email to all_recipients")
                 server.sendmail(from_email, all_recipients, msg.as_string())
             except Exception as e:
-                print(f"Error while sending email: {e}")
-                logging.error(f"Exception while sending email: {e}")
+                print(f"Exception while sending email: {e}")
+               
         
     
-        print("=== Debugging send_email === END ===")
     
