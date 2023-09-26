@@ -3,48 +3,57 @@ import time
 from random import uniform
 import json
 import openai
+import tiktoken
 
 openai_api_key = os.environ['OPENAI_API_KEY']
 
-
 class GPTModel:
 
-  def __init__(self):
-    openai.api_key = openai_api_key
-    self.last_api_call_time = 0
+    def __init__(self):
+        openai.api_key = openai_api_key
+        self.last_api_call_time = 0
+        self.encoding = tiktoken.get_encoding("cl100k_base")
 
-  def generate_response(self,
-                        dynamic_prompt,
-                        content,
-                        conversation_history,
-                        additional_context=None,
-                        note=None,
-                        is_summarize=False):
-    print("Generating Response from gpt-4 call")
-    response = None
-    max_retries = 99
-    delay = 60  # variable
-    max_delay = 3000  # variable
-    tokens_limit = 1024 if is_summarize else 2500
-    base_value = 8192 - tokens_limit if is_summarize else 4192
-    print(
-        f"Set tokens_limit to {tokens_limit} based on is_summarize={is_summarize}."
-    )
+    def count_tokens(self, text):
+        return len(self.encoding.encode(text))
 
-    full_content = f"{content}\n\n{conversation_history}"
-    if additional_context:
-      full_content += f"\n{additional_context}"
-    if note:
-      full_content += f"\n{note}"
+    def generate_response(self,
+                           dynamic_prompt,
+                           content,
+                           conversation_history,
+                           additional_context=None,
+                           note=None,
+                           is_summarize=False):
+        print("Generating Response from gpt-4 call")
+        response = None
+        max_retries = 99
+        delay = 60
+        max_delay = 3000
+        tokens_limit = 1024 if is_summarize else 4000
+        base_value = 8192 - tokens_limit if is_summarize else 4192
+        print(f"Set tokens_limit to {tokens_limit} based on is_summarize={is_summarize}.")
 
-    current_time = time.time()
-    elapsed_time = current_time - self.last_api_call_time
+        full_content = f"{content}\n\n{conversation_history}"
+        if additional_context:
+            full_content += f"\n{additional_context}"
+        if note:
+            full_content += f"\n{note}"
 
-    # If it hasn't been 60 seconds since the last API call, wait for the remaining time
-    if elapsed_time < 60:
-      sleep_duration = 60 - elapsed_time
-      print(f"Sleeping for {sleep_duration:.2f} seconds to avoid rate limits.")
-      time.sleep(sleep_duration)
+        # Calculate total tokens for the request
+        total_tokens = self.count_tokens(full_content + dynamic_prompt)
+        if total_tokens > 8192:
+            tokens_limit = max(52, tokens_limit - (total_tokens - 8192))
+
+        current_time = time.time()
+        elapsed_time = current_time - self.last_api_call_time
+
+        if elapsed_time < 60:
+            sleep_duration = 60 - elapsed_time
+            print(f"Sleeping for {sleep_duration:.2f} seconds to avoid rate limits.")
+            time.sleep(sleep_duration)
+
+        # ... [rest of the code remains unchanged]
+
 
     # Calculate the maximum tokens allowed for the conversation content.
     max_tokens_allowed = base_value - len(content.split()) - len(
