@@ -25,7 +25,7 @@ class GPTModel:
     max_retries = 99
     delay = 60  # variable
     max_delay = 3000  # variable
-    tokens_limit = 1024 if is_summarize else 4000
+    tokens_limit = 1024 if is_summarize else 2500
     base_value = 8192 - tokens_limit if is_summarize else 4192
     print(
         f"Set tokens_limit to {tokens_limit} based on is_summarize={is_summarize}."
@@ -41,8 +41,8 @@ class GPTModel:
     elapsed_time = current_time - self.last_api_call_time
 
     # If it hasn't been 60 seconds since the last API call, wait for the remaining time
-    if elapsed_time < 60:
-      sleep_duration = 60 - elapsed_time
+    if elapsed_time < 12:
+      sleep_duration = 12 - elapsed_time
       print(f"Sleeping for {sleep_duration:.2f} seconds to avoid rate limits.")
       time.sleep(sleep_duration)
 
