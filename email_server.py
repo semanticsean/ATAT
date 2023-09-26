@@ -125,13 +125,13 @@ class EmailServer:
         self.connect_to_imap_server()
 
     def aggregate_human_responses(self, human_senders, thread_content):
-        # Extract and aggregate human responses from the thread_content
         human_responses = [
-            response for thread in thread_content.split("\n\n")
-            for sender in human_senders if sender in thread
+            thread for thread in thread_content.split("\n\n")
+            if any(sender in thread for sender in human_senders)
         ]
         aggregated_human_content = "\n\n---\n\n".join(human_responses)
         return aggregated_human_content
+    
 
     def process_single_email(self, num):
         try:
