@@ -208,7 +208,6 @@ class EmailServer:
         if unseen_emails:
             print(f"Found {len(unseen_emails)} unseen emails.")
 
-            # Step 1: Categorize emails by thread (using References or Subject as thread ID)
             threads = {}
             for num in unseen_emails:
                 message_id, num, subject, content, from_, to_emails, cc_emails, references = self.process_email(num)
@@ -225,35 +224,27 @@ class EmailServer:
                         "to_emails": to_emails,
                         "cc_emails": cc_emails,
                         "references": references,
-                        "processed": False  # Flag to check if email is processed
+                        "processed": False
                     })
 
-            # Step 2: Process each thread separately
             for thread_id, thread_emails in threads.items():
-                # Sort the emails in the thread by the 'num' field to ensure they are in the order they were received
                 thread_emails.sort(key=lambda x: int(x['num']))
 
-                # Find the most recent email in the thread that has not been processed
-                most_recent_email = None
-                for email_data in reversed(thread_emails):
-                    if not email_data['processed']:
-                        most_recent_email = email_data
-                        break
-
-                # If no unprocessed emails are found, continue to the next thread
-                if most_recent_email is None:
+                # Check if there's at least one human response in the thread
+                has_human_response = any(email_data['from_'] != self.smtp_username for email_data in thread_emails)
+                
+                # Skip threads without human responses
+                if not has_human_response:
                     continue
 
-                # Make sure there is at least one human in the thread
-                if all(email_data['from_'] == self.smtp_username for email_data in thread_emails):
-                    continue
-
-                # Update the To and Cc fields based on the most recent email
+                # Find the most recent email in the thread
+                most_recent_email = thread_emails[-1]
+                
+                # Process the most recent email
                 to_emails = most_recent_email['to_emails']
                 cc_emails = most_recent_email['cc_emails']
-
                 thread_content = " ".join([email_data['content'] for email_data in thread_emails])
-                from_ = most_recent_email['from_']  # Use most recent email's 'from_'
+                from_ = most_recent_email['from_']
                 initial_to_emails = to_emails.copy()
                 initial_cc_emails = cc_emails.copy()
                 subject = most_recent_email['subject']
