@@ -44,7 +44,7 @@ class EmailServer:
         self.imap_server.login(self.smtp_username, self.smtp_password)
         self.imap_server.debug = 4
 
-    def normalize_email(self,email):
+    def normalize_email(self, email):
         return email.lower().strip().split(' ')[-1].replace('<', '').replace('>', '')
     
 
@@ -427,17 +427,13 @@ class EmailServer:
             email for email in all_recipients
             if email.lower() != from_email.lower() and email.lower() != from_alias.lower()  # Exclude the agent's own email and alias
         ]
-    
+
         # Normalize all recipient emails
         all_recipients = [self.normalize_email(email) for email in all_recipients]
-        all_recipients = list(set(all_recipients))
+        cc_emails = [self.normalize_email(email) for email in cc_emails]  # Normalizing cc_emails
         
-        print(f"All recipients (after filtering): {all_recipients}")
-    
-        if not all_recipients:
-            print("No valid recipients found. Aborting email send.")
-            print("=== Debugging send_email === END ===")
-            return
+        all_recipients = list(set(all_recipients))  # Remove duplicates
+        cc_emails = list(set(cc_emails))  # Remove duplicates in cc_emails
     
         msg = MIMEMultipart()
         msg['From'] = f'"{from_alias}" <{from_email}>'
@@ -456,10 +452,14 @@ class EmailServer:
         
         msg.attach(MIMEText(body, 'plain'))
         
-        # Send the email to all unique recipients
+        # Exception handling while sending email
         with self.smtp_connection() as server:
-            print(f"Sending email to all_recipients: {all_recipients}")
-            server.sendmail(from_email, all_recipients, msg.as_string())
+            try:
+                print(f"Sending email to all_recipients: {all_recipients}")
+                server.sendmail(from_email, all_recipients, msg.as_string())
+            except Exception as e:
+                print(f"Error while sending email: {e}")
+                logging.error(f"Exception while sending email: {e}")
         
     
         print("=== Debugging send_email === END ===")
