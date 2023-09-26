@@ -342,14 +342,15 @@ class EmailServer:
     
                     # Identify the most recent email
                     last_email = thread_emails[-1]
-    
-                    # Check for the presence of at least one non-agent email in the thread
-                    has_non_agent_email = any(
-                        email_data['from_'] not in [agent["email"] for agent in self.agent_manager.agents.values()]
+                
+                    # Check for the presence of at least one non-agent unseen email in the thread
+                    has_unseen_non_agent_email = any(
+                        email_data['from_'] not in [agent["email"] for agent in self.agent_manager.agents.values()] and
+                        email_data['num'] in unseen_emails
                         for email_data in thread_emails
                     )
-    
-                    if has_non_agent_email:
+                
+                    if has_unseen_non_agent_email:
                         # Handle only the most recent email in the thread
                         processed_successfully = self.handle_incoming_email(
                             from_=last_email['from_'],
