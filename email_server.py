@@ -311,7 +311,6 @@ class EmailServer:
             unseen_emails = data[0].split()
             if unseen_emails:
                 print(f"Found {len(unseen_emails)} unseen emails.")
-    
                 threads = {}
                 for num in unseen_emails:
                     message_id, num, subject, content, from_, to_emails, cc_emails, references = self.process_single_email(num)
@@ -340,18 +339,18 @@ class EmailServer:
                     aggregated_thread_content = " \n---NEW EMAIL---\n ".join(
                         [email_data['content'] for email_data in self.conversation_threads[thread_id]]
                     )
-                    
+    
                     # Identify the most recent email
                     last_email = thread_emails[-1]
-                    
+    
                     # Check for the presence of at least one non-agent email in the thread
                     has_non_agent_email = any(
                         email_data['from_'] not in [agent["email"] for agent in self.agent_manager.agents.values()]
                         for email_data in thread_emails
                     )
-                    
+    
                     if has_non_agent_email:
-                        # Handle the incoming email thread
+                        # Handle only the most recent email in the thread
                         processed_successfully = self.handle_incoming_email(
                             from_=last_email['from_'],
                             to_emails=last_email['to_emails'],
@@ -366,12 +365,11 @@ class EmailServer:
                             thread_emails=thread_emails,
                             thread_id=thread_id
                         )
-                        
+    
                         # If the email thread was processed successfully, mark all emails in the thread as seen
                         if processed_successfully:
                             for email_data in thread_emails:
                                 self.mark_as_seen(email_data['num'])
-                                
             else:
                 print("No unseen emails found.")
         except Exception as e:
