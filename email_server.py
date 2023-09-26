@@ -30,7 +30,6 @@ class EmailServer:
         self.conversation_threads = {}
         self.openai_api_key = os.getenv('OPENAI_API_KEY')
         self.replied_threads = {}
-        self.human_replied_threads = set()
 
     def setup_email_server(self):
         self.smtp_server = os.getenv('SMTP_SERVER')
@@ -206,23 +205,19 @@ class EmailServer:
             server.sendmail(self.smtp_username, [to_email], msg.as_string())
 
     def handle_incoming_email(self, from_, to_emails, cc_emails, aggregated_thread_content,
-                              subject, message_id, references, num, initial_to_emails,
-                              initial_cc_emails, thread_emails, thread_id):
-        # Check for human replies in the thread
-        if any(email_data['from_'] != self.smtp_username for email_data in thread_emails):
-            self.human_replied_threads.add(thread_id)
+                          subject, message_id, references, num, initial_to_emails,
+                          initial_cc_emails, thread_emails, thread_id):
 
-        if thread_id not in self.human_replied_threads:
-            return False
+        last_email_sender = thread_emails[-1]['from_'] if thread_emails else None
+        if last_email_sender in [agent["email"] for agent in self.agent_manager.agents.values()]:
+            return True  # Skip if the last email was from an agent
 
-        # Get all the human emails in the thread
         human_emails = [
             email_data for email_data in thread_emails
             if email_data['from_'] != self.smtp_username
         ]
         human_senders = [email_data['from_'] for email_data in human_emails]
 
-        # Generate aggregated_human_content using aggregate_human_responses
         aggregated_human_content = self.aggregate_human_responses(
             human_senders, aggregated_thread_content)
 
@@ -271,6 +266,7 @@ class EmailServer:
                         references=references
                     )
                     self.replied_threads[thread_id][agent_name] = True
+                    self.update_processed_threads(message_id, num, subject)
                 except Exception as e:
                     print(f"Exception while sending email: {e}")
                     all_responses_successful = False
@@ -328,11 +324,11 @@ class EmailServer:
                         self.conversation_threads[thread_id] = []
                     self.conversation_threads[thread_id].extend(thread_emails)
                     self.conversation_threads[thread_id].sort(key=lambda x: x.get('timestamp', 0))
-
+        
                     # Aggregate thread content
                     aggregated_thread_content = " \n---NEW EMAIL---\n ".join(
-                        [email_data['content'] for email_data in self.conversation_threads[thread_id]]
-                    )
+                    [email_data['content'] for email_data in self.conversation_threads[thread_id]]
+                )
                     # Get the details of the latest email in the thread
                     latest_email = thread_emails[-1]
                     from_ = latest_email['from_']
@@ -406,8 +402,9 @@ class EmailServer:
     
         all_recipients = [
             email for email in all_recipients
-            if email.lower() != from_email.lower()  # Exclude the agent's own email
+            if email.lower() != from_email.lower() and email.lower() != from_alias.lower()  # Exclude the agent's own email and alias
         ]
+        
         print(f"All recipients (after filtering): {all_recipients}")
     
         if not all_recipients:
