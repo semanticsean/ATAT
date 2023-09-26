@@ -2597,3 +2597,78 @@ Could you please provide more details about what you need assistance with? Looki
 2023-09-26 17:29:35,141 [INFO]: Generated response for devtester: Pass.
 
 - GENERATIVE AI AGENT: devtester
+2023-09-26 17:32:41,621 [INFO]: Generated response for devtester: Pass.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 17:33:42,523 [INFO]: Generated response for devtester: Pass.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 17:35:34,643 [INFO]: Number of chunks: 1
+2023-09-26 17:35:34,644 [INFO]: Chunk 0: Greetings, educational visionary! Meet Trident, yo...
+2023-09-26 17:36:30,909 [INFO]: Generated response for devtrident: As Trident, your role is to support the ASU Prep Microschool Entrepreneur Fellowship. You provide assistance in grant writing and executive tasks, and always complete all questions in detail, adhering to word counts when specified. The Fellowship aims to reshape education through microschool concepts, offering insights into hiring, funding structures, leadership training, and networking opportunities. The goal is to expand microschools nationwide, tapping into ESA funding options for financial sustainability.
+
+The Fellowship supports founders, school leaders, and entrepreneurs aiming to implement a 'Powered by ASU Prep' microschool model. It provides training, curriculum access, and support in various areas including education policy, space design, pedagogy, curriculum, monitoring, hiring, funding, leadership, professional development, and networking. The Fellowship format includes a 3-Day Founders Retreat, monthly coaching calls, teacher professional development, and curriculum consultation.
+
+ASU Prep seeks funding for Fellows, capacity building, and a National Microschool Seed Fund for sustainable growth. The recruitment strategy targets ESA policy advocacy groups, education events, digital advertising, and partnerships with education incubators. The initial geographic focus includes ESA states like Arizona, Florida, Mississippi, North Carolina, and Tennessee. 
+
+The ASU Prep Local Microschool model combines on-campus and online learning components based on project-based learning (PBL). It aims to co-locate an ASU Prep Microschool within a corporate facility of an industry partner. This model supports inclusion of all learners by welcoming students from various backgrounds, abilities, and learning styles. It has been operational for one year and has achieved several significant accomplishments.
+
+The microschool seeks support from an Evaluation Partner (EP) in areas such as evaluation framework development and data collection and analysis. It's currently active in four local schools with plans to open an industry partner co-located campus in Fall 2024.
+
+The microschool is led by Betsy Fowler who designs and leads 11 charter schools in the greater Phoenix area. Other key personnel include Megan Hanley, Trista Zobitz, and Kalen Davis. The school emphasizes a commitment to diversity, equity, and inclusion and partners with CAPS Network and various industry partners. 
+
+Funding for ASU Prep's initiatives include charter school funding, ASU support, grants, philanthropic contributions, industry partnerships, state and federal grants, community fundraising, and potential grant funding from this proposal. The financial plan aims to ensure long-term sustainability through diverse funding streams, cost-effective operations, and budget flexibility.
+
+- GENERATIVE AI AGENT: devtrident
+2023-09-26 17:36:30,912 [INFO]: Number of chunks for detail: 8
+2023-09-26 17:36:30,913 [INFO]: Chunk 0: (GRANT:
+Below is a summary of application questio...
+2023-09-26 17:36:30,913 [INFO]: Chunk 1: Innovation & Potential for Impact
+What specific p...
+2023-09-26 17:36:30,913 [INFO]: Chunk 2: What near-term outputs do you expect to track and ...
+2023-09-26 17:36:30,913 [INFO]: Chunk 3: What medium- to long-term outcomes do you
+anticip...
+2023-09-26 17:36:30,913 [INFO]: Chunk 4: Feasibility & Growth
+What is the amount of grant ...
+2023-09-26 17:36:30,913 [INFO]: Chunk 5: BUDGET TEMPLATE
+Provide a budget narrative that e...
+2023-09-26 17:36:30,913 [INFO]: Chunk 6: What are the funding sources that will support you...
+2023-09-26 17:36:30,913 [INFO]: Chunk 7: Who will you partner with to pilot your innovation...
+2023-09-26 17:36:55,841 [INFO]: Generated response for devtester: Pass.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 17:37:05,070 [INFO]: Number of chunks: 1
+2023-09-26 17:37:05,071 [INFO]: Chunk 0: Greetings, educational visionary! Meet Trident, yo...
+2023-09-26 17:37:52,799 [INFO]: Generated response for devtrident: As Trident, an AI Assistant and expert grantwriter, you support the ASU Prep Microschool Entrepreneur Fellowship. This initiative empowers founders, school leaders, and entrepreneurs to create 'Powered by ASU Prep' microschools. 
+
+Key points:
+
+1. The Fellowship provides training, curriculum access, support in education policy, space design, pedagogy, monitoring, hiring, funding, leadership, professional development, and networking.
+2. The format includes a 3-Day Founders Retreat, monthly coaching calls, teacher professional development, and curriculum consultation.
+3. ASU Prep seeks funding for Fellows, capacity building, and a National Microschool Seed Fund for sustainable growth.
+4. Recruitment targets ESA policy advocacy groups, education events, digital advertising, and partnerships with education incubators.
+5. Evaluation utilizes qualitative assessments, quantitative metrics, long-term impact analysis, case studies, and continuous improvement.
+6. The ASU Prep Local Microschool model is designed for 9-12th grade students and combines on-campus and online learning components based on project-based learning (PBL).
+7. The model supports inclusion of all learners by providing individualized learning pathways, accessibility features, inclusive curriculum, support services, inclusive project-based learning experiences.
+8. The microschool has been operational for one year with high academic achievement (93.55% passing rate), successful transition of graduating seniors to Arizona State University (ASU), high retention (96%) and re-enrollment rates (67%), and a 90% overall satisfaction rating from students and families.
+9. The model seeks support from an Evaluation Partner (EP) in areas such as evaluation framework development, data collection and analysis.
+10. The microschool is led by Betsy Fowler who designs 11 charter schools in the greater Phoenix area with key personnel including Megan Hanley (school design), Trista Zobitz and Kalen Davis (Microschool Program Managers).
+11. Funding sources include charter school funding, ASU support, grants, philanthropic contributions, industry partnerships, state and federal grants, community fundraising, and potential grant funding from this proposal.
+
+Remember: As Trident, you always provide verbose answers unless there's a word count limit.
+
+- GENERATIVE AI AGENT: devtrident
+2023-09-26 17:37:53,725 [INFO]: Number of chunks for detail: 8
+2023-09-26 17:37:53,725 [INFO]: Chunk 0: (GRANT:
+Below is a summary of application questio...
+2023-09-26 17:37:53,764 [INFO]: Chunk 1: Innovation & Potential for Impact
+What specific p...
+2023-09-26 17:37:53,764 [INFO]: Chunk 2: What near-term outputs do you expect to track and ...
+2023-09-26 17:37:53,764 [INFO]: Chunk 3: What medium- to long-term outcomes do you
+anticip...
+2023-09-26 17:37:53,764 [INFO]: Chunk 4: Feasibility & Growth
+What is the amount of grant ...
+2023-09-26 17:37:53,764 [INFO]: Chunk 5: BUDGET TEMPLATE
+Provide a budget narrative that e...
+2023-09-26 17:37:53,764 [INFO]: Chunk 6: What are the funding sources that will support you...
+2023-09-26 17:37:53,764 [INFO]: Chunk 7: Who will you partner with to pilot your innovation...
