@@ -2672,3 +2672,20 @@ What is the amount of grant ...
 Provide a budget narrative that e...
 2023-09-26 17:37:53,764 [INFO]: Chunk 6: What are the funding sources that will support you...
 2023-09-26 17:37:53,764 [INFO]: Chunk 7: Who will you partner with to pilot your innovation...
+2023-09-26 17:46:08,992 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 8256 tokens (4256 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-09-26 17:47:09,478 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 8256 tokens (4256 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-09-26 17:49:10,336 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 8256 tokens (4256 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-09-26 17:51:38,776 [INFO]: Generated response for devtester: Test confirmed 002.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 17:52:40,146 [INFO]: Generated response for devtester: Test confirmed 002.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 17:53:41,253 [INFO]: Generated response for devtester: Test confirmed 002.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 17:54:43,422 [INFO]: Generated response for devtester: Test confirmed 002.
+
+- GENERATIVE AI AGENT: devtester
+
+- GENERATIVE AI AGENT: devtester

@@ -11,31 +11,40 @@ class GPTModel:
 
   def __init__(self):
     openai.api_key = openai_api_key
+    self.tokenizer = Tokenizer()
     self.last_api_call_time = 0
 
-  def generate_response(self,
-                        dynamic_prompt,
-                        content,
-                        conversation_history,
-                        additional_context=None,
-                        note=None,
-                        is_summarize=False):
-    print("Generating Response from gpt-4 call")
-    response = None
-    max_retries = 99
-    delay = 60  # variable
-    max_delay = 3000  # variable
-    tokens_limit = 1024 if is_summarize else 4000
-    base_value = 8192 - tokens_limit if is_summarize else 4192
-    print(
-        f"Set tokens_limit to {tokens_limit} based on is_summarize={is_summarize}."
-    )
+  def count_tokens(self, text):
+    return len(list(self.tokenizer.tokenize(text)))
 
-    full_content = f"{content}\n\n{conversation_history}"
-    if additional_context:
-      full_content += f"\n{additional_context}"
-    if note:
-      full_content += f"\n{note}"
+  def generate_response(self,
+                         dynamic_prompt,
+                         content,
+                         conversation_history,
+                         additional_context=None,
+                         note=None,
+                         is_summarize=False):
+
+      print("Generating Response from gpt-4 call")
+      response = None
+      max_retries = 99
+      delay = 60  # variable
+      max_delay = 3000  # variable
+      tokens_limit = 1024 if is_summarize else 4000
+      base_value = 8192 - tokens_limit if is_summarize else 4192
+      print(
+          f"Set tokens_limit to {tokens_limit} based on is_summarize={is_summarize}.")
+
+      full_content = f"{content}\n\n{conversation_history}"
+      if additional_context:
+          full_content += f"\n{additional_context}"
+      if note:
+          full_content += f"\n{note}"
+
+      estimated_tokens = self.count_tokens(full_content + dynamic_prompt)
+
+      if estimated_tokens > 4000:
+          tokens_limit = 8192 - estimated_tokens
 
     current_time = time.time()
     elapsed_time = current_time - self.last_api_call_time
