@@ -2501,3 +2501,52 @@ Could you please provide more details about what you need assistance with? Looki
 2023-09-26 14:39:25,623 [INFO]: Generated response for devtester: Passed.
 
 - GENERATIVE AI AGENT: devtester
+2023-09-26 14:40:26,533 [INFO]: Generated response for devtester: Passed.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 14:53:20,272 [INFO]: Generated response for devtester: Passed.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 15:04:01,799 [ERROR]: Exception while processing emails: EmailServer.handle_incoming_email() got an unexpected keyword argument 'initial_to_emails'
+2023-09-26 15:14:26,017 [ERROR]: Exception while processing emails: EmailServer.handle_incoming_email() got an unexpected keyword argument 'initial_to_emails'
+2023-09-26 16:12:43,195 [INFO]: Generated response for devtester: Pass.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:13:44,177 [INFO]: Generated response for devtester: Pass.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:19:06,663 [INFO]: Generated response for devtester: Pass.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:21:15,808 [INFO]: Generated response for devtester: Pass.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:22:16,840 [INFO]: Generated response for devtester: Pass.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:23:17,937 [INFO]: Generated response for devtester: Pass.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:24:19,342 [INFO]: Generated response for devtester: Pass.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:24:39,804 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:25:41,064 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:27:04,598 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:27:15,341 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:27:26,000 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:27:36,093 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-09-26 16:28:36,989 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-09-26 16:28:37,692 [ERROR]: Exception while processing emails: name 'response' is not defined
