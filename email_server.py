@@ -263,8 +263,8 @@ class EmailServer:
                     self.send_email(
                         from_email=self.smtp_username,
                         from_alias=agent["email"],
-                        human_threads=human_emails,
-                        cc_emails=cc_emails,  # Send to all CC recipients
+                        thread_emails=thread_emails,
+                        cc_emails=cc_emails, 
                         subject=f"Re: {subject}",
                         body=response,
                         message_id=message_id,
@@ -389,37 +389,51 @@ class EmailServer:
         clean = re.compile('<.*?>')
         return re.sub(clean, '', html.unescape(text))
 
-    def send_email(self, from_email, from_alias, human_threads, cc_emails, subject, body, message_id=None, references=None):
-        to_emails = [email_data['from_'] for email_data in human_threads]
-        all_recipients = to_emails + cc_emails
+    def send_email(self, from_email, from_alias, thread_emails, cc_emails, subject, body, message_id=None, references=None):
+        print("=== Debugging send_email ===")
+        
+        # Extract unique 'From' email addresses from thread_emails
+        original_senders = list(set([email_data['from_'] for email_data in thread_emails]))
+        print(f"Original senders: {original_senders}")
+    
+        # Extract unique 'To' and 'Cc' email addresses from thread_emails
+        all_recipients = list(set(
+            [email_data['from_'] for email_data in thread_emails] +
+            [email for email_data in thread_emails for email in email_data['to_emails']] +
+            [email for email_data in thread_emails for email in email_data['cc_emails']]
+        ))
+        print(f"All recipients (before filtering): {all_recipients}")
+    
         all_recipients = [
             email for email in all_recipients
-            if email.lower() != from_alias.lower()  # Exclude the from_alias
+            if email.lower() != from_email.lower()  # Exclude the agent's own email
         ]
+        print(f"All recipients (after filtering): {all_recipients}")
+    
         if not all_recipients:
             print("No valid recipients found. Aborting email send.")
             return
+    
         msg = MIMEMultipart()
-        msg['From'] = f'"{from_alias}" <{from_alias}>'
-        msg['Reply-To'] = f'"{from_alias}" <{from_alias}>'
-        msg['Sender'] = f'"{from_alias}" <{from_email}>'
-        msg['To'] = ', '.join(to_emails)
-        # Add the last email's Message-ID and References for threading
-        if self.conversation_threads.get(references or subject):
-            last_email = self.conversation_threads[references or subject][-1]
-            message_id = last_email['message_id']
-            references = last_email['references']
-        if cc_emails:
-            msg['Cc'] = ', '.join(cc_emails)
+        msg['From'] = f'"{from_alias}" <{from_email}>'
+        msg['Reply-To'] = ', '.join(original_senders)
+        msg['To'] = ', '.join(all_recipients)
+        msg['Cc'] = ', '.join(cc_emails)  # Add this line to include Cc emails
         msg['Subject'] = subject
+        
         if message_id:
             msg["In-Reply-To"] = message_id
+            print(f"In-Reply-To: {msg['In-Reply-To']}")
+        
         if references:
             msg["References"] = references
+            print(f"References: {msg['References']}")
+        
         msg.attach(MIMEText(body, 'plain'))
-        all_recipients = [
-            email for email in all_recipients
-            if email.lower() != self.smtp_username.lower()
-        ]
+        
+        # Send the email to all unique recipients
         with self.smtp_connection() as server:
+            print(f"Sending email to all_recipients: {all_recipients}")
             server.sendmail(from_email, all_recipients, msg.as_string())
+        print("=== Email Sent ===")
+    
