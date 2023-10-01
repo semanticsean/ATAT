@@ -271,12 +271,10 @@ class EmailServer:
         print(traceback.format_exc())
         logging.error(f"Exception while processing emails: {e}")
 
-  def mark_as_seen(self, nums):
-    
-    for num in nums:
-        self.imap_server.uid('store', str(num), '+FLAGS', '(\Seen)')
 
-
+  def mark_as_seen(self, num):
+    # Code to mark the email as read
+    self.imap_server.uid('store', num, '+FLAGS', '(\Seen)')
 
   def update_processed_threads(self, message_id, num, subject):
     # Ensure that num is a string
