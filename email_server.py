@@ -43,6 +43,7 @@ class EmailServer:
     self.imap_server = imaplib.IMAP4_SSL(os.getenv('IMAP_SERVER'))
     self.imap_server.login(self.smtp_username, self.smtp_password)
     self.imap_server.debug = 4
+    self.processed_threads = set() 
 
   def start(self):
     print("Started email server")
@@ -181,9 +182,6 @@ class EmailServer:
       return None, None, None, None, None, None, None, None
 
   def send_error_email(self, to_email, original_subject, error_reason):
-    # Updated logic to send a single email back to the most recent unseen thread
-    most_recent_thread = to_email[-1]  # Assuming the list is sorted by time
-    server.sendmail(self.smtp_username, [most_recent_thread], msg.as_string())
     error_file_path = "error-response-email.txt"
     if os.path.exists(error_file_path):
       with open(error_file_path, 'r') as file:
@@ -212,6 +210,8 @@ class EmailServer:
             print(f"Found {len(unseen_emails)} unseen emails.")
 
             threads = {}
+            processed_threads = set()
+
             for num in unseen_emails:
                 message_id, num, subject, content, from_, to_emails, cc_emails, references = self.process_email(num)
                 if message_id:
@@ -231,19 +231,17 @@ class EmailServer:
                     })
 
             for thread_id, thread_emails in threads.items():
-                thread_emails.sort(key=lambda x: int(x['num']))
+                if thread_id in self.processed_threads: 
+                    continue
 
-                # Check if there's at least one human response in the thread
                 has_human_response = any(email_data['from_'] != self.smtp_username for email_data in thread_emails)
-                
-                # Skip threads without human responses
                 if not has_human_response:
                     continue
 
-                # Find the most recent email in the thread
-                most_recent_email = thread_emails[-1]
-                
-                # Process the most recent email
+                unseen_thread_emails = [email for email in thread_emails if not email["processed"]]
+                if unseen_thread_emails:
+                    most_recent_email = max(unseen_thread_emails, key=lambda x: x["num"])
+
                 to_emails = most_recent_email['to_emails']
                 cc_emails = most_recent_email['cc_emails']
                 thread_content = " ".join([email_data['content'] for email_data in thread_emails])
@@ -262,18 +260,20 @@ class EmailServer:
                                                         initial_cc_emails)
 
                 if successful:
-                    for email_data in thread_emails:
-                        self.mark_as_seen(email_data['num'])
+                    self.processed_threads.add(thread_id)  # Using self.processed_threads
+                    self.mark_emails_as_seen(thread_emails)
                 else:
                     print(f"Email thread {thread_id} failed to process, moving to the next thread.")
-        else:
-            print("No unseen emails found.")
     except Exception as e:
         print(f"Exception while processing emails: {e}")
         import traceback
         print(traceback.format_exc())
         logging.error(f"Exception while processing emails: {e}")
-
+  
+  
+  def mark_emails_as_seen(self, thread_emails):
+    for email_data in thread_emails:
+        self.mark_as_seen(email_data['num'])
 
   def mark_as_seen(self, num):
     # Code to mark the email as read
@@ -299,9 +299,8 @@ class EmailServer:
     clean = re.compile('<.*?>')
     return re.sub(clean, '', html.unescape(text))
 
-  def handle_incoming_email(self, from_, to_emails, cc_emails, thread_content,
-                            subject, message_id, references, num,
-                            initial_to_emails, initial_cc_emails):
+  def handle_incoming_email(self, from_, to_emails, cc_emails, thread_content, subject, message_id, references, num, initial_to_emails, initial_cc_emails):
+
     shortcode_type = None
     print("Entered handle_incoming_email")
     new_content = thread_content
@@ -492,32 +491,35 @@ class EmailServer:
           print(f"CC: {cc_emails_without_agent}")
 
           try:
-            self.send_email(from_email=self.smtp_username,
-                            from_alias=agent["email"],
-                            to_emails=to_emails_without_agent,
-                            cc_emails=cc_emails_without_agent,
-                            subject=f"Re: {subject}",
-                            body=response,
-                            message_id=message_id,
-                            references=references)
-            print("Email sent successfully.")
+              self.send_email(from_email=self.smtp_username,
+                              from_alias=agent["email"],
+                              to_emails=to_emails_without_agent,
+                              cc_emails=cc_emails_without_agent,
+                              subject=f"Re: {subject}",
+                              body=response,
+                              message_id=message_id,
+                              references=references)
+              print("Email sent successfully.")
           except Exception as e:
-            print(f"Exception while handling incoming email: {e}")
-            import traceback
-            print(traceback.format_exc())
-            logging.error(f"Exception while handling incoming email: {e}")
-            return False
-        else:
-          print("No recipients found to send the email to.")
-
-    if all_responses_successful:
-      self.update_processed_threads(message_id, num, subject)
-
-      if message_id in self.conversation_threads:
-        conversation_history = '\n'.join(self.conversation_threads[message_id])
-        print(f"Conversation history: {conversation_history[:142]}")
-
-    return all_responses_successful
+              print(f"Exception while handling incoming email: {e}")
+              import traceback
+              print(traceback.format_exc())
+              logging.error(f"Exception while handling incoming email: {e}")
+              return False
+          else:
+              print("No recipients found to send the email to.")
+          
+          if all_responses_successful:
+              self.update_processed_threads(message_id, num, subject)
+          
+          self.mark_as_seen(num)
+          
+          if message_id in self.conversation_threads:
+              conversation_history = '\n'.join(self.conversation_threads[message_id])
+              print(f"Conversation history: {conversation_history[:142]}")
+          
+          return all_responses_successful
+      
 
   @contextmanager
   def smtp_connection(self):
