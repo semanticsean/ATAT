@@ -181,6 +181,9 @@ class EmailServer:
       return None, None, None, None, None, None, None, None
 
   def send_error_email(self, to_email, original_subject, error_reason):
+    # Updated logic to send a single email back to the most recent unseen thread
+    most_recent_thread = to_email[-1]  # Assuming the list is sorted by time
+    server.sendmail(self.smtp_username, [most_recent_thread], msg.as_string())
     error_file_path = "error-response-email.txt"
     if os.path.exists(error_file_path):
       with open(error_file_path, 'r') as file:
