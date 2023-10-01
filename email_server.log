@@ -878,3 +878,34 @@ the constintutio...
 2023-10-01 03:36:24,116 [INFO]: Generated response for devtester: 'multi human test 1a'
 
 - GENERATIVE AI AGENT: devtester
+2023-10-01 05:19:51,172 [INFO]: Number of chunks: 6
+2023-10-01 05:19:51,173 [INFO]: Chunk 0: Build The Strange Loop with Reinforcement Learning...
+2023-10-01 05:19:51,173 [INFO]: Chunk 1: The system's workflow begins with the user inputti...
+2023-10-01 05:19:51,173 [INFO]: Chunk 2: synths. For example, centrality measures can ident...
+2023-10-01 05:19:51,173 [INFO]: Chunk 3: Synth Persona Details
+
+Inner Identity / Goals
+...
+2023-10-01 05:19:51,173 [INFO]: Chunk 4: "relationship_variation": 0.3,
+
+"relationship_co...
+2023-10-01 05:19:51,173 [INFO]: Chunk 5: https://mirror.xyz/seanmcdonald.eth/rxr1BO\_6D\_59...
+2023-10-01 05:21:48,111 [INFO]: Generated response for devtester: 'multi human test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-01 05:22:49,795 [INFO]: Generated response for devtester: 'multi human test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-01 05:23:50,317 [INFO]: Generated response for devtester: Yes
+
+- GENERATIVE AI AGENT: devtester
+2023-10-01 05:32:43,424 [INFO]: Generated response for devtester: No.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-01 05:32:43,981 [ERROR]: Exception while processing emails: can't concat int to bytes
+2023-10-01 05:41:45,875 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-01 05:42:46,444 [INFO]: Generated response for devtester: No.
+
+- GENERATIVE AI AGENT: devtester
