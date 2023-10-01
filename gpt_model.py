@@ -1,6 +1,5 @@
 import os
 import time
-from random import uniform
 import json
 import openai
 import tiktoken
@@ -52,87 +51,84 @@ class GPTModel:
             print(f"Sleeping for {sleep_duration:.2f} seconds to avoid rate limits.")
             time.sleep(sleep_duration)
 
-        # ... [rest of the code remains unchanged]
+        # Calculate the maximum tokens allowed for the conversation content.
+        max_tokens_allowed = base_value - len(content.split()) - len(
+            dynamic_prompt.split())
+        if additional_context:
+            max_tokens_allowed -= len(additional_context.split())
+        if note:
+            max_tokens_allowed -= len(note.split())
 
+        # Check and truncate conversation_history if total tokens exceed the maximum limit
+        while len(conversation_history.split()) > max_tokens_allowed:
+            # Check if there's a newline character in the conversation_history
+            if "\n" not in conversation_history:
+                print(
+                    "WARNING: No newline character found in conversation_history. Breaking out of truncation loop."
+                )
+                break
 
-    # Calculate the maximum tokens allowed for the conversation content.
-    max_tokens_allowed = base_value - len(content.split()) - len(
-        dynamic_prompt.split())
-    if additional_context:
-      max_tokens_allowed -= len(additional_context.split())
-    if note:
-      max_tokens_allowed -= len(note.split())
+            # Drop the oldest message (assumes each message in the history is separated by a newline)
+            conversation_history = "\n".join(conversation_history.split("\n")[1:])
 
-    # Check and truncate conversation_history if total tokens exceed the maximum limit
-    while len(conversation_history.split()) > max_tokens_allowed:
-      # Check if there's a newline character in the conversation_history
-      if "\n" not in conversation_history:
-        print(
-            "WARNING: No newline character found in conversation_history. Breaking out of truncation loop."
-        )
-        break
+        # Update the full_content after potentially truncating the conversation_history
+        full_content = f"{content}\n\n{conversation_history}"
+        if additional_context:
+            full_content += f"\n{additional_context}"
+        if note:
+            full_content += f"\n{note}"
 
-      # Drop the oldest message (assumes each message in the history is separated by a newline)
-      conversation_history = "\n".join(conversation_history.split("\n")[1:])
+        print(f"Token limit for this request: {tokens_limit}")
 
-    # Update the full_content after potentially truncating the conversation_history
-    full_content = f"{content}\n\n{conversation_history}"
-    if additional_context:
-      full_content += f"\n{additional_context}"
-    if note:
-      full_content += f"\n{note}"
+        for i in range(max_retries):
+            try:
+                request_payload = {
+                    "model":
+                    "gpt-4",
+                    "messages": [{
+                        "role": "system",
+                        "content": dynamic_prompt
+                    }, {
+                        "role": "user",
+                        "content": full_content
+                    }],
+                    "max_tokens":
+                    tokens_limit,
+                    "top_p":
+                    0.7,
+                    "frequency_penalty":
+                    0.2,
+                    "presence_penalty":
+                    0.2,
+                    "temperature":
+                    0.6
+                }
 
-    print(f"Token limit for this request: {tokens_limit}")
+                print("\n--- API Request Payload ---")
+                print((json.dumps(request_payload, indent=4))[:140])
 
-    for i in range(max_retries):
-      try:
-        request_payload = {
-            "model":
-            "gpt-4",
-            "messages": [{
-                "role": "system",
-                "content": dynamic_prompt
-            }, {
-                "role": "user",
-                "content": full_content
-            }],
-            "max_tokens":
-            tokens_limit,
-            "top_p":
-            0.7,
-            "frequency_penalty":
-            0.2,
-            "presence_penalty":
-            0.2,
-            "temperature":
-            0.6
-        }
+                response = openai.ChatCompletion.create(
+                    **request_payload)  # Updated this line
 
-        print("\n--- API Request Payload ---")
-        print((json.dumps(request_payload, indent=4))[:140])
+                print("\n--- API Response ---")
+                print(json.dumps(response, indent=4)[:142])
 
-        response = openai.ChatCompletion.create(
-            **request_payload)  # Updated this line
+                break
 
-        print("\n--- API Response ---")
-        print(json.dumps(response, indent=4)[:142])
+            except openai.OpenAIError as e:
+                print(e)
+                sleep_time = max(
+                    min(delay * (2**i) + uniform(0.0, 0.1 * (2**i)), max_delay), 30)
+                print(f"Retrying in {sleep_time:.2f} seconds.")
+                time.sleep(sleep_time)
+            else:
+                break
 
-        break
+        if response is None:
+            print("Max retries reached. Could not generate a response.")
+            return None
 
-      except openai.OpenAIError as e:
-        print(e)
-        sleep_time = max(
-            min(delay * (2**i) + uniform(0.0, 0.1 * (2**i)), max_delay), 30)
-        print(f"Retrying in {sleep_time:.2f} seconds.")
-        time.sleep(sleep_time)
-      else:
-        break
+        # Update the last_api_call_time at the end of the API call
+        self.last_api_call_time = time.time()
 
-    if response is None:
-      print("Max retries reached. Could not generate a response.")
-      return None
-
-    # Update the last_api_call_time at the end of the API call
-    self.last_api_call_time = time.time()
-
-    return response['choices'][0]['message']['content']
+        return response['choices'][0]['message']['content']
