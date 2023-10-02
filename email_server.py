@@ -205,6 +205,17 @@ class EmailServer:
             return
 
         unseen_emails = data[0].split()
+# Filtering unseen_emails to keep only the most recent UID for each thread
+thread_latest_uid = {}
+for num in unseen_emails:
+    message_id, num, subject, content, from_, to_emails, cc_emails, references = self.process_email(num)
+    if message_id:
+        thread_id = references.split()[0] if references else subject
+        if thread_id not in thread_latest_uid or num > thread_latest_uid[thread_id]:
+            thread_latest_uid[thread_id] = num
+
+# Updating unseen_emails to only contain the most recent UIDs per thread
+unseen_emails = list(thread_latest_uid.values())
         if unseen_emails:
             print(f"Found {len(unseen_emails)} unseen emails.")
 
