@@ -955,3 +955,54 @@ Remember, the goal is not just to answer the grant question but to do so in a wa
 2023-10-03 18:30:35,655 [INFO]: Generated response for devtester: Many humans test 70a.
 
 - GENERATIVE AI AGENT: devtester
+2023-10-03 18:40:57,944 [INFO]: Number of chunks for detail: 4
+2023-10-03 18:40:57,945 [INFO]: Chunk 0: an introduction written in clickbait attention gra...
+2023-10-03 18:40:57,945 [INFO]: Chunk 1: an ascii style graph of the growth we expect to se...
+2023-10-03 18:40:57,945 [INFO]: Chunk 2: a budget of our future capital costs in a table fo...
+2023-10-03 18:40:57,945 [INFO]: Chunk 3: our story in an emoji story....
+2023-10-03 18:45:12,646 [INFO]: Generated response for devtrident: "Unlock the Future of Education with ASU Prep's Revolutionary Microschool Fellowship! Transform K-12 Education and Shape Tomorrow's Leaders Today! Dive into the Innovative World of Microschools and Be a Part of the Educational Revolution! Join Us and Unleash Your Potential to Reshape the Educational Landscape!" I'm sorry for any confusion, but as an AI text-based model, I'm unable to create ASCII style graphs. However, I can describe the expected growth and markets in text form. 
+
+ASU Prep Microschool Entrepreneur Fellowship is targeting initial growth in ESA states like Arizona, Florida, Mississippi, North Carolina, and Tennessee due to their existing ESA funding options. The program also has a keen interest in expanding into Texas and California.
+
+In terms of growth, we anticipate a steady increase in the number of fellows and microschools over the next few years. With a potential funding level of $100,000, we aim to support a certain number of fellows and capacity building initiatives. At the $1M funding level, we plan to significantly increase the number of fellows supported and invest more heavily in capacity building. With $5M in funding, we envision launching a comprehensive Microschool Institute to further accelerate the growth and impact of our initiative.
+
+This growth will not only increase the number of high-quality educational choices for parents but also contribute to the financial sustainability of microschools by tapping into ESA funding options. Apologies for the confusion earlier. Here's a general breakdown of the capital costs for the ASU Prep Microschool Entrepreneur Fellowship in a textual format:
+
+1. **Training**: This includes costs related to the 3-Day Founders Retreat, monthly coaching calls, teacher professional development, and curriculum consultation.
+
+2. **Retreat Logistics**: This encompasses all costs associated with organizing and executing the Founders Retreat, including venue rental, catering, transportation, and accommodation.
+
+3. **Consultation**: These are fees related to obtaining expert advice on various aspects of running a microschool, such as education policy, space design, pedagogy, curriculum, monitoring, hiring, funding, leadership, professional development, and networking.
+
+4. **Toolkits**: These are resources provided to fellows to assist them in establishing and managing their microschools.
+
+5. **Administrative Costs**: These are overhead costs related to running the fellowship program, such as staff salaries and office expenses.
+
+6. **National Microschool Seed Fund**: This is a fund set up to support the sustainable growth of microschools nationwide.
+
+The exact amounts allocated to each of these categories will depend on the total funding received. At potential funding levels of $100,000, $1M, and $5M, the budget allocations will be adjusted accordingly to maximize impact while ensuring financial sustainability. 🏫🌱👩‍🎓👨‍🎓: ASU Prep Digital Microschool Entrepreneur Fellowship supports founders, school leaders, and entrepreneurs aiming to implement a 'Powered by ASU Prep' microschool model.
+
+💡💼🚀: The Fellowship empowers K-8 microschool founders with training, curriculum access, and support, covering areas like education policy, space design, pedagogy, curriculum, monitoring, hiring, funding, leadership, professional development, and networking.
+
+⛺️📆📞: The Fellowship format includes a 3-Day Founders Retreat, monthly coaching calls, teacher professional development, and curriculum consultation.
+
+💰🌱🌳: ASU Prep seeks funding for Fellows, capacity building, and a National Microschool Seed Fund for sustainable growth.
+
+🌐💡💬: Recruitment targets ESA policy advocacy groups, education events, digital advertising, and partnerships with education incubators. 
+
+🗺️📍: The initial geographic focus includes ESA states like Arizona, Florida, Mississippi, North Carolina, and Tennessee.
+
+✅📊🔄: Evaluation plan utilizes qualitative assessments, quantitative metrics, long-term impact analysis, case studies, and continuous improvement.
+
+💡🏫💻: ASU Prep Local Microschool model combines on-campus and online learning components based on project-based learning (PBL).
+
+⚙️⭐️🎉: The microschool has achieved high academic achievement with a 93.55% passing rate in all courses and a successful End of Year Showcase attracting over 150 attendees. 
+
+🚀2024: Plans to open an industry partner co-located campus in Fall 2024.
+
+- GENERATIVE AI AGENT: devtrident
+2023-10-03 19:26:06,389 [ERROR]: Exception while processing emails: name 'thread_latest_uid' is not defined
+2023-10-03 19:37:34,788 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-03 19:37:35,398 [ERROR]: Exception while processing emails: can't concat int to bytes
