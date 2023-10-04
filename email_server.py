@@ -122,9 +122,16 @@ class EmailServer:
 
   def process_email(self, num):
     try:
+
       # Fetch the email content by UID
       print(f"Debug: Fetching email with UID: {num}, Type: {type(num)}")
-      result, data = self.imap_server.uid('fetch', str(num), '(RFC822)')
+      print(f"Debug: IMAP Server state: {self.imap_server.state}")
+      print(f"Debug: IMAP Server debug level: {self.imap_server.debug}")
+      result, data = self.imap_server.uid(
+          'fetch', num.decode('utf-8'),
+          '(RFC822)') if isinstance(num, bytes) else self.imap_server.uid(
+              'fetch', str(num), '(RFC822 X-GM-THRID)')
+
       if result != 'OK':
         print(f"Error fetching email content for UID {num}: {result}")
         return None, None, None, None, None, None, None, None
@@ -169,7 +176,8 @@ class EmailServer:
         self.send_error_email(from_, subject, "Content too long")
         self.mark_as_seen(num)
         self.update_processed_threads(message_id, thread_id, num, subject,
-                                      in_reply_to, references)
+                                      in_reply_to, references, x_gm_thrid)
+
         return None, None, None, None, None, None, None, None
 
       # Check if the email contains attachments
@@ -179,15 +187,18 @@ class EmailServer:
         self.send_error_email(from_, subject, "Attachments not allowed")
         self.mark_as_seen(num)
         self.update_processed_threads(message_id, thread_id, num, subject,
-                                      in_reply_to, references)
+                                      in_reply_to, references, x_gm_thrid)
+
         return None, None, None, None, None, None, None, None
 
-      return message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to
+      x_gm_thrid = email_message.get('X-GM-THRID', '')
+
+      return message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid
 
     except Exception as e:
       print(f"Exception while processing email with UID {num}: {e}")
       import traceback
-      print(traceback.format_exc())  # Print the full traceback for debugging
+      print(traceback.format_exc())
       return None, None, None, None, None, None, None, None
 
   def send_error_email(self, to_email, original_subject, error_reason):
@@ -228,8 +239,14 @@ class EmailServer:
       thread_latest_uid = {}
 
       for num in unseen_emails:
-        message_id, _, subject, _, from_, _, _, references = self.process_email(
-            num)
+        email_data = self.process_email(num)
+        if email_data is None or len(email_data) != 10:
+          print(
+              f"Unexpected number of values from process_email for UID {num}, got {len(email_data) if email_data else None}"
+          )
+          continue
+        message_id, _, subject, _, from_, _, _, references, in_reply_to, x_gm_thrid = email_data
+
         thread_id = references.split()[0] if references else subject
         if self.is_email_processed(thread_id, num):
           continue
@@ -239,7 +256,7 @@ class EmailServer:
       threads = {}
 
       for num in thread_latest_uid.values():
-        message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to = self.process_email(
+        message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid = self.process_email(
             num)
 
         if message_id:
@@ -255,6 +272,7 @@ class EmailServer:
               "to_emails": to_emails,
               "cc_emails": cc_emails,
               "references": references,
+              "in_reply_to": in_reply_to,
               "processed": False
           })
 
@@ -326,18 +344,21 @@ class EmailServer:
       print(traceback.format_exc())
 
   def update_processed_threads(self, message_id, thread_id, num, subject,
-                               in_reply_to, references):
+                               in_reply_to, references, x_gm_thrid):
     num_str = str(num)
     if thread_id not in self.processed_threads:
       self.processed_threads[thread_id] = {
           'nums': [],
           'subject': subject,
           'In-Reply-To': in_reply_to,
-          'References': references
+          'References': references,
+          'X-GM-THRID': x_gm_thrid
       }
 
     if num_str not in self.processed_threads[thread_id]['nums']:
       self.processed_threads[thread_id]['nums'].append(num_str)
+      self.processed_threads[thread_id]['References'] = references
+      self.processed_threads[thread_id]['X-GM-THRID'] = x_gm_thrid
 
     temp_file = "processed_threads_temp.json"
     try:
@@ -444,7 +465,7 @@ class EmailServer:
 
     # Ensure proper unpacking for the process_email function
 
-    message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to = self.process_email(
+    message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid = self.process_email(
         num)
 
     missing_values = [
@@ -567,7 +588,7 @@ class EmailServer:
     if all_responses_successful:
       thread_id = references.split()[0] if references else subject
       self.update_processed_threads(message_id, thread_id, num, subject,
-                                    in_reply_to, references)
+                                    in_reply_to, references, x_gm_thrid)
 
     if message_id in self.conversation_threads:
       conversation_history = '\n'.join(self.conversation_threads[message_id])
@@ -595,7 +616,8 @@ class EmailServer:
                  subject,
                  body,
                  message_id=None,
-                 references=None):
+                 references=None,
+                 x_gm_thrid=None):
     all_recipients = to_emails + cc_emails
 
     # Remove the sending agent's email from the To and Cc fields
@@ -616,8 +638,10 @@ class EmailServer:
     if cc_emails:
       msg['Cc'] = ', '.join(cc_emails)
 
-    
     msg['Subject'] = subject
+
+    if x_gm_thrid:
+      msg["X-GM-THRID"] = x_gm_thrid
 
     if message_id:
       msg["In-Reply-To"] = message_id
