@@ -1531,3 +1531,36 @@ Please ensure that this application is complete and all founders have filled out
 2023-10-04 20:37:10,841 [INFO]: Generated response for devtester: Many humans test 83a.
 
 - GENERATIVE AI AGENT: devtester
+2023-10-04 20:43:11,434 [INFO]: Generated response for devtester: Many humans test 84a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:45:48,506 [INFO]: Generated response for devtester: Test 83b.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:46:55,891 [INFO]: Generated response for devtester: Test 84a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:47:50,107 [INFO]: Generated response for devtester: Test 83c.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:49:57,256 [INFO]: Generated response for devtester: Test 84a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:52:17,528 [INFO]: Generated response for devtester: Yes
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:53:29,630 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:54:57,312 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, your messages resulted in 13583 tokens. Please reduce the length of the messages." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-10-04 20:58:07,009 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, your messages resulted in 13583 tokens. Please reduce the length of the messages." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-10-04 21:03:30,872 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 21:04:10,716 [INFO]: Generated response for devtester: Test asdoif.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 21:05:42,817 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 8966 tokens (4966 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-10-04 21:08:27,247 [INFO]: Generated response for devtester: Test 69f.
+
+- GENERATIVE AI AGENT: devtester

@@ -264,8 +264,6 @@ class EmailServer:
 
         unseen_emails = data[0].split()
         thread_to_latest_unseen = {}
-        
-        x_gm_thrids = {}  # To keep track of x_gm_thrids for each email
 
         # Step 1: Collect all unseen emails
         for num in unseen_emails:
@@ -273,79 +271,68 @@ class EmailServer:
             if email_data is None or len(email_data) != 10:
                 print(f"Unexpected number of values from process_email for UID {num}, got {len(email_data) if email_data else None}")
                 continue
-            message_id, _, subject, _, from_, _, _, references, in_reply_to, x_gm_thrid = email_data
-            x_gm_thrid = x_gm_thrid
+            
+            message_id, _, subject, _, from_, _, _, _, _, x_gm_thrid = email_data
 
-            
-            # Validation for Theory 1
-            print(f"Thread ID for email UID {num}: {x_gm_thrid}")
-            x_gm_thrids[num] = x_gm_thrid  # Storing x_gm_thrid for each email
-            
+            # Skip if email is already processed
             if self.is_email_processed(x_gm_thrid, num):
                 continue
 
             # Keep track of the latest unseen email for each thread
-            if x_gm_thrid not in thread_to_latest_unseen or int(num) > thread_to_latest_unseen[x_gm_thrid]['num']:
+            if x_gm_thrid not in thread_to_latest_unseen or int(num) > int(thread_to_latest_unseen[x_gm_thrid]['num']):
                 thread_to_latest_unseen[x_gm_thrid] = {
                     "message_id": message_id,
-                    "num": int(num),
+                    "num": num,
                     "subject": subject,
-                    "from_": from_,
-                    "references": references,
-                    "in_reply_to": in_reply_to
+                    "from_": from_
                 }
-
-        # Validation for Theory 1: Check for multiple emails from the same thread
-        thread_count = {}
-        for x_gm_thrid in x_gm_thrids.values():
-            thread_count[x_gm_thrid] = thread_count.get(x_gm_thrid, 0) + 1
-        print(f"Thread count for each thread ID: {thread_count}")
 
         # Step 2: Process each thread
         for x_gm_thrid, latest_unseen in thread_to_latest_unseen.items():
-            # Step 3: Ensure the thread contains at least one human response
+            # Skip if the thread contains no human response
             if latest_unseen['from_'] == self.smtp_username:
                 print("Skipping thread as it contains no human response.")
                 continue
 
-            # Step 4: Process the most recent unseen email in the thread
-            message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid = self.process_email(latest_unseen['num'])
-            if not message_id:
-                continue  # Skip if email couldn't be processed
-            
-            # Existing logic to handle the email
-            to_emails_copy = to_emails.copy()
-            cc_emails_copy = cc_emails.copy()
-            thread_content = content  # Using 'content' directly here
-
-            successful = self.handle_incoming_email(from_, to_emails, cc_emails, thread_content, subject, message_id, references, num, to_emails_copy, cc_emails_copy)
-            if successful:
-                self.mark_as_seen(num)
+            # Process the most recent unseen email in the thread
+            self.process_single_thread(latest_unseen['num'])
 
     except Exception as e:
         print(f"Exception while processing emails: {e}")
         import traceback
         print(traceback.format_exc())
 
+  def process_single_thread(self, num):
+    # Process the most recent unseen email in the thread
+    message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid = self.process_email(num)
+    if not message_id:
+        return  # Skip if email couldn't be processed
 
+    successful = self.handle_incoming_email(from_, to_emails, cc_emails, content, subject, message_id, references, num, to_emails, cc_emails)
+    if successful:
+        self.mark_as_seen(num)
 
 
   def mark_as_seen(self, num):
     try:
-      # Make sure num is a string
-      num_str = str(num)
-
+      # Ensure num is decoded to a string if it's bytes
+      num_str = num.decode('utf-8') if isinstance(num, bytes) else str(num)
       # Debug print
-      print(
-          f"Debug: Marking email as seen with UID: {num_str}, Type: {type(num_str)}"
-      )
-
+      print(f"Debug: Marking email as seen with UID: {num_str}, Type: {type(num_str)}")
+      # Debug: Check IMAP Server state before issuing STORE command
+      print(f"Debug: IMAP Server state before STORE command: {self.imap_server.state}")
       # Mark the email as seen
-      self.imap_server.uid('store', num_str, '+FLAGS', '(\Seen)')
+      result, _ = self.imap_server.uid('store', num_str, '+FLAGS', '(\Seen)')
+      if result != 'OK':
+          raise Exception(f"Failed to mark email as seen. IMAP server returned: {result}")
     except Exception as e:
       print(f"Exception while marking email as seen with UID {num}: {e}")
       import traceback
       print(traceback.format_exc())
+
+
+
+  
 
   def update_processed_threads(self, message_id, x_gm_thrid, num, subject,
                                in_reply_to, references):
