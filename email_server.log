@@ -1564,3 +1564,19 @@ Please ensure that this application is complete and all founders have filled out
 2023-10-04 21:08:27,247 [INFO]: Generated response for devtester: Test 69f.
 
 - GENERATIVE AI AGENT: devtester
+2023-10-04 21:11:55,080 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 9774 tokens (5774 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-10-04 21:14:56,617 [INFO]: Generated response for devtester: 'test many humans test 86a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 21:16:29,566 [INFO]: Generated response for devtester: Test 49b.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 21:22:18,732 [INFO]: Generated response for devtester: 'test 86b'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 21:23:08,796 [INFO]: Generated response for devtester: Test 49c.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 21:23:38,655 [INFO]: Generated response for devtester: 'test 86d'
+
+- GENERATIVE AI AGENT: devtester
