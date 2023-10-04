@@ -147,6 +147,7 @@ class EmailServer:
       ]
       subject = email_message['Subject']
       message_id = email_message['Message-ID']
+      in_reply_to = email_message.get('In-Reply-To', '')
       references = email_message.get('References', '')
 
       content = ""
@@ -167,7 +168,7 @@ class EmailServer:
         print(f"Content too long for UID {num}: {len(content)} characters.")
         self.send_error_email(from_, subject, "Content too long")
         self.mark_as_seen(num)
-        self.update_processed_threads(message_id, num, subject)
+        self.update_processed_threads(message_id, thread_id, num, subject, in_reply_to, references)
         return None, None, None, None, None, None, None, None
 
       # Check if the email contains attachments
@@ -176,10 +177,11 @@ class EmailServer:
         print(f"Attachments found in email with UID {num}")
         self.send_error_email(from_, subject, "Attachments not allowed")
         self.mark_as_seen(num)
-        self.update_processed_threads(message_id, num, subject)
+        self.update_processed_threads(message_id, thread_id, num, subject, in_reply_to, references)
         return None, None, None, None, None, None, None, None
 
-      return message_id, num, subject, content, from_, to_emails, cc_emails, references
+      return message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to
+
 
     except Exception as e:
       print(f"Exception while processing email with UID {num}: {e}")
@@ -215,89 +217,94 @@ class EmailServer:
   def process_emails(self):
     handle_incoming_email_executed = False  # Initialize the flag here
     try:
-        self.imap_server.select("INBOX")
-        result, data = self.imap_server.uid('search', None, 'UNSEEN')
-        if result != 'OK':
-            print(f"Error searching for emails: {result}")
-            return
+      self.imap_server.select("INBOX")
+      result, data = self.imap_server.uid('search', None, 'UNSEEN')
+      if result != 'OK':
+        print(f"Error searching for emails: {result}")
+        return
 
-        unseen_emails = data[0].split()
-        thread_latest_uid = {}
+      unseen_emails = data[0].split()
+      thread_latest_uid = {}
 
-        for num in unseen_emails:
-            message_id, _, subject, _, from_, _, _, references = self.process_email(num)
-            thread_id = references.split()[0] if references else subject
-            if self.is_email_processed(thread_id, num):
-                continue
-            thread_latest_uid[thread_id] = max(thread_latest_uid.get(thread_id, 0), int(num))
+      for num in unseen_emails:
+        message_id, _, subject, _, from_, _, _, references = self.process_email(
+            num)
+        thread_id = references.split()[0] if references else subject
+        if self.is_email_processed(thread_id, num):
+          continue
+        thread_latest_uid[thread_id] = max(thread_latest_uid.get(thread_id, 0),
+                                           int(num))
 
-        threads = {}
+      threads = {}
 
-        for num in thread_latest_uid.values():
-            message_id, num, subject, content, from_, to_emails, cc_emails, references = self.process_email(num)
-            if message_id:
-                thread_id = references.split()[0] if references else subject
-                if thread_id not in threads:
-                    threads[thread_id] = []
-                threads[thread_id].append({
-                    "message_id": message_id,
-                    "num": num,
-                    "subject": subject,
-                    "content": content,
-                    "from_": from_,
-                    "to_emails": to_emails,
-                    "cc_emails": cc_emails,
-                    "references": references,
-                    "processed": False
-                })
+      for num in thread_latest_uid.values():
+        message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to = self.process_email(num)
 
-        for thread_id, thread_emails in threads.items():
-            thread_emails.sort(key=lambda x: int(x['num']))
+        if message_id:
+          thread_id = references.split()[0] if references else subject
+          if thread_id not in threads:
+            threads[thread_id] = []
+          threads[thread_id].append({
+              "message_id": message_id,
+              "num": num,
+              "subject": subject,
+              "content": content,
+              "from_": from_,
+              "to_emails": to_emails,
+              "cc_emails": cc_emails,
+              "references": references,
+              "processed": False
+          })
 
-            # Check if there's at least one human response in the thread
-            has_human_response = any(email_data['from_'] != self.smtp_username
-                                     for email_data in thread_emails)
-    
-            # Skip threads without human responses
-            if not has_human_response:
-              continue
-    
-            # Find the most recent email in the thread
-            most_recent_email = thread_emails[-1]
-    
-            # Process the most recent email
-            to_emails = most_recent_email['to_emails']
-            cc_emails = most_recent_email['cc_emails']
-            thread_content = " ".join(
-                [email_data['content'] for email_data in thread_emails])
-            from_ = most_recent_email['from_']
-            initial_to_emails = to_emails.copy()
-            initial_cc_emails = cc_emails.copy()
-            subject = most_recent_email['subject']
-            message_id = most_recent_email['message_id']
-            references = most_recent_email['references']
-            num = most_recent_email['num']
-    
-            if not handle_incoming_email_executed:  # Check the flag here
-              successful = self.handle_incoming_email(from_, to_emails, cc_emails,
-                                                      thread_content, subject,
-                                                      message_id, references, num,
-                                                      initial_to_emails,
-                                                      initial_cc_emails)
-    
-              if successful:
-                    for email_data in thread_emails:
-                        self.mark_as_seen(email_data['num'])
-                    handle_incoming_email_executed = True  # Set the flag to True if handle_incoming_email is successful
-              else:
-                  print("Skipping handle_incoming_email for thread {thread_id} as it has already been executed.")
-    
-            else:
-              print("No unseen emails found.")  
+      for thread_id, thread_emails in threads.items():
+        thread_emails.sort(key=lambda x: int(x['num']))
+
+        # Check if there's at least one human response in the thread
+        has_human_response = any(email_data['from_'] != self.smtp_username
+                                 for email_data in thread_emails)
+
+        # Skip threads without human responses
+        if not has_human_response:
+          continue
+
+        # Find the most recent email in the thread
+        most_recent_email = thread_emails[-1]
+
+        # Process the most recent email
+        to_emails = most_recent_email['to_emails']
+        cc_emails = most_recent_email['cc_emails']
+        thread_content = " ".join(
+            [email_data['content'] for email_data in thread_emails])
+        from_ = most_recent_email['from_']
+        initial_to_emails = to_emails.copy()
+        initial_cc_emails = cc_emails.copy()
+        subject = most_recent_email['subject']
+        message_id = most_recent_email['message_id']
+        references = most_recent_email['references']
+        num = most_recent_email['num']
+
+        if not handle_incoming_email_executed:  # Check the flag here
+          successful = self.handle_incoming_email(from_, to_emails, cc_emails,
+                                                  thread_content, subject,
+                                                  message_id, references, num,
+                                                  initial_to_emails,
+                                                  initial_cc_emails)
+
+          if successful:
+            for email_data in thread_emails:
+              self.mark_as_seen(email_data['num'])
+            handle_incoming_email_executed = True  # Set the flag to True if handle_incoming_email is successful
+          else:
+            print(
+                "Skipping handle_incoming_email for thread {thread_id} as it has already been executed."
+            )
+
+        else:
+          print("No unseen emails found.")
     except Exception as e:
-        print(f"Exception while processing emails: {e}")
-        import traceback
-        print(traceback.format_exc())
+      print(f"Exception while processing emails: {e}")
+      import traceback
+      print(traceback.format_exc())
 
   def mark_as_seen(self, num):
     try:
@@ -316,21 +323,27 @@ class EmailServer:
       import traceback
       print(traceback.format_exc())
 
-  def update_processed_threads(self, message_id, thread_id, num, subject):
+  def update_processed_threads(self, message_id, thread_id, num, subject, in_reply_to, references):
     num_str = str(num)
     if thread_id not in self.processed_threads:
-      self.processed_threads[thread_id] = {'nums': [], 'subject': subject}
+        self.processed_threads[thread_id] = {
+            'nums': [],
+            'subject': subject,
+            'In-Reply-To': in_reply_to,
+            'References': references
+        }
 
     if num_str not in self.processed_threads[thread_id]['nums']:
-      self.processed_threads[thread_id]['nums'].append(num_str)
+        self.processed_threads[thread_id]['nums'].append(num_str)
 
     temp_file = "processed_threads_temp.json"
     try:
-      with open(temp_file, 'w') as file:
-        json.dump(self.processed_threads, file)
-      os.rename(temp_file, "processed_threads.json")
+        with open(temp_file, 'w') as file:
+            json.dump(self.processed_threads, file)
+        os.rename(temp_file, "processed_threads.json")
     except Exception as e:
-      print(f"Error updating processed threads: {e}")
+        print(f"Error updating processed threads: {e}")
+
 
   def strip_html_tags(self, text):
     clean = re.compile('<.*?>')
@@ -428,8 +441,10 @@ class EmailServer:
     previous_responses = []
 
     # Ensure proper unpacking for the process_email function
-    message_id, num, subject, content, from_, to_emails, cc_emails, references = self.process_email(
-        num)
+
+    message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to = self.process_email(num)
+
+
     missing_values = [
         var_name for var_name, value in locals().items()
         if value is None and var_name in [
@@ -549,7 +564,7 @@ class EmailServer:
 
     if all_responses_successful:
       thread_id = references.split()[0] if references else subject
-      self.update_processed_threads(message_id, thread_id, num, subject)
+      self.update_processed_threads(message_id, thread_id, num, subject, in_reply_to, references)
 
     if message_id in self.conversation_threads:
       conversation_history = '\n'.join(self.conversation_threads[message_id])
@@ -597,11 +612,11 @@ class EmailServer:
     msg['To'] = ', '.join(to_emails)
     if cc_emails:
       msg['Cc'] = ', '.join(cc_emails)
-    msg['Subject'] = subject
+      msg['Subject'] = subject
     if message_id:
       msg["In-Reply-To"] = message_id
     if references:
-      msg["References"] = references
+      msg["References"] = references + ' ' + message_id
     msg.attach(MIMEText(body, 'plain'))
 
     # Clean the all_recipients list to remove the SMTP username to prevent sending emails to itself
@@ -611,4 +626,4 @@ class EmailServer:
     ]
 
     with self.smtp_connection() as server:
-        server.sendmail(from_email, all_recipients, msg.as_string())
+      server.sendmail(from_email, all_recipients, msg.as_string())
