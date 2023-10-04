@@ -40,8 +40,8 @@ class GPTModel:
 
         # Calculate total tokens for the request
         total_tokens = self.count_tokens(full_content + dynamic_prompt)
-        if total_tokens > 8192:
-            tokens_limit = max(52, tokens_limit - (total_tokens - 8192))
+        tokens_limit = max(52, tokens_limit - max(0, total_tokens - 8192))
+
 
         current_time = time.time()
         elapsed_time = current_time - self.last_api_call_time
@@ -59,24 +59,20 @@ class GPTModel:
         if note:
             max_tokens_allowed -= len(note.split())
 
-        # Check and truncate conversation_history if total tokens exceed the maximum limit
-        while len(conversation_history.split()) > max_tokens_allowed:
-            # Check if there's a newline character in the conversation_history
-            if "\n" not in conversation_history:
-                print(
-                    "WARNING: No newline character found in conversation_history. Breaking out of truncation loop."
-                )
-                break
-
-            # Drop the oldest message (assumes each message in the history is separated by a newline)
-            conversation_history = "\n".join(conversation_history.split("\n")[1:])
-
-        # Update the full_content after potentially truncating the conversation_history
-        full_content = f"{content}\n\n{conversation_history}"
-        if additional_context:
-            full_content += f"\n{additional_context}"
-        if note:
-            full_content += f"\n{note}"
+        # Calculate total tokens for the request
+        total_tokens = self.count_tokens(full_content + dynamic_prompt)
+        
+        # If total tokens exceed the model's maximum context length, truncate full_content
+        if total_tokens > (8192 - tokens_limit):
+            excess_tokens = total_tokens - (8192 - tokens_limit)
+            while self.count_tokens(full_content) > (self.count_tokens(full_content) - excess_tokens):
+                # Remove the oldest message from the conversation history
+                conversation_history = "\n".join(conversation_history.split("\n")[1:])
+                full_content = f"{content}\n\n{conversation_history}"
+                if additional_context:
+                    full_content += f"\n{additional_context}"
+                if note:
+                    full_content += f"\n{note}"
 
         print(f"Token limit for this request: {tokens_limit}")
 
