@@ -46,8 +46,8 @@ class GPTModel:
         current_time = time.time()
         elapsed_time = current_time - self.last_api_call_time
 
-        if elapsed_time < 60:
-            sleep_duration = 60 - elapsed_time
+        if elapsed_time < 10:
+            sleep_duration = 10 - elapsed_time
             print(f"Sleeping for {sleep_duration:.2f} seconds to avoid rate limits.")
             time.sleep(sleep_duration)
 
