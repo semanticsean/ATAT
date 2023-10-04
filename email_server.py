@@ -121,12 +121,33 @@ class EmailServer:
     self.connect_to_imap_server()
 
   def format_email_history_html(self, history):
-    # Wrap the email history in HTML blockquote elements
-    return f'<blockquote style="border-left: 2px solid #ddd; margin-left: 15px; padding-left: 20px;">{history}</blockquote>'
+    # Recursively wrap the email history in HTML blockquote elements to handle nested quoting
+    lines = history.split('\n')
+    output_lines = []
+    level = 0
+    for line in lines:
+      if line.startswith('>'):
+        level += 1
+        line = line[1:].lstrip()
+      else:
+        level = 0
+      output_lines.append(
+          f'{"<blockquote>" * level}{line}{"</blockquote>" * level}')
+    return '\n'.join(output_lines)
 
   def format_email_history_plain(self, history):
-    # Prepend > to each line to quote the email history
-    return '\n'.join([f'> {line}' for line in history.splitlines()])
+    # Prepend > to each line to quote the email history, and handle nested quoting
+    lines = history.split('\n')
+    output_lines = []
+    level = 0
+    for line in lines:
+      if line.startswith('>'):
+        level += 1
+        line = line[1:].lstrip()
+      else:
+        level = 0
+      output_lines.append(f'{"<" * level}{line}')
+    return '\n'.join(output_lines)
 
   def process_email(self, num):
     try:
@@ -493,15 +514,6 @@ class EmailServer:
 
     print(f"Unpacking agents: {agents}")
 
-    # Collect the email history of the thread
-    email_history = '\n'.join(self.conversation_threads.get(message_id, []))
-
-    # Format the email history based on content type
-    formatted_email_history_html = self.format_email_history_html(
-        email_history)
-    formatted_email_history_plain = self.format_email_history_plain(
-        email_history)
-
     for agent_info in agents:
       if len(agent_info) != 2:
         logging.error(
@@ -584,7 +596,17 @@ class EmailServer:
           print(f"Sending email to: {to_emails_without_agent}")
           print(f"CC: {cc_emails_without_agent}")
 
-          # Append the formatted email history to the agent's reply
+        # Collect the email history of the thread
+        email_history = '\n'.join(self.conversation_threads.get(
+            message_id, []))
+
+        # Format the email history based on content type
+        formatted_email_history_html = self.format_email_history_html(
+            email_history)
+        formatted_email_history_plain = self.format_email_history_plain(
+            email_history)
+
+        # Append the formatted email history to the agent's reply
         full_response_html = f"{response}<br>{formatted_email_history_html}"
         full_response_plain = f"{response}\n{formatted_email_history_plain}"
 
