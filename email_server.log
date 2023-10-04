@@ -1379,3 +1379,155 @@ In summary, while ASU Prep Digital's response is quite comprehensive, focusing o
 2023-10-04 18:36:00,767 [INFO]: Generated response for devtester: Many humans test 79a.
 
 - GENERATIVE AI AGENT: devtester
+2023-10-04 18:42:37,647 [INFO]: Generated response for devtester: "Many humans test 80a."
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 18:42:38,212 [WARNING]: No valid agent info found
+2023-10-04 18:42:38,212 [WARNING]: No valid agent info found
+2023-10-04 19:30:19,481 [INFO]: Generated response for devtester: Many humans test 81a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 19:33:19,432 [WARNING]: No valid agent info found
+2023-10-04 19:33:19,433 [WARNING]: No valid agent info found
+2023-10-04 19:34:05,002 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 19:34:16,036 [INFO]: Generated response for devtester: Many humans test 82a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 19:34:26,814 [INFO]: Generated response for devtester: Many humans test 82a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 19:35:49,014 [INFO]: Generated response for devtester: Test 83a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 19:36:00,028 [INFO]: Generated response for devtester: Test 83a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 19:36:10,695 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 19:36:20,812 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-04 19:57:30,598 [INFO]: Generated response for devtester: Many humans test 81a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 19:57:51,313 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 19:58:12,025 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 19:58:33,186 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:09:12,326 [INFO]: Generated response for devtester: Many humans test 82a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:09:33,893 [INFO]: Generated response for devtester: many humans test 82a
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:11:08,690 [INFO]: Generated response for devada: !split!
+# YC Apply
+## Application
+
+Please note, this form requires you to fill out the basics initially. You can edit these details later.
+
+### Winter 2024
+- **Company name:** 
+- **Describe what your company does in 50 characters or less:**
+
+Provide some details of the cofounders in the startup. Please note, founders must have at least 10% equity in the company.
+
+### Your Information
+- **Name** (Required)
+- **Email**
+- **Linkedin URL** (Required)
+- **Are you a technical founder?** (Required) 
+    - (You are a programmer, engineer, or scientist who can build the product without outside assistance.)
+- **Age**
+- **Gender**
+
+!split!
+### Company Details
+- **Company name:**
+- **Describe what your company does in 50 characters or less:**
+- **Company url, if any:**
+- If you have a demo, attach it below. (Anything that shows us how the product works. Please limit to 3 minutes / 100 MB.)
+    - Upload video...
+    - Record screen
+- Please provide a link to the product, if relevant. Followed by login credentials, if required.
+- What is your company going to make? Please describe your product and what it does or will do.
+- Where do you live now, and where would the company be based after YC? (List as City A, Country A / City B, Country B.)
+
+!split!
+### Founders Information
+Please provide some details of the cofounders in the startup. Founders must have at least 10% equity in the company.
+
+- **Name** (Required)
+- **Email**
+- **Linkedin URL** (Required)
+- **Are you a technical founder?** (Required) 
+    - (You are a programmer, engineer, or scientist who can build the product without outside assistance.)
+- **Age**
+- **Gender**
+
+Please record a one minute video introducing the founder(s). This video is an important part of the application.
+- Upload video...
+- Record video
+
+Who writes code, or does other technical work on your product? Was any of it done by a non-founder? Please explain.
+Are you looking for a cofounder?
+
+!split!
+### Progress
+- How far along are you?
+- How long have each of you been working on this? How much of that has been full-time? Please explain.
+- Are people using your product?
+- Do you have revenue?
+- If you are applying with the same idea as a previous batch, did anything change? If you applied with a different idea, why did you pivot and what did you learn from the last idea?
+- If you have already participated or committed to participate in an incubator, "accelerator" or "pre-accelerator" program, please tell us about it.
+
+!split!
+### Idea
+- Why did you pick this idea to work on? Do you have domain expertise in this area? How do you know people need what you're making?
+- Who are your competitors? What do you understand about your business that they don't?
+- How do or will you make money? How much could you make? (We realize you can't know precisely, but give your best estimate.)
+- Where will most of your initial users be located?
+- Which category best applies to your company?
+
+!split!
+### Equity
+- Have you formed ANY legal entity yet? This may be in the US, in your home country or in another country.
+- Have you taken any investment yet?
+- Are you currently fundraising?
+- If you have not formed the company yet, describe the planned equity ownership breakdown among the founders, employees and any other proposed stockholders. If there are multiple founders, be sure to give the proposed equity ownership of each founder and founder title (e.g. CEO).
+
+!split!
+### Others
+- If you had any other ideas you considered applying with, please list them. One may be something we've been waiting for. Often when we fund people it's to do something they list here and not in the main application.
+- What convinced you to apply to Y Combinator? Did someone encourage you to apply? Have you been to any YC events?
+- How did you hear about Y Combinator?
+
+Please ensure that this application is complete and all founders have filled out their profiles before submitting your application for review. Editing your application will be available after submission, though please only submit material updates such as changes to the founding team or fundraising.
+
+- GENERATIVE AI AGENT: devada
+2023-10-04 20:20:24,946 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 11146 tokens (7146 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-10-04 20:23:53,523 [INFO]: Generated response for devtester: Test 69 b.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:24:13,986 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 11146 tokens (7146 in the messages, 4000 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-10-04 20:25:13,454 [INFO]: Generated response for devtester: Test 69 b.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:26:16,486 [INFO]: Generated response for devtester: Test 69c.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:33:27,172 [INFO]: Generated response for devtester: Yes
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:35:05,962 [INFO]: Generated response for devtester: Test 69d.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-04 20:37:10,841 [INFO]: Generated response for devtester: Many humans test 83a.
+
+- GENERATIVE AI AGENT: devtester
