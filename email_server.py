@@ -227,7 +227,6 @@ class EmailServer:
     return False
 
   def process_emails(self):
-    handle_incoming_email_executed = False  # Initialize the flag here
     try:
       self.imap_server.select("INBOX")
       result, data = self.imap_server.uid('search', None, 'UNSEEN')
@@ -303,24 +302,16 @@ class EmailServer:
         references = most_recent_email['references']
         num = most_recent_email['num']
 
-        if not handle_incoming_email_executed:  # Check the flag here
-          successful = self.handle_incoming_email(from_, to_emails, cc_emails,
-                                                  thread_content, subject,
-                                                  message_id, references, num,
-                                                  initial_to_emails,
-                                                  initial_cc_emails)
+        successful = self.handle_incoming_email(from_, to_emails, cc_emails,
+                                                thread_content, subject,
+                                                message_id, references, num,
+                                                initial_to_emails,
+                                                initial_cc_emails)
 
-          if successful:
-            for email_data in thread_emails:
-              self.mark_as_seen(email_data['num'])
-            handle_incoming_email_executed = True  # Set the flag to True if handle_incoming_email is successful
-          else:
-            print(
-                "Skipping handle_incoming_email for thread {thread_id} as it has already been executed."
-            )
+        if successful:
+          for email_data in thread_emails:
+            self.mark_as_seen(email_data['num'])
 
-        else:
-          print("No unseen emails found.")
     except Exception as e:
       print(f"Exception while processing emails: {e}")
       import traceback
