@@ -168,7 +168,8 @@ class EmailServer:
         print(f"Content too long for UID {num}: {len(content)} characters.")
         self.send_error_email(from_, subject, "Content too long")
         self.mark_as_seen(num)
-        self.update_processed_threads(message_id, thread_id, num, subject, in_reply_to, references)
+        self.update_processed_threads(message_id, thread_id, num, subject,
+                                      in_reply_to, references)
         return None, None, None, None, None, None, None, None
 
       # Check if the email contains attachments
@@ -177,11 +178,11 @@ class EmailServer:
         print(f"Attachments found in email with UID {num}")
         self.send_error_email(from_, subject, "Attachments not allowed")
         self.mark_as_seen(num)
-        self.update_processed_threads(message_id, thread_id, num, subject, in_reply_to, references)
+        self.update_processed_threads(message_id, thread_id, num, subject,
+                                      in_reply_to, references)
         return None, None, None, None, None, None, None, None
 
       return message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to
-
 
     except Exception as e:
       print(f"Exception while processing email with UID {num}: {e}")
@@ -238,7 +239,8 @@ class EmailServer:
       threads = {}
 
       for num in thread_latest_uid.values():
-        message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to = self.process_email(num)
+        message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to = self.process_email(
+            num)
 
         if message_id:
           thread_id = references.split()[0] if references else subject
@@ -323,27 +325,27 @@ class EmailServer:
       import traceback
       print(traceback.format_exc())
 
-  def update_processed_threads(self, message_id, thread_id, num, subject, in_reply_to, references):
+  def update_processed_threads(self, message_id, thread_id, num, subject,
+                               in_reply_to, references):
     num_str = str(num)
     if thread_id not in self.processed_threads:
-        self.processed_threads[thread_id] = {
-            'nums': [],
-            'subject': subject,
-            'In-Reply-To': in_reply_to,
-            'References': references
-        }
+      self.processed_threads[thread_id] = {
+          'nums': [],
+          'subject': subject,
+          'In-Reply-To': in_reply_to,
+          'References': references
+      }
 
     if num_str not in self.processed_threads[thread_id]['nums']:
-        self.processed_threads[thread_id]['nums'].append(num_str)
+      self.processed_threads[thread_id]['nums'].append(num_str)
 
     temp_file = "processed_threads_temp.json"
     try:
-        with open(temp_file, 'w') as file:
-            json.dump(self.processed_threads, file)
-        os.rename(temp_file, "processed_threads.json")
+      with open(temp_file, 'w') as file:
+        json.dump(self.processed_threads, file)
+      os.rename(temp_file, "processed_threads.json")
     except Exception as e:
-        print(f"Error updating processed threads: {e}")
-
+      print(f"Error updating processed threads: {e}")
 
   def strip_html_tags(self, text):
     clean = re.compile('<.*?>')
@@ -442,8 +444,8 @@ class EmailServer:
 
     # Ensure proper unpacking for the process_email function
 
-    message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to = self.process_email(num)
-
+    message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to = self.process_email(
+        num)
 
     missing_values = [
         var_name for var_name, value in locals().items()
@@ -564,7 +566,8 @@ class EmailServer:
 
     if all_responses_successful:
       thread_id = references.split()[0] if references else subject
-      self.update_processed_threads(message_id, thread_id, num, subject, in_reply_to, references)
+      self.update_processed_threads(message_id, thread_id, num, subject,
+                                    in_reply_to, references)
 
     if message_id in self.conversation_threads:
       conversation_history = '\n'.join(self.conversation_threads[message_id])
@@ -612,7 +615,10 @@ class EmailServer:
     msg['To'] = ', '.join(to_emails)
     if cc_emails:
       msg['Cc'] = ', '.join(cc_emails)
-      msg['Subject'] = subject
+
+    
+    msg['Subject'] = subject
+
     if message_id:
       msg["In-Reply-To"] = message_id
     if references:
