@@ -331,33 +331,28 @@ class EmailServer:
       print(traceback.format_exc())
 
 
-
+  def update_processed_threads(self, message_id, x_gm_thrid, num, subject, in_reply_to, references):
+      print(f"Debug: Current state of processed_threads: {self.processed_threads}")  # Debug statement
+      num_str = str(num)
+      if x_gm_thrid not in self.processed_threads:
+          self.processed_threads[x_gm_thrid] = {
+              'nums': [],
+              'subject': subject,
+              'In-Reply-To': in_reply_to,
+              'References': references,
+              'X-GM-THRID': x_gm_thrid
+          }
+      
+      # Safety check
+      if 'nums' not in self.processed_threads[x_gm_thrid]:
+          print(f"Debug: 'nums' key not found in processed_threads for x_gm_thrid {x_gm_thrid}. Initializing to empty list.")
+          self.processed_threads[x_gm_thrid]['nums'] = []
   
-
-  def update_processed_threads(self, message_id, x_gm_thrid, num, subject,
-                               in_reply_to, references):
-    num_str = str(num)
-    if x_gm_thrid not in self.processed_threads:
-      self.processed_threads[x_gm_thrid] = {
-          'nums': [],
-          'subject': subject,
-          'In-Reply-To': in_reply_to,
-          'References': references,
-          'X-GM-THRID': x_gm_thrid
-      }
-
-    if num_str not in self.processed_threads[x_gm_thrid]['nums']:
-      self.processed_threads[x_gm_thrid]['nums'].append(num_str)
-      self.processed_threads[x_gm_thrid]['References'] = references
-      self.processed_threads[x_gm_thrid]['X-GM-THRID'] = x_gm_thrid
-
-    temp_file = "processed_threads_temp.json"
-    try:
-      with open(temp_file, 'w') as file:
-        json.dump(self.processed_threads, file)
-      os.rename(temp_file, "processed_threads.json")
-    except Exception as e:
-      print(f"Error updating processed threads: {e}")
+      if num_str not in self.processed_threads[x_gm_thrid]['nums']:
+          self.processed_threads[x_gm_thrid]['nums'].append(num_str)
+          self.processed_threads[x_gm_thrid]['References'] = references
+          self.processed_threads[x_gm_thrid]['X-GM-THRID'] = x_gm_thrid
+  
 
   def strip_html_tags(self, text):
     clean = re.compile('<.*?>')

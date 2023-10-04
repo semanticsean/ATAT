@@ -58,23 +58,39 @@ class GPTModel:
             max_tokens_allowed -= len(additional_context.split())
         if note:
             max_tokens_allowed -= len(note.split())
-
+        
         # Calculate total tokens for the request
         total_tokens = self.count_tokens(full_content + dynamic_prompt)
+        tokens_limit = max(52, tokens_limit - max(0, total_tokens - 8192))
         
-        # If total tokens exceed the model's maximum context length, truncate full_content
-        if total_tokens > (8192 - tokens_limit):
+        # Ensure tokens_limit and total_tokens conform to model's max token limit
+        while total_tokens > (8192 - tokens_limit):
             excess_tokens = total_tokens - (8192 - tokens_limit)
-            while self.count_tokens(full_content) > (self.count_tokens(full_content) - excess_tokens):
-                # Remove the oldest message from the conversation history
+        
+            # Remove the oldest message from the conversation history until we remove excess tokens
+            while excess_tokens > 0 and "\n" in conversation_history:
+                oldest_message = conversation_history.split("\n")[0]
+                oldest_message_tokens = self.count_tokens(oldest_message)
+                
                 conversation_history = "\n".join(conversation_history.split("\n")[1:])
                 full_content = f"{content}\n\n{conversation_history}"
                 if additional_context:
                     full_content += f"\n{additional_context}"
                 if note:
                     full_content += f"\n{note}"
-
+        
+                excess_tokens -= oldest_message_tokens
+                total_tokens = self.count_tokens(full_content + dynamic_prompt)
+        
+            # If no progress is made, break the loop
+            if excess_tokens > 0:
+                print("No progress in reducing tokens. Exiting loop.")
+                break
+        
         print(f"Token limit for this request: {tokens_limit}")
+        
+        # ... rest of the code
+        
 
         for i in range(max_retries):
             try:
