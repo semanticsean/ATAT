@@ -7,6 +7,7 @@ import os
 import re
 import smtplib
 import openai
+import quopri
 from contextlib import contextmanager
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
@@ -121,31 +122,17 @@ class EmailServer:
     self.connect_to_imap_server()
 
   def format_email_history_plain(self, history):
-      lines = history.split('\n')
-      output_lines = []
-      level = 0
-      for line in lines:
-          if line.startswith('>'):
-              level += 1  # Increment level if line starts with '>'
-              line = line[1:].lstrip()  # Remove the leading '>'
-          else:
-              level = 0  # Reset level for non-quoted lines
-          output_lines.append(f'{"=" * level}{line}')  # Add the line with proper quoting
-      return '\n'.join(output_lines)
+    decoded_history = quopri.decodestring(history).decode('utf-8')
+    lines = decoded_history.split('\n')
+    output_lines = [f'>{line}' for line in lines]
+    return '\n'.join(output_lines)
 
   def format_email_history_html(self, history):
-      lines = history.split('\n')
-      output_lines = []
-      level = 0
-      for line in lines:
-          if line.startswith('<blockquote>'):
-              level += 1  # Increment level if line starts with '<blockquote>'
-              line = line[len('<blockquote>'):].rstrip('</blockquote>')  # Remove the blockquote tags
-          else:
-              level = 0  # Reset level for non-quoted lines
-          output_lines.append(f'{"<blockquote>" * level}{line}{"</blockquote>" * level}')  # Add the line with proper quoting
-      return '\n'.join(output_lines)
+    decoded_history = quopri.decodestring(history).decode('utf-8')
+    # Wrap the entire history in a single blockquote
+    return f'<blockquote>{decoded_history}</blockquote>'
 
+  
   def process_email(self, num):
     try:
 
@@ -547,26 +534,34 @@ class EmailServer:
           print(f"CC: {cc_emails_without_agent}")
 
         # Collect the email history of the thread
-        email_history = '\n'.join(self.conversation_threads.get(
-            message_id, []))
-
+        email_history = '\n'.join(self.conversation_threads.get(message_id, []))
+        
         # Format the email history based on content type
-        formatted_email_history_html = self.format_email_history_html(
-            email_history)
-        formatted_email_history_plain = self.format_email_history_plain(
-            email_history)
-
+        formatted_email_history_html = self.format_email_history_html(email_history)
+        
+        # Debugging: Print the involved variables to trace the issue
+        print("Debug: Response:", response)
+        print("Debug: Formatted email history HTML:", formatted_email_history_html)
+        
+        formatted_email_history_plain = self.format_email_history_plain(email_history)
+        
+        # Debugging: Print the involved variables to trace the issue
+        print("Debug: Response:", response)
+        print("Debug: Formatted email history HTML:", formatted_email_history_html)
+        print("Debug: Formatted email history Plain:", formatted_email_history_plain)
+        
         # Append the formatted email history to the agent's reply
         full_response_html = f"{response}<br>{formatted_email_history_html}"
         full_response_plain = f"{response}\n{formatted_email_history_plain}"
-
+        
+        
         # Generate the MIMEText parts for both HTML and plain text
         part1 = MIMEText(full_response_plain, 'plain')
         part2 = MIMEText(full_response_html, 'html')
-
+        
         # Initialize msg as MIMEMultipart object before attaching parts
-        msg = MIMEMultipart()
-
+        msg = MIMEMultipart('alternative') 
+        
         # Attach both parts to the MIMEMultipart message
         msg.attach(part1)
         msg.attach(part2)
