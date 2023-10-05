@@ -120,34 +120,31 @@ class EmailServer:
     print("Restarting system...")
     self.connect_to_imap_server()
 
-  def format_email_history_html(self, history):
-    # Recursively wrap the email history in HTML blockquote elements to handle nested quoting
-    lines = history.split('\n')
-    output_lines = []
-    level = 0
-    for line in lines:
-      if line.startswith('>'):
-        level += 1
-        line = line[1:].lstrip()
-      else:
-        level = 0
-      output_lines.append(
-          f'{"<blockquote>" * level}{line}{"</blockquote>" * level}')
-    return '\n'.join(output_lines)
-
   def format_email_history_plain(self, history):
-    # Prepend > to each line to quote the email history, and handle nested quoting
-    lines = history.split('\n')
-    output_lines = []
-    level = 0
-    for line in lines:
-      if line.startswith('>'):
-        level += 1
-        line = line[1:].lstrip()
-      else:
-        level = 0
-      output_lines.append(f'{"<" * level}{line}')
-    return '\n'.join(output_lines)
+      lines = history.split('\n')
+      output_lines = []
+      level = 0
+      for line in lines:
+          if line.startswith('>'):
+              level += 1  # Increment level if line starts with '>'
+              line = line[1:].lstrip()  # Remove the leading '>'
+          else:
+              level = 0  # Reset level for non-quoted lines
+          output_lines.append(f'{"=" * level}{line}')  # Add the line with proper quoting
+      return '\n'.join(output_lines)
+
+  def format_email_history_html(self, history):
+      lines = history.split('\n')
+      output_lines = []
+      level = 0
+      for line in lines:
+          if line.startswith('<blockquote>'):
+              level += 1  # Increment level if line starts with '<blockquote>'
+              line = line[len('<blockquote>'):].rstrip('</blockquote>')  # Remove the blockquote tags
+          else:
+              level = 0  # Reset level for non-quoted lines
+          output_lines.append(f'{"<blockquote>" * level}{line}{"</blockquote>" * level}')  # Add the line with proper quoting
+      return '\n'.join(output_lines)
 
   def process_email(self, num):
     try:
@@ -256,51 +253,47 @@ class EmailServer:
 
   def process_emails(self):
     try:
-        self.imap_server.select("INBOX")
-        result, data = self.imap_server.uid('search', None, 'UNSEEN')
-        if result != 'OK':
-            print(f"Error searching for emails: {result}")
-            return
+      self.imap_server.select("INBOX")
+      result, data = self.imap_server.uid('search', None, 'UNSEEN')
+      if result != 'OK':
+        print(f"Error searching for emails: {result}")
+        return
 
-        unseen_emails = data[0].split()
-        thread_to_latest_unseen = {}
+      unseen_emails = data[0].split()
+      thread_to_unseen = {}
 
-        # Step 1: Collect all unseen emails
-        for num in unseen_emails:
-            email_data = self.process_email(num)
-            if email_data is None or len(email_data) != 10:
-                print(f"Unexpected number of values from process_email for UID {num}, got {len(email_data) if email_data else None}")
-                continue
-            
-            message_id, _, subject, _, from_, _, _, _, _, x_gm_thrid = email_data
+      for num in unseen_emails:
+        email_data = self.process_email(num)
+        if email_data is None or len(email_data) != 10:
+          continue
+        message_id, _, subject, _, from_, _, _, _, _, x_gm_thrid = email_data
+        if self.is_email_processed(x_gm_thrid, num):
+          continue
 
-            # Skip if email is already processed
-            if self.is_email_processed(x_gm_thrid, num):
-                continue
+        if x_gm_thrid not in thread_to_unseen:
+          thread_to_unseen[x_gm_thrid] = []
 
-            # Keep track of the latest unseen email for each thread
-            if x_gm_thrid not in thread_to_latest_unseen or int(num) > int(thread_to_latest_unseen[x_gm_thrid]['num']):
-                thread_to_latest_unseen[x_gm_thrid] = {
-                    "message_id": message_id,
-                    "num": num,
-                    "subject": subject,
-                    "from_": from_
-                }
+        thread_to_unseen[x_gm_thrid].append({
+            "message_id": message_id,
+            "num": num,
+            "subject": subject,
+            "from_": from_
+        })
 
-        # Step 2: Process each thread
-        for x_gm_thrid, latest_unseen in thread_to_latest_unseen.items():
-            # Skip if the thread contains no human response
-            if latest_unseen['from_'] == self.smtp_username:
-                print("Skipping thread as it contains no human response.")
-                continue
-
-            # Process the most recent unseen email in the thread
-            self.process_single_thread(latest_unseen['num'])
+      for x_gm_thrid, unseen_list in thread_to_unseen.items():
+        # Sort by UID to get the most recent unseen email
+        unseen_list.sort(key=lambda x: int(x['num']), reverse=True)
+        most_recent_unseen = unseen_list[0]
+        if most_recent_unseen['from_'] == self.smtp_username:
+          continue
+        self.process_single_thread(most_recent_unseen['num'])
 
     except Exception as e:
-        print(f"Exception while processing emails: {e}")
-        import traceback
-        print(traceback.format_exc())
+      print(f"Exception while processing emails: {e}")
+      import traceback
+      print(traceback.format_exc())
+
+
 
   def process_single_thread(self, num):
     # Process the most recent unseen email in the thread
@@ -332,7 +325,7 @@ class EmailServer:
 
 
   def update_processed_threads(self, message_id, x_gm_thrid, num, subject, in_reply_to, references):
-      print(f"Debug: Current state of processed_threads: {self.processed_threads}")  # Debug statement
+      
       num_str = str(num)
       if x_gm_thrid not in self.processed_threads:
           self.processed_threads[x_gm_thrid] = {
@@ -637,7 +630,14 @@ class EmailServer:
     all_recipients = [
         email for email in all_recipients
         if email.lower() != from_email.lower()
+      
     ]
+
+    is_html_email = any(part.get_content_type() == 'text/html' for part in msg.get_payload())
+        
+    # Set the Content-Type header
+    msg['Content-Type'] = 'text/html' if is_html_email else 'text/plain'
+
 
     if not all_recipients:
       print("No valid recipients found. Aborting email send.")
