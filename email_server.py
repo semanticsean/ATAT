@@ -589,7 +589,7 @@ class EmailServer:
           logging.error(f"Exception while handling incoming email: {e}")
           return False
         else:
-          print("No recipients found to send the email to.")
+          print(".")
 
     if all_responses_successful:
       x_gm_thrid = references.split()[0] if references else subject

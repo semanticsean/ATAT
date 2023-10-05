@@ -3,6 +3,7 @@ import time
 import json
 import openai
 import tiktoken
+import re
 from random import uniform
 
 
@@ -36,6 +37,21 @@ class GPTModel:
             full_content += f"\n{additional_context}"
         if note:
             full_content += f"\n{note}"
+
+      
+        # Remove '>'' and '=' if they occur more than once in sequence
+        full_content = re.sub(r'>>+', '', full_content)
+        full_content = re.sub(r'==+', '', full_content)
+
+        # Always remove '=3D'
+        full_content = full_content.replace('=3D', '')
+
+        # Remove line breaks
+        full_content = full_content.replace('\n', ' ')
+
+        # Remove email addresses with specified domain endings
+        email_pattern = r'\S+@\S+\.(com|net|co|org|ai)'
+        full_content = re.sub(email_pattern, '', full_content)
     
         # Adjusted max tokens and buffer for API and formatting overhead
         max_tokens = 8100  # Adjusted down to allow for some buffer
