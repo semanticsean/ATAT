@@ -1680,3 +1680,54 @@ Please ensure that this application is complete and all founders have filled out
 2023-10-05 23:35:18,565 [WARNING]: No valid agent info found
 2023-10-05 23:35:52,451 [WARNING]: No valid agent info found
 2023-10-05 23:36:08,492 [WARNING]: No valid agent info found
+2023-10-06 19:11:04,317 [INFO]: Generated response for devtester: Many humans test 106a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 19:11:37,407 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-06 19:12:34,702 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 19:14:29,487 [INFO]: Generated response for devtester: Test manyhumans test 107a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 21:52:08,906 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 21:52:11,012 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-06 21:53:12,865 [INFO]: Generated response for devtester: Test 106b.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 21:53:13,576 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-06 21:54:14,327 [INFO]: Generated response for devtester: Test floppy floppy.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 21:54:14,959 [WARNING]: No valid agent info found
+2023-10-06 21:54:14,989 [WARNING]: No valid agent info found
+2023-10-06 21:58:47,874 [INFO]: Generated response for devtester: Test floppy floppy test c.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 21:58:49,695 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-06 21:59:50,619 [INFO]: Generated response for devtester: Test 106c.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 22:00:52,063 [INFO]: Generated response for devtester: Test 107b.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 22:01:02,780 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-06 22:02:15,327 [INFO]: Generated response for devtester: Test 106d.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 22:02:56,535 [INFO]: Generated response for devtester: Test oaisdjf.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 22:03:49,824 [INFO]: Generated response for devtester: Test walla walla bing bang.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 22:03:51,376 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-06 22:05:24,222 [INFO]: Generated response for devtester: '106e'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-06 22:05:25,003 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-06 22:06:50,782 [INFO]: Generated response for devtester: Test 107c.
+
+- GENERATIVE AI AGENT: devtester
