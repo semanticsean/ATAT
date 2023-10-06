@@ -553,7 +553,8 @@ class EmailServer:
               print(f"CC: {cc_emails_without_agent}")
     
             # Collect the email history of the thread
-            email_history = '\n'.join(self.conversation_threads.get(message_id, []))
+            email_history = '\n'.join(self.conversation_threads.get(message_id, [])[:-1])
+
             
             # Format the email history based on content type
             formatted_email_history_html = self.format_email_history_html(email_history)
@@ -564,27 +565,31 @@ class EmailServer:
             
             formatted_email_history_plain = self.format_email_history_plain(email_history)
             
-            # Debugging: Print the involved variables to trace the issue
-            print("Debug: Response:", response)
+            
             print("Debug: Formatted email history HTML:", formatted_email_history_html)
             print("Debug: Formatted email history Plain:", formatted_email_history_plain)
-            
-            # Generate the MIMEText parts for both HTML and plain text
-            # First part is the new agent's response, second part is the historical content.
+
+
+            # Create MIMEText objects for the response and history
             part1_plain = MIMEText(f"{response}\n", 'plain')
             part1_html = MIMEText(f"{response}<br>", 'html')
             part2_plain = MIMEText(formatted_email_history_plain, 'plain')
             part2_html = MIMEText(formatted_email_history_html, 'html')
             
-            # Initialize msg as MIMEMultipart object before attaching parts
-            msg = MIMEMultipart('alternative')
+            # Create 'alternative' MIMEMultipart object for each segment
+            alternative1 = MIMEMultipart('alternative')
+            alternative1.attach(part1_plain)
+            alternative1.attach(part1_html)
             
-            # Attach all parts to the MIMEMultipart message
-            msg.attach(part1_plain)
-            msg.attach(part1_html)
-            msg.attach(part2_plain)
-            msg.attach(part2_html)
-    
+            alternative2 = MIMEMultipart('alternative')
+            alternative2.attach(part2_plain)
+            alternative2.attach(part2_html)
+            
+            # Create 'mixed' MIMEMultipart object to combine them
+            msg = MIMEMultipart('mixed')
+            msg.attach(alternative1)  # Attach response first
+            msg.attach(alternative2)  # Attach history
+
             try:
               self.send_email(
                   from_email=self.smtp_username,
