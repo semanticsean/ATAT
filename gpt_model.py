@@ -15,6 +15,7 @@ class GPTModel:
         openai.api_key = openai_api_key
         self.load_state()  # Load state variables
         self.encoding = tiktoken.get_encoding("cl100k_base")
+        self.api_calls_in_current_window = 0
 
     def load_state(self):
         try:
@@ -22,14 +23,17 @@ class GPTModel:
                 state = pickle.load(f)
             self.first_api_call_time_in_current_window = state.get('first_time', 0)
             self.tokens_used_in_current_window = state.get('tokens_used', 0)
+            self.api_calls_in_current_window = state.get('api_calls', 0)  # New state
         except FileNotFoundError:
             self.first_api_call_time_in_current_window = 0
             self.tokens_used_in_current_window = 0
+            self.api_calls_in_current_window = 0  # New state
 
     def save_state(self):
         state = {
             'first_time': self.first_api_call_time_in_current_window,
-            'tokens_used': self.tokens_used_in_current_window
+            'tokens_used': self.tokens_used_in_current_window,
+            'api_calls': self.api_calls_in_current_window  # New state
         }
         with open("api_state.pkl", "wb") as f:
             pickle.dump(state, f)
@@ -38,24 +42,31 @@ class GPTModel:
         return len(self.encoding.encode(text))
 
     def check_rate_limit(self, tokens_needed):
-    current_time = time.time()
+        current_time = time.time()
     
-    # Check if it's a new rate-limiting window
-    if current_time - self.first_api_call_time_in_current_window >= 60:
-        self.first_api_call_time_in_current_window = current_time
-        self.tokens_used_in_current_window = 0
-
-    # Check if the new tokens will exceed the limit
-    if self.tokens_used_in_current_window + tokens_needed > 10000:
-        sleep_time = 60 - (current_time - self.first_api_call_time_in_current_window)
-        print(f"Rate limit exceeded. Sleeping for {sleep_time:.2f} seconds.")
-        time.sleep(sleep_time)
-        self.first_api_call_time_in_current_window = time.time()
-        self.tokens_used_in_current_window = 0  # Reset for the new window
-
-    # Now, update the tokens used in the current window
-    self.tokens_used_in_current_window += tokens_needed
-    self.save_state()  # Save the updated state
+        # Check if it's a new rate-limiting window
+        if current_time - self.first_api_call_time_in_current_window >= 60:
+            self.first_api_call_time_in_current_window = current_time
+            self.tokens_used_in_current_window = 0
+            self.api_calls_in_current_window = 0
+    
+        # Calculate remaining tokens and API calls in the current window
+        remaining_tokens = 10000 - self.tokens_used_in_current_window
+        remaining_api_calls = 200 - self.api_calls_in_current_window
+    
+        # If either limit would be exceeded, sleep until the next window
+        if tokens_needed > remaining_tokens or remaining_api_calls <= 0:
+            sleep_time = 60 - (current_time - self.first_api_call_time_in_current_window)
+            print(f"Rate limit would be exceeded. Sleeping for {sleep_time:.2f} seconds.")
+            time.sleep(sleep_time)
+            self.first_api_call_time_in_current_window = time.time()
+            self.tokens_used_in_current_window = 0
+            self.api_calls_in_current_window = 0
+    
+        self.tokens_used_in_current_window += tokens_needed
+        self.api_calls_in_current_window += 1
+        self.save_state()
+    
 
 
     def generate_response(self,
