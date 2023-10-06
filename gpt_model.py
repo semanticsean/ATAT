@@ -6,7 +6,6 @@ import tiktoken
 import re
 from random import uniform
 
-
 openai_api_key = os.environ['OPENAI_API_KEY']
 
 class GPTModel:
@@ -14,10 +13,29 @@ class GPTModel:
     def __init__(self):
         openai.api_key = openai_api_key
         self.last_api_call_time = 0
+        self.first_api_call_time_in_current_window = 0
+        self.tokens_used_in_current_window = 0
         self.encoding = tiktoken.get_encoding("cl100k_base")
 
     def count_tokens(self, text):
         return len(self.encoding.encode(text))
+
+    def check_rate_limit(self, tokens_needed):
+        # Update the tokens used in the current minute
+        self.tokens_used_in_current_window += tokens_needed
+
+        # Check if it's a new window
+        if time.time() - self.first_api_call_time_in_current_window >= 60:
+            self.first_api_call_time_in_current_window = time.time()
+            self.tokens_used_in_current_window = tokens_needed
+
+        # If tokens exceed the limit, sleep until the next window
+        if self.tokens_used_in_current_window > 10000:
+            sleep_time = 60 - (time.time() - self.first_api_call_time_in_current_window)
+            print(f"Rate limit exceeded. Sleeping for {sleep_time:.2f} seconds.")
+            time.sleep(sleep_time)
+            self.first_api_call_time_in_current_window = time.time()
+            self.tokens_used_in_current_window = tokens_needed
 
     def generate_response(self,
                   dynamic_prompt,
@@ -61,6 +79,7 @@ class GPTModel:
         # Keep reducing tokens until under the limit or no more to truncate
         while True:
             total_tokens = self.count_tokens(full_content + dynamic_prompt) + api_buffer
+            self.check_rate_limit(total_tokens)
             if total_tokens <= max_tokens:
                 print(f"Content is within limit at {total_tokens} tokens.")
                 break
