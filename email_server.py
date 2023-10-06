@@ -162,21 +162,24 @@ class EmailServer:
       # Extract headers and content
       from_ = email_message['From']
       to_emails = [addr[1] for addr in getaddresses([email_message['To']])]
-      cc_emails = [
-          addr[1] for addr in getaddresses([email_message.get('Cc', '')])
-      ]
+      cc_emails = [addr[1] for addr in getaddresses([email_message.get('Cc', '')])]
       subject = email_message['Subject']
       message_id = email_message['Message-ID']
       in_reply_to = email_message.get('In-Reply-To', '')
       references = email_message.get('References', '')
-
+      
       content = ""
       if email_message.is_multipart():
-        for part in email_message.get_payload():
-          if part.get_content_type() == 'text/plain':
-            content = part.get_payload()
+          for part in email_message.get_payload():
+              if part.get_content_type() == 'text/plain' or part.get_content_type() == 'text/html':
+                  content_encoding = part.get("Content-Transfer-Encoding")
+                  payload = part.get_payload()
+                  if content_encoding == 'base64':
+                      content = base64.b64decode(payload).decode('utf-8')
+                  else:
+                      content = payload
       else:
-        content = email_message.get_payload()
+          content = email_message.get_payload()
 
       # Adjust character limit based on the presence of !detail or !summarize shortcodes
       MAX_LIMIT = 35000
@@ -566,21 +569,21 @@ class EmailServer:
             print("Debug: Formatted email history HTML:", formatted_email_history_html)
             print("Debug: Formatted email history Plain:", formatted_email_history_plain)
             
-            # Append the formatted email history to the agent's reply
-            full_response_html = f"{response}<br>{formatted_email_history_html}"
-            full_response_plain = f"{response}\n{formatted_email_history_plain}"
-            
-            
             # Generate the MIMEText parts for both HTML and plain text
-            part1 = MIMEText(full_response_plain, 'plain')
-            part2 = MIMEText(full_response_html, 'html')
+            # First part is the new agent's response, second part is the historical content.
+            part1_plain = MIMEText(f"{response}\n", 'plain')
+            part1_html = MIMEText(f"{response}<br>", 'html')
+            part2_plain = MIMEText(formatted_email_history_plain, 'plain')
+            part2_html = MIMEText(formatted_email_history_html, 'html')
             
             # Initialize msg as MIMEMultipart object before attaching parts
-            msg = MIMEMultipart('alternative') 
+            msg = MIMEMultipart('alternative')
             
-            # Attach both parts to the MIMEMultipart message
-            msg.attach(part1)
-            msg.attach(part2)
+            # Attach all parts to the MIMEMultipart message
+            msg.attach(part1_plain)
+            msg.attach(part1_html)
+            msg.attach(part2_plain)
+            msg.attach(part2_html)
     
             try:
               self.send_email(
