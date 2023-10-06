@@ -5,6 +5,7 @@ import openai
 import tiktoken
 import re
 from random import uniform
+import pickle  # for serialization
 
 openai_api_key = os.environ['OPENAI_API_KEY']
 
@@ -12,30 +13,50 @@ class GPTModel:
 
     def __init__(self):
         openai.api_key = openai_api_key
-        self.last_api_call_time = 0
-        self.first_api_call_time_in_current_window = 0
-        self.tokens_used_in_current_window = 0
+        self.load_state()  # Load state variables
         self.encoding = tiktoken.get_encoding("cl100k_base")
+
+    def load_state(self):
+        try:
+            with open("api_state.pkl", "rb") as f:
+                state = pickle.load(f)
+            self.first_api_call_time_in_current_window = state.get('first_time', 0)
+            self.tokens_used_in_current_window = state.get('tokens_used', 0)
+        except FileNotFoundError:
+            self.first_api_call_time_in_current_window = 0
+            self.tokens_used_in_current_window = 0
+
+    def save_state(self):
+        state = {
+            'first_time': self.first_api_call_time_in_current_window,
+            'tokens_used': self.tokens_used_in_current_window
+        }
+        with open("api_state.pkl", "wb") as f:
+            pickle.dump(state, f)
 
     def count_tokens(self, text):
         return len(self.encoding.encode(text))
 
     def check_rate_limit(self, tokens_needed):
-        # Update the tokens used in the current minute
-        self.tokens_used_in_current_window += tokens_needed
+    current_time = time.time()
+    
+    # Check if it's a new rate-limiting window
+    if current_time - self.first_api_call_time_in_current_window >= 60:
+        self.first_api_call_time_in_current_window = current_time
+        self.tokens_used_in_current_window = 0
 
-        # Check if it's a new window
-        if time.time() - self.first_api_call_time_in_current_window >= 60:
-            self.first_api_call_time_in_current_window = time.time()
-            self.tokens_used_in_current_window = tokens_needed
+    # Check if the new tokens will exceed the limit
+    if self.tokens_used_in_current_window + tokens_needed > 10000:
+        sleep_time = 60 - (current_time - self.first_api_call_time_in_current_window)
+        print(f"Rate limit exceeded. Sleeping for {sleep_time:.2f} seconds.")
+        time.sleep(sleep_time)
+        self.first_api_call_time_in_current_window = time.time()
+        self.tokens_used_in_current_window = 0  # Reset for the new window
 
-        # If tokens exceed the limit, sleep until the next window
-        if self.tokens_used_in_current_window > 10000:
-            sleep_time = 60 - (time.time() - self.first_api_call_time_in_current_window)
-            print(f"Rate limit exceeded. Sleeping for {sleep_time:.2f} seconds.")
-            time.sleep(sleep_time)
-            self.first_api_call_time_in_current_window = time.time()
-            self.tokens_used_in_current_window = tokens_needed
+    # Now, update the tokens used in the current window
+    self.tokens_used_in_current_window += tokens_needed
+    self.save_state()  # Save the updated state
+
 
     def generate_response(self,
                   dynamic_prompt,
@@ -93,7 +114,9 @@ class GPTModel:
     
         tokens_limit = max_tokens - total_tokens
         print(f"Final tokens: {total_tokens}, token limit for this request: {tokens_limit}")
-        
+      
+        self.check_rate_limit(total_tokens)
+      
         response = None
         for i in range(max_retries):
             try:
