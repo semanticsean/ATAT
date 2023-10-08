@@ -365,6 +365,9 @@ class EmailServer:
         print(f"Handling incoming email for thread with subject: {subject} and message_id: {message_id}")
         shortcode_type = None
         print("Entered handle_incoming_email")
+        print(f"Debug: Email content at start of handle_incoming_email: {thread_content[:50]}")
+
+
         new_content = thread_content
         # Reset conversation history for a new email thread
         self.agent_selector.reset_for_new_thread()
@@ -381,9 +384,14 @@ class EmailServer:
         print(
             f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:100]}..."
         )
+        # Debug: Print email content right before calling handle_document_short_code
+        print(f"Debug: Email content before handle_document_short_code: {thread_content[:50]}")
         result = handle_document_short_code(
             thread_content, self.agent_selector.openai_api_key,
             self.agent_selector.conversation_history)
+
+        # Debug: Print the result of handle_document_short_code
+        print(f"Debug: Result of handle_document_short_code: {result}")
     
         if result is None:
           print("Error: email server - handle_document_short_code returned None.")
@@ -667,7 +675,7 @@ class EmailServer:
 
 
     if not all_recipients:
-      print("No valid recipients found. Aborting email send.")
+      print("No valid recipients found. Will abort email send.")
       return
 
     msg['From'] = f'"{from_alias}" <{from_alias}>'
