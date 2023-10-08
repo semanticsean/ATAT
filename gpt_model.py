@@ -159,7 +159,7 @@ class GPTModel:
     
             except openai.OpenAIError as e:
                 print(e)
-                sleep_time = max(min(delay * (2**i) + uniform(60, 0.1 * (2**i)), max_delay), 30)
+                sleep_time = max(min(delay * (2**i) + uniform(5, 0.1 * (2**i)), max_delay), 30)
                 print(f"Retrying in {sleep_time:.2f} seconds.")
                 time.sleep(sleep_time)
     
