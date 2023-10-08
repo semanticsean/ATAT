@@ -283,11 +283,13 @@ class EmailServer:
                       print(f"Exception in process_single_thread: {e}")
                       import traceback
                       print(traceback.format_exc())
+                      sleep(60)
 
       except Exception as e:
           print(f"Exception while processing emails: {e}")
           import traceback
           print(traceback.format_exc())
+      
 
   def process_single_thread(self, num):
       processed = False

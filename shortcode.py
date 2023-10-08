@@ -38,7 +38,7 @@ def handle_document_short_code(email_content,
     """
   # Initialize the result dictionary
   result = {'type': None, 'content': None, 'new_content': email_content}
-
+ 
   # Handling !detail short-code using unique delimiters
   detail_matches = re.findall(r"!detail_start!(.*?)!detail_stop!",
                               email_content, re.DOTALL)
