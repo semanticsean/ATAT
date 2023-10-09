@@ -2751,3 +2751,119 @@ Luna
 2023-10-09 19:18:29,729 [INFO]: Chunk 1: an ascii style graph of the growth we expect to se...
 2023-10-09 19:18:29,729 [INFO]: Chunk 2: a budget of our future capital costs in a table fo...
 2023-10-09 19:18:29,729 [INFO]: Chunk 3: our story in an emoji story....
+2023-10-09 19:18:42,433 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 19:20:06,457 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 19:21:38,212 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 19:23:07,296 [INFO]: Generated response for devrinn: "Unlock the Universe with SUNSCHOOL: Revolutionizing Education and Community Building! Discover how we're transforming the traditional learning landscape, connecting humans to the cosmos through wisdom, love, and science. Say goodbye to conventional classrooms and hello to real-world education that caters to all ages, from 5 to 105! Dive into our unique co-learning model that's making waves from Austin to Santa Monica. Find out why Emmy Winner Courtney Klein and 2x venture-backed entrepreneur Sean McDonald are backing this game-changing initiative. Join us on a journey of discovery with Robotics Workshops, AI Storytime, Virtual Reality Adventures, and Astronomy Nights. Click here to explore how SUNSCHOOL is not just shaping minds but also nurturing communities. Remember, SUNSCHOOL is where education meets real-world application!" As a representative of SUNSCHOOL, I'm thrilled to share our projected growth graph and target markets. Our expansion strategy is ambitious yet grounded in our successful experiences in Austin. 
+
+We're planning to replicate and scale our model to Santa Monica and Tempe next. These locations have been chosen based on a careful analysis of demographics, community needs, and receptivity to innovative educational models like ours.
+
+Our growth graph, which I regret I can't depict in ASCII style here, shows a steady upward trajectory over the next five years. We anticipate an increase in family participation by 30% year-over-year as we expand into these new markets.
+
+This growth is expected to be driven by our unique offerings such as Themed Food nights, parent-child collaborative crafting, mommy yoga, family-friendly meditation events, gardening, hikes, beach cleanups, Sunset Sunday gatherings, All One Thing Events, Solstice Celebrations and more.
+
+Moreover, we anticipate an increased interest in our specialized programs like Robotics Workshop, AI Generated Stories, Financial Literacy for Women, Virtual Reality Adventures, and Astronomy Nights.
+
+SUNSCHOOL is committed to making this transformative journey accessible to all interested families. We believe in the power of our co-learning model to reshape education and foster vibrant communities. I'm here to answer any further questions you may have about our growth plans or programs! Absolutely! Here's a rough estimate of our future capital costs for the next five years. Please note that these are projected figures and may vary based on unforeseen circumstances or opportunities.
+
+Year 1:
+- Expansion to Santa Monica: $100,000
+- Operational Costs (Santa Monica): $50,000
+- Programming Costs: $30,000
+- Marketing and Outreach: $20,000
+- Total: $200,000
+
+Year 2:
+- Expansion to Tempe: $100,000
+- Operational Costs (Santa Monica & Tempe): $110,000
+- Programming Costs: $40,000
+- Marketing and Outreach: $25,000
+- Total: $275,000
+
+Year 3:
+- Maintenance of Existing Locations: $120,000
+- Programming Costs: $50,000
+- Marketing and Outreach: $30,000
+- Total: $200,000
+
+Year 4:
+- Maintenance of Existing Locations: $130,000
+- Programming Costs: $60,000
+- Marketing and Outreach: $35,000
+- Total: $225,000
+
+Year 5:
+- Maintenance of Existing Locations: $140,000
+- Programming Costs: $70,000
+- Marketing and Outreach: $40,000
+- Total: $250,000
+
+These estimates include the costs associated with expanding to new locations, maintaining operations at these locations, running our diverse range of programs and marketing efforts to reach more families. We're committed to using our resources efficiently to maximize the impact of SUNSCHOOL's offerings. As a representative of SUNSCHOOL, I am excited to share our story through emojis! 
+
+🏫➡️🌍🚀🌌 (From School to the Universe)
+
+We are revolutionizing education, taking it beyond the traditional classroom and connecting humans to the cosmos. 
+
+👩‍🏫🔁🤖💡 (Teachers and AI)
+
+We incorporate AI in our curriculum for creative storytelling, making learning more interactive and fun. 
+
+🧘‍♀️🎨🥦🔭 (Activities)
+
+Our diverse programs include mommy yoga, collaborative crafting, themed food nights, and astronomy nights.
+
+💻📲 (Our App)
+
+Our popular app organizes families and keeps them updated about our events and programs.
+
+🌳♻️💚 (Environmental Consciousness)
+
+We value environmental consciousness, organizing activities like beach cleanups and gardening.
+
+🏠5️⃣➡️1️⃣0️⃣5️⃣ (All Ages Welcome)
+
+SUNSCHOOL is a community center serving kids as young as 5 to adults as old as 105.
+
+💰✍️ (Grant Writing)
+
+I, Rinn, am dedicated to winning grants for SUNSCHOOL to ensure we continue to grow and thrive.
+
+Remember, SUNSCHOOL is not about solar energy but about connecting humans to the broader universe through knowledge, wisdom, love, and science! 🌞🏫🔬💕
+
+- GENERATIVE AI AGENT: devrinn
+2023-10-09 20:14:44,495 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 20:16:58,141 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 20:28:21,447 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 20:29:32,995 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 20:34:52,580 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 20:40:19,702 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 20:50:22,012 [INFO]: Generated response for devtester: 'quick test 1a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 20:51:23,944 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 20:57:07,914 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 20:58:09,601 [INFO]: Generated response for devtester: 'quick test 1a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 21:00:47,916 [INFO]: Generated response for devtester: 'Flippety flop'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 21:01:49,991 [INFO]: Generated response for devtester: No.
+
+- GENERATIVE AI AGENT: devtester

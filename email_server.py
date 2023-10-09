@@ -270,10 +270,13 @@ class EmailServer:
         if self.is_email_processed(x_gm_thrid, num):
           continue
 
-        if x_gm_thrid not in thread_to_unseen:
-          thread_to_unseen[x_gm_thrid] = []
+        # Use x_gm_thrid if available, else use subject
+        thread_key = x_gm_thrid if x_gm_thrid else subject
 
-        thread_to_unseen[x_gm_thrid].append({
+        if thread_key not in thread_to_unseen:
+          thread_to_unseen[thread_key] = []
+
+        thread_to_unseen[thread_key].append({
             "message_id": message_id,
             "num": num,
             "subject": subject,
@@ -281,7 +284,7 @@ class EmailServer:
         })
 
       # Process the most recent unseen email in each thread
-      for x_gm_thrid, unseen_list in thread_to_unseen.items():
+      for thread_key, unseen_list in thread_to_unseen.items():
         unseen_list.sort(key=lambda x: int(x['num']), reverse=True)
         most_recent_unseen = unseen_list[0]
         if most_recent_unseen['from_'] == self.smtp_username:
@@ -289,9 +292,9 @@ class EmailServer:
 
         processed = self.process_single_thread(most_recent_unseen['num'])
         if not processed:
-          print(f"Failed to process thread: {x_gm_thrid}")
+          print(f"Failed to process thread: {thread_key}")
 
-        sleep(60) 
+        sleep(60)
 
     except Exception as e:
       print(f"Exception while processing emails: {e}")
@@ -389,7 +392,7 @@ class EmailServer:
       new_content = thread_content
       # Reset conversation history for a new email thread
       self.agent_selector.reset_for_new_thread()
-      print("Before human_threads initialization:", from_, to_emails,
+      #print("Before human_threads initialization:", from_, to_emails,
             cc_emails, thread_content, subject, message_id, references, num)
       human_threads = set()
       if from_ == self.smtp_username:
@@ -403,15 +406,13 @@ class EmailServer:
           f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:100]}..."
       )
       # Debug: Print email content right before calling handle_document_short_code
-      print(
-          f"Debug: Email content before handle_document_short_code: {thread_content}"
-      )
+      #print(f"Debug: Email content before handle_document_short_code: {thread_content}")
       result = handle_document_short_code(
           thread_content, self.agent_selector.openai_api_key,
           self.agent_selector.conversation_history)
 
       # Debug: Print the result of handle_document_short_code
-      print(f"Debug: Result of handle_document_short_code: {result}")
+      print(f"Debug: Result of handle_document_short_code: {result[:100]}")
 
       if result is None:
         print(
