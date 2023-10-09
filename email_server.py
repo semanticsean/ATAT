@@ -82,9 +82,9 @@ class EmailServer:
 
       for i in range(
           sleep_time, 0,
-          -10):  # Decreasing sleep time by 10 seconds in each iteration
+          -30):  # Decreasing sleep time by 10 seconds in each iteration
         print(f"Sleeping... {i} seconds remaining.")
-        sleep(10)  # Sleep for 10 seconds
+        sleep(30)  # Sleep for 10 seconds
 
       timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
       print(f"[{timestamp}] Resuming processing.")
@@ -294,7 +294,7 @@ class EmailServer:
         if not processed:
           print(f"Failed to process thread: {thread_key}")
 
-        sleep(60)
+        
 
     except Exception as e:
       print(f"Exception while processing emails: {e}")
@@ -392,7 +392,7 @@ class EmailServer:
       new_content = thread_content
       # Reset conversation history for a new email thread
       self.agent_selector.reset_for_new_thread()
-      #print("Before human_threads initialization:", from_, to_emails,
+      print("Before human_threads initialization:", from_, to_emails,
             cc_emails, thread_content, subject, message_id, references, num)
       human_threads = set()
       if from_ == self.smtp_username:
@@ -406,13 +406,15 @@ class EmailServer:
           f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:100]}..."
       )
       # Debug: Print email content right before calling handle_document_short_code
-      #print(f"Debug: Email content before handle_document_short_code: {thread_content}")
+      print(
+          f"Debug: Email content before handle_document_short_code: {thread_content}"
+      )
       result = handle_document_short_code(
           thread_content, self.agent_selector.openai_api_key,
           self.agent_selector.conversation_history)
 
       # Debug: Print the result of handle_document_short_code
-      print(f"Debug: Result of handle_document_short_code: {result[:100]}")
+      print(f"Debug: Result of handle_document_short_code: {result}")
 
       if result is None:
         print(
