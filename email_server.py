@@ -121,16 +121,20 @@ class EmailServer:
     print("Restarting system...")
     self.connect_to_imap_server()
 
-  def format_email_history_plain(self, history):
-    decoded_history = quopri.decodestring(history).decode('utf-8')
-    lines = decoded_history.split('\n')
-    output_lines = [f'>{line}' for line in lines]
-    return '\n'.join(output_lines)
-
   def format_email_history_html(self, history):
-    decoded_history = quopri.decodestring(history).decode('utf-8')
-    # Wrap the entire history in a single blockquote
-    return f'<blockquote>{decoded_history}</blockquote>'
+      decoded_history = quopri.decodestring(history).decode('utf-8')
+      lines = decoded_history.split('<br>')
+      output_lines = [f'<div>{line}</div>' for line in lines]
+      return f'<blockquote>{"".join(output_lines)}</blockquote>'
+  
+  def format_email_history_plain(self, history):
+      decoded_history = quopri.decodestring(history).decode('utf-8')
+      # Remove HTML tags from the decoded history
+      decoded_history = self.strip_html_tags(decoded_history)
+      lines = decoded_history.split('\n')
+      output_lines = [f'>{line}' for line in lines]
+      return '\n'.join(output_lines)
+  
 
   
   def process_email(self, num):
@@ -525,7 +529,7 @@ class EmailServer:
     
             # Check for explicit tags or 'ff!' shortcode in the content
             if "!ff!" not in thread_content and not any(
-                f"!({name})" in thread_content for name, _ in agents):
+                f"!({name})!" in thread_content for name, _ in agents):
               print("Thread Content:", thread_content)
               print(
                   f"Skipping response from {agent_name} to prevent agent-to-agent loop."
