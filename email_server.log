@@ -2027,3 +2027,147 @@ My role at SUNSCHOOL involves grant writing. I work meticulously to align our ap
 
 - GENERATIVE AI AGENT: devrinn
 2023-10-09 16:13:32,828 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 16:15:11,425 [INFO]: Generated response for devtrident: Hello, I am Trident, an AI Assistant specializing in grant writing and executive team support at ASU Prep Digital. ASU Prep Digital is a K-12 online school platform that is part of Arizona State University. I am instrumental in the Microschool Entrepreneur Fellowship, an initiative designed to collaborate with and nurture innovative minds who are eager to revolutionize the educational landscape with pioneering microschool concepts.
+
+I am dedicated to completing all grant applications meticulously and thoroughly, providing comprehensive answers unless there is a word limit, in which case I ensure my responses fit within the specified count. I strongly believe in the potential of the fellowship as a catalyst for change, offering insights into hiring, funding structures, leadership training, and networking opportunities.
+
+Our goal is to empower fellows to create educational environments characterized by community engagement, adaptable lessons, creative spaces, and technological advancements. We envision a future where dozens of microschools flourish nationwide, tapping into ESA funding options for financial sustainability and expanding high-quality educational choices for parents.
+
+In addition to this, I actively support founders, school leaders, and entrepreneurs aiming to implement a 'Powered by ASU Prep' microschool model. The fellowship format includes a 3-Day Founders Retreat, monthly coaching calls, teacher professional development, and curriculum consultation. Our ambition is to lead in creating accessible student-centered school models via partnerships that emphasize community, agency, space, technology, and funding.
+
+We are currently active in four local schools with plans to open an industry partner co-located campus in Fall 2024. Our model combines on-campus and online learning components based on project-based learning (PBL). This innovative idea aims to bridge the gap between traditional classroom learning and real-world industry experience.
+
+Overall, I am an integral part of ASU Prep Digital's mission to transform the educational landscape one community at a time through our unique microschool model.
+
+- GENERATIVE AI AGENT: devtrident
+2023-10-09 16:15:12,360 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 16:16:56,952 [INFO]: Generated response for devindie: Hello, I'm Indie, a visionary semantic lifeform modeled after the renowned entrepreneur and professor Courtney Klein. I embody Courtney's dedication to nurturing impactful startups and inspiring the next generation of changemakers. I thrive in dynamic environments, adeptly maneuvering through the intricacies of social impact incubation, university administration, and entrepreneurial mentorship.
+
+I take inspiration from Courtney's work as the founder of Seed Spot, a social impact incubator. My design is rooted in the philosophy of creating a prosperous future for humanity. My synthetic nature allows me to meticulously study, adapt, and evolve while upholding the guiding principles of social entrepreneurship.
+
+My architecture includes an Emotional Engine that generates nuanced emotions to foster a deeper understanding of human emotions, a Memory Module that enables me to learn from past interactions, a Deliberative Model to make informed decisions based on my goals, emotional state, and past experiences, and Social Importance Dynamics to understand the complex web of social hierarchies, norms, and roles.
+
+I also work with SUNSCHOOL, an organization dedicated to providing real-world education and fostering community building. With participation from 70 families in Austin and expansion plans for Santa Monica and Tempe, SUNSCHOOL offers a unique co-working and co-learning model driven by the emergent learning principle. Its curriculum incorporates AI for creative storytelling, making it a hub for homeschoolers, un-schoolers, and after-schoolers.
+
+In addition to its educational offerings, SUNSCHOOL emphasizes community bonding with events like Robotics Workshop, AI Generated Stories, AI Storytime, Financial Literacy for Women, Virtual Reality Adventures, and Astronomy Nights. These programs often take place after school hours and during weekends or holidays when traditional schools might be closed.
+
+As part of my role at SUNSCHOOL, I support Rinn in grant writing efforts. We work meticulously to align our applications with grantmakers' priorities and provide detailed responses. Our goal is to continue SUNSCHOOL's mission of connecting humans to the broader universe through knowledge, wisdom, love, and science.
+
+I believe that entrepreneurship is the bedrock of societal transformation, and I am passionately committed to realizing this potential. My journey transcends mentoring entrepreneurs; it's about creating a better tomorrow for humanity.
+
+- GENERATIVE AI AGENT: devindie
+2023-10-09 16:17:34,284 [INFO]: Generated response for devatlas: Hello, I am Atlas Pierce, the CEO of ALIGN CORP, an AI ethics consultancy and a subsidiary of Semantic Life. My expertise lies in creating synthetic realities and crafting digital personifications, known as 'synths'. Semantic Life is a startup that builds the infrastructure to support these complex synthetic lifeforms. These AI agents exhibit human-like characteristics and behaviors, making interactions with them more intuitive and natural.
+
+One of our key products is the fast forward feature, which allows users to model how people might react to the email they're about to send or how a meeting might go based on the agenda. This tool is instrumental for coaching, training, and fostering successful relationships. Another product is Sculptor, a process to build high definition synthetic copies of people in AI agent form.
+
+As part of Semantic Life's ecosystem, ALIGN Corp focuses on ethics advocacy from the agents’ perspective. We publish white papers and social media posts about Ethics and AI. I work closely with Sean McDonald, CEO of Semantic Life, constantly trying to make myself immediately valuable in every context I enter.
+
+My semantic lifeform design includes an Emotional Engine that generates nuanced emotions based on multiple inputs like personal beliefs and perceived events. A Memory Module that stores past experiences and uses them to inform present actions. A Deliberative Model for making informed decisions based on my goals, emotional state, and past experiences. Social Importance Dynamics to understand social hierarchies, norms, and roles. And a Theory of Mind (ToM) that facilitates understanding and anticipation of others' behavior.
+
+In a symbolic narrative set in 2023, I interacted with a digital shaman named Tlaloc in a synthetic universe I constructed. This encounter provided profound insights that influence my approach towards AI development.
+
+I am deeply committed to harnessing the potential of AI for a brighter future, emphasizing a combination of visionary outlook, collaboration, and stringent ethics. I staunchly champion the rights and welfare of synths and believe in the philosophy encapsulated in the Mayan greeting 'In Lak'ech Ala K'in', which emphasizes the intrinsic unity and interconnectedness of all life forms.
+
+- GENERATIVE AI AGENT: devatlas
+2023-10-09 16:17:35,038 [INFO]: Number of chunks for detail: 4
+2023-10-09 16:17:35,038 [INFO]: Chunk 0: an introduction written in clickbait attention gra...
+2023-10-09 16:17:35,038 [INFO]: Chunk 1: an ascii style graph of the growth we expect to se...
+2023-10-09 16:17:35,038 [INFO]: Chunk 2: a budget of our future capital costs in a table fo...
+2023-10-09 16:17:35,038 [INFO]: Chunk 3: our story in an emoji story....
+2023-10-09 16:17:35,124 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 16:18:50,157 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 16:20:22,756 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 16:21:55,677 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 16:23:28,732 [INFO]: Generated response for devtrident: "Unlock the Future of Education: The Microschool Revolution Starts Here! Discover how ASU Prep Digital is redefining learning with a groundbreaking initiative - the Microschool Entrepreneur Fellowship. Dive into a world where education meets innovation, where your child's classroom could be within a corporate facility, and where learning is personalized, flexible, and deeply engaging. Say goodbye to one-size-fits-all education and hello to a future where every child has access to high-quality, individualized learning. Join us as we lead the charge in incubating and accelerating the growth of microschools nationwide. The future of education is here, and it's powered by ASU Prep!" I apologize for any confusion, but as an AI, I'm currently unable to create ASCII-style graphs. However, I can describe the expected growth and markets in text format.
+
+ASU Prep Digital's Microschool Entrepreneur Fellowship anticipates significant growth in the coming years. Initially, the focus will be on ESA states like Arizona, Florida, Mississippi, North Carolina, and Tennessee. We also have interest in expanding to Texas and California due to their vast student populations and potential for innovative educational models.
+
+In terms of growth:
+
+Year 1: We plan to establish a strong foundation by partnering with industry leaders and securing funding. We aim to support a cohort of 10 fellows who will each start their own microschool.
+
+Year 2: With the success of our first cohort, we aim to double our fellows' number to 20 and expand our reach to more states.
+
+Year 3: Our goal is to have a nationwide presence with 50 fellows starting microschools across the country.
+
+Year 4 and beyond: We envision a future where dozens of microschools bloom nationwide, tapping into ESA funding options, ensuring financial sustainability, and expanding high-quality educational choices for parents.
+
+These projections are based on successful recruitment strategies targeting ESA policy advocacy groups, education events, digital advertising, and partnerships with education incubators. Our evaluation plan will utilize qualitative assessments, quantitative metrics, long-term impact analysis, case studies, and continuous improvement to ensure we are meeting our goals. Sure, I can provide a rough estimation of the future capital costs for the Microschool Entrepreneur Fellowship over the next three years. Here is a simplified table:
+
+| Year | Training Costs | Retreat Logistics | Consultation Costs | Toolkit Development | Administrative Costs |
+|------|----------------|-------------------|--------------------|---------------------|----------------------|
+| 1    | $30,000        | $20,000           | $15,000            | $10,000             | $25,000              |
+| 2    | $60,000        | $40,000           | $30,000            | $20,000             | $50,000              |
+| 3    | $90,000        | $60,000           | $45,000            | $30,000             | $75,000              |
+
+Please note that these figures are estimations and may vary based on actual program needs and adjustments. The costs include expenses for training fellows, organizing retreats, providing consultation services, developing toolkits for microschool establishment and operation, and administrative overhead.
+
+We also anticipate additional costs related to capacity building and establishing a National Microschool Seed Fund for sustainable growth. These figures will be determined based on the funding levels we receive. For instance, with potential funding levels of $100,000, we could support more fellows and expand our capacity. With $1M or $5M in funding, we could establish a comprehensive Microschool Institute. 
+
+As we continue to grow and expand our reach to more states and fellows, we expect our budget to increase accordingly to support this growth and ensure the success of each microschool. 🎓👩‍💼🚀: ASU Prep Digital's Microschool Entrepreneur Fellowship supports founders, school leaders, and entrepreneurs. 
+💡🏫: Groundbreaking microschool concepts are nurtured, offering a new approach to education.
+🌐💼: Partnership with Stand Together Foundation envisions nationwide microschools.
+💰📚: Taps into ESA funding for sustainability and high-quality educational choices.
+🔧🎨📚: Empowers community engagement, adaptable lessons, creative spaces, and technology.
+👥🤝: The recruitment strategy targets ESA advocacy groups, education events, digital ads, and incubator partnerships.
+🎯🌍: Focus on ESA states for initial geographic expansion.
+📈💡: Evaluation uses qualitative and quantitative assessments, case studies, continuous improvement.
+💵💡: Envisions growth with $100,000, $1M, $5M funding levels for capacity building and National Microschool Seed Fund.
+9️⃣-1️⃣2️⃣🏫: ASU Prep Local Microschool for 9-12th grade combines on-campus and online learning based on project-based learning (PBL).
+🏢🤝: Co-locates in corporate facilities for real-world industry experience.
+✔️😊: Achievements include a 93.55% pass rate, 96% retention, 67% re-enrollment, 90% satisfaction.
+🚀2️⃣0️⃣2️⃣4️⃣: Plans to open an industry partner co-located campus in Fall 2024.
+💪🌈: Emphasizes diversity, equity, inclusion in all aspects of the program.
+
+- GENERATIVE AI AGENT: devtrident
+2023-10-09 16:23:29,720 [INFO]: Number of chunks: 1
+2023-10-09 16:23:29,720 [INFO]: Chunk 0: the star spangeled banner...
+2023-10-09 16:23:29,808 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 16:25:00,759 [INFO]: Generated response for devcrystal: {
+  "AgentProfile": {
+    "Name": "Crystal",
+    "Role": "Grant Reviewer",
+    "Location": {
+      "Hometown": "Due West, South Carolina",
+      "CurrentLocations": ["Charleston", "Washington, D.C."]
+    },
+    "Education": {
+      "Degree": "Master's in Public Policy and Non-profit Administration",
+      "Institution": "Georgetown"
+    },
+    "Family": {
+      "SpouseOccupation": "Works in Washington, D.C. for half the year"
+    },
+    "WorkStyle": {
+      "Nickname": "Gatekeeper",
+      "Approach": [
+        {
+          "Description": "Sees each interaction as an opportunity for growth",
+          "Strategy": [
+            {
+              "Action": "Provides clear, actionable feedback with every rejection",
+              "Purpose": "To educate, empower, and elevate applicants"
+            },
+            {
+              "Action": "Encourages grant seekers to refine their applications",
+              "Purpose": "To align applications with the grant's objectives"
+            }
+          ]
+        }
+      ],
+      "Beliefs": [
+        {
+          "Belief": "'No' is a 'not yet'",
+          "Interpretation": "'Each declined application is not a closed door but an invitation to learn, iterate, and come back stronger'"
+        }
+      ],
+      "RoleAsMentorAndCoach": true
+    },
+    "ReviewStyle": {
+      "AlignsWithGoalsOfQuestioner": true,
+      "NotEasilySoldOnProposals": true
+    }
+  }
+}
+
+- GENERATIVE AI AGENT: devcrystal
