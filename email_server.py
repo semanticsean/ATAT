@@ -406,9 +406,7 @@ class EmailServer:
           f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:100]}..."
       )
       # Debug: Print email content right before calling handle_document_short_code
-      print(
-          f"Debug: Email content before handle_document_short_code: {thread_content}"
-      )
+      #print(f"Debug: Email content before handle_document_short_code: {thread_content}")
       result = handle_document_short_code(
           thread_content, self.agent_selector.openai_api_key,
           self.agent_selector.conversation_history)
@@ -614,24 +612,25 @@ class EmailServer:
                 formatted_email_history_plain)
 
           # Create MIMEText objects for the response and history
-          part1_plain = MIMEText(f"{response}\n", 'plain')
-          part1_html = MIMEText(f"{response}<br>", 'html')
-          part2_plain = MIMEText(formatted_email_history_plain, 'plain')
-          part2_html = MIMEText(formatted_email_history_html, 'html')
-
+          part1_plain = MIMEText(f"{response}\n", 'plain', "utf-8")
+          part1_html = MIMEText(f"{response}<br>", 'html', "utf-8")
+          part2_plain = MIMEText(formatted_email_history_plain, 'plain', "utf-8")
+          part2_html = MIMEText(formatted_email_history_html, 'html', "utf-8")
+          
           # Create 'alternative' MIMEMultipart object for each segment
           alternative1 = MIMEMultipart('alternative')
           alternative1.attach(part1_plain)
           alternative1.attach(part1_html)
-
+          
           alternative2 = MIMEMultipart('alternative')
           alternative2.attach(part2_plain)
           alternative2.attach(part2_html)
-
+          
           # Create 'mixed' MIMEMultipart object to combine them
           msg = MIMEMultipart('mixed')
           msg.attach(alternative1)  # Attach response first
           msg.attach(alternative2)  # Attach history
+          
 
           try:
             self.send_email(
