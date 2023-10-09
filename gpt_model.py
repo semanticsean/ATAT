@@ -97,9 +97,6 @@ class GPTModel:
     # Always remove '=3D'
     full_content = full_content.replace('=3D', '')
 
-    # Remove line breaks
-    #full_content = full_content.replace('\n', ' ')
-
     # Remove email addresses with specified domain endings
     email_pattern = r'\S+@\S+\.(com|net|co|org|ai)'
     full_content = re.sub(email_pattern, '', full_content)
