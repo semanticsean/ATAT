@@ -89,37 +89,31 @@ class AgentSelector:
       if agent:
         agent_queue.append((agent["id"], len(agent_queue) + 1))
 
+    
     explicit_tags = []
     try:
-      explicit_tags = re.findall(r"!ff\((\w+)\)(?:!(\d+))?",
-                                 content) + re.findall(
-                                     r"!\((\w+)\)(?:!(\d+))?", content)
-      explicit_tags = [(name, int(num) if num else None)
-                       for name, num in explicit_tags
-                       if name.lower() != "style"]
+        regex_pattern = re.compile(r"!ff\(([\w\d_]+)\)!|!<span>ff</span>\(([\w\d_]+)\)!")
+        explicit_tags = regex_pattern.findall(content)
+        # Flatten the list and filter out empty strings
+        explicit_tags = [tag for sublist in explicit_tags for tag in sublist if tag]
+    
     except Exception as e:
-      logging.error(f"Regex Error: {e}")
-      logging.error(f"Content: {content}")
+        logging.error(f"Regex Error: {e}")
+        logging.error(f"Content: {content}")
+    
+    for agent_name in explicit_tags:
+        agent = agent_manager.get_agent(agent_name, case_sensitive=False)
+        if agent:
+            if "ff" in content.lower():  # Case-insensitive check for 'ff'
+                ff_agent_queue.append((agent_name, len(ff_agent_queue) + 1))
+            
 
-    for agent_name, order in explicit_tags:
-      agent = agent_manager.get_agent(agent_name, case_sensitive=False)
-      if agent:
-        if "ff" in content:
-          ff_agent_queue.append(
-              (agent_name,
-               order if order is not None else len(ff_agent_queue) + 1))
-        else:
-          existing_entry = next(
-              ((name, ord) for name, ord in agent_queue if name == agent_name),
-              None)
-          if existing_entry:
-            agent_queue.remove(existing_entry)
-          agent_queue.append(
-              (agent_name,
-               order if order is not None else len(agent_queue) + 1))
+    print(f"Debug: agent_queue before merging: {agent_queue}")
+    print(f"Debug: ff_agent_queue before merging: {ff_agent_queue}")
 
     agent_queue.extend(
         ff_agent_queue)  # Merge the !ff() list with the agent_queue
+    print(f"Debug: agent_queue after merging: {agent_queue}")
 
     if len(agent_queue) == 1:
       agent_queue[0] = (agent_queue[0][0], 1)
@@ -204,27 +198,27 @@ class AgentSelector:
 
       # Handle Detail Type
       elif result['type'] == 'detail':
-          chunks = result.get('content', [])
-          self.conversation_history = self.conversation_history[-16000:]
-          logging.info(f"Number of chunks for detail: {len(chunks)}")
-          for i, c in enumerate(chunks):
-              logging.info(f"Chunk {i}: {c[:50]}...")
-      
-          for idx, chunk in enumerate(chunks):
-              dynamic_prompt = self._create_dynamic_prompt(agent_manager,
-                                                           agent_name,
-                                                           order,
-                                                           total_order,
-                                                           additional_context,
-                                                           modality=modality)
-      
-              response = gpt_model.generate_response(dynamic_prompt,
-                                                     chunk,
-                                                     self.conversation_history,
-                                                     is_summarize=False)
-      
-              responses.append(response)
-              self.conversation_history += f"\n{agent_name} said: {response}"
+        chunks = result.get('content', [])
+        self.conversation_history = self.conversation_history[-16000:]
+        logging.info(f"Number of chunks for detail: {len(chunks)}")
+        for i, c in enumerate(chunks):
+          logging.info(f"Chunk {i}: {c[:50]}...")
+
+        for idx, chunk in enumerate(chunks):
+          dynamic_prompt = self._create_dynamic_prompt(agent_manager,
+                                                       agent_name,
+                                                       order,
+                                                       total_order,
+                                                       additional_context,
+                                                       modality=modality)
+
+          response = gpt_model.generate_response(dynamic_prompt,
+                                                 chunk,
+                                                 self.conversation_history,
+                                                 is_summarize=False)
+
+          responses.append(response)
+          self.conversation_history += f"\n{agent_name} said: {response}"
 
       # Handle Default Type
       else:
