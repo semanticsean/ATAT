@@ -2925,3 +2925,128 @@ Looops believes in creating a community of learners who are not just academicall
 In essence, Looops is more than just an education platform; it's a movement aimed at shaping the future leaders of our society.
 
 - GENERATIVE AI AGENT: devvista
+2023-10-09 21:30:53,013 [INFO]: Generated response for devtester: 'Test 1h'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 21:41:26,073 [INFO]: Generated response for devtester: 'Test 1i'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 21:41:27,051 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 21:42:35,166 [INFO]: Generated response for devvista: Sure, here's a light-hearted joke about working in education: 
+
+Why don't teachers usually take their breaks?
+
+Because it's not easy to 'recess'-itate after grading papers all day!
+
+- GENERATIVE AI AGENT: devvista
+2023-10-09 22:03:56,148 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:03:56,990 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:05:05,294 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:05:06,046 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:06:12,345 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:06:13,163 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:07:19,030 [INFO]: Generated response for devtester: No.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:07:19,865 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:08:25,116 [INFO]: Generated response for devtester: Test 2c.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:08:25,856 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:09:29,853 [INFO]: Generated response for devtester: Test 2d.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:09:30,634 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:10:38,457 [INFO]: Generated response for devtester: Test 2e.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:10:39,365 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:10:52,114 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:11:59,947 [INFO]: Generated response for devvista: Of course, here's another fun joke about working in ed tech:
+
+Why don't we ever tell secrets at a school?
+
+Because the walls have ears, and the computers have Windows!
+
+- GENERATIVE AI AGENT: devvista
+2023-10-09 22:12:00,110 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:13:06,417 [INFO]: Generated response for devtester: Test 2e.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:15:53,434 [INFO]: Generated response for devvista: Of course, here's another fun joke about ed tech:
+
+Why don't computers take their coffee with sugar?
+
+Because it might make them crash and they could lose their 'memory'!
+
+- GENERATIVE AI AGENT: devvista
+2023-10-09 22:15:53,585 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:16:57,198 [INFO]: Generated response for devtester: Test 2f.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:18:47,556 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:18:47,727 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:19:54,290 [INFO]: Generated response for devtester: 'quick test 2a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:19:54,448 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:21:01,210 [INFO]: Generated response for devtester: No.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:21:01,422 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:22:09,336 [INFO]: Generated response for devtester: 'Test 2c'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:22:09,499 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:23:13,515 [INFO]: Generated response for devtester: Test 2d.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:23:13,710 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:24:18,443 [INFO]: Generated response for devtester: Test 2e.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:24:18,595 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:24:28,573 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:25:38,441 [INFO]: Generated response for devvista: Sure, here's another light-hearted joke about working in ed tech:
+
+Why don't computers ever get tired?
+
+Because they have hard drives!
+
+- GENERATIVE AI AGENT: devvista
+2023-10-09 22:27:03,506 [INFO]: Generated response for devtester: Test 4a.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:27:04,821 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:28:16,493 [INFO]: Generated response for devvista: Of course, I'd be happy to share another joke! Here it is:
+
+Why was the computer cold?
+
+Because it left its Windows open!
+
+I hope that brings a smile to your face. If you have any other requests or need more information about Fringe Academy or anything else, feel free to ask.
+
+- GENERATIVE AI AGENT: devvista
+2023-10-09 22:32:07,863 [INFO]: Generated response for devtester: Test 4c.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-09 22:32:08,800 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-09 22:33:19,711 [INFO]: Generated response for devvista: Of course, I'd be happy to share another joke! Here it is:
+
+Why did the computer go to school?
+
+Because it wanted to improve its processing skills!
+
+I hope that brings a smile to your face. If you have any other requests or need more information about Fringe Academy or anything else, feel free to ask.
+
+- GENERATIVE AI AGENT: devvista
+
+- GENERATIVE AI AGENT: devvista
