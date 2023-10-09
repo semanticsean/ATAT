@@ -277,18 +277,18 @@ class EmailServer:
         sleep_interval = 1  # sleep for 1 second
         for x_gm_thrid, unseen_list in thread_to_unseen.items():
             unseen_list.sort(key=lambda x: int(x['num']), reverse=True)
-            for most_recent_unseen in unseen_list:
-                if most_recent_unseen['from_'] == self.smtp_username:
-                    continue
-                try:
-                    processed = self.process_single_thread(most_recent_unseen['num'])
-                    if not processed:
-                        break  # If any email in the thread is not processed, break out of the loop.
-                except Exception as e:
-                    print(f"Exception in process_single_thread: {e}")
-                    import traceback
-                    print(traceback.format_exc())
-                    sleep(60)  # sleep for 60 seconds in case of an exception
+            most_recent_unseen = unseen_list[0]
+            if most_recent_unseen['from_'] == self.smtp_username:
+                continue
+            try:
+                processed = self.process_single_thread(most_recent_unseen['num'])
+                if not processed:
+                    break  # If any email in the thread is not processed, break out of the loop.
+            except Exception as e:
+                print(f"Exception in process_single_thread: {e}")
+                import traceback
+                print(traceback.format_exc())
+                sleep(60)  # sleep for 60 seconds in case of an exception
 
             sleep(sleep_interval)  # add sleep here
 
