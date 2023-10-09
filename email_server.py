@@ -385,7 +385,7 @@ class EmailServer:
             f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:100]}..."
         )
         # Debug: Print email content right before calling handle_document_short_code
-        print(f"Debug: Email content before handle_document_short_code: {thread_content[:50]}")
+        print(f"Debug: Email content before handle_document_short_code: {thread_content}")
         result = handle_document_short_code(
             thread_content, self.agent_selector.openai_api_key,
             self.agent_selector.conversation_history)
