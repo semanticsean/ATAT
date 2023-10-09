@@ -291,6 +291,8 @@ class EmailServer:
         if not processed:
           print(f"Failed to process thread: {x_gm_thrid}")
 
+        sleep(60) 
+
     except Exception as e:
       print(f"Exception while processing emails: {e}")
       import traceback
