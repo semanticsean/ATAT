@@ -242,54 +242,57 @@ class EmailServer:
 
 
   def process_emails(self):
-      try:
-          self.imap_server.select("INBOX")
-          result, data = self.imap_server.uid('search', None, 'UNSEEN')
-          if result != 'OK':
-              print(f"Error searching for emails: {result}")
-              return
+    try:
+        self.imap_server.select("INBOX")
+        result, data = self.imap_server.uid('search', None, 'UNSEEN')
+        if result != 'OK':
+            print(f"Error searching for emails: {result}")
+            return
 
-          unseen_emails = data[0].split()
-          thread_to_unseen = {}
+        unseen_emails = data[0].split()
+        thread_to_unseen = {}
 
-          for num in unseen_emails:
-              email_data = self.process_email(num)
-              if email_data is None or len(email_data) != 10:
-                  continue
-              message_id, _, subject, _, from_, _, _, _, _, x_gm_thrid = email_data
-              if self.is_email_processed(x_gm_thrid, num):
-                  continue
+        for num in unseen_emails:
+            email_data = self.process_email(num)
+            if email_data is None or len(email_data) != 10:
+                continue
+            message_id, _, subject, _, from_, _, _, _, _, x_gm_thrid = email_data
+            if self.is_email_processed(x_gm_thrid, num):
+                continue
 
-              if x_gm_thrid not in thread_to_unseen:
-                  thread_to_unseen[x_gm_thrid] = []
+            if x_gm_thrid not in thread_to_unseen:
+                thread_to_unseen[x_gm_thrid] = []
 
-              thread_to_unseen[x_gm_thrid].append({
-                  "message_id": message_id,
-                  "num": num,
-                  "subject": subject,
-                  "from_": from_
-              })
+            thread_to_unseen[x_gm_thrid].append({
+                "message_id": message_id,
+                "num": num,
+                "subject": subject,
+                "from_": from_
+            })
 
-          for x_gm_thrid, unseen_list in thread_to_unseen.items():
-              unseen_list.sort(key=lambda x: int(x['num']), reverse=True)
-              for most_recent_unseen in unseen_list:
-                  if most_recent_unseen['from_'] == self.smtp_username:
-                      continue
-                  try:
-                      processed = self.process_single_thread(most_recent_unseen['num'])
-                      if not processed:
-                          break  # If any email in the thread is not processed, break out of the loop.
-                  except Exception as e:
-                      print(f"Exception in process_single_thread: {e}")
-                      import traceback
-                      print(traceback.format_exc())
-                      sleep(60)
+        sleep_interval = 1  # sleep for 1 second
+        for x_gm_thrid, unseen_list in thread_to_unseen.items():
+            unseen_list.sort(key=lambda x: int(x['num']), reverse=True)
+            for most_recent_unseen in unseen_list:
+                if most_recent_unseen['from_'] == self.smtp_username:
+                    continue
+                try:
+                    processed = self.process_single_thread(most_recent_unseen['num'])
+                    if not processed:
+                        break  # If any email in the thread is not processed, break out of the loop.
+                except Exception as e:
+                    print(f"Exception in process_single_thread: {e}")
+                    import traceback
+                    print(traceback.format_exc())
+                    sleep(60)  # sleep for 60 seconds in case of an exception
 
-      except Exception as e:
-          print(f"Exception while processing emails: {e}")
-          import traceback
-          print(traceback.format_exc())
-      
+            sleep(sleep_interval)  # add sleep here
+
+    except Exception as e:
+        print(f"Exception while processing emails: {e}")
+        import traceback
+        print(traceback.format_exc())
+
 
   def process_single_thread(self, num):
       processed = False

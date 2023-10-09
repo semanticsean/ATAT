@@ -103,12 +103,12 @@ class GPTModel:
         email_pattern = r'\S+@\S+\.(com|net|co|org|ai)'
         full_content = re.sub(email_pattern, '', full_content)
     
-        # Adjusted max tokens and buffer for API and formatting overhead
-        max_tokens = 8100  # Adjusted down to allow for some buffer
-        api_buffer = 50  # Tokens reserved for API and formatting overhead
-        truncate_chars = 1000  # Number of characters to remove in each iteration
+        
+        max_tokens = 8100  
+        api_buffer = 50  
+        truncate_chars = 1000  
     
-        # Keep reducing tokens until under the limit or no more to truncate
+        
         while True:
             total_tokens = self.count_tokens(full_content + dynamic_prompt) + api_buffer
             self.check_rate_limit(total_tokens)
