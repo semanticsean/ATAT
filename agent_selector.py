@@ -5,6 +5,7 @@ import os
 import threading
 import logging
 from shortcode import handle_document_short_code
+from gpt_model import GPTModel 
 
 
 def load_instructions(filename='agents/instructions.json'):
@@ -23,6 +24,7 @@ class AgentSelector:
     self.invoked_agents = {}
     self.last_agent_response = ""
     self.instructions = load_instructions()
+    self.gpt_model = GPTModel() 
 
   def reset_for_new_thread(self):
     self.invoked_agents.clear()
@@ -133,6 +135,12 @@ class AgentSelector:
                              total_order,
                              content,
                              additional_context=None):
+
+     # Count tokens before the API call
+    tokens_for_this_request = self.gpt_model.count_tokens(content)
+    
+    # Check rate limits
+    self.gpt_model.check_rate_limit(tokens_for_this_request)
 
     content = self.replace_agent_shortcodes(content)
     modality = 'default'
