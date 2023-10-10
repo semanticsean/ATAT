@@ -5,7 +5,7 @@ import os
 import threading
 import logging
 from shortcode import handle_document_short_code
-from gpt_model import GPTModel 
+from gpt_model import GPTModel
 
 
 def load_instructions(filename='agents/instructions.json'):
@@ -24,7 +24,7 @@ class AgentSelector:
     self.invoked_agents = {}
     self.last_agent_response = ""
     self.instructions = load_instructions()
-    self.gpt_model = GPTModel() 
+    self.gpt_model = GPTModel()
 
   def reset_for_new_thread(self):
     self.invoked_agents.clear()
@@ -85,45 +85,39 @@ class AgentSelector:
                                               agent_manager, gpt_model):
     agent_queue = []
     ff_agent_queue = []
+    overall_order = 1  # To keep track of the overall order
 
     for email in recipient_emails:
       agent = agent_manager.get_agent_by_email(email)
       if agent:
-        agent_queue.append((agent["id"], len(agent_queue) + 1))
+        agent_queue.append((agent["id"], overall_order))
+        overall_order += 1
 
-    
     explicit_tags = []
     try:
-        regex_pattern = re.compile(r"!ff\(([\w\d_]+)\)!|!<span>ff</span>\(([\w\d_]+)\)!")
-        explicit_tags = regex_pattern.findall(content)
-        # Flatten the list and filter out empty strings
-        explicit_tags = [tag for sublist in explicit_tags for tag in sublist if tag]
-    
+      regex_pattern = re.compile(
+          r"!ff\(([\w\d_]+)\)!|!<span>ff</span>\(([\w\d_]+)\)!")
+      explicit_tags = regex_pattern.findall(content)
+      explicit_tags = [
+          tag for sublist in explicit_tags for tag in sublist if tag
+      ]
     except Exception as e:
-        logging.error(f"Regex Error: {e}")
-        logging.error(f"Content: {content}")
-    
+      logging.error(f"Regex Error: {e}")
+      logging.error(f"Content: {content}")
+
     for agent_name in explicit_tags:
-        agent = agent_manager.get_agent(agent_name, case_sensitive=False)
-        if agent:
-            if "ff" in content.lower():  # Case-insensitive check for 'ff'
-                ff_agent_queue.append((agent_name, len(ff_agent_queue) + 1))
-            
+      agent = agent_manager.get_agent(agent_name, case_sensitive=False)
+      if agent:
+        ff_agent_queue.append((agent_name, overall_order))
+        overall_order += 1
 
     print(f"Debug: agent_queue before merging: {agent_queue}")
     print(f"Debug: ff_agent_queue before merging: {ff_agent_queue}")
 
-    agent_queue.extend(
-        ff_agent_queue)  # Merge the !ff() list with the agent_queue
-    print(f"Debug: agent_queue after merging: {agent_queue}")
-
-    if len(agent_queue) == 1:
-      agent_queue[0] = (agent_queue[0][0], 1)
-    elif not any([agent[1] for agent in agent_queue]):
-      agent_queue = [(agent[0], idx + 1)
-                     for idx, agent in enumerate(agent_queue)]
-
-    agent_queue = sorted(agent_queue, key=lambda x: x[1])[:self.max_agents]
+    agent_queue.extend(ff_agent_queue)  # Merge the lists
+    agent_queue = sorted(
+        agent_queue,
+        key=lambda x: x[1])[:self.max_agents]  # Sort by the overall order
 
     return agent_queue
 
@@ -136,9 +130,9 @@ class AgentSelector:
                              content,
                              additional_context=None):
 
-     # Count tokens before the API call
+    # Count tokens before the API call
     tokens_for_this_request = self.gpt_model.count_tokens(content)
-    
+
     # Check rate limits
     self.gpt_model.check_rate_limit(tokens_for_this_request)
 
@@ -257,6 +251,7 @@ class AgentSelector:
                                                is_summarize=False)
         responses.append(response)
         self.conversation_history += f"\n{agent_name} said: {response}"
+        time.sleep(60)
 
       final_response = " ".join(responses)
       signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
