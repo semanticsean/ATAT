@@ -188,6 +188,7 @@ class EmailServer:
               content = payload
       else:
         content = email_message.get_payload()
+        content = self.strip_html_tags(content)
 
       # Adjust character limit based on the presence of !detail or !summarize shortcodes
       MAX_LIMIT = 35000
@@ -293,8 +294,6 @@ class EmailServer:
         processed = self.process_single_thread(most_recent_unseen['num'])
         if not processed:
           print(f"Failed to process thread: {thread_key}")
-
-        
 
     except Exception as e:
       print(f"Exception while processing emails: {e}")
@@ -611,26 +610,27 @@ class EmailServer:
           print("Debug: Formatted email history Plain:",
                 formatted_email_history_plain)
 
-          # Create MIMEText objects for the response and history
+
+          response = response.replace("\n", "<br/>")  
           part1_plain = MIMEText(f"{response}\n", 'plain', "utf-8")
-          part1_html = MIMEText(f"{response}<br>", 'html', "utf-8")
-          part2_plain = MIMEText(formatted_email_history_plain, 'plain', "utf-8")
-          part2_html = MIMEText(formatted_email_history_html, 'html', "utf-8")
+          part1_html = MIMEText(f"<!DOCTYPE html><html><body>{response}<br/></body></html>", 'html', "utf-8")
           
+          part2_plain = MIMEText(formatted_email_history_plain, 'plain', "utf-8")
+          part2_html = MIMEText(f"<!DOCTYPE html><html><body>{formatted_email_history_html}</body></html>", 'html', "utf-8")
+
           # Create 'alternative' MIMEMultipart object for each segment
           alternative1 = MIMEMultipart('alternative')
           alternative1.attach(part1_plain)
           alternative1.attach(part1_html)
-          
+
           alternative2 = MIMEMultipart('alternative')
           alternative2.attach(part2_plain)
           alternative2.attach(part2_html)
-          
+
           # Create 'mixed' MIMEMultipart object to combine them
           msg = MIMEMultipart('mixed')
           msg.attach(alternative1)  # Attach response first
           msg.attach(alternative2)  # Attach history
-          
 
           try:
             self.send_email(
