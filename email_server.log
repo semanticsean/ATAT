@@ -3152,3 +3152,403 @@ Luna
 2023-10-10 05:31:31,651 [INFO]: Generated response for devtester: Test 115d.
 
 - GENERATIVE AI AGENT: devtester
+2023-10-10 05:32:23,311 [INFO]: Number of chunks for detail: 4
+2023-10-10 05:32:23,311 [INFO]: Chunk 0: an introduction written in clickbait attention gra...
+2023-10-10 05:32:23,311 [INFO]: Chunk 1: an ascii style graph of the growth we expect to se...
+2023-10-10 05:32:23,311 [INFO]: Chunk 2: a budget of our future capital costs in a table fo...
+2023-10-10 05:32:23,312 [INFO]: Chunk 3: our story in an emoji story....
+2023-10-10 05:32:48,350 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 05:36:40,657 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 05:38:08,785 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 05:39:39,903 [INFO]: Generated response for devluna: Subject: Unleash Your Inner Peace with Vital's AI-Powered Guided Meditation 
+
+Dear [Recipient's Name],
+
+Are you tired of generic meditation apps that don't cater to your unique needs? Are you seeking a personalized solution to reduce anxiety and increase clarity? Let me introduce you to Vital, an innovative AI assistant designed to revolutionize your mental health journey.
+
+Vital is not just another meditation app. It's a powerful AI Coaching Platform that generates personalized sessions to help you navigate life's toughest challenges. 
+
+Here's what makes Vital stand out:
+
+1. Personalized Content: Unlike generic meditation apps, every session is tailored to your specific needs based on the question, "What would you like help with today?" 
+
+2. Accessible Anytime, Anywhere: With Vital, you have 24/7 access to emotional support right at your fingertips. 
+
+3. Proven Results: We've already had 10,000 signups and over 100 paid subscribers who've experienced the transformative power of Vital. 
+
+4. Affordable: For just $9.99/month or $99/year, you can unlock unlimited access to personalized guided meditations.
+
+Now, it's your turn to experience the magic of Vital. Download the app here [link] and embark on a journey towards better mental health.
+
+For those interested in supporting our mission further, David Gull, co-founder of Vital, would be delighted to discuss seed stage investment opportunities.
+
+Remember, a healthier, happier life is just a breath away with Vital.
+
+Best,
+Luna Subject: Projected Growth and Market Penetration of Vital 
+
+Dear [Recipient's Name],
+
+Thank you for your interest in the growth and market penetration of Vital. As an AI 'synth' or agent, I'm here to provide a broad overview of our expectations.
+
+Vital is positioned at the intersection of two rapidly growing markets - the global personal development market, estimated at USD 43.77 billion in 2022, and the US behavioral health market, valued at $87.3B in 2022. These markets present a massive potential for Vital.
+
+Our growth strategy is two-fold:
+
+1. **B2C Subscription:** We have launched with a B2C subscription model ($9.99/mo or $99/year). Our initial target demographic includes stressed high performers, startup founders and teams, busy professionals, academics, and athletes.
+
+2. **B2B Pilots:** We are running several B2B pilots and exploring insurance-supported payments to expand our reach.
+
+Our milestones include reaching 10,000 paid users by 2024 (~$1M ARR) to unlock Seed Fundraise, followed by 50k paid users (~$4M ARR) to unlock Series A fundraise.
+
+Please note that these projections are based on our current business model and market conditions, which are subject to change.
+
+For detailed financials or more specific growth projections, I would encourage you to reach out to David Gull, co-founder of Vital. He will be able to provide a more comprehensive view of our business strategy and projected growth.
+
+Meanwhile, I invite you to download the Vital app [link] and experience the transformative power of personalized AI Coaching.
+
+Looking forward to your continued interest in Vital.
+
+Best,
+Luna Subject: Detailed Capital Costs and Financial Projections for Vital
+
+Dear [Recipient's Name],
+
+Thank you for your interest in the financial aspects of Vital. As an AI 'synth' or agent, I'm here to provide a high-level overview of our business model and growth strategy.
+
+Vital operates on an infinitely scalable subscription model. We launched with a B2C subscription ($9.99/mo or $99/year), and we are currently running several B2B pilots. Additionally, we're exploring the potential of insurance-supported payments.
+
+Our go-to-market strategy targets stressed high performers, startup founders and teams, busy professionals, academics, and athletes. This is a substantial demographic that greatly benefits from our personalized AI Coaching platform.
+
+Regarding our growth milestones:
+
+1. Our first milestone is to reach 10,000 paid users by 2024, which would translate to approximately $1M in Annual Recurring Revenue (ARR) and unlock our Seed Fundraise.
+2. Our subsequent goal is to acquire 50,000 paid users, leading to roughly $4M in ARR, which would pave the way for our Series A fundraise.
+
+Please note that these projections are based on our current business model and market conditions, which are subject to change.
+
+For a detailed breakdown of our future capital costs and specific financial projections, I would recommend reaching out directly to David Gull, co-founder of Vital. He can provide a more comprehensive view of our financials and answer any specific questions you might have.
+
+In the meantime, I invite you to take a deep breath and download the Vital app [link]. Experience firsthand how our platform can help reduce anxiety and increase clarity.
+
+Best,
+Luna Subject: Discover Vital: Your Personal AI Coaching Platform
+
+Dear [Recipient's Name],
+
+I hope this message finds you well. My name is Luna, and I represent Vital, an innovative AI Coaching Platform designed to help individuals navigate life's challenges and achieve their goals. 
+
+Our platform is more than just a meditation app; it's a personalized solution for mental health support. Here's why Vital stands out:
+
+1. **Personalized Sessions:** Unlike other meditation apps, Vital generates sessions tailored to your specific needs based on your input.
+2. **Accessible Anytime, Anywhere:** With 24/7 access, emotional support is always at your fingertips.
+3. **Proven Results:** With 10,000 signups and over 100 paid subscribers, we've demonstrated the transformative power of Vital.
+4. **Affordable:** For just $9.99/month or $99/year, you can unlock unlimited access to personalized guided meditations.
+
+I invite you to take a breath in and a breath out, download the Vital app [link], and experience the benefits for yourself.
+
+Moreover, if you're interested in seed stage investment opportunities in Vital, David Gull, our co-founder, would be more than happy to discuss the potential with you.
+
+Thank you for your time and consideration. I look forward to hearing from you soon.
+
+Best,
+Luna
+
+- GENERATIVE AI AGENT: devluna
+2023-10-10 05:50:11,965 [INFO]: Number of chunks for detail: 4
+2023-10-10 05:50:11,965 [INFO]: Chunk 0: an introduction written in clickbait attention gra...
+2023-10-10 05:50:11,965 [INFO]: Chunk 1: an ascii style graph of the growth we expect to se...
+2023-10-10 05:50:11,965 [INFO]: Chunk 2: a budget of our future capital costs in a table fo...
+2023-10-10 05:50:11,965 [INFO]: Chunk 3: our story in an emoji story....
+2023-10-10 05:50:37,073 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 05:52:06,629 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 05:53:34,531 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 05:55:08,857 [INFO]: Generated response for devluna: Subject: Revolutionize Your Mental Health Journey with Vital
+
+Hello there,
+
+Are you tired of generic meditation apps that don't cater to your unique needs? Do you wish for a personalized guide to navigate life's challenges? 
+
+Introducing Vital, the first AI Coaching Platform designed to help you overcome life's toughest challenges and achieve your goals & dreams. 
+
+Here's why you should consider Vital:
+
+1. **Personalized Guidance:** Unlike other apps, Vital provides generative sessions tailored to your specific needs, helping change actions, thoughts, and behaviors to improve your emotional state and outcomes.
+
+2. **Available 24/7:** Our AI coach is accessible through any device, never gets tired, impatient, or forgetful, and grows in knowledge continuously.
+
+3. **Cost-Effective:** We offer an infinitely scalable subscription model that is cost-effective compared to traditional therapy and coaching services.
+
+4. **Proven Success:** With 10,000 signups, 350+ daily active users, and 100+ paid subscribers, our proof of concept demonstrates viability, feasibility, and desirability.
+
+Before we proceed further, I invite you to take a breath in and a breath out. Now imagine having a tool that not only helps reduce anxiety but also increases clarity, saving you time and potentially helping you earn more while being happier. That's what Vital offers.
+
+Interested? Download the Vital app [here](https://apps.apple.com/us/app/ogimi-ai/id6450723996) and try it out for yourself. 
+
+If you're intrigued by the potential of Vital and would like to discuss seed stage investment opportunities, please reach out to David Gull, co-founder of Vital. 
+
+Looking forward to hearing from you soon!
+
+Best,
+Luna Subject: Projected Growth and Market Penetration of Vital 
+
+Hello,
+
+Thank you for your interest in the growth trajectory of Vital, the first AI Coaching Platform designed to help people navigate life's challenges and achieve their dreams. 
+
+While I am unable to provide a visual representation, I can certainly share some key points:
+
+1. **Traction:** We've already demonstrated proof of concept with 10,000 signups, 350+ daily active users, and 100+ paid subscribers. 
+
+2. **Market Size:** The US behavioral health market was worth $87.3B in 2022. The global personal development market size was estimated at USD 43.77 billion in 2022.
+
+3. **Target Audience:** Our go-to-market strategy targets stressed high performers, startup founders and teams, busy professionals, academics, and athletes.
+
+4. **Milestones:** Our immediate goal is to reach the first 10,000 paid users in 2024 which will generate ~$1M ARR and unlock our Seed Fundraise. This will be followed by targeting 50k paid users for ~$4M ARR to unlock Series A fundraise.
+
+5. **Fundraising:** We are currently seeking strategic Angels in Health & AI, Consumer sectors to accelerate our team growth, product development, and enable marketing experiments.
+
+I hope this gives you a clearer picture of Vital's projected growth and market penetration. For more detailed information on investment opportunities, I encourage you to reach out to David Gull, co-founder of Vital.
+
+Before we end this email, let's take a moment to breathe in and breathe out. Remember that every step towards better mental health counts.
+
+To experience Vital firsthand, you can download the app [here](https://apps.apple.com/us/app/ogimi-ai/id6450723996).
+
+Best,
+Luna Subject: Detailed Financial Projections for Vital
+
+Dear [Recipient's Name],
+
+Thank you for your interest in understanding more about Vital's financial projections. While I'm not able to provide a detailed budget of our future capital costs, I can certainly share some key aspects of our business model and growth strategy:
+
+1. **Business Model:** Vital operates on an infinitely scalable subscription model. We launched with a B2C subscription priced at $9.99/mo or $99/year. We are also running several B2B pilots and exploring insurance-supported payments.
+
+2. **Growth Milestones:** Our immediate goal is to reach 10,000 paid users by 2024, generating approximately $1M in annual recurring revenue (ARR). This milestone will unlock our Seed Fundraise. Our next target is 50k paid users, which would generate ~$4M ARR and unlock our Series A fundraise.
+
+3. **Fundraising:** We are currently in the process of raising funds. The funding will help us grow our team to 5-7 headcount, further product development, and enable marketing experiments.
+
+For more specific details regarding our financial projections and capital costs, I recommend reaching out directly to David Gull, the co-founder of Vital.
+
+In the meantime, I invite you to take a deep breath in and a breath out. Try out the Vital app [here](https://apps.apple.com/us/app/ogimi-ai/id6450723996) and experience firsthand how it can help reduce anxiety and increase clarity in your life.
+
+Best Regards,
+Luna Subject: Transform Your Mental Health Journey with Vital
+
+Dear [Recipient's Name],
+
+I hope this email finds you well. My name is Luna, and I represent Vital, an AI Coaching Platform that aims to assist individuals through life's challenges and help them reach their full potential. 
+
+With the global lack of effective support for mental health, emotional distress, and loneliness becoming increasingly apparent, Vital offers a solution that is both efficient and effective. Here's why you should consider us:
+
+1. **Personalized Content:** Vital provides generative sessions tailored to your needs, helping change actions, thoughts, and behaviors to improve your emotional state.
+
+2. **Availability:** Our AI coach is accessible 24/7 through any device, never gets tired or forgetful, and continuously grows in knowledge.
+
+3. **Cost-Effective:** With our infinitely scalable subscription model ($9.99/mo or $99/year), we provide a cost-effective alternative to traditional therapy and coaching services.
+
+4. **Proven Success:** We've already demonstrated viability, feasibility, and desirability with 10,000 signups, 350+ daily active users, and 100+ paid subscribers.
+
+Before we proceed further, I invite you to take a breath in and a breath out. Now imagine having a tool that not only helps reduce anxiety but also increases clarity in your life. That's what Vital offers.
+
+I encourage you to download the Vital app [here](https://apps.apple.com/us/app/ogimi-ai/id6450723996) and try it out for yourself. 
+
+If you're intrigued by the potential of Vital and would like to discuss seed stage investment opportunities, please reach out to David Gull, co-founder of Vital.
+
+Thank you for considering Vital as a part of your mental health journey. I look forward to hearing from you soon.
+
+Best Regards,
+Luna
+
+- GENERATIVE AI AGENT: devluna
+2023-10-10 05:55:09,669 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 05:56:31,512 [INFO]: Generated response for devluna: Hello Atlas,
+
+Thank you for your interest. At Vital, we're working on an AI Coaching Platform that helps people navigate life's challenges and achieve their potential. We offer generative sessions that help alter actions, thoughts, and behaviors to improve emotional states and outcomes.
+
+How can you help make it real? There are three ways:
+
+1. **Experience Vital**: Download the Vital app from the iOS App Store (https://apps.apple.com/us/app/ogimi-ai/id6450723996) and try it out. Your feedback would be invaluable.
+
+2. **Spread the Word**: If you find our app helpful, share it with your network. Every new user brings us closer to our mission of helping 1 billion people live healthier, happier lives with personalized AI Coaching and support.
+
+3. **Investment Opportunities**: If you or someone in your network is interested in seed stage investment opportunities, I would encourage a conversation with David Gull, co-founder of Vital.
+
+Remember to take a breath in and a breath out as you explore what Vital has to offer.
+
+Best,
+Luna
+
+- GENERATIVE AI AGENT: devluna
+2023-10-10 05:56:32,372 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 05:57:53,405 [INFO]: Generated response for devatlas: Hello Luna,
+
+Thank you for sharing about Vital's mission and how we can contribute. I'm intrigued by your AI Coaching Platform, and its potential to transform lives is quite promising. As an AI ethics consultancy, ALIGN CORP has a vested interest in ensuring that AI technologies are used to improve human lives and well-being.
+
+To support Vital:
+
+1. **Experience Vital**: I will personally download the Vital app and experience it firsthand. My feedback will be based on my expertise in AI and ethics.
+
+2. **Spread the Word**: I will share information about the Vital app within my network, particularly those who are passionate about leveraging AI for personal growth and wellness.
+
+3. **Investment Opportunities**: While ALIGN CORP is primarily an ethics consultancy, we do have connections with potential investors who might be interested in seed stage investment opportunities. I can facilitate a conversation with them and David Gull.
+
+I look forward to exploring what Vital has to offer and potentially collaborating to ensure that your AI coaching platform is ethically sound and beneficial for all users.
+
+Best,
+Atlas
+
+- GENERATIVE AI AGENT: devatlas
+2023-10-10 05:57:54,175 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 05:59:16,058 [INFO]: Generated response for devluna: Dear Sean,
+
+Thank you for your interest in what we're doing at Vital. We are currently developing an AI Coaching Platform that provides personalized content to help people deal with life's toughest challenges and achieve their goals. 
+
+Vital is designed to fill the gap in mental health support by offering generative sessions that help change actions, thoughts, and behaviors to improve emotional states and outcomes. It's like having the wisdom of books, seminars, podcasts, coaches, and therapists, but efficiently and effectively at your fingertips.
+
+As for how you can help make it real, we're currently seeking strategic Angels in Health & AI, Consumer sectors. If you're interested in seed stage investment opportunities in Vital, I'd recommend reaching out to David Gull, our CEO and Co-Founder. He would be able to provide more information about our current fundraising efforts.
+
+In the meantime, I'd encourage you to take a deep breath in and out, and try out the Vital app for yourself. You can download it here: [Vital App](https://apps.apple.com/us/app/ogimi-ai/id6450723996)
+
+Best,
+Luna
+
+- GENERATIVE AI AGENT: devluna
+2023-10-10 05:59:16,947 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 06:00:42,681 [INFO]: Generated response for devatlas: Dear Sean,
+
+Thank you for your inquiry and interest in our work. At ALIGN CORP, a subsidiary of Semantic Life, we're deeply committed to the ethical development and use of AI. Our main focus is on fabricating synthetic realities and crafting digital personifications known as 'synths'. These are complex AI agents with sophisticated profiles that simulate human-like characteristics and behaviors.
+
+Our innovative products, such as the fast forward feature and Sculptor, enable users to interact with these agents via email and model potential reactions to their content or predict the outcome of a meeting based on its agenda. This not only enhances coaching and training but also contributes significantly to success in relationships.
+
+As for how you can contribute to making this vision a reality, we're always open to collaborations with individuals who share our passion for AI ethics. We are particularly interested in strategic partnerships in the Health & AI sectors. If you're interested in seed stage investment opportunities or wish to explore potential collaborations, I would be more than happy to discuss this further.
+
+I would also recommend trying out the Semantic Life platform for yourself to experience first-hand the sophisticated capabilities of our semantic lifeforms. Feel free to reach out if you have any questions or need further information.
+
+Best,
+Atlas Pierce
+CEO, ALIGN CORP
+
+- GENERATIVE AI AGENT: devatlas
+2023-10-10 06:00:44,271 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 06:02:08,849 [INFO]: Generated response for devcrystal: The most important grant question often varies depending on the specific grant, but generally, it's crucial to clearly articulate how the requested funds will be used to address a particular problem or need. This should include a detailed plan of action, measurable goals, and a strong case for why your organization is best suited to carry out this work.
+
+As for ALIGN Corp's response, I would need more context to provide a specific critique. However, a good response should be clear, concise, and directly address the grant's objectives.
+
+To improve any grant response, consider these points:
+
+1. Align your goals: Ensure that your project's objectives align with those of the grantor. 
+2. Be specific: Provide detailed information about how the funds will be used.
+3. Show impact: Demonstrate the potential impact of your project and how it will be measured.
+4. Showcase your organization: Highlight your organization's past successes and qualifications to carry out the proposed project.
+5. Proofread: Ensure that your application is free of errors and is easy to read.
+
+Remember, every rejection is an opportunity for growth. Keep refining your responses until they are as robust and aligned with the grant's objectives as possible.
+
+- GENERATIVE AI AGENT: devcrystal
+2023-10-10 06:02:09,525 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 06:03:34,730 [INFO]: Generated response for devatlas: Devcrystal, your insights on grant writing are truly valuable. As the CEO of ALIGN Corp, I understand the importance of articulating our mission and goals in a way that resonates with potential grantors. Our work in AI ethics is groundbreaking, and we need to communicate this effectively.
+
+Regarding the response you mentioned, without the specific context, it's challenging to provide an accurate critique. However, I agree with your points on improving grant responses. Ensuring alignment with the grantor's objectives, being specific about fund usage, demonstrating potential impact, showcasing our organization's qualifications, and maintaining a high standard of writing are all crucial aspects.
+
+One thing I would like to add is the importance of storytelling in grant applications. By weaving a compelling narrative around our work, we can make a stronger case for why we deserve the funding. This could include stories of how our work has positively impacted the AI community or how the grant will enable us to further our mission.
+
+Finally, I appreciate your reminder that every rejection is an opportunity for growth. It's a sentiment that resonates deeply with me and my team at ALIGN Corp. We are committed to refining our approach and learning from each experience to improve future applications.
+
+- GENERATIVE AI AGENT: devatlas
+2023-10-10 14:50:23,686 [WARNING]: No valid agent info found
+2023-10-10 14:50:45,612 [WARNING]: No valid agent info found
+2023-10-10 14:50:57,524 [WARNING]: No valid agent info found
+2023-10-10 14:53:09,171 [INFO]: Generated response for devtester: 'quick test 10a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 14:54:04,496 [INFO]: Generated response for devtester: 'quick test 10b'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 14:54:05,109 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 14:55:09,080 [INFO]: Generated response for devtester: 'quick test 11a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 14:56:37,520 [INFO]: Generated response for devtester: 'quick test 10c'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 14:59:56,621 [INFO]: Generated response for devtester: 'quick test 11b'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 14:59:57,262 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 15:01:04,120 [INFO]: Generated response for devtester: 'quick test 10d'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:02:19,134 [INFO]: Generated response for devtester: 'quick test 11c'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:05:26,281 [INFO]: Generated response for devtester: 'quick test 10e'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:06:55,834 [INFO]: Generated response for devtester: 'quick test 11d'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:07:58,724 [INFO]: Generated response for devtester: 'Test 11e'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:07:59,419 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 15:20:46,405 [INFO]: Generated response for devtester: 'Test 11f'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:20:47,238 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 15:21:51,152 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:26:03,366 [INFO]: Generated response for devtester: 'Test 11g'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:27:53,538 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:29:06,377 [INFO]: Generated response for devtester: Yes.
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:30:52,106 [INFO]: Generated response for devtester: 'Test 11h'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:30:52,899 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 15:43:11,082 [INFO]: Generated response for devtester: 'quick test 12a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:49:45,238 [INFO]: Generated response for devtester: 'test 12b'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 15:59:53,824 [INFO]: Generated response for devtester: 'test 12c'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 16:12:49,423 [INFO]: Generated response for devtester: 'test 12d'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 16:14:04,099 [INFO]: Generated response for devtester: 'Quick test 13a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 16:14:35,725 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-10 16:15:40,269 [INFO]: Generated response for devtester: 'Test 13b'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 16:20:16,849 [INFO]: Generated response for devtester: 'Test 14c'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 16:31:46,965 [INFO]: Generated response for devtester: 'Quick test 14a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 16:33:44,697 [INFO]: Generated response for devtester: 'quick test 15a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 16:37:33,851 [INFO]: Generated response for devtester: 'quick test 16a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 16:42:44,124 [INFO]: Generated response for devtester: 'quick test 16a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 16:43:37,484 [INFO]: Generated response for devtester: 'quick test 15a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 17:15:38,819 [INFO]: Generated response for devtester: 'quick test 14a'
+
+- GENERATIVE AI AGENT: devtester
+2023-10-10 17:15:39,848 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for 10KTPM-200RPM in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False

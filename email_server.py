@@ -8,6 +8,8 @@ import re
 import smtplib
 import openai
 import quopri
+import tempfile
+import shutil
 from contextlib import contextmanager
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
@@ -16,6 +18,7 @@ from email.utils import getaddresses
 from shortcode import handle_document_short_code
 from time import sleep
 from agent_selector import AgentSelector
+from pathlib import Path
 
 
 class EmailServer:
@@ -97,28 +100,30 @@ class EmailServer:
     except:
       return False
 
+  def save_processed_threads(self):
+    file_path = "processed_threads.json"
+    with tempfile.NamedTemporaryFile('w',
+                                     dir=os.path.dirname(file_path),
+                                     delete=False) as tmp_file:
+      json.dump(self.processed_threads, tmp_file)
+      tmp_file.flush()
+    shutil.move(tmp_file.name, file_path)
+
   def load_processed_threads(self):
     file_path = "processed_threads.json"
     if os.path.exists(file_path):
       with open(file_path, 'r') as file:
         try:
           threads = json.load(file)
-          for x_gm_thrid, data in threads.items():
-            if isinstance(
-                data,
-                list):  # Check if data is a list, indicating the old format
-              # Convert to the new format
-              threads[x_gm_thrid] = {
-                  'nums': data,
-                  'subject': 'Unknown Subject'
-              }
+          print(f"Debug: Loaded processed_threads: {threads}")
+
+          self.validate_processed_threads(threads)
           return threads
         except json.JSONDecodeError:
           print(
               "Error decoding processed_threads.json. Returning an empty list."
           )
           return {}
-    return {}
 
   def restart_system(self):
     print("Restarting system...")
@@ -146,15 +151,21 @@ class EmailServer:
       print(f"Debug: IMAP Server state: {self.imap_server.state}")
       print(f"Debug: IMAP Server debug level: {self.imap_server.debug}")
       result, data = self.imap_server.uid(
-          'fetch', num.decode('utf-8'),
-          '(RFC822)') if isinstance(num, bytes) else self.imap_server.uid(
-              'fetch', str(num), '(RFC822 X-GM-THRID)')
+          'fetch',
+          num.decode('utf-8') if isinstance(num, bytes) else str(num),
+          '(RFC822 X-GM-THRID)')
+
+      # Extract X-GM-THRID directly from data
+      x_gm_thrid = None
+      for response_part in data:
+        if isinstance(response_part, tuple):
+          msg = email.message_from_bytes(response_part[1])
+          if msg:
+            x_gm_thrid = msg.get("X-GM-THRID")
 
       if result != 'OK':
         print(f"Error fetching email content for UID {num}: {result}")
         return None, None, None, None, None, None, None, None
-
-      # Adding debug print to inspect raw email data typ
 
       print(f"Raw email data type: {type(data[0][1])}")  # Debug statement
       raw_email = data[0][1].decode("utf-8")
@@ -163,6 +174,11 @@ class EmailServer:
       if not email_message:
         print(f"Error: email_message object is None for UID {num}")
         return None, None, None, None, None, None, None, None
+
+      # Debugging: Print all the headers to see if X-GM-THRID is among them
+      for header in email_message.keys():
+        print(f"Debug header: {header}: {email_message.get(header)}")
+
 
       # Extract headers and content
       from_ = email_message['From']
@@ -243,12 +259,15 @@ class EmailServer:
       server.sendmail(self.smtp_username, [to_email], msg.as_string())
 
   def is_email_processed(self, x_gm_thrid, num):
+    num_str = str(num)
     if x_gm_thrid in self.processed_threads:
-      if str(num) in self.processed_threads[x_gm_thrid]['nums']:
-        print(
-            f"Skipping already processed message with UID {num} in thread {x_gm_thrid}."
-        )
-        return True
+      if num_str in self.processed_threads[x_gm_thrid]['nums']:
+        if self.processed_threads[x_gm_thrid]['nums'][num_str].get(
+            'processed', False):
+          print(
+              f"Skipping already processed message with UID {num} in thread {x_gm_thrid}."
+          )
+          return True
     return False
 
   def process_emails(self):
@@ -346,30 +365,38 @@ class EmailServer:
       import traceback
       print(traceback.format_exc())
 
+  def validate_processed_threads(self, threads):
+    if not isinstance(threads, dict):
+      raise ValueError("Processed threads must be a dictionary.")
+    for x_gm_thrid, data in threads.items():
+      if 'nums' not in data or not (isinstance(data['nums'], list)
+                                    or isinstance(data['nums'], dict)):
+        raise ValueError(f"Invalid 'nums' field for {x_gm_thrid}.")
+      if 'metadata' not in data or not isinstance(data['metadata'], dict):
+        raise ValueError(f"Invalid 'metadata' field for {x_gm_thrid}.")
+
   def update_processed_threads(self, message_id, x_gm_thrid, num, subject,
-                               in_reply_to, references):
-
+                               in_reply_to, references, sender, receiver):
+    timestamp = datetime.now()
     num_str = str(num)
+
+    # Initialize the thread record if it doesn't exist
     if x_gm_thrid not in self.processed_threads:
-      self.processed_threads[x_gm_thrid] = {
-          'nums': [],
-          'subject': subject,
-          'In-Reply-To': in_reply_to,
-          'References': references,
-          'X-GM-THRID': x_gm_thrid
-      }
+      self.processed_threads[x_gm_thrid] = {'nums': {}, 'metadata': {}}
 
-    # Safety check
-    if 'nums' not in self.processed_threads[x_gm_thrid]:
-      print(
-          f"Debug: 'nums' key not found in processed_threads for x_gm_thrid {x_gm_thrid}. Initializing to empty list."
-      )
-      self.processed_threads[x_gm_thrid]['nums'] = []
+    # Add the new UID under the existing thread ID
+    self.processed_threads[x_gm_thrid]['nums'][num_str] = {'processed': True}
 
-    if num_str not in self.processed_threads[x_gm_thrid]['nums']:
-      self.processed_threads[x_gm_thrid]['nums'].append(num_str)
-      self.processed_threads[x_gm_thrid]['References'] = references
-      self.processed_threads[x_gm_thrid]['X-GM-THRID'] = x_gm_thrid
+    # Update metadata
+    self.processed_threads[x_gm_thrid]['metadata'] = {
+        'subject': subject,
+        'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+        'sender': sender,
+        'receiver': receiver,
+        'in_reply_to': in_reply_to,
+        'references': references
+    }
+    self.save_processed_threads()
 
   def strip_html_tags(self, text):
     clean = re.compile('<.*?>')
@@ -610,13 +637,17 @@ class EmailServer:
           print("Debug: Formatted email history Plain:",
                 formatted_email_history_plain)
 
-
-          response = response.replace("\n", "<br/>")  
+          response = response.replace("\n", "<br/>")
           part1_plain = MIMEText(f"{response}\n", 'plain', "utf-8")
-          part1_html = MIMEText(f"<!DOCTYPE html><html><body>{response}<br/></body></html>", 'html', "utf-8")
-          
-          part2_plain = MIMEText(formatted_email_history_plain, 'plain', "utf-8")
-          part2_html = MIMEText(f"<!DOCTYPE html><html><body>{formatted_email_history_html}</body></html>", 'html', "utf-8")
+          part1_html = MIMEText(
+              f"<!DOCTYPE html><html><body>{response}<br/></body></html>",
+              'html', "utf-8")
+
+          part2_plain = MIMEText(formatted_email_history_plain, 'plain',
+                                 "utf-8")
+          part2_html = MIMEText(
+              f"<!DOCTYPE html><html><body>{formatted_email_history_html}</body></html>",
+              'html', "utf-8")
 
           # Create 'alternative' MIMEMultipart object for each segment
           alternative1 = MIMEMultipart('alternative')
@@ -655,7 +686,8 @@ class EmailServer:
       if all_responses_successful:
         x_gm_thrid = references.split()[0] if references else subject
         self.update_processed_threads(message_id, x_gm_thrid, num, subject,
-                                      in_reply_to, references)
+                                      in_reply_to, references, from_,
+                                      ','.join(to_emails + cc_emails))
 
       if message_id in self.conversation_threads:
         conversation_history = '\n'.join(self.conversation_threads[message_id])
@@ -734,3 +766,6 @@ class EmailServer:
 
     with self.smtp_connection() as server:
       server.sendmail(from_email, all_recipients, msg.as_string())
+      print(
+          f"Email sent with Thread ID: {x_gm_thrid}, Subject: {subject}, Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+      )
