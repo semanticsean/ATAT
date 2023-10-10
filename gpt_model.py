@@ -122,11 +122,11 @@ class GPTModel:
         print("Content is too short to truncate further. Exiting.")
         return None
 
-    tokens_limit = max_tokens - total_tokens
-    print(
-        f"Final tokens: {total_tokens}, token limit for this request: {tokens_limit}"
-    )
+    # Change this line to set a default of 1500 tokens
+    tokens_limit = 1500
 
+    # Re-check the rate limit with the new token limit
+    total_tokens = self.count_tokens(full_content + dynamic_prompt) + api_buffer + tokens_limit
     self.check_rate_limit(total_tokens)
 
     response = None
