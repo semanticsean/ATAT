@@ -4,8 +4,21 @@ import json
 import os
 import threading
 import logging
+import quopri
 from shortcode import handle_document_short_code
 from gpt_model import GPTModel
+from datetime import datetime
+
+
+# Sample function to mock the datetime formatting
+def format_datetime_for_email():
+  return datetime.now().strftime('%a, %b %d, %Y at %I:%M %p')
+
+
+# Sample function to format Gmail-style note
+def format_note(agent_name, email="email@example.com"):
+  date_str = format_datetime_for_email()
+  return f'On {date_str} {agent_name} <{email}> wrote:'
 
 
 def load_instructions(filename='agents/instructions.json'):
@@ -80,6 +93,26 @@ class AgentSelector:
     dynamic_prompt += f" {instructions}. {persona_context}. Act as this agent."
 
     return dynamic_prompt
+
+  def format_conversation_history_html(self, history, agent_name):
+    gmail_note = format_note(agent_name)
+    decoded_history = quopri.decodestring(history).decode('utf-8')
+
+    # Nesting: Wrap existing history in another <blockquote>
+    nested_history = f'<blockquote>{decoded_history}</blockquote>'
+
+    # Attach Gmail note and new message
+    formatted_message = f'<div>{gmail_note}</div>{nested_history}'
+
+    return formatted_message
+
+  def format_conversation_history_plain(self, history):
+    decoded_history = quopri.decodestring(history).decode('utf-8')
+    # Remove HTML tags from the decoded history
+    decoded_history = self.strip_html_tags(decoded_history)
+    lines = decoded_history.split('\n')
+    output_lines = [f'>{line}' for line in lines]
+    return '\n'.join(output_lines)
 
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
                                               agent_manager, gpt_model):
@@ -193,10 +226,13 @@ class AgentSelector:
           response = gpt_model.generate_response(dynamic_prompt,
                                                  chunk,
                                                  self.conversation_history,
-                                                 is_summarize=True)
+                                                 is_summarize=False)
 
           responses.append(response)
-          self.conversation_history += f"\n{agent_name} said: {response}"
+          formatted_response = self.format_conversation_history_html(
+              response, agent_name)
+
+          self.conversation_history += f"\n{agent_name} said: {formatted_response}"
 
       # Handle Detail Type
       elif result['type'] == 'detail':
@@ -220,7 +256,10 @@ class AgentSelector:
                                                  is_summarize=False)
 
           responses.append(response)
-          self.conversation_history += f"\n{agent_name} said: {response}"
+          formatted_response = self.format_conversation_history_html(
+              response, agent_name)
+
+          self.conversation_history += f"\n{agent_name} said: {formatted_response}"
 
       # Handle Default Type
       else:
@@ -249,19 +288,25 @@ class AgentSelector:
                                                content,
                                                self.conversation_history,
                                                is_summarize=False)
+
         responses.append(response)
-        self.conversation_history += f"\n{agent_name} said: {response}"
+        formatted_response = self.format_conversation_history_html(
+            response, agent_name)
+
+        self.conversation_history += f"\n{agent_name} said: {formatted_response}"
         time.sleep(60)
 
       final_response = " ".join(responses)
+      formatted_final_response = self.format_conversation_history_html(final_response, agent_name)  # Added agent_name
       signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
-      final_response += signature
-
+      formatted_final_response += signature  # Append the signature
+      
       self.conversation_structure.setdefault("responses", []).append(
-          (agent_name, final_response))
-      logging.info(f"Generated response for {agent_name}: {final_response}")
-
-      self.last_agent_response = final_response
+          (agent_name, formatted_final_response))  # Store the formatted response
+      logging.info(f"Generated response for {agent_name}: {formatted_final_response}")
+      
+      self.last_agent_response = formatted_final_response
+      
 
       print("Dynamic Prompt:", dynamic_prompt)
       print("Content:", content)
