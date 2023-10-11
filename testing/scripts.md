@@ -1,20 +1,28 @@
+# test alpha 2 
+alpha 2 1:08 PM
+Wednesday, October 11, 2023 (PDT)
+los angeles 
+
 ✅  ff test basic
-✅  ff test 
 ✅  multiplayer 
 ✅  multiplayer many humans 
 ✅  many humans 
+✅  writes to processed_threads 
+✅  ff test 
 ✅  detail 
 ✅  summarize 
-
-
-✅  handles all threads 
-✅  only replies to most recent thread 
 ✅  history nesting 
-
-
-✅  writes to processed_threads 
-✅  doesn't violate api rules / no errors 
+✅  only replies to most recent thread 
 ✅  summarize 
+✅  handles all threads 
+✅  doesn't violate api rules / no errors 
+
+
+known issues: 
+formatting of history in fast forward history 
+prompt control for detail shortcodes / not an email / explain multi-part nature 
+processed threads weird comma thing 
+multiplayer putting response inside quoted content 
 
 
 

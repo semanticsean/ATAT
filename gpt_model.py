@@ -72,12 +72,12 @@ class GPTModel:
     self.save_state()
 
   def generate_response(self,
-                        dynamic_prompt,
-                        content,
-                        conversation_history,
-                        additional_context=None,
-                        note=None,
-                        is_summarize=False):
+                      dynamic_prompt,
+                      content,
+                      conversation_history,
+                      additional_context=None,
+                      note=None,
+                      is_summarize=False):
     print("Generating Response from gpt-4 call")
 
     max_retries = 99
@@ -86,9 +86,9 @@ class GPTModel:
 
     full_content = f"{content}\n\n{conversation_history}"
     if additional_context:
-      full_content += f"\n{additional_context}"
+        full_content += f"\n{additional_context}"
     if note:
-      full_content += f"\n{note}"
+        full_content += f"\n{note}"
 
     # Remove '>'' and '=' if they occur more than once in sequence
     full_content = re.sub(r'>>+', '', full_content)
@@ -106,21 +106,26 @@ class GPTModel:
     truncate_chars = 1000
 
     while True:
-      total_tokens = self.count_tokens(full_content +
-                                       dynamic_prompt) + api_buffer
-      self.check_rate_limit(total_tokens)
-      if total_tokens <= max_tokens:
-        print(f"Content is within limit at {total_tokens} tokens.")
-        break
-
-      if len(full_content) > truncate_chars:
-        print(
-            f"Total tokens: {total_tokens}, reducing by {truncate_chars} chars..."
-        )
-        full_content = full_content[:-truncate_chars]
-      else:
-        print("Content is too short to truncate further. Exiting.")
-        return None
+        total_tokens = self.count_tokens(full_content +
+                                         dynamic_prompt) + api_buffer
+        self.check_rate_limit(total_tokens)
+        if total_tokens <= max_tokens:
+            print(f"Content is within limit at {total_tokens} tokens.")
+            break
+        if len(conversation_history) > truncate_chars:
+            print(f"Total tokens: {total_tokens}, reducing conversation history by {truncate_chars} chars...")
+            conversation_history = conversation_history[-(len(conversation_history) - truncate_chars):]
+            full_content = f"{content}\n\n{conversation_history}"
+            if additional_context:
+                full_content += f"\n{additional_context}"
+            if note:
+                full_content += f"\n{note}"
+        elif len(full_content) > truncate_chars:
+            print(f"Total tokens: {total_tokens}, reducing full content by {truncate_chars} chars...")
+            full_content = full_content[:-truncate_chars]
+        else:
+            print("Content is too short to truncate further. Exiting.")
+            return None
 
     # Change this line to set a default of 1500 tokens
     tokens_limit = 1500
