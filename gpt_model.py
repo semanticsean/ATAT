@@ -154,8 +154,8 @@ class GPTModel:
             0.6
         }
 
-        #print("\n--- API Request Payload ---")
-        #print((json.dumps(request_payload, indent=4))[:140])
+        print("\n--- API Request Payload ---")
+        print((json.dumps(request_payload, indent=4)))
 
         response = openai.ChatCompletion.create(**request_payload)
 
