@@ -4902,3 +4902,61 @@ Best,
 2023-10-11 18:02:01,555 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 8332 tokens (6832 in the messages, 1500 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
 2023-10-11 18:04:06,988 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 8332 tokens (6832 in the messages, 1500 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
 2023-10-11 18:08:17,366 [INFO]: error_code=context_length_exceeded error_message="This model's maximum context length is 8192 tokens. However, you requested 8332 tokens (6832 in the messages, 1500 in the completion). Please reduce the length of the messages or completion." error_param=messages error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-10-11 18:42:53,254 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 06:42 PM devtester <devtester@semantic-life.com> wrote:</div><blockquote>{
+  "Section 8": {
+    "Powers": [
+      "To establish Post Offices and post Roads",
+      "To promote the Progress of Science and useful Arts",
+      "To constitute Tribunals inferior to the supreme Court",
+      "To define and punish Piracies and Felonies committed on the high Seas, and Offences against the Law of Nations",
+      "To declare War, grant Letters of Marque and Reprisal, and make Rules concerning Captures on Land and Water",
+      "To raise and support Armies",
+      "To provide and maintain a Navy",
+      "To make Rules for the Government and Regulation of the land and naval Forces",
+      "To provide for calling forth the Militia to execute the Laws of the Union, suppress Insurrections and repel Invasions",
+      "To provide for organizing, arming, and disciplining, the Militia, and for governing such Part of them as may be employed in the Service of the United States"
+    ]
+  },
+  "Section 9": {
+    "Regulations": [
+      {
+        "Migration or Importation": {
+          "Details": "Not prohibited by Congress prior to 1808, but a tax or duty may be imposed not exceeding ten dollars for each person"
+        }
+      },
+      {
+        "Habeas Corpus": {
+          "Details": "Shall not be suspended unless in cases of rebellion or invasion where public safety may require it"
+        }
+      },
+      {
+        "Law Restrictions": {
+          "Details": [
+            "No Bill of Attainder or ex post facto Law shall be passed",
+            "No Capitation, or other direct Tax shall be laid unless in proportion to the Census or enumeration directed to be taken",
+            "No Tax or Duty shall be laid on Articles exported from any State",
+            "No Preference shall be given by any Regulation of Commerce or Revenue to the Ports of one State over those of another",
+            "No Money shall be drawn from the Treasury, but in Consequence of Appropriations made by Law"
+          ]
+        }
+      },
+      {
+        "Nobility": {
+          "Details": "No Title of Nobility shall be granted by the United States"
+        }
+      }
+    ]
+  },
+  "Section 10": {
+    "State Restrictions": [
+      "No State shall enter into any Treaty, Alliance, or Confederation",
+      "No State shall grant Letters of Marque and Reprisal, coin Money, emit Bills of Credit",
+      "No State shall make any Thing but gold and silver Coin a Tender in Payment of Debts",
+      "No State shall pass any Bill of Attainder, ex post facto Law, or Law impairing the Obligation of Contracts, or grant any Title of Nobility",
+      "No State shall, without the Consent of the Congress, lay any Imposts or Duties on Imports or Exports",
+      "No State shall keep Troops, or Ships of War in time of Peace, enter into any Agreement or Compact with another State, or with a foreign Power"
+    ]
+  }
+}</blockquote>
+
+- GENERATIVE AI AGENT: devtester
