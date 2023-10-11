@@ -129,19 +129,21 @@ class EmailServer:
     print("Restarting system...")
     self.connect_to_imap_server()
 
-  def format_email_history_html(self, history):
+  def format_email_history_html(self, history, from_email, date):
     decoded_history = quopri.decodestring(history).decode('utf-8')
+    header = f"On {date} {from_email} wrote:"
     lines = decoded_history.split('<br>')
     output_lines = [f'<div>{line}</div>' for line in lines]
-    return f'<blockquote>{"".join(output_lines)}</blockquote>'
+    return f'<blockquote>{header}{"".join(output_lines)}</blockquote>'
 
-  def format_email_history_plain(self, history):
+  def format_email_history_plain(self, history, from_email, date):
     decoded_history = quopri.decodestring(history).decode('utf-8')
     # Remove HTML tags from the decoded history
     decoded_history = self.strip_html_tags(decoded_history)
+    header = f"On {date} {from_email} wrote:"
     lines = decoded_history.split('\n')
     output_lines = [f'>{line}' for line in lines]
-    return '\n'.join(output_lines)
+    return f'{header}\n' + '\n'.join(output_lines)
 
   def process_email(self, num):
     try:
@@ -176,9 +178,8 @@ class EmailServer:
         return None, None, None, None, None, None, None, None
 
       # Debugging: Print all the headers to see if X-GM-THRID is among them
-      for header in email_message.keys():
-        print(f"Debug header: {header}: {email_message.get(header)}")
-
+      #for header in email_message.keys():
+      # DEBUG HEADER: print(f"Debug header: {header}: {email_message.get(header)}")
 
       # Extract headers and content
       from_ = email_message['From']
@@ -313,6 +314,15 @@ class EmailServer:
         processed = self.process_single_thread(most_recent_unseen['num'])
         if not processed:
           print(f"Failed to process thread: {thread_key}")
+        else:
+          # Mark all other unseen emails in the same thread as seen
+          for unseen_email in unseen_list[1:]:
+            self.mark_as_seen(unseen_email['num'])
+            x_gm_thrid = thread_key if thread_key else unseen_email['subject']
+            self.update_processed_threads(unseen_email['message_id'],
+                                          x_gm_thrid, unseen_email['num'],
+                                          unseen_email['subject'], "", "",
+                                          unseen_email['from_'], "")
 
     except Exception as e:
       print(f"Exception while processing emails: {e}")
@@ -419,7 +429,7 @@ class EmailServer:
       # Reset conversation history for a new email thread
       self.agent_selector.reset_for_new_thread()
       print("Before human_threads initialization:", from_, to_emails,
-            cc_emails, thread_content, subject, message_id, references, num)
+            cc_emails, subject, message_id, references, num)
       human_threads = set()
       if from_ == self.smtp_username:
         print("Ignoring self-sent email.")
@@ -470,10 +480,6 @@ class EmailServer:
       print(f"Structured response generated: ")
       self.agent_selector.conversation_history += f"\nStructured Response: {structured_response}"  # Update conversation history
       thread_content = new_content
-
-      print(
-          f"thread content before self.agent_selector.get_agent_names... {thread_content}"
-      )
 
       recipient_emails = to_emails + cc_emails
       agents = self.agent_selector.get_agent_names_from_content_and_emails(
@@ -622,7 +628,8 @@ class EmailServer:
 
           # Format the email history based on content type
           formatted_email_history_html = self.format_email_history_html(
-              email_history)
+              email_history, from_,
+              datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
           # Debugging: Print the involved variables to trace the issue
           print("Debug: Response:", response)
@@ -630,7 +637,8 @@ class EmailServer:
                 formatted_email_history_html)
 
           formatted_email_history_plain = self.format_email_history_plain(
-              email_history)
+              email_history, from_,
+              datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
           print("Debug: Formatted email history HTML:",
                 formatted_email_history_html)
