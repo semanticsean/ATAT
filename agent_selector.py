@@ -223,7 +223,6 @@ class AgentSelector:
         self.conversation_history = self.conversation_history[-16000:]
 
         for idx, chunk in enumerate(chunks):
-          # Pass the modality and additional_context_chunk to _create_dynamic_prompt
           dynamic_prompt = self._create_dynamic_prompt(agent_manager,
                                                        agent_name,
                                                        order,
@@ -231,22 +230,14 @@ class AgentSelector:
                                                        structured_response,
                                                        modality=modality,
                                                        content=chunk)
+          response = gpt_model.generate_response(dynamic_prompt,
+                                                 chunk,
+                                                 self.conversation_history,
+                                                 is_summarize=False)
+          responses.append(response)
         else:
           additional_context_chunk = additional_context
 
-        dynamic_prompt = self._create_dynamic_prompt(agent_manager,
-                                                     agent_name,
-                                                     order,
-                                                     total_order,
-                                                     additional_context_chunk,
-                                                     modality=modality)
-
-        response = gpt_model.generate_response(dynamic_prompt,
-                                               chunk,
-                                               self.conversation_history,
-                                               is_summarize=False)
-
-        responses.append(response)
         formatted_response = self.format_conversation_history_html(
             response, agent_name, agent["email"], timestamp)
 
