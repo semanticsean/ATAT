@@ -446,17 +446,19 @@ class EmailServer:
       print(f"Handling email from: {from_}")
       print(f"To emails: {to_emails}")
       print(f"CC emails: {cc_emails}")
+
+      thread_content = self.strip_html_tags(thread_content)
       print(
-          f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:42]}..."
+          f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:242]}..."
       )
       # Debug: Print email content right before calling handle_document_short_code
       #print(f"Debug: Email content before handle_document_short_code: {thread_content}")
       result = handle_document_short_code(
-          thread_content, self.agent_selector.openai_api_key,
-          self.agent_selector.conversation_history)
+            thread_content, self.agent_selector.openai_api_key,
+            self.agent_selector.conversation_history)
 
       # Debug: Print the result of handle_document_short_code
-      print(f"Debug: Result of handle_document_short_code: {result}")
+      #print(f"Debug: Result of handle_document_short_code: {result}")
 
       if result is None:
         print(
@@ -491,7 +493,8 @@ class EmailServer:
 
       recipient_emails = to_emails + cc_emails
       agents = self.agent_selector.get_agent_names_from_content_and_emails(
-          thread_content, recipient_emails, self.agent_manager, self.gpt_model)
+            thread_content, recipient_emails, self.agent_manager, self.gpt_model)
+
 
       #print("Before agent assignment.")
       #print(f"Agent queue from get_agent_names_from_content_and_emails: {agents}")
@@ -696,7 +699,9 @@ class EmailServer:
 
       if all_responses_successful:
         if not references:
-          raise ValueError("references are unavailable.")
+          print("No references found, possibly the first email in the thread.")
+          references = message_id
+
         x_gm_thrid = references.split()[0]
 
         self.update_processed_threads(message_id, x_gm_thrid, num, subject,
