@@ -115,7 +115,7 @@ class EmailServer:
       with open(file_path, 'r') as file:
         try:
           threads = json.load(file)
-          print(f"Debug: Loaded processed_threads: {threads}")
+          #print(f"Debug: Loaded processed_threads: {threads}")
 
           self.validate_processed_threads(threads)
           return threads
@@ -149,9 +149,9 @@ class EmailServer:
     try:
 
       # Fetch the email content by UID
-      print(f"Debug: Fetching email with UID: {num}, Type: {type(num)}")
-      print(f"Debug: IMAP Server state: {self.imap_server.state}")
-      print(f"Debug: IMAP Server debug level: {self.imap_server.debug}")
+      # print(f"Debug: Fetching email with UID: {num}, Type: {type(num)}")
+      # print(f"Debug: IMAP Server state: {self.imap_server.state}")
+      # print(f"Debug: IMAP Server debug level: {self.imap_server.debug}")
       result, data = self.imap_server.uid(
           'fetch',
           num.decode('utf-8') if isinstance(num, bytes) else str(num),
@@ -161,15 +161,18 @@ class EmailServer:
       x_gm_thrid = None
       for response_part in data:
         if isinstance(response_part, tuple):
+          # Extract X-GM-THRID directly from the IMAP response
+          match = re.search(r'X-GM-THRID (\d+)',
+                            response_part[0].decode('utf-8'))
+          if match:
+            x_gm_thrid = match.group(1)
           msg = email.message_from_bytes(response_part[1])
-          if msg:
-            x_gm_thrid = msg.get("X-GM-THRID")
 
       if result != 'OK':
         print(f"Error fetching email content for UID {num}: {result}")
         return None, None, None, None, None, None, None, None
 
-      print(f"Raw email data type: {type(data[0][1])}")  # Debug statement
+      #print(f"Raw email data type: {type(data[0][1])}")  # Debug statement
       raw_email = data[0][1].decode("utf-8")
 
       email_message = email.message_from_string(raw_email)
@@ -218,7 +221,8 @@ class EmailServer:
         self.send_error_email(from_, subject, "Content too long")
         self.mark_as_seen(num)
         self.update_processed_threads(message_id, x_gm_thrid, num, subject,
-                                      in_reply_to, references)
+                                      in_reply_to, references, from_,
+                                      ','.join(to_emails + cc_emails))
 
         return None, None, None, None, None, None, None, None
 
@@ -233,7 +237,7 @@ class EmailServer:
 
         return None, None, None, None, None, None, None, None
 
-      x_gm_thrid = email_message.get('X-GM-THRID', '')
+      # x_gm_thrid = email_message.get('X-GM-THRID', '')
 
       return message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid
 
@@ -269,6 +273,9 @@ class EmailServer:
               f"Skipping already processed message with UID {num} in thread {x_gm_thrid}."
           )
           return True
+    print(
+        f"is_email_processed allowing response of UID {num} in thread {x_gm_thrid}."
+    )
     return False
 
   def process_emails(self):
@@ -292,7 +299,10 @@ class EmailServer:
           continue
 
         # Use x_gm_thrid if available, else use subject
-        thread_key = x_gm_thrid if x_gm_thrid else subject
+        if x_gm_thrid is None or x_gm_thrid == "":
+          raise ValueError("x_gm_thrid is unavailable.")
+
+        thread_key = x_gm_thrid
 
         if thread_key not in thread_to_unseen:
           thread_to_unseen[thread_key] = []
@@ -318,7 +328,10 @@ class EmailServer:
           # Mark all other unseen emails in the same thread as seen
           for unseen_email in unseen_list[1:]:
             self.mark_as_seen(unseen_email['num'])
-            x_gm_thrid = thread_key if thread_key else unseen_email['subject']
+            if not thread_key:
+              raise ValueError("thread_key is unavailable.")
+            x_gm_thrid = thread_key
+
             self.update_processed_threads(unseen_email['message_id'],
                                           x_gm_thrid, unseen_email['num'],
                                           unseen_email['subject'], "", "",
@@ -358,9 +371,7 @@ class EmailServer:
       # Ensure num is decoded to a string if it's bytes
       num_str = num.decode('utf-8') if isinstance(num, bytes) else str(num)
       # Debug print
-      print(
-          f"Debug: Marking email as seen with UID: {num_str}, Type: {type(num_str)}"
-      )
+      #print( f"Debug: Marking email as seen with UID: {num_str}, Type: {type(num_str)}" )
       # Debug: Check IMAP Server state before issuing STORE command
       print(
           f"Debug: IMAP Server state before STORE command: {self.imap_server.state}"
@@ -402,7 +413,7 @@ class EmailServer:
         'subject': subject,
         'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'),
         'sender': sender,
-        'receiver': receiver,
+        'receiver': ','.join(receiver),
         'in_reply_to': in_reply_to,
         'references': references
     }
@@ -421,15 +432,12 @@ class EmailServer:
       )
       shortcode_type = None
       print("Entered handle_incoming_email")
-      print(
-          f"Debug: Email content at start of handle_incoming_email: {thread_content[:50]}"
-      )
+      #print(f"Debug: Email content at start of handle_incoming_email:{thread_content[:50]}")
 
       new_content = thread_content
       # Reset conversation history for a new email thread
       self.agent_selector.reset_for_new_thread()
-      print("Before human_threads initialization:", from_, to_emails,
-            cc_emails, subject, message_id, references, num)
+      #print("Before human_threads initialization:", from_, to_emails,cc_emails, subject, message_id, references, num)
       human_threads = set()
       if from_ == self.smtp_username:
         print("Ignoring self-sent email.")
@@ -439,7 +447,7 @@ class EmailServer:
       print(f"To emails: {to_emails}")
       print(f"CC emails: {cc_emails}")
       print(
-          f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:100]}..."
+          f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:42]}..."
       )
       # Debug: Print email content right before calling handle_document_short_code
       #print(f"Debug: Email content before handle_document_short_code: {thread_content}")
@@ -485,22 +493,20 @@ class EmailServer:
       agents = self.agent_selector.get_agent_names_from_content_and_emails(
           thread_content, recipient_emails, self.agent_manager, self.gpt_model)
 
-      print("Before agent assignment.")
-      print(
-          f"Agent queue from get_agent_names_from_content_and_emails: {agents}"
-      )
+      #print("Before agent assignment.")
+      #print(f"Agent queue from get_agent_names_from_content_and_emails: {agents}")
 
-      print(f"Raw agents list before filtering: {agents}")
+      #print(f"Raw agents list before filtering: {agents}")
       # Filter out invalid agent info and ensure we unpack the expected format
       agents = [
           agent_info for agent_info in agents
           if isinstance(agent_info, tuple) and len(agent_info) == 2
       ]
-      print(f"Filtered agents: {agents}")
+      #print(f"Filtered agents: {agents}")
       if not agents:
         logging.warning("No valid agent info found")
         return False
-      print("There are valid agents to process.")
+      #print("There are valid agents to process.")
       print(f"Identified agents: {agents}")
 
       # Check if this thread has been processed before
@@ -538,7 +544,7 @@ class EmailServer:
         )
         return False
 
-      print(f"Unpacking agents: {agents}")
+      #print(f"Unpacking agents: {agents}")
 
       for agent_info in agents:
         if len(agent_info) != 2:
@@ -583,7 +589,7 @@ class EmailServer:
           # Check for explicit tags or 'ff!' shortcode in the content
           if "!ff!" not in thread_content and not any(
               f"!ff({name})!" in thread_content for name, _ in agents):
-            print("Thread Content:", thread_content)
+            #print("Thread Content:", thread_content)
             print(
                 f"Skipping response from {agent_name} to prevent agent-to-agent loop."
             )
@@ -632,18 +638,15 @@ class EmailServer:
               datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
           # Debugging: Print the involved variables to trace the issue
-          print("Debug: Response:", response)
-          print("Debug: Formatted email history HTML:",
-                formatted_email_history_html)
+          #print("Debug: Response:", response)
+          #print("Debug: Formatted email history HTML:",formatted_email_history_html)
 
           formatted_email_history_plain = self.format_email_history_plain(
               email_history, from_,
               datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
-          print("Debug: Formatted email history HTML:",
-                formatted_email_history_html)
-          print("Debug: Formatted email history Plain:",
-                formatted_email_history_plain)
+          #print("Debug: Formatted email history HTML:",formatted_email_history_html)
+          #print("Debug: Formatted email history Plain:",formatted_email_history_plain)
 
           response = response.replace("\n", "<br/>")
           part1_plain = MIMEText(f"{response}\n", 'plain', "utf-8")
@@ -692,7 +695,10 @@ class EmailServer:
             print(".")
 
       if all_responses_successful:
-        x_gm_thrid = references.split()[0] if references else subject
+        if not references:
+          raise ValueError("references are unavailable.")
+        x_gm_thrid = references.split()[0]
+
         self.update_processed_threads(message_id, x_gm_thrid, num, subject,
                                       in_reply_to, references, from_,
                                       ','.join(to_emails + cc_emails))

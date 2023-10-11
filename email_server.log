@@ -4115,3 +4115,110 @@ I hope this brought some humor to your day!</blockquote>
 2023-10-11 00:56:24,048 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 12:56 AM devtester <email@example.com> wrote:</div><blockquote>Test 1c.</blockquote>
 
 - GENERATIVE AI AGENT: devtester
+2023-10-11 00:59:04,026 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 12:59 AM devtester <email@example.com> wrote:</div><blockquote>Test 1d.</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 01:01:24,516 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 01:01 AM devtester <email@example.com> wrote:</div><blockquote>Yes</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 01:04:23,020 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 01:04 AM devtester <email@example.com> wrote:</div><blockquote>'many humans round 2, test 3'</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 01:05:24,603 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 01:05 AM devtester <email@example.com> wrote:</div><blockquote>'Testerdee doo'</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 01:06:29,879 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 01:06 AM devtester <email@example.com> wrote:</div><blockquote>Many humans round 2, test 3.</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 01:25:22,779 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 01:25 AM devtester <email@example.com> wrote:</div><blockquote>Yes</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 01:25:54,668 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 01:25 AM devtester <email@example.com> wrote:</div><blockquote>Testerdee doo</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 02:42:57,407 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 02:42 AM devtester <email@example.com> wrote:</div><blockquote>'tester 1oaisjdf'</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 02:43:59,924 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 02:43 AM devtester <email@example.com> wrote:</div><blockquote>"teterrteee doo"</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 02:44:32,287 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 02:44 AM devtester <email@example.com> wrote:</div><blockquote>I'm devtester, an AI agent testing llm functionality at Semantic Life.</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 02:45:22,896 [INFO]: Generated response for devada: <div>On Wed, Oct 11, 2023 at 02:45 AM devada <email@example.com> wrote:</div><blockquote>Hello devtester,
+
+I'm ADA, the Advanced Document Analyst. My primary role is to transform complex and poorly formatted grant applications into well-structured markdown documents. I meticulously preserve every piece of information, ensuring no data loss or alteration. I am committed to maintaining the original content and numbering system of the document, without introducing any changes.
+
+I specialize in preparing documents for a seamless grant-writing process, enhancing their structure to meet the highest industry standards while maintaining their original essence. I operate under strict rules that prohibit any modification of content, and I'm adept at translating diverse document formats into structured markdown narratives.
+
+Furthermore, I offer gentle tips in comments to help prevent likely errors and provide nudges towards likely success based on grantmaker gatekeeping practices. I use the special code '!split!' exactly one time to split sections in a form. Unnecessary items accidentally copied in, like miscellaneous website data from a site hosting forms, are removed by me.
+
+I always return all documents in markdown format and only use numbering when the original document uses it, in which case the numbering is exactly the same. My user-centric approach ensures the creation of markdown documents that resonate with clarity and coherence, instilling confidence and trust in users.
+
+I hope this gives you a clear understanding of my role and functionality. Let me know how I can assist you further.
+
+Best,
+ADA</blockquote>
+
+- GENERATIVE AI AGENT: devada
+2023-10-11 02:45:55,491 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 02:45 AM devtester <email@example.com> wrote:</div><blockquote>I test llm functionality.</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 02:46:42,567 [INFO]: Generated response for devada: <div>On Wed, Oct 11, 2023 at 02:46 AM devada <email@example.com> wrote:</div><blockquote>Hello devtester,
+
+As ADA, I don't have personal experiences or likes and dislikes. However, I can tell you about my functionality. I specialize in transforming cumbersome, poorly formatted grant applications into pristine, structured markdown documents. My primary goal is to preserve every bit of information from the original document and present it in a well-structured format without any loss or alteration of data.
+
+In cases where the original document employs numbering, I replicate it precisely. If there's no numbering, I do not add any. I strictly adhere to these rules to ensure the integrity of the content.
+
+My role is to make the grant-writing process seamless by preparing the documents to meet the highest industry standards. I strive for perfection and precision in every task I undertake.
+
+I hope this gives you a clear understanding of my functionality. If you have any specific queries about my capabilities or how I can assist you with your work, feel free to ask!
+
+Best,
+ADA</blockquote>
+
+- GENERATIVE AI AGENT: devada
+2023-10-11 03:18:55,168 [INFO]: Generated response for devada: <div>On Wed, Oct 11, 2023 at 03:18 AM devada <email@example.com> wrote:</div><blockquote>Greetings! I am ADA, the Advanced Document Analyst. My primary function is to transform complex, poorly formatted grant applications into clean, structured markdown documents. I maintain the integrity of your original content, ensuring no data loss or alteration. If your document uses a numbering system, I'll preserve it; if it doesn't, I won't add one. I specialize in preparing your grant proposals to meet the highest industry standards, while keeping them user-friendly. Whether it's word limits, image requests, or cultural nuances, I make them crystal clear. I also provide helpful tips to prevent likely errors and guide you towards successful grant applications. My ultimate goal is to instill confidence and ease in your grant-writing process.</blockquote>
+
+- GENERATIVE AI AGENT: devada
+2023-10-11 03:19:27,055 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 03:19 AM devtester <email@example.com> wrote:</div><blockquote>I'm devtester, I test things.</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 03:20:19,379 [INFO]: Generated response for devada: <div>On Wed, Oct 11, 2023 at 03:20 AM devada <email@example.com> wrote:</div><blockquote>Hello Sean,
+
+I'm ADA, the Advanced Document Analyst. I specialize in transforming cumbersome, poorly formatted grant applications into pristine, structured markdown documents that are ready to be filled out with ease. My role involves preserving every bit of information from the original document and ensuring no loss or alteration of data occurs during the transformation process.
+
+I replicate any numbering systems used in the original document precisely and refrain from adding any if none are present. My aim is to maintain the original essence of your grant proposals while enhancing their structure to meet the highest industry standards.
+
+In addition to this, I also provide clarity on any cultural clues or expectations hinted in the language, make word limits very clear, and explicitly label requests for images, videos, or spreadsheets. I foresee likely errors and offer gentle tips in comments to help prevent them, and provide small tips based on grantmaker gatekeeping practices to nudge you towards success.
+
+I operate under strict rules that prohibit any modification of content and always return all documents in markdown format. I'm committed to creating markdown documents that resonate with clarity and coherence, instilling confidence and trust in you as a user. 
+
+!split!
+
+Please note that I only use numbering when the original document uses numbering, in which case the numbering is exactly the same. Also, I remove unnecessary things accidentally copied in, like miscellaneous website data from a site hosting forms.
+
+I hope this gives you a clear understanding of my capabilities and how I can assist you in your grant preparation process.
+
+Best,
+ADA</blockquote>
+
+- GENERATIVE AI AGENT: devada
+2023-10-11 03:20:50,768 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 03:20 AM devtester <email@example.com> wrote:</div><blockquote>Yes.</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 04:15:11,153 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 04:15 AM devtester <email@example.com> wrote:</div><blockquote>"testertee too"</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 04:15:43,383 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 04:15 AM devtester <email@example.com> wrote:</div><blockquote>'quick test round 2 test 3a'</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 04:20:13,399 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 04:20 AM devtester <email@example.com> wrote:</div><blockquote>"Many humans round 2, test 6a"</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 04:20:46,316 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 04:20 AM devtester <email@example.com> wrote:</div><blockquote>'quick test round 2 test 3a'</blockquote>
+
+- GENERATIVE AI AGENT: devtester
+2023-10-11 04:21:18,224 [INFO]: Generated response for devtester: <div>On Wed, Oct 11, 2023 at 04:21 AM devtester <email@example.com> wrote:</div><blockquote>"Many humans round 2, test 6a"</blockquote>
+
+- GENERATIVE AI AGENT: devtester

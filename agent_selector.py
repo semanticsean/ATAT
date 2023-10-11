@@ -294,7 +294,7 @@ class AgentSelector:
             response, agent_name)
 
         self.conversation_history += f"\n{agent_name} said: {formatted_response}"
-        time.sleep(60)
+        time.sleep(30)
 
       final_response = " ".join(responses)
       formatted_final_response = self.format_conversation_history_html(final_response, agent_name)  # Added agent_name
@@ -308,7 +308,7 @@ class AgentSelector:
       self.last_agent_response = formatted_final_response
       
 
-      print("Dynamic Prompt:", dynamic_prompt)
-      print("Content:", content)
+      #print("Dynamic Prompt:", dynamic_prompt)
+      #print("Content:", content)
 
       return final_response
