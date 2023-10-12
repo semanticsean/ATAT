@@ -8,6 +8,9 @@ import quopri
 from shortcode import handle_document_short_code
 from gpt_model import GPTModel
 from datetime import datetime
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 # Sample function to mock the datetime formatting
@@ -106,14 +109,21 @@ class AgentSelector:
   def safe_ascii_string(s):
     return ''.join(c if ord(c) < 128 else '?' for c in s)
 
-  def format_conversation_history_html(self, history, agent_name, email,
-                                       timestamp):
+  def format_conversation_history_html(self,
+                                       history,
+                                       agent_name,
+                                       email,
+                                       timestamp,
+                                       existing_history=None):
     gmail_note = format_note(agent_name, email, timestamp)
-    history = AgentSelector.safe_ascii_string(history)
-    decoded_history = quopri.decodestring(history).decode('utf-8')
-    nested_history = f'<blockquote>{decoded_history}</blockquote>'
-    formatted_message = f'<div>{gmail_note}</div>{nested_history}'
+    if history is not None:
+      history = AgentSelector.safe_ascii_string(history)
+    else:
+      history = ""
 
+    decoded_history = quopri.decodestring(history).decode('utf-8')
+    nested_history = f'<blockquote>{existing_history}{decoded_history}</blockquote>'
+    formatted_message = f'<div>{gmail_note}</div>{nested_history}'
     return formatted_message
 
   def format_conversation_history_plain(self, history, agent_name, email,
@@ -122,9 +132,10 @@ class AgentSelector:
     decoded_history = quopri.decodestring(history).decode('utf-8')
     decoded_history = re.sub(r'<[^>]+>', '', decoded_history)
     lines = decoded_history.split('\n')
+    nested_history = '\n'.join(
+        [f'>{line}' for line in self.conversation_history.split('\n')]) + '\n'
     output_lines = [f'>{line}' for line in lines]
-
-    return f"{gmail_note}\n" + '\n'.join(output_lines)
+    return f"{gmail_note}\n{nested_history}" + '\n'.join(output_lines)
 
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
                                               agent_manager, gpt_model):
@@ -251,6 +262,11 @@ class AgentSelector:
         for i, c in enumerate(chunks):
           logging.info(f"Chunk {i}: {c[:50]}...")
 
+        custom_instruction_for_detail = "THIS IS A MULTI-PART LOOP ASSEMBLING A LARGE MESSAGE IN CHUNKS. IN THIS CASE DO NOT RESPOND AS THOUGH IT IS AN EMAIL IN SPITE OF PRIOR INSTRUCTIONS, JUST PROVIDE THE CONTENT. IF ANSWERING FORM QUESTIONS ANSWER THEM THOROUGHLY AND PLACE THE QUESTION YOU ARE ANSWERING ABOVE THE ANSWER, RESTATING IT."
+        responses = []
+      
+          
+
         for idx, chunk in enumerate(chunks):
           dynamic_prompt = self._create_dynamic_prompt(agent_manager,
                                                        agent_name,
@@ -258,6 +274,9 @@ class AgentSelector:
                                                        total_order,
                                                        additional_context,
                                                        modality=modality)
+
+          # Add the custom instruction to the dynamic prompt
+          dynamic_prompt += f" {custom_instruction_for_detail}"
 
           response = gpt_model.generate_response(dynamic_prompt,
                                                  chunk,
@@ -270,56 +289,61 @@ class AgentSelector:
 
           self.conversation_history += f"\n{agent_name} said: {formatted_response}"
 
-      # Handle Default Type
-      else:
-        structured_response_json = {}
-        if structured_response and structured_response.strip():
-          try:
-            structured_response_dict = json.loads(structured_response)
-            structured_response_type = structured_response_dict.get(
-                'type', None)
-            structured_response_content = structured_response_dict.get(
-                'structured_response', None)
-            if structured_response_type and structured_response_content:
-              additional_context = f"\nGuidelines for crafting response:\n{json.dumps(structured_response_content, indent=4)}"
-              content = new_content
-          except json.JSONDecodeError:
-            logging.warning("Unable to parse structured response as JSON.")
-            additional_context = structured_response
+        
+          logging.debug(f"Appending response {idx}")
+          responses.append(response)
+        logging.debug(f"Final Responses: {responses}")
 
-        dynamic_prompt = self._create_dynamic_prompt(agent_manager,
-                                                     agent_name,
-                                                     order,
-                                                     total_order,
-                                                     additional_context,
-                                                     modality=modality)
-        response = gpt_model.generate_response(dynamic_prompt,
-                                               content,
-                                               self.conversation_history,
-                                               is_summarize=False)
+        # Handle Default Type
+        else:
+          structured_response_json = {}
+          if structured_response and structured_response.strip():
+            try:
+              structured_response_dict = json.loads(structured_response)
+              structured_response_type = structured_response_dict.get(
+                  'type', None)
+              structured_response_content = structured_response_dict.get(
+                  'structured_response', None)
+              if structured_response_type and structured_response_content:
+                additional_context = f"\nGuidelines for crafting response:\n{json.dumps(structured_response_content, indent=4)}"
+                content = new_content
+            except json.JSONDecodeError:
+              logging.warning("Unable to parse structured response as JSON.")
+              additional_context = structured_response
 
-        responses.append(response)
-        formatted_response = self.format_conversation_history_html(
-            response, agent_name, agent["email"], timestamp)
+          dynamic_prompt = self._create_dynamic_prompt(agent_manager,
+                                                       agent_name,
+                                                       order,
+                                                       total_order,
+                                                       additional_context,
+                                                       modality=modality)
+          response = gpt_model.generate_response(dynamic_prompt,
+                                                 content,
+                                                 self.conversation_history,
+                                                 is_summarize=False)
 
-        self.conversation_history += f"\n{agent_name} said: {formatted_response}"
-        time.sleep(30)
+          responses.append(response)
+          formatted_response = self.format_conversation_history_html(
+              response, agent_name, agent["email"], timestamp)
 
-      final_response = " ".join(responses)
-      formatted_final_response = self.format_conversation_history_html(
-          final_response, agent_name, agent["email"], timestamp)
-      signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
-      formatted_final_response += signature  # Append the signature
+          self.conversation_history += f"\n{agent_name} said: {formatted_response}"
+          time.sleep(30)
 
-      self.conversation_structure.setdefault("responses", []).append(
-          (agent_name,
-           formatted_final_response))  # Store the formatted response
-      logging.info(
-          f"Generated response for {agent_name}: {formatted_final_response}")
+        final_response = " ".join(responses)
+        formatted_final_response = self.format_conversation_history_html(
+            final_response, agent_name, agent["email"], timestamp)
+        signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
+        formatted_final_response += signature  # Append the signature
 
-      self.last_agent_response = formatted_final_response
+        self.conversation_structure.setdefault("responses", []).append(
+            (agent_name,
+             formatted_final_response))  # Store the formatted response
+        logging.info(
+            f"Generated response for {agent_name}: {formatted_final_response}")
 
-      #print("Dynamic Prompt:", dynamic_prompt)
-      #print("Content:", content)
+        self.last_agent_response = formatted_final_response
 
-      return final_response
+        #print("Dynamic Prompt:", dynamic_prompt)
+        #print("Content:", content)
+
+        return final_response

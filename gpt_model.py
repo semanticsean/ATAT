@@ -52,8 +52,8 @@ class GPTModel:
       self.api_calls_in_current_window = 0
 
     # Calculate remaining tokens and API calls in the current window
-    remaining_tokens = 10000 - self.tokens_used_in_current_window
-    remaining_api_calls = 200 - self.api_calls_in_current_window
+    remaining_tokens = 8000 - self.tokens_used_in_current_window
+    remaining_api_calls = 2000 - self.api_calls_in_current_window
 
     # If either limit would be exceeded, sleep until the next window
     if tokens_needed > remaining_tokens or remaining_api_calls <= 0:
@@ -84,7 +84,7 @@ class GPTModel:
     delay = 62
     max_delay = 3000
 
-    full_content = f"{content}\n\n{conversation_history}"
+    full_content = f"{content}\n\n{conversation_history}" 
     if additional_context:
         full_content += f"\n{additional_context}"
     if note:
@@ -101,25 +101,32 @@ class GPTModel:
     email_pattern = r'\S+@\S+\.(com|net|co|org|ai)'
     full_content = re.sub(email_pattern, '', full_content)
 
-    max_tokens = 8100
+    
     api_buffer = 50
     truncate_chars = 1000
 
+    max_tokens_hard_limit = 8100
+    tokens_limit = 1500  # max tokens for the response
+
     while True:
-        total_tokens = self.count_tokens(full_content +
-                                         dynamic_prompt) + api_buffer
-        self.check_rate_limit(total_tokens)
-        if total_tokens <= max_tokens:
-            print(f"Content is within limit at {total_tokens} tokens.")
+        total_tokens = self.count_tokens(full_content + dynamic_prompt) + api_buffer
+        if total_tokens + tokens_limit <= max_tokens_hard_limit:
+            print(f"Content is within hard limit at {total_tokens + tokens_limit} tokens.")
             break
         if len(conversation_history) > truncate_chars:
             print(f"Total tokens: {total_tokens}, reducing conversation history by {truncate_chars} chars...")
             conversation_history = conversation_history[-(len(conversation_history) - truncate_chars):]
-            full_content = f"{content}\n\n{conversation_history}"
-            if additional_context:
-                full_content += f"\n{additional_context}"
-            if note:
-                full_content += f"\n{note}"
+        elif len(full_content) > truncate_chars:
+            print(f"Total tokens: {total_tokens}, reducing full content by {truncate_chars} chars...")
+            full_content = full_content[:-truncate_chars]
+        else:
+            print("Content is too short to truncate further. Exiting.")
+            return None
+        full_content = f"{content}\n\n{conversation_history}"
+        if additional_context:
+            full_content += f"\n{additional_context}"
+        if note:
+            full_content += f"\n{note}"
         elif len(full_content) > truncate_chars:
             print(f"Total tokens: {total_tokens}, reducing full content by {truncate_chars} chars...")
             full_content = full_content[:-truncate_chars]
@@ -159,8 +166,8 @@ class GPTModel:
             0.6
         }
 
-        print("\n--- API Request Payload ---")
-        print((json.dumps(request_payload, indent=4)))
+        #print("\n--- API Request Payload ---")
+        #print((json.dumps(request_payload, indent=4)))
 
         response = openai.ChatCompletion.create(**request_payload)
 
