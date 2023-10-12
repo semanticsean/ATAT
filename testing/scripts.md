@@ -1,3 +1,14 @@
+ff advanced cutting off at 3 rounds 
+
+detail sending each twice 
+
+
+
+
+
+
+
+
 # test alpha 2 
 alpha 2 1:08 PM
 Wednesday, October 11, 2023 (PDT)
