@@ -334,8 +334,7 @@ class AgentSelector:
       self.conversation_structure.setdefault("responses", []).append(
           (agent_name,
            formatted_final_response))  # Store the formatted response
-      #logging.info(
-          f"Generated response for {agent_name}: {formatted_final_response}")
+      #logging.info(f"Generated response for {agent_name}: {formatted_final_response}")
 
       self.last_agent_response = formatted_final_response
 
