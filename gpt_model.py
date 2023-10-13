@@ -116,17 +116,20 @@ class GPTModel:
         if len(conversation_history) > truncate_chars:
             print(f"Total tokens: {total_tokens}, reducing conversation history by {truncate_chars} chars...")
             conversation_history = conversation_history[-(len(conversation_history) - truncate_chars):]
+            full_content = f"{content}\n\n{conversation_history}"  # Update here
         elif len(full_content) > truncate_chars:
             print(f"Total tokens: {total_tokens}, reducing full content by {truncate_chars} chars...")
             full_content = full_content[:-truncate_chars]
+            # No need to re-assemble full_content here; it's already updated
         else:
             print("Content is too short to truncate further. Exiting.")
             return None
-        full_content = f"{content}\n\n{conversation_history}"
+    
         if additional_context:
             full_content += f"\n{additional_context}"
         if note:
             full_content += f"\n{note}"
+    
         elif len(full_content) > truncate_chars:
             print(f"Total tokens: {total_tokens}, reducing full content by {truncate_chars} chars...")
             full_content = full_content[:-truncate_chars]

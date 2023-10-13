@@ -1,18 +1,23 @@
-ff advanced cutting off at 3 rounds 
+# test alpha 9
+Wednesday, October 11, 2023 (PDT)
 
-detail sending each twice 
+✅  mh mp alpha test 8
+✅  history nesting  (non ff)
+✅  mh test alpha 8
+✅  summarize alpha test 9 simple
+✅  summarize extended alpha test 9
+✅  detail test basic alpha 8
+✅  handles all threads 
+✅  doesn't violate api rules 
 
-
-
-
-
+🚩  ff no response 
+🚩  hang on extra large gpt calls needing reduction 
 
 
 
 # test alpha 2 
 alpha 2 1:08 PM
 Wednesday, October 11, 2023 (PDT)
-los angeles 
 
 ✅  ff test basic 
 ✅  multiplayer 
@@ -34,6 +39,8 @@ formatting of history in fast forward history
 prompt control for detail shortcodes / not an email / explain multi-part nature 
 processed threads weird comma thing 
 multiplayer putting response inside quoted content 
+ff advanced cutting off at 3 rounds 
+detail sending each twice 
 
 
 
