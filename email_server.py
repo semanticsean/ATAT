@@ -10,6 +10,7 @@ import openai
 import quopri
 import tempfile
 import shutil
+from pdf2text import extract_pdf_text
 from contextlib import contextmanager
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
@@ -51,7 +52,7 @@ class EmailServer:
   def start(self):
     print("Started email server")
     restart_counter = 0
-    MAX_RESTARTS = 5
+    MAX_RESTARTS = 500
     sleep_time = 620  # Sleep time in seconds
 
     while True:
@@ -130,14 +131,26 @@ class EmailServer:
     self.connect_to_imap_server()
 
   def format_email_history_html(self, history, from_email, date):
-    decoded_history = quopri.decodestring(history).decode('utf-8')
+    try:
+      decoded_history = quopri.decodestring(history).decode('utf-8')
+    except ValueError:
+      logging.warning(
+          "Unable to decode email history with quopri. Using the original string."
+      )
+      decoded_history = history
     header = f"On {date} {from_email} wrote:"
     lines = decoded_history.split('<br>')
     output_lines = [f'<div>{line}</div>' for line in lines]
     return f'<blockquote>{header}{"".join(output_lines)}</blockquote>'
 
   def format_email_history_plain(self, history, from_email, date):
-    decoded_history = quopri.decodestring(history).decode('utf-8')
+    try:
+      decoded_history = quopri.decodestring(history).decode('utf-8')
+    except ValueError:
+      logging.warning(
+          "Unable to decode email history with quopri. Using the original string."
+      )
+      decoded_history = history
     # Remove HTML tags from the decoded history
     decoded_history = self.strip_html_tags(decoded_history)
     header = f"On {date} {from_email} wrote:"
@@ -147,42 +160,31 @@ class EmailServer:
 
   def process_email(self, num):
     try:
+      # Standardize the num to string type
+      num_str = num.decode('utf-8') if isinstance(num, bytes) else str(num)
 
       # Fetch the email content by UID
-      # print(f"Debug: Fetching email with UID: {num}, Type: {type(num)}")
-      # print(f"Debug: IMAP Server state: {self.imap_server.state}")
-      # print(f"Debug: IMAP Server debug level: {self.imap_server.debug}")
-      result, data = self.imap_server.uid(
-          'fetch',
-          num.decode('utf-8') if isinstance(num, bytes) else str(num),
-          '(RFC822 X-GM-THRID)')
-
-      # Extract X-GM-THRID directly from data
-      x_gm_thrid = None
-      for response_part in data:
-        if isinstance(response_part, tuple):
-          # Extract X-GM-THRID directly from the IMAP response
-          match = re.search(r'X-GM-THRID (\d+)',
-                            response_part[0].decode('utf-8'))
-          if match:
-            x_gm_thrid = match.group(1)
-          msg = email.message_from_bytes(response_part[1])
-
+      result, data = self.imap_server.uid('fetch', num_str,
+                                          '(RFC822 X-GM-THRID)')
       if result != 'OK':
         print(f"Error fetching email content for UID {num}: {result}")
         return None, None, None, None, None, None, None, None
 
-      #print(f"Raw email data type: {type(data[0][1])}")  # Debug statement
-      raw_email = data[0][1].decode("utf-8")
+      # Initialize variables
+      x_gm_thrid = None
+      raw_email = None
+      for response_part in data:
+        if isinstance(response_part, tuple):
+          match = re.search(r'X-GM-THRID (\d+)',
+                            response_part[0].decode('utf-8'))
+          if match:
+            x_gm_thrid = match.group(1)
+          raw_email = response_part[1].decode("utf-8")
 
       email_message = email.message_from_string(raw_email)
       if not email_message:
         print(f"Error: email_message object is None for UID {num}")
         return None, None, None, None, None, None, None, None
-
-      # Debugging: Print all the headers to see if X-GM-THRID is among them
-      #for header in email_message.keys():
-      # DEBUG HEADER: print(f"Debug header: {header}: {email_message.get(header)}")
 
       # Extract headers and content
       from_ = email_message['From']
@@ -196,24 +198,38 @@ class EmailServer:
       references = email_message.get('References', '')
 
       content = ""
-      if email_message.is_multipart():
-        for part in email_message.get_payload():
-          if part.get_content_type() == 'text/plain' or part.get_content_type(
-          ) == 'text/html':
-            content_encoding = part.get("Content-Transfer-Encoding")
-            payload = part.get_payload()
-            if content_encoding == 'base64':
-              content = base64.b64decode(payload).decode('utf-8')
-            else:
-              content = payload
-      else:
-        content = email_message.get_payload()
-        content = self.strip_html_tags(content)
+      pdf_attachments = []
+
+      # Extract body and PDF content
+      for part in email_message.walk():
+        if part.get_content_type() == 'text/plain' or part.get_content_type(
+        ) == 'text/html':
+          content_encoding = part.get("Content-Transfer-Encoding")
+          payload = part.get_payload()
+          if content_encoding == 'base64':
+            content += base64.b64decode(payload).decode('utf-8')
+          else:
+            content += payload
+
+        elif part.get_content_type() == 'application/pdf':
+          pdf_data = part.get_payload(decode=True)
+          pdf_text = extract_pdf_text(pdf_data)
+          pdf_attachments.append({
+              'filename': part.get_filename(),
+              'text': pdf_text
+          })
+
+      # Append PDF contents to the content
+      for pdf_attachment in pdf_attachments:
+        pdf_text = pdf_attachment.get('text', '')
+        if pdf_text:
+          pdf_label = f"PDF: {pdf_attachment['filename']}"
+          content += f"\n\n{pdf_label}\n{pdf_text}\n{pdf_label}\n"
 
       # Adjust character limit based on the presence of !detail or !summarize shortcodes
-      MAX_LIMIT = 35000
+      MAX_LIMIT = 350000
       if "!detail" in content or re.search(r"!summarize\.", content):
-        MAX_LIMIT = 200000
+        MAX_LIMIT = 2000000
 
       # Check if the content is too long
       if len(content) > MAX_LIMIT:
@@ -223,22 +239,9 @@ class EmailServer:
         self.update_processed_threads(message_id, x_gm_thrid, num, subject,
                                       in_reply_to, references, from_,
                                       ','.join(to_emails + cc_emails))
-
         return None, None, None, None, None, None, None, None
 
-      # Check if the email contains attachments
-      if email_message.is_multipart() and any(
-          part.get_filename() for part in email_message.get_payload()):
-        print(f"Attachments found in email with UID {num}")
-        self.send_error_email(from_, subject, "Attachments not allowed")
-        self.mark_as_seen(num)
-        self.update_processed_threads(message_id, x_gm_thrid, num, subject,
-                                      in_reply_to, references)
-
-        return None, None, None, None, None, None, None, None
-
-      # x_gm_thrid = email_message.get('X-GM-THRID', '')
-
+      # Return the content which now includes both the email body and the PDF contents
       return message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid
 
     except Exception as e:
@@ -353,7 +356,7 @@ class EmailServer:
       successful = self.handle_incoming_email(from_, to_emails, cc_emails,
                                               content, subject, message_id,
                                               references, num, to_emails,
-                                              cc_emails)
+                                              cc_emails, content)
       if successful:
         self.mark_as_seen(num)
       processed = True
@@ -425,7 +428,13 @@ class EmailServer:
 
   def handle_incoming_email(self, from_, to_emails, cc_emails, thread_content,
                             subject, message_id, references, num,
-                            initial_to_emails, initial_cc_emails):
+                            initial_to_emails, initial_cc_emails,
+                            original_content):
+
+    print(
+        f"Debug: Initial thread_content in handle_incoming_email: {thread_content[:200]}..."
+    )
+
     try:
       print(
           f"Handling incoming email for thread with subject: {subject} and message_id: {message_id}"
@@ -452,13 +461,10 @@ class EmailServer:
           f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:242]}..."
       )
       # Debug: Print email content right before calling handle_document_short_code
-      #print(f"Debug: Email content before handle_document_short_code: {thread_content}")
-      result = handle_document_short_code(
-            thread_content, self.agent_selector.openai_api_key,
-            self.agent_selector.conversation_history)
 
-      # Debug: Print the result of handle_document_short_code
-      #print(f"Debug: Result of handle_document_short_code: {result}")
+      result = handle_document_short_code(
+          thread_content, self.agent_selector.openai_api_key,
+          self.agent_selector.conversation_history)
 
       if result is None:
         print(
@@ -492,9 +498,11 @@ class EmailServer:
       thread_content = new_content
 
       recipient_emails = to_emails + cc_emails
-      agents = self.agent_selector.get_agent_names_from_content_and_emails(
-            thread_content, recipient_emails, self.agent_manager, self.gpt_model)
 
+      thread_content = original_content
+
+      agents = self.agent_selector.get_agent_names_from_content_and_emails(
+          thread_content, recipient_emails, self.agent_manager, self.gpt_model)
 
       #print("Before agent assignment.")
       #print(f"Agent queue from get_agent_names_from_content_and_emails: {agents}")
@@ -762,7 +770,7 @@ class EmailServer:
 
     msg['From'] = f'"{from_alias}" <{from_alias}>'
     msg['Reply-To'] = f'"{from_alias}" <{from_alias}>'
-    msg['Sender'] = f'"{from_alias}" <{from_email}>'
+    msg['Sender'] = f'"{from_alias}" <{from_alias}>'
     msg['To'] = ', '.join(to_emails)
     if cc_emails:
       msg['Cc'] = ', '.join(cc_emails)

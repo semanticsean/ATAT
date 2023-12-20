@@ -31,13 +31,20 @@ def auto_split_content(content, char_limit=11000):
 
   return chunks
 
+def filter_non_ascii(string):
+    """Remove non-ASCII characters from the string."""
+    return ''.join(c for c in string if ord(c) < 128)
 
 def handle_document_short_code(email_content,
                                api_key,
                                conversation_history=None,
                                last_agent_response=""):
+
+  # Filter out non-ASCII characters
+  email_content = filter_non_ascii(email_content)
+
   # Decode quoted-printable content
-  email_content = quopri.decodestring(email_content).decode()
+  email_content = quopri.decodestring(email_content).decode('utf-8', 'ignore')
 
   # Unescape HTML entities
   email_content = unescape(email_content)
@@ -76,8 +83,8 @@ def handle_document_short_code(email_content,
     return result
 
   summarize_matches = re.findall(
-      r"!\s*summarize\s*\.(\s*.*?\s*|\S*?)_start\s*!(\s*.*?\s*|\S*?)!\s*summarize\s*_stop\s*!",
-      email_content, re.DOTALL | re.IGNORECASE)
+    r"!\s*summarize\.\s*(\S+?)\s*_start\s*!([\s\S]*?)!\s*summarize\s*_stop\s*!",
+    email_content, re.DOTALL | re.IGNORECASE)
   if summarize_matches:
     modality, summarize_content = summarize_matches[0]
     summarize_content = summarize_content.strip()

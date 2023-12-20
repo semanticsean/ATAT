@@ -1,3 +1,38 @@
+# test alpha 12
+Nov 2, 2023
+✅  mh mp alpha test 
+✅  history nesting  (non ff) test
+✅  ff basic / ff history test
+
+✅  ff creator test
+✅  summarize alpha test simple 
+✅  summarize extended test 
+✅  detail test  
+
+🚩  summarize not working 
+🚩  agent confusion in mh mp alpha test 1 
+
+
+
+
+# test alpha 10
+Wednesday, October 11, 2023 (PDT)
+
+✅  mh mp alpha test 8
+✅  history nesting  (non ff)
+✅  mh test alpha 8
+✅  summarize alpha test 9 simple
+✅  summarize extended alpha test 9
+✅  detail test  8
+✅  handles all threads 
+✅  doesn't violate api rules 
+✅  ff advanced 
+
+🚩  ff no response MIXED RESULTS 
+🚩  hang on extra large gpt calls needing reduction 
+
+
+
 # test alpha 9
 Wednesday, October 11, 2023 (PDT)
 
@@ -9,8 +44,9 @@ Wednesday, October 11, 2023 (PDT)
 ✅  detail test basic alpha 8
 ✅  handles all threads 
 ✅  doesn't violate api rules 
+✅  ff advanced 
 
-🚩  ff no response 
+🚩  ff no response MIXED RESULTS 
 🚩  hang on extra large gpt calls needing reduction 
 
 
