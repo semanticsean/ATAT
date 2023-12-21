@@ -6080,3 +6080,137 @@ Please provide some deta...
 2023-10-12 21:16:28,404 [INFO]: Chunk 6: ### Others
 - If you had any other ideas you consi...
 2023-10-12 23:23:04,456 [WARNING]: No valid agent info found
+2023-10-13 18:34:28,222 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-10-13 18:34:28,223 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-10-13 18:35:19,422 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-10-13 18:35:19,422 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-10-17 01:33:39,412 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for gpt-4 in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-17 01:34:44,571 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for gpt-4 in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-17 01:36:53,536 [INFO]: error_code=rate_limit_exceeded error_message='Rate limit reached for gpt-4 in organization org-7rtv9QCBvCnVYNWzIuSmGlwa on tokens per min. Limit: 10000 / min. Please try again in 6ms. Contact us through our help center at help.openai.com if you continue to have issues.' error_param=None error_type=tokens message='OpenAI API error received' stream_error=False
+2023-10-24 23:30:55,786 [INFO]: error_code=invalid_api_key error_message='Incorrect API key provided: sk-FFDly***************************************sk0Y. You can find your API key at https://platform.openai.com/account/api-keys.' error_param=None error_type=invalid_request_error message='OpenAI API error received' stream_error=False
+2023-10-25 19:28:39,983 [INFO]: Number of chunks for detail: 3
+2023-10-25 19:28:40,114 [INFO]: Chunk 0: say 'test 1a'...
+2023-10-25 19:28:40,114 [INFO]: Chunk 1: say 'test 1b'...
+2023-10-25 19:28:40,114 [INFO]: Chunk 2: say 'test 1c'...
+2023-10-25 19:39:16,062 [INFO]: Number of chunks for detail: 4
+2023-10-25 19:39:16,062 [INFO]: Chunk 0: an introduction written in clickbait attention gra...
+2023-10-25 19:39:16,062 [INFO]: Chunk 1: an ascii style graph of the growth we expect to se...
+2023-10-25 19:39:16,062 [INFO]: Chunk 2: a budget of our future capital costs in a table fo...
+2023-10-25 19:39:16,062 [INFO]: Chunk 3: our story in an emoji story....
+2023-10-25 21:08:07,539 [INFO]: Number of chunks for detail: 4
+2023-10-25 21:08:07,540 [INFO]: Chunk 0: an introduction written in clickbait attention gra...
+2023-10-25 21:08:07,540 [INFO]: Chunk 1: an ascii style graph of the growth we expect to se...
+2023-10-25 21:08:07,540 [INFO]: Chunk 2: a budget of our future capital costs in a table fo...
+2023-10-25 21:08:07,540 [INFO]: Chunk 3: our story in an emoji story....
+2023-10-25 21:19:12,739 [INFO]: error_code=502 error_message='Bad gateway.' error_param=None error_type=cf_bad_gateway message='OpenAI API error received' stream_error=False
+2023-10-26 15:15:01,784 [INFO]: Number of chunks for detail: 4
+2023-10-26 15:15:13,951 [INFO]: Number of chunks for detail: 4
+2023-10-26 15:18:59,667 [INFO]: Number of chunks for detail: 4
+2023-10-26 15:29:53,023 [INFO]: Number of chunks for detail: 4
+2023-10-26 15:37:30,872 [INFO]: Number of chunks for detail: 4
+2023-10-26 17:22:46,658 [INFO]: Number of chunks for detail: 4
+2023-10-26 17:27:32,493 [INFO]: Number of chunks for detail: 4
+2023-10-26 17:27:32,493 [INFO]: Chunk 0: an introduction written in clickbait attention gra...
+2023-10-26 17:27:32,493 [INFO]: Chunk 1: an ascii style graph of the growth we expect to se...
+2023-10-26 17:27:32,493 [INFO]: Chunk 2: a budget of our future capital costs in a table fo...
+2023-10-26 17:27:32,493 [INFO]: Chunk 3: our story in an emoji story....
+2023-10-26 17:34:36,023 [INFO]: Number of chunks for detail: 4
+2023-10-26 17:34:36,023 [INFO]: Chunk 0: an introduction written in clickbait attention gra...
+2023-10-26 17:34:36,024 [INFO]: Chunk 1: an ascii style graph of the growth we expect to se...
+2023-10-26 17:34:36,024 [INFO]: Chunk 2: a budget of our future capital costs in a table fo...
+2023-10-26 17:34:36,024 [INFO]: Chunk 3: our story in an emoji story....
+2023-11-01 20:30:54,131 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-01 20:30:54,135 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-01 20:50:15,235 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-01 20:50:15,308 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-01 21:00:04,722 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-01 21:00:04,722 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-01 21:04:26,740 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-01 21:04:26,740 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-01 21:21:20,418 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-01 21:21:20,493 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-02 20:10:07,249 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-02 20:10:07,249 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-02 20:18:19,708 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-02 20:18:19,708 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-02 20:44:52,154 [INFO]: Number of chunks for detail: 6
+2023-11-02 20:44:52,155 [INFO]: Chunk 0: recite the pledge of allegiance...
+2023-11-02 20:44:52,155 [INFO]: Chunk 1: recite a snipet of don quixote...
+2023-11-02 20:44:52,155 [INFO]: Chunk 2: recite a snippet of shakespear...
+2023-11-02 20:44:52,155 [INFO]: Chunk 3: recite the pledge of allegiance...
+2023-11-02 20:44:52,155 [INFO]: Chunk 4: recite a snipet of don quixote...
+2023-11-02 20:44:52,155 [INFO]: Chunk 5: recite a snippet of shakespear...
+2023-11-02 20:47:06,371 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-02 20:47:06,372 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-02 20:47:54,644 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-02 20:47:54,644 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-02 20:50:38,362 [INFO]: Number of chunks for detail: 6
+2023-11-02 20:50:38,362 [INFO]: Chunk 0: the history of education technology...
+2023-11-02 20:50:38,362 [INFO]: Chunk 1: 25 innovations of sunschool with emoji labels...
+2023-11-02 20:50:38,362 [INFO]: Chunk 2: 25 forecasts about ed tech and ai...
+2023-11-02 20:50:38,362 [INFO]: Chunk 3: the history of education technology...
+2023-11-02 20:50:38,362 [INFO]: Chunk 4: 25 innovations of sunschool with emoji labels...
+2023-11-02 20:50:38,362 [INFO]: Chunk 5: 25 forecasts about ed tech and ai...
+2023-11-02 21:15:22,160 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-02 21:15:22,160 [WARNING]: Unable to decode email history with quopri. Using the original string.
+2023-11-03 18:50:12,125 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.196.3:5000
+2023-11-03 18:50:12,126 [INFO]: [33mPress CTRL+C to quit[0m
+2023-11-03 18:50:14,733 [INFO]: 172.31.196.1 - - [03/Nov/2023 18:50:14] "[33mGET / HTTP/1.1[0m" 404 -
+2023-11-03 18:50:34,533 [INFO]: 172.31.196.1 - - [03/Nov/2023 18:50:34] "[33mGET / HTTP/1.1[0m" 404 -
+2023-11-03 18:50:34,673 [INFO]: 172.31.196.1 - - [03/Nov/2023 18:50:34] "[33mGET / HTTP/1.1[0m" 404 -
+2023-11-03 18:50:34,964 [INFO]: 172.31.196.1 - - [03/Nov/2023 18:50:34] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2023-11-03 18:54:17,557 [INFO]: 172.31.196.1 - - [03/Nov/2023 18:54:17] "[33mGET / HTTP/1.1[0m" 404 -
+2023-11-03 18:54:49,734 [INFO]: 172.31.196.1 - - [03/Nov/2023 18:54:49] "[33mGET / HTTP/1.1[0m" 404 -
+2023-11-03 18:57:55,686 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.196.3:5000
+2023-11-03 18:57:55,686 [INFO]: [33mPress CTRL+C to quit[0m
+2023-11-03 18:57:56,505 [INFO]: 172.31.196.1 - - [03/Nov/2023 18:57:56] "[33mGET / HTTP/1.1[0m" 404 -
+2023-11-03 18:58:12,993 [ERROR]: Exception on /send_email [POST]
+Traceback (most recent call last):
+  File "/home/runner/dev-agent-atat-v023/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/dev-agent-atat-v023/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/dev-agent-atat-v023/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/dev-agent-atat-v023/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "/home/runner/dev-agent-atat-v023/api.py", line 18, in decorated_function
+    return f(*args, **kwargs)
+  File "/home/runner/dev-agent-atat-v023/api.py", line 52, in send_email
+    email_server.send(to, subject, body, cc=cc)
+AttributeError: 'EmailServer' object has no attribute 'send'
+2023-11-03 18:58:12,995 [INFO]: 172.31.196.1 - - [03/Nov/2023 18:58:12] "[35m[1mPOST /send_email HTTP/1.1[0m" 500 -
+2023-11-03 18:58:21,421 [INFO]: 172.31.196.1 - - [03/Nov/2023 18:58:21] "[33mGET / HTTP/1.1[0m" 404 -
+2023-11-03 18:58:22,752 [INFO]: 172.31.196.1 - - [03/Nov/2023 18:58:22] "[33mGET / HTTP/1.1[0m" 404 -
+2023-11-03 18:59:23,875 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.196.3:5000
+2023-11-03 18:59:23,875 [INFO]: [33mPress CTRL+C to quit[0m
+2023-11-03 18:59:24,548 [INFO]: 172.31.196.1 - - [03/Nov/2023 18:59:24] "[33mGET / HTTP/1.1[0m" 404 -
+2023-11-03 18:59:55,876 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.196.3:5000
+2023-11-03 18:59:55,876 [INFO]: [33mPress CTRL+C to quit[0m
+2023-11-03 19:00:41,164 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://172.31.196.3:81
+2023-11-03 19:00:41,164 [INFO]: [33mPress CTRL+C to quit[0m
+2023-11-03 19:01:08,178 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://172.31.196.3:81
+2023-11-03 19:01:08,179 [INFO]: [33mPress CTRL+C to quit[0m
+2023-11-03 19:01:28,347 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://172.31.196.3:81
+2023-11-03 19:01:28,348 [INFO]: [33mPress CTRL+C to quit[0m
