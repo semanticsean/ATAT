@@ -12,7 +12,6 @@ def read_description(description_or_path):
       return file.read().strip()
   return description_or_path
 
-
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # JSON Schema for the agent entries

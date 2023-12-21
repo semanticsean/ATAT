@@ -19,7 +19,7 @@ def format_datetime_for_email():
 
 
 # Sample function to format Gmail-style note
-def format_note(agent_name, email="email@example.com", timestamp=None):
+def format_note(agent_name, email="agent@semantic-life.com", timestamp=None):
   if not timestamp:
     timestamp = format_datetime_for_email()
   return f'On {timestamp} {agent_name} <{email}> wrote:'
@@ -69,7 +69,9 @@ class AgentSelector:
     ])
 
     # Order and Persona Context
-    order_context = f"You are role-playing as the {agent_name}. This is the {order}th response in a conversation with {total_order} interactions. The agent sequence is: [{order_explanation}]."
+    order_context = f"You are role-playing as the {agent_name}. This is response {order} in a conversation with {total_order} interactions. The agent sequence is: [{order_explanation}]."
+    print(
+        f"Debug: _create_dynamic_prompt called with agent_name: {agent_name}")
     persona = agent_manager.get_agent_persona(agent_name)
     persona_context = f"You are {agent_name}. {persona}" if persona else f"You are {agent_name}."
 
@@ -99,7 +101,15 @@ class AgentSelector:
     if content:
       dynamic_prompt += f"YOU ARE ON AN EMAIL THREAD. YOU ONLY RESPOND AS THE APPROPRIATE AGENT. THE EMAIL YOU NEED TO RESPOND TO IS AS FOLLOWS: '''{content}'''."
 
-    dynamic_prompt += f" {instructions}. {persona_context}. Act as this agent."
+    other_agent_names = [
+        name for name, _ in self.conversation_structure.get("responses", [])
+        if name != agent_name
+    ]
+    other_agent_roles = ", ".join(
+        [agent_manager.get_agent_persona(name) for name in other_agent_names])
+    explicit_role_context = f"You are NOT {other_agent_roles}. You are {agent_name}. {persona}"
+
+    dynamic_prompt += f" {explicit_role_context}. Act as this agent."
 
     print(f"{dynamic_prompt}")
 
@@ -137,45 +147,57 @@ class AgentSelector:
     output_lines = [f'>{line}' for line in lines]
     return f"{gmail_note}\n{nested_history}" + '\n'.join(output_lines)
 
-  def get_agent_names_from_content_and_emails(self, content, recipient_emails,
-                                              agent_manager, gpt_model):
+  def get_agent_names_from_content_and_emails(self, content, recipient_emails, agent_manager, gpt_model):
     agent_queue = []
     ff_agent_queue = []
     overall_order = 1  # To keep track of the overall order
+    agents_to_remove = set()
 
+    # Get agents from recipient emails
     for email in recipient_emails:
-      agent = agent_manager.get_agent_by_email(email)
-      if agent:
-        agent_queue.append((agent["id"], overall_order))
-        overall_order += 1
+        agent = agent_manager.get_agent_by_email(email)
+        if agent:
+            agent_queue.append((agent["id"], overall_order))
+            overall_order += 1
 
-    explicit_tags = []
-    try:
-      regex_pattern = re.compile(
-          r"!ff\(([\w\d_]+)\)!|!<span>ff</span>\(([\w\d_]+)\)!")
-      explicit_tags = regex_pattern.findall(content)
-      explicit_tags = [
-          tag for sublist in explicit_tags for tag in sublist if tag
-      ]
-    except Exception as e:
-      logging.error(f"Regex Error: {e}")
-      logging.error(f"Content: {content}")
+    # Compile the regex pattern
+    regex_pattern = re.compile(r"no\.([\w\d_]+)|!ff\.pro\((.*?)\)!|!ff\(([\w\d_]+)\)!", re.DOTALL)
 
+    # Search for explicit tags in the content
+    explicit_tags = regex_pattern.findall(content)
+    explicit_tags = [tag for sublist in explicit_tags for tag in sublist if tag]
+
+    # Identify agents to remove from the queue
+    for tag in explicit_tags:
+        if tag.startswith("no."):
+            agents_to_remove.add(tag[3:])
+    
+    # Process other tags like !ff! and !ff.pro!
     for agent_name in explicit_tags:
-      agent = agent_manager.get_agent(agent_name, case_sensitive=False)
-      if agent:
-        ff_agent_queue.append((agent_name, overall_order))
+        if agent_name.startswith('no.'):
+            continue  # Skip agents prefixed with 'no.'
+        
+        # Process !ff.pro!
+        if "Embody " in agent_name:
+            generated_profile = self.gpt_model.generate_agent_profile(agent_name)
+            unique_id = f"Temporary Agent_{hash(agent_name)}"
+            generated_profile["email"] = f"{str(unique_id)[:14]}@semantic-life.com"
+            agent_manager.agents[unique_id] = generated_profile
+            ff_agent_queue.append((unique_id, overall_order))
+        else:
+            # Process !ff!
+            agent = agent_manager.get_agent(agent_name, case_sensitive=False)
+            if agent:
+                ff_agent_queue.append((agent_name, overall_order))
         overall_order += 1
 
-    print(f"Debug: agent_queue before merging: {agent_queue}")
-    print(f"Debug: ff_agent_queue before merging: {ff_agent_queue}")
-
-    agent_queue.extend(ff_agent_queue)  # Merge the lists
-    agent_queue = sorted(
-        agent_queue,
-        key=lambda x: x[1])[:self.max_agents]  # Sort by the overall order
+    # Merge and filter the agent queue
+    agent_queue.extend(ff_agent_queue)
+    agent_queue = [(agent_name, order) for agent_name, order in agent_queue if agent_name not in agents_to_remove]
+    agent_queue = sorted(agent_queue, key=lambda x: x[1])[:self.max_agents]
 
     return agent_queue
+
 
   def get_response_for_agent(self,
                              agent_manager,
@@ -224,6 +246,16 @@ class AgentSelector:
       # Timestamp for formatting note
       timestamp = format_datetime_for_email()
 
+      if result['type'] == 'pro':
+        descriptions = result.get('content', [])
+        for desc in descriptions:
+          generated_profile = self.gpt_model.generate_agent_profile(desc)
+          # Generate a unique key for each generated agent, based on the description
+          unique_key = f"GeneratedAgent_{hash(desc)}"
+          self.invoked_agents[unique_key] = generated_profile
+        print("Debug: About to save invoked agents:", self.invoked_agents)
+        self.save_rendered_agents()
+
       # Handle Summarize Type
       if result['type'] == 'summarize':
         modality = result.get('modality', 'default')
@@ -262,7 +294,7 @@ class AgentSelector:
         for i, c in enumerate(chunks):
           logging.info(f"Chunk {i}: {c[:50]}...")
 
-        custom_instruction_for_detail = "THIS IS A MULTI-PART LOOP ASSEMBLING A LARGE MESSAGE IN CHUNKS. IN THIS CASE DO NOT RESPOND AS THOUGH IT IS AN EMAIL IN SPITE OF PRIOR INSTRUCTIONS, JUST PROVIDE THE CONTENT. IF ANSWERING FORM QUESTIONS ANSWER THEM THOROUGHLY AND PLACE THE QUESTION YOU ARE ANSWERING ABOVE THE ANSWER, RESTATING IT."
+        custom_instruction_for_detail = "THIS IS A MULTI-PART LOOP ASSEMBLING A LARGE MESSAGE IN CHUNKS. FOR EACH SECTION ALWAYS PROVIDE A CLEAR TITLE, SUBHEADING, AND VERY SHORT (JUST A FEW WORDS) DESCRIPTION OF THE CONTENT TO FOLLOW. IN THIS CASE DO NOT RESPOND AS THOUGH IT IS AN EMAIL IN SPITE OF PRIOR INSTRUCTIONS, JUST PROVIDE THE CONTENT. IF ANSWERING FORM QUESTIONS ANSWER THEM THOROUGHLY AND PLACE THE QUESTION YOU ARE ANSWERING ABOVE THE ANSWER, RESTATING IT. DO NOT USE EMAIL QUOTING CHARACTERS, AND DO NOT SAY THINGS LIKE 'HELLO' OR PROVIDE SIGNATURES. DO NOT SAY 'ON [DATE] [USER] SAID' OR ANYTHING LIKE THAT."
         responses = []
 
         for idx, chunk in enumerate(chunks):
@@ -326,19 +358,62 @@ class AgentSelector:
         time.sleep(30)
 
       final_response = " ".join(responses)
-      formatted_final_response = self.format_conversation_history_html(
-          final_response, agent_name, agent["email"], timestamp)
       signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
-      formatted_final_response += signature  # Append the signature
+      final_response_with_signature = final_response + signature  # Append the signature only to the final response
+
+      # Extract the timestamp and the agent email for formatting the history
+      agent_email = agent["email"]
+      timestamp = format_datetime_for_email()
+
+      # Formatting the nested history with the "On {date} {user} wrote:" label
+      gmail_note = format_note(agent_name, agent_email, timestamp)
+      nested_history = self.format_conversation_history_html(
+          final_response,
+          agent_name,
+          agent_email,
+          timestamp,
+          existing_history=gmail_note)
 
       self.conversation_structure.setdefault("responses", []).append(
           (agent_name,
-           formatted_final_response))  # Store the formatted response
-      #logging.info(f"Generated response for {agent_name}: {formatted_final_response}")
+           nested_history))  # Store the formatted response with signature
 
-      self.last_agent_response = formatted_final_response
+      self.last_agent_response = nested_history  # Update the last agent response to include the signature
 
-      #print("Dynamic Prompt:", dynamic_prompt)
-      #print("Content:", content)
+      return final_response_with_signature
 
-      return final_response
+  def save_rendered_agents(self):
+    formatted_agents_list = []
+    for agent_id, agent_profile in self.invoked_agents.items():
+      formatted_agent = {
+          "id": agent_id,
+          "email": "agent@semantic-life.com",
+          "persona": agent_profile.get("description", "")
+      }
+      formatted_agents_list.append(formatted_agent)
+
+    print(
+        f"Debug: Saving the following agents to file: {formatted_agents_list}")
+
+    try:
+      # Read existing data from the file first
+      existing_data = []
+      if os.path.exists("rendered_agents.json"):
+        with open("rendered_agents.json", "r") as f:
+          existing_data = json.load(f)
+
+      # Make sure existing_data is a list
+      if not isinstance(existing_data, list):
+        existing_data = []
+
+      # Update existing data with new agents
+      existing_data.extend(
+          formatted_agents_list)  # Using extend to append the list
+
+      # Write the updated data back to the file
+      with open("rendered_agents.json", "w") as f:
+        json.dump(existing_data, f, indent=4)
+
+      print("Debug: Successfully saved to rendered_agents.json")
+    except Exception as e:
+      print(f"Debug: Failed to save to rendered_agents.json, Error: {e}")

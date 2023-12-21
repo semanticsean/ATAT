@@ -72,23 +72,23 @@ class GPTModel:
     self.save_state()
 
   def generate_response(self,
-                      dynamic_prompt,
-                      content,
-                      conversation_history,
-                      additional_context=None,
-                      note=None,
-                      is_summarize=False):
+                        dynamic_prompt,
+                        content,
+                        conversation_history,
+                        additional_context=None,
+                        note=None,
+                        is_summarize=False):
     print("Generating Response from gpt-4 call")
 
     max_retries = 99
     delay = 62
     max_delay = 3000
 
-    full_content = f"{content}\n\n{conversation_history}" 
+    full_content = f"{content}\n\n{conversation_history}"
     if additional_context:
-        full_content += f"\n{additional_context}"
+      full_content += f"\n{additional_context}"
     if note:
-        full_content += f"\n{note}"
+      full_content += f"\n{note}"
 
     # Remove '>'' and '=' if they occur more than once in sequence
     full_content = re.sub(r'>>+', '', full_content)
@@ -101,7 +101,6 @@ class GPTModel:
     email_pattern = r'\S+@\S+\.(com|net|co|org|ai)'
     full_content = re.sub(email_pattern, '', full_content)
 
-    
     api_buffer = 50
     truncate_chars = 1000
 
@@ -109,39 +108,50 @@ class GPTModel:
     tokens_limit = 1500  # max tokens for the response
 
     while True:
-        total_tokens = self.count_tokens(full_content + dynamic_prompt) + api_buffer
-        if total_tokens + tokens_limit <= max_tokens_hard_limit:
-            print(f"Content is within hard limit at {total_tokens + tokens_limit} tokens.")
-            break
-        if len(conversation_history) > truncate_chars:
-            print(f"Total tokens: {total_tokens}, reducing conversation history by {truncate_chars} chars...")
-            conversation_history = conversation_history[-(len(conversation_history) - truncate_chars):]
-            full_content = f"{content}\n\n{conversation_history}"  # Update here
-        elif len(full_content) > truncate_chars:
-            print(f"Total tokens: {total_tokens}, reducing full content by {truncate_chars} chars...")
-            full_content = full_content[:-truncate_chars]
-            # No need to re-assemble full_content here; it's already updated
-        else:
-            print("Content is too short to truncate further. Exiting.")
-            return None
-    
-        if additional_context:
-            full_content += f"\n{additional_context}"
-        if note:
-            full_content += f"\n{note}"
-    
-        elif len(full_content) > truncate_chars:
-            print(f"Total tokens: {total_tokens}, reducing full content by {truncate_chars} chars...")
-            full_content = full_content[:-truncate_chars]
-        else:
-            print("Content is too short to truncate further. Exiting.")
-            return None
+      total_tokens = self.count_tokens(full_content +
+                                       dynamic_prompt) + api_buffer
+      if total_tokens + tokens_limit <= max_tokens_hard_limit:
+        print(
+            f"Content is within hard limit at {total_tokens + tokens_limit} tokens."
+        )
+        break
+      if len(conversation_history) > truncate_chars:
+        print(
+            f"Total tokens: {total_tokens}, reducing conversation history by {truncate_chars} chars..."
+        )
+        conversation_history = conversation_history[-(
+            len(conversation_history) - truncate_chars):]
+        full_content = f"{content}\n\n{conversation_history}"  # Update here
+      elif len(full_content) > truncate_chars:
+        print(
+            f"Total tokens: {total_tokens}, reducing full content by {truncate_chars} chars..."
+        )
+        full_content = full_content[:-truncate_chars]
+        # No need to re-assemble full_content here; it's already updated
+      else:
+        print("Content is too short to truncate further. Exiting.")
+        return None
+
+      if additional_context:
+        full_content += f"\n{additional_context}"
+      if note:
+        full_content += f"\n{note}"
+
+      elif len(full_content) > truncate_chars:
+        print(
+            f"Total tokens: {total_tokens}, reducing full content by {truncate_chars} chars..."
+        )
+        full_content = full_content[:-truncate_chars]
+      else:
+        print("Content is too short to truncate further. Exiting.")
+        return None
 
     # Change this line to set a default of 1500 tokens
     tokens_limit = 1500
 
     # Re-check the rate limit with the new token limit
-    total_tokens = self.count_tokens(full_content + dynamic_prompt) + api_buffer + tokens_limit
+    total_tokens = self.count_tokens(
+        full_content + dynamic_prompt) + api_buffer + tokens_limit
     self.check_rate_limit(total_tokens)
 
     response = None
@@ -149,7 +159,7 @@ class GPTModel:
       try:
         request_payload = {
             "model":
-            "gpt-4",
+            "gpt-4-1106-preview",
             "messages": [{
                 "role": "system",
                 "content": dynamic_prompt
@@ -160,7 +170,7 @@ class GPTModel:
             "max_tokens":
             tokens_limit,
             "top_p":
-            0.7,
+            0.5,
             "frequency_penalty":
             0.2,
             "presence_penalty":
@@ -169,13 +179,13 @@ class GPTModel:
             0.6
         }
 
-        #print("\n--- API Request Payload ---")
-        #print((json.dumps(request_payload, indent=4)))
+        print("\n--- API Request Payload ---")
+        print((json.dumps(request_payload, indent=4)))
 
         response = openai.ChatCompletion.create(**request_payload)
 
-        #print("\n--- API Response ---")
-        #print(json.dumps(response, indent=4)[:142])
+        print("\n--- API Response ---")
+        print(json.dumps(response, indent=4)[:142])
 
         break
 
@@ -193,3 +203,15 @@ class GPTModel:
     self.last_api_call_time = time.time()
 
     return response['choices'][0]['message']['content']
+
+  def generate_agent_profile(self, description):
+    prompt = f"Create an agent profile based on this description: {description}. Include details like workplace, job title, personality, and interests."
+    profile = self.generate_response(prompt, "", "", is_summarize=False)
+    agent_profile = {
+        "description": profile,
+        "workplace": "Generated Workplace",
+        "job_title": "Generated Job Title",
+        "personality": "Generated Personality",
+        "interests": "Generated Interests"
+    }
+    return agent_profile
