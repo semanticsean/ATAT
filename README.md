@@ -11,7 +11,7 @@ The system is designed to act as an email server for agents. It processes incomi
 - Sends out emails.
 - Ensures connection to the IMAP server is alive and handles errors.
 
-### agent_selector.py:
+### agent_operator.py:
 - Handles agent selection and dynamic prompt creation.
 - Manages conversation history and structure.
 
@@ -32,7 +32,7 @@ The system is designed to act as an email server for agents. It processes incomi
 ### agents.json:
 - Contains definitions for different agents, including their unique IDs, emails, and persona descriptions.
 
-### agent_manager.py:
+### agent_loader.py:
 - Manages and retrieves details about agents.
 - Offers tools for agent lookup, persona retrieval, and email verification.
 
@@ -64,7 +64,7 @@ To execute the system, run the `main.py` script, which initializes the agent man
 - **External Libraries:** Uses libraries such as imaplib, smtplib, and email for email processing.
 
 
-## agent_selector.py Overview:
+## agent_operator.py Overview:
 **Purpose:** This module manages agent selection, handling of conversations, and dynamic prompt creation for the AI agents.
 
 **Key Classes & Methods:**
@@ -157,7 +157,7 @@ To execute the system, run the `main.py` script, which initializes the agent man
   - email: frictionparent@semantic-life.com
   - persona: This agent is portrayed as a drab and dour parent disappointed with the public school their student attends. They are frustrated, believe the school is over-priced, and are not satisfied with the school's performance in math and science.
 
-## agent_manager.py Overview:
+## agent_loader.py Overview:
 **Purpose:** This module offers tools for managing and retrieving details about different agents, such as their names, personas, and emails.
 
 **Key Classes & Methods:**

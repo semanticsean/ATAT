@@ -1,7 +1,6 @@
 import json
 import re
 import quopri
-from doc_gen import gpt4_generate_structured_response
 from html import unescape
 from bs4 import BeautifulSoup
 
