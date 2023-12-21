@@ -6,7 +6,6 @@ import logging
 import os
 import re
 import smtplib
-import openai
 import quopri
 import tempfile
 import shutil
@@ -18,22 +17,21 @@ from email.mime.text import MIMEText
 from email.utils import getaddresses
 from shortcode import handle_document_short_code
 from time import sleep
-from agent_selector import AgentSelector
-from pathlib import Path
+from agent_operator import AgentSelector
 
 
 class EmailServer:
 
-  def __init__(self, agent_manager, gpt_model, testing=False):
+  def __init__(self, agent_loader, gpt_model, testing=False):
     logging.basicConfig(filename='email_server.log',
                         level=logging.INFO,
                         format='%(asctime)s [%(levelname)s]: %(message)s')
-    self.agent_manager = agent_manager
+    self.agent_loader = agent_loader
     self.gpt_model = gpt_model
     self.testing = testing
     self.setup_email_server()
     self.processed_threads = self.load_processed_threads()
-    self.agent_selector = AgentSelector()
+    self.agent_operator = AgentSelector()
     self.conversation_threads = {}
     self.openai_api_key = os.getenv('OPENAI_API_KEY')
 
@@ -445,7 +443,7 @@ class EmailServer:
 
       new_content = thread_content
       # Reset conversation history for a new email thread
-      self.agent_selector.reset_for_new_thread()
+      self.agent_operator.reset_for_new_thread()
       #print("Before human_threads initialization:", from_, to_emails,cc_emails, subject, message_id, references, num)
       human_threads = set()
       if from_ == self.smtp_username:
@@ -463,8 +461,8 @@ class EmailServer:
       # Debug: Print email content right before calling handle_document_short_code
 
       result = handle_document_short_code(
-          thread_content, self.agent_selector.openai_api_key,
-          self.agent_selector.conversation_history)
+          thread_content, self.agent_operator.openai_api_key,
+          self.agent_operator.conversation_history)
 
       if result is None:
         print(
@@ -493,16 +491,16 @@ class EmailServer:
 
       style_info = structured_response.get('structured_response',
                                            '') if structured_response else ''
-      print(f"Structured response generated: ")
-      self.agent_selector.conversation_history += f"\nStructured Response: {structured_response}"  # Update conversation history
+      print("Structured response generated: ")
+      self.agent_operator.conversation_history += f"\nStructured Response: {structured_response}"  # Update conversation history
       thread_content = new_content
 
       recipient_emails = to_emails + cc_emails
 
       thread_content = original_content
 
-      agents = self.agent_selector.get_agent_names_from_content_and_emails(
-          thread_content, recipient_emails, self.agent_manager, self.gpt_model)
+      agents = self.agent_operator.get_agent_names_from_content_and_emails(
+          thread_content, recipient_emails, self.agent_loader, self.gpt_model)
 
       #print("Before agent assignment.")
       #print(f"Agent queue from get_agent_names_from_content_and_emails: {agents}")
@@ -528,7 +526,7 @@ class EmailServer:
 
       # Prevent agents from responding to other agents
       if from_ in [
-          agent["email"] for agent in self.agent_manager.agents.values()
+          agent["email"] for agent in self.agent_loader.agents.values()
       ]:
         print("Ignoring email from another agent.")
         return False
@@ -572,8 +570,8 @@ class EmailServer:
         # Generate response
         if order == len(agents):
           # This is the last agent, append style info to the prompt
-          response = self.agent_selector.get_response_for_agent(
-              self.agent_manager,
+          response = self.agent_operator.get_response_for_agent(
+              self.agent_loader,
               self.gpt_model,
               agent_name,
               order,
@@ -581,8 +579,8 @@ class EmailServer:
               thread_content,
               additional_context=f"Note: {style_info}")
         else:
-          response = self.agent_selector.get_response_for_agent(
-              self.agent_manager, self.gpt_model, agent_name, order, agents,
+          response = self.agent_operator.get_response_for_agent(
+              self.agent_loader, self.gpt_model, agent_name, order, agents,
               thread_content)
 
         if not response:  # Skip empty responses
@@ -594,7 +592,7 @@ class EmailServer:
             previous_responses[-1], dict) and 'from_' in previous_responses[
                 -1] and previous_responses[-1]['from_'] in [
                     agent["email"]
-                    for agent in self.agent_manager.agents.values()
+                    for agent in self.agent_loader.agents.values()
                 ]:
 
           # Check for explicit tags or 'ff!' shortcode in the content
@@ -612,7 +610,7 @@ class EmailServer:
         self.conversation_threads[message_id].append(response)
         previous_responses.append(response)
 
-        agent = self.agent_manager.get_agent(agent_name)
+        agent = self.agent_loader.get_agent(agent_name)
         if agent:
           to_emails = [
               email for email in to_emails if email.lower() != from_.lower()

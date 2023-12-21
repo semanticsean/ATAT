@@ -73,7 +73,7 @@ def image_exists(path):
 
 
 def process_agents():
-  agents_file_path = 'agents.json'
+  agents_file_path = '../agents/agents.json'
   agents = read_agents(agents_file_path)
   ensure_dir_exists('pics')
 

@@ -55,7 +55,7 @@ class AgentSelector:
     return re.sub(r"!ff\((\w+)\)!", r"\1", content)
 
   def _create_dynamic_prompt(self,
-                             agent_manager,
+                             agent_loader,
                              agent_name,
                              order,
                              total_order,
@@ -72,7 +72,7 @@ class AgentSelector:
     order_context = f"You are role-playing as the {agent_name}. This is response {order} in a conversation with {total_order} interactions. The agent sequence is: [{order_explanation}]."
     print(
         f"Debug: _create_dynamic_prompt called with agent_name: {agent_name}")
-    persona = agent_manager.get_agent_persona(agent_name)
+    persona = agent_loader.get_agent_persona(agent_name)
     persona_context = f"You are {agent_name}. {persona}" if persona else f"You are {agent_name}."
 
     # Main Instructions
@@ -106,7 +106,7 @@ class AgentSelector:
         if name != agent_name
     ]
     other_agent_roles = ", ".join(
-        [agent_manager.get_agent_persona(name) for name in other_agent_names])
+        [agent_loader.get_agent_persona(name) for name in other_agent_names])
     explicit_role_context = f"You are NOT {other_agent_roles}. You are {agent_name}. {persona}"
 
     dynamic_prompt += f" {explicit_role_context}. Act as this agent."
@@ -147,7 +147,7 @@ class AgentSelector:
     output_lines = [f'>{line}' for line in lines]
     return f"{gmail_note}\n{nested_history}" + '\n'.join(output_lines)
 
-  def get_agent_names_from_content_and_emails(self, content, recipient_emails, agent_manager, gpt_model):
+  def get_agent_names_from_content_and_emails(self, content, recipient_emails, agent_loader, gpt_model):
     agent_queue = []
     ff_agent_queue = []
     overall_order = 1  # To keep track of the overall order
@@ -155,7 +155,7 @@ class AgentSelector:
 
     # Get agents from recipient emails
     for email in recipient_emails:
-        agent = agent_manager.get_agent_by_email(email)
+        agent = agent_loader.get_agent_by_email(email)
         if agent:
             agent_queue.append((agent["id"], overall_order))
             overall_order += 1
@@ -182,11 +182,11 @@ class AgentSelector:
             generated_profile = self.gpt_model.generate_agent_profile(agent_name)
             unique_id = f"Temporary Agent_{hash(agent_name)}"
             generated_profile["email"] = f"{str(unique_id)[:14]}@semantic-life.com"
-            agent_manager.agents[unique_id] = generated_profile
+            agent_loader.agents[unique_id] = generated_profile
             ff_agent_queue.append((unique_id, overall_order))
         else:
             # Process !ff!
-            agent = agent_manager.get_agent(agent_name, case_sensitive=False)
+            agent = agent_loader.get_agent(agent_name, case_sensitive=False)
             if agent:
                 ff_agent_queue.append((agent_name, overall_order))
         overall_order += 1
@@ -200,7 +200,7 @@ class AgentSelector:
 
 
   def get_response_for_agent(self,
-                             agent_manager,
+                             agent_loader,
                              gpt_model,
                              agent_name,
                              order,
@@ -227,7 +227,7 @@ class AgentSelector:
 
       responses = []
       dynamic_prompt = ""
-      agent = agent_manager.get_agent(agent_name, case_sensitive=False)
+      agent = agent_loader.get_agent(agent_name, case_sensitive=False)
 
       if not agent:
         logging.warning(f"No agent found for name {agent_name}. Skipping...")
@@ -237,7 +237,7 @@ class AgentSelector:
                                           self.conversation_history)
       if result is None:
         print(
-            "Error: agent_selector - handle_document_short_code returned None."
+            "Error: agent_operator - handle_document_short_code returned None."
         )
         return False
       structured_response = result.get('structured_response')
@@ -266,7 +266,7 @@ class AgentSelector:
         self.conversation_history = self.conversation_history[-16000:]
 
         for idx, chunk in enumerate(chunks):
-          dynamic_prompt = self._create_dynamic_prompt(agent_manager,
+          dynamic_prompt = self._create_dynamic_prompt(agent_loader,
                                                        agent_name,
                                                        order,
                                                        total_order,
@@ -298,7 +298,7 @@ class AgentSelector:
         responses = []
 
         for idx, chunk in enumerate(chunks):
-          dynamic_prompt = self._create_dynamic_prompt(agent_manager,
+          dynamic_prompt = self._create_dynamic_prompt(agent_loader,
                                                        agent_name,
                                                        order,
                                                        total_order,
@@ -339,7 +339,7 @@ class AgentSelector:
             logging.warning("Unable to parse structured response as JSON.")
             additional_context = structured_response
 
-        dynamic_prompt = self._create_dynamic_prompt(agent_manager,
+        dynamic_prompt = self._create_dynamic_prompt(agent_loader,
                                                      agent_name,
                                                      order,
                                                      total_order,
