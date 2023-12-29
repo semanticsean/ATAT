@@ -3,6 +3,10 @@
 ## Overview:
 The system is designed to act as an email server for agents. It processes incoming emails, sends responses, and manages agents and their personas. The system leverages the OpenAI GPT model to generate dynamic responses based on agent personas.
 
+THIS SCRIPT IS DESIGNED TO START WITH A NEW INBOX. IT IS NOT GEARED TO PLUG INTO YOUR EXISTING EMAIL INBOX FULL OF EMAILS. 
+
+# DO NOT USE THIS SCRIPT ON EXISTING EMAIL INBOXES, CREATE A NEW, DEDICATED EMAIL INBOX. YOU COULD UNINTENTIONALLY SEND A LOT OF ERROR EMAILS WITH AN EXISTING ACCOUNT. 
+
 ## Modules:
 
 ### email_server.py:
@@ -22,7 +26,7 @@ The system is designed to act as an email server for agents. It processes incomi
 ### newagent.py:
 - Provides tools to create a new agent based on an existing agent's persona.
 
-### gpt_model.py:
+### gpt.py:
 - Interfaces with the OpenAI GPT model to generate responses.
 - Constructs API payload, sends it to OpenAI, and handles possible errors.
 
@@ -116,7 +120,7 @@ To execute the system, run the `main.py` script, which initializes the agent man
 - **Backup & Restore:** Before making changes to the agents' list, it backs up the original file. If there's an issue with the new data, it restores from the backup.
 - **External Libraries:** Uses libraries such as json, shutil, openai, and jsonschema.
 
-## gpt_model.py Overview:
+## gpt.py Overview:
 **Purpose:** This module provides an interface for generating responses from the GPT model by creating a payload and sending it to the OpenAI API.
 
 **Key Classes & Methods:**

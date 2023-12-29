@@ -22,12 +22,12 @@ from agent_operator import AgentSelector
 
 class EmailServer:
 
-  def __init__(self, agent_loader, gpt_model, testing=False):
+  def __init__(self, agent_loader, gpt, testing=False):
     logging.basicConfig(filename='email_server.log',
                         level=logging.INFO,
                         format='%(asctime)s [%(levelname)s]: %(message)s')
     self.agent_loader = agent_loader
-    self.gpt_model = gpt_model
+    self.gpt = gpt
     self.testing = testing
     self.setup_email_server()
     self.processed_threads = self.load_processed_threads()
@@ -500,7 +500,7 @@ class EmailServer:
       thread_content = original_content
 
       agents = self.agent_operator.get_agent_names_from_content_and_emails(
-          thread_content, recipient_emails, self.agent_loader, self.gpt_model)
+          thread_content, recipient_emails, self.agent_loader, self.gpt)
 
       #print("Before agent assignment.")
       #print(f"Agent queue from get_agent_names_from_content_and_emails: {agents}")
@@ -572,7 +572,7 @@ class EmailServer:
           # This is the last agent, append style info to the prompt
           response = self.agent_operator.get_response_for_agent(
               self.agent_loader,
-              self.gpt_model,
+              self.gpt,
               agent_name,
               order,
               agents,
@@ -580,7 +580,7 @@ class EmailServer:
               additional_context=f"Note: {style_info}")
         else:
           response = self.agent_operator.get_response_for_agent(
-              self.agent_loader, self.gpt_model, agent_name, order, agents,
+              self.agent_loader, self.gpt, agent_name, order, agents,
               thread_content)
 
         if not response:  # Skip empty responses

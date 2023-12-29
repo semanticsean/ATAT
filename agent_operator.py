@@ -6,7 +6,7 @@ import threading
 import logging
 import quopri
 from shortcode import handle_document_short_code
-from gpt_model import GPTModel
+from gpt import GPTModel
 from datetime import datetime
 import logging
 
@@ -41,7 +41,7 @@ class AgentSelector:
     self.invoked_agents = {}
     self.last_agent_response = ""
     self.instructions = load_instructions()
-    self.gpt_model = GPTModel()
+    self.gpt = GPTModel()
 
   def reset_for_new_thread(self):
     self.invoked_agents.clear()
@@ -147,7 +147,8 @@ class AgentSelector:
     output_lines = [f'>{line}' for line in lines]
     return f"{gmail_note}\n{nested_history}" + '\n'.join(output_lines)
 
-  def get_agent_names_from_content_and_emails(self, content, recipient_emails, agent_loader, gpt_model):
+  def get_agent_names_from_content_and_emails(self, content, recipient_emails,
+                                              agent_loader, gpt):
     agent_queue = []
     ff_agent_queue = []
     overall_order = 1  # To keep track of the overall order
@@ -155,53 +156,56 @@ class AgentSelector:
 
     # Get agents from recipient emails
     for email in recipient_emails:
-        agent = agent_loader.get_agent_by_email(email)
-        if agent:
-            agent_queue.append((agent["id"], overall_order))
-            overall_order += 1
+      agent = agent_loader.get_agent_by_email(email)
+      if agent:
+        agent_queue.append((agent["id"], overall_order))
+        overall_order += 1
 
     # Compile the regex pattern
-    regex_pattern = re.compile(r"no\.([\w\d_]+)|!ff\.pro\((.*?)\)!|!ff\(([\w\d_]+)\)!", re.DOTALL)
+    regex_pattern = re.compile(
+        r"no\.([\w\d_]+)|!ff\.creator\((.*?)\)!|!ff\(([\w\d_]+)\)!", re.DOTALL)
 
     # Search for explicit tags in the content
     explicit_tags = regex_pattern.findall(content)
-    explicit_tags = [tag for sublist in explicit_tags for tag in sublist if tag]
+    explicit_tags = [
+        tag for sublist in explicit_tags for tag in sublist if tag
+    ]
 
     # Identify agents to remove from the queue
     for tag in explicit_tags:
-        if tag.startswith("no."):
-            agents_to_remove.add(tag[3:])
-    
-    # Process other tags like !ff! and !ff.pro!
+      if tag.startswith("no."):
+        agents_to_remove.add(tag[3:])
+
+    # Process other tags like !ff! and !ff.creator!
     for agent_name in explicit_tags:
-        if agent_name.startswith('no.'):
-            continue  # Skip agents prefixed with 'no.'
-        
-        # Process !ff.pro!
-        if "Embody " in agent_name:
-            generated_profile = self.gpt_model.generate_agent_profile(agent_name)
-            unique_id = f"Temporary Agent_{hash(agent_name)}"
-            generated_profile["email"] = f"{str(unique_id)[:14]}@semantic-life.com"
-            agent_loader.agents[unique_id] = generated_profile
-            ff_agent_queue.append((unique_id, overall_order))
-        else:
-            # Process !ff!
-            agent = agent_loader.get_agent(agent_name, case_sensitive=False)
-            if agent:
-                ff_agent_queue.append((agent_name, overall_order))
-        overall_order += 1
+      if agent_name.startswith('no.'):
+        continue  # Skip agents prefixed with 'no.'
+
+      # Process !ff.creator!
+      if "Embody " in agent_name:
+        generated_profile = self.gpt.generate_agent_profile(agent_name)
+        unique_id = f"Temporary Agent_{hash(agent_name)}"
+        generated_profile["email"] = f"{str(unique_id)[:14]}@semantic-life.com"
+        agent_loader.agents[unique_id] = generated_profile
+        ff_agent_queue.append((unique_id, overall_order))
+      else:
+        # Process !ff!
+        agent = agent_loader.get_agent(agent_name, case_sensitive=False)
+        if agent:
+          ff_agent_queue.append((agent_name, overall_order))
+      overall_order += 1
 
     # Merge and filter the agent queue
     agent_queue.extend(ff_agent_queue)
-    agent_queue = [(agent_name, order) for agent_name, order in agent_queue if agent_name not in agents_to_remove]
+    agent_queue = [(agent_name, order) for agent_name, order in agent_queue
+                   if agent_name not in agents_to_remove]
     agent_queue = sorted(agent_queue, key=lambda x: x[1])[:self.max_agents]
 
     return agent_queue
 
-
   def get_response_for_agent(self,
                              agent_loader,
-                             gpt_model,
+                             gpt,
                              agent_name,
                              order,
                              total_order,
@@ -209,12 +213,14 @@ class AgentSelector:
                              additional_context=None):
 
     # Count tokens before the API call
-    tokens_for_this_request = self.gpt_model.count_tokens(content)
+    tokens_for_this_request = self.gpt.count_tokens(content)
 
     # Check rate limits
-    self.gpt_model.check_rate_limit(tokens_for_this_request)
+    self.gpt.check_rate_limit(tokens_for_this_request)
 
     content = self.replace_agent_shortcodes(content)
+
+    original_content = content
 
     timestamp = format_datetime_for_email()
 
@@ -249,7 +255,7 @@ class AgentSelector:
       if result['type'] == 'pro':
         descriptions = result.get('content', [])
         for desc in descriptions:
-          generated_profile = self.gpt_model.generate_agent_profile(desc)
+          generated_profile = self.gpt.generate_agent_profile(desc)
           # Generate a unique key for each generated agent, based on the description
           unique_key = f"GeneratedAgent_{hash(desc)}"
           self.invoked_agents[unique_key] = generated_profile
@@ -273,10 +279,10 @@ class AgentSelector:
                                                        structured_response,
                                                        modality=modality,
                                                        content=chunk)
-          response = gpt_model.generate_response(dynamic_prompt,
-                                                 chunk,
-                                                 self.conversation_history,
-                                                 is_summarize=False)
+          response = gpt.generate_response(dynamic_prompt,
+                                           chunk,
+                                           self.conversation_history,
+                                           is_summarize=False)
           responses.append(response)
         else:
           additional_context_chunk = additional_context
@@ -308,10 +314,10 @@ class AgentSelector:
           # Add the custom instruction to the dynamic prompt
           dynamic_prompt += f" {custom_instruction_for_detail}"
 
-          response = gpt_model.generate_response(dynamic_prompt,
-                                                 chunk,
-                                                 self.conversation_history,
-                                                 is_summarize=False)
+          response = gpt.generate_response(dynamic_prompt,
+                                           chunk,
+                                           self.conversation_history,
+                                           is_summarize=False)
 
           formatted_response = self.format_conversation_history_html(
               response, agent_name, agent["email"], timestamp)
@@ -345,10 +351,10 @@ class AgentSelector:
                                                      total_order,
                                                      additional_context,
                                                      modality=modality)
-        response = gpt_model.generate_response(dynamic_prompt,
-                                               content,
-                                               self.conversation_history,
-                                               is_summarize=False)
+        response = gpt.generate_response(dynamic_prompt,
+                                         content,
+                                         self.conversation_history,
+                                         is_summarize=False)
 
         responses.append(response)
         formatted_response = self.format_conversation_history_html(
