@@ -104,8 +104,12 @@ class GPTModel:
     api_buffer = 50
     truncate_chars = 1000
 
-    max_tokens_hard_limit = 8100
-    tokens_limit = 1500  # max tokens for the response
+    # Increased total token limit for the payload
+    max_tokens_hard_limit = 96000
+
+    # New max tokens for the response
+    tokens_limit = 4096
+
 
     while True:
       total_tokens = self.count_tokens(full_content +
