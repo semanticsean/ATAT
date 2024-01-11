@@ -8,6 +8,7 @@ import uuid
 import openai
 import requests
 
+## NOTE: WILL ONLY WORK IF OPENAI_API_KEY SET IN ENV VARS / SECREST 
 
 def log_to_file(message):
   log_file = "api_log.txt"
