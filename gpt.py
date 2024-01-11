@@ -207,15 +207,3 @@ class GPTModel:
     self.last_api_call_time = time.time()
 
     return response['choices'][0]['message']['content']
-
-  def generate_agent_profile(self, description):
-    prompt = f"Create an agent profile based on this description: {description}. Include details like workplace, job title, personality, and interests."
-    profile = self.generate_response(prompt, "", "", is_summarize=False)
-    agent_profile = {
-        "description": profile,
-        "workplace": "Generated Workplace",
-        "job_title": "Generated Job Title",
-        "personality": "Generated Personality",
-        "interests": "Generated Interests"
-    }
-    return agent_profile

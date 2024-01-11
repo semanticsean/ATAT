@@ -1,22 +1,9 @@
 # test routine - send these emails 
-
 ✅  multi-agent multi-human to / cc handling / history nesting  (non ff) / writes to processed_threads 
 ✅  ff basic / ff history nesting 
 ✅  ff creator (render new agents inline)
 ✅  summarize  -- summarize to json / other formats 
 ✅  detail / split 
-
-🚩  summarize not working 
-🚩  agent confusion / context awareness of each other
-
-
-known issues: 
-formatting of history in fast forward history 
-prompt control for detail shortcodes / not an email / explain multi-part nature 
-processed threads weird comma thing 
-multiplayer putting response inside quoted content 
-ff advanced cutting off at 3 rounds 
-detail sending each twice 
 
 
 
