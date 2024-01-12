@@ -21,21 +21,21 @@ agent2 - please tell me a joke about working in education technology.
 
 agent1,
 
-please tell me about sunschool in a whitepaper.
+please tell me about the history of america in a whitepaper.
 
 !detail_start!
 an introduction written in clickbait attention grabbing ideas
 
 !split!
 
-an ascii style graph of the growth we expect to see and in what markets
+an ascii style graph of the historical timeline of the founding of america.
 
 !split!
 
-a budget of our future capital costs in a table format
+a history of the federal reserver and global policy.
 
 !split!
-our story in an emoji story.
+our story in an emoji story made of only emojis. 
 
 !detail_stop!
 
