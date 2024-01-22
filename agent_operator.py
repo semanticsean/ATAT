@@ -151,32 +151,34 @@ class AgentSelector:
     return sanitized_content
 
   def format_conversation_history_html(self, agent_responses, existing_history=None):
-      print("Existing history:", existing_history)
-      print("Agent responses to process:", agent_responses)
+    # Initialize an empty string to store the formatted history
+    formatted_history = existing_history if existing_history else ""
 
-      # Initialize formatted history with existing history or an empty string
-      formatted_history = existing_history if existing_history is not None else ""
+    # Reverse the agent_responses to process the oldest first
+    agent_responses = reversed(agent_responses)
 
-      # Reverse the agent_responses to process the oldest first
-      agent_responses = reversed(agent_responses)
+    # Process each agent response
+    for agent_name, agent_email, email_content in agent_responses:
+        timestamp = format_datetime_for_email()
+        gmail_note = format_note(agent_name, agent_email, timestamp)
+        email_content = html.escape(email_content)  # Sanitize the content
 
-      for agent_name, agent_email, email_content in agent_responses:
-          timestamp = format_datetime_for_email()
-          gmail_note = format_note(agent_name, email=agent_email, timestamp=timestamp)
-          email_content = html.escape(email_content)  # Sanitize HTML content
+        # If this is the first agent response, don't wrap with a div class "gmail_quote"
+        if formatted_history == "":
+            formatted_message = f'<blockquote>{gmail_note}<br>{email_content}</blockquote>'
+        else:
+            # Subsequent agent responses should be nested within "gmail_quote"
+            formatted_message = f'<div class="gmail_quote"><blockquote>{gmail_note}<br>{email_content}</blockquote></div>'
 
-          # Create the formatted message for the current response
-          formatted_message = f'<div class="gmail_quote">{gmail_note}<blockquote>{email_content}</blockquote></div>'
+        # Prepend the new formatted message to the history
+        formatted_history = f'{formatted_message}{formatted_history}'
 
-          # Append the new formatted message only if it's not already in the history
-          if formatted_message not in formatted_history:
-              formatted_history = f'{formatted_message}{formatted_history}'
+    # Wrap the entire history within "gmail_quote" if not already done
+    if not formatted_history.startswith('<div class="gmail_quote">'):
+        formatted_history = f'<div class="gmail_quote">{formatted_history}</div>'
 
-      # Print the final formatted history after processing
-      print("Final formatted history:", formatted_history)
+    return formatted_history
 
-      return formatted_history
- 
 
   def format_conversation_history_plain(self, agent_responses):
     formatted_history = ""
