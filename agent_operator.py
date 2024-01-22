@@ -1,24 +1,24 @@
 import re
 import time
+import html
 import json
 import os
 import threading
 import logging
-import quopri
 from shortcode import handle_document_short_code
 from gpt import GPTModel
 from datetime import datetime
 import logging
 
-## OPTIONAL: logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 
-# Sample function to mock the datetime formatting
+# Datetime formatting
 def format_datetime_for_email():
   return datetime.now().strftime('%a, %b %d, %Y at %I:%M %p')
 
 
-# Sample function to format Gmail-style note
+# Gmail-style note
 def format_note(agent_name, email="agent@semantic-life.com", timestamp=None):
   if not timestamp:
     timestamp = format_datetime_for_email()
@@ -70,10 +70,8 @@ class AgentSelector:
 
     # Order and Persona Context
     order_context = f"You are role-playing as the {agent_name}. This is response {order} in a conversation with {total_order} interactions. The agent sequence is: [{order_explanation}]."
-    print(
-        f"Debug: _create_dynamic_prompt called with agent_name: {agent_name}")
+    #print(f"Debug: _create_dynamic_prompt called with agent_name: {agent_name}")
     persona = agent_loader.get_agent_persona(agent_name)
-    persona_context = f"You are {agent_name}. {persona}" if persona else f"You are {agent_name}."
 
     # Main Instructions
     instructions = self.instructions['default']['main_instructions']
@@ -111,7 +109,7 @@ class AgentSelector:
 
     dynamic_prompt += f" {explicit_role_context}. Act as this agent."
 
-    print(f"{dynamic_prompt}")
+    # print(f"{dynamic_prompt}")
 
     return dynamic_prompt
 
@@ -119,28 +117,84 @@ class AgentSelector:
   def safe_ascii_string(s):
     return ''.join(c if ord(c) < 128 else '?' for c in s)
 
+  def sanitize_html_content(self, content):
+    """
+    Sanitizes the HTML content to prevent XSS attacks.
+    Allows only a safe subset of tags and attributes.
+    """
+    # List of allowed HTML tags
+    allowed_tags = [
+        'b', 'i', 'u', 'em', 'strong', 'a', 'blockquote', 'ul', 'ol', 'li',
+        'p', 'br', 'span', 'div'
+    ]
+
+    # List of allowed attributes for each tag
+    allowed_attrs = {
+        'a': ['href', 'title', 'target'],
+        'blockquote': ['class'],
+        'span': ['style'],
+        'div': ['class']
+    }
+
+    # Using BeautifulSoup to parse HTML
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Converting back to string for sanitization
+    clean_content = str(soup)
+
+    # Sanitizing with bleach
+    sanitized_content = bleach.clean(clean_content,
+                                     tags=allowed_tags,
+                                     attributes=allowed_attrs,
+                                     strip=True)
+
+    return sanitized_content
+
   def format_conversation_history_html(self, agent_responses, existing_history=None):
-      formatted_history = existing_history or ""
-      for agent_name, agent_email, email_content in reversed(agent_responses):
+      print("Existing history:", existing_history)
+      print("Agent responses to process:", agent_responses)
+
+      # Initialize formatted history with existing history or an empty string
+      formatted_history = existing_history if existing_history is not None else ""
+
+      # Reverse the agent_responses to process the oldest first
+      agent_responses = reversed(agent_responses)
+
+      for agent_name, agent_email, email_content in agent_responses:
           timestamp = format_datetime_for_email()
           gmail_note = format_note(agent_name, email=agent_email, timestamp=timestamp)
-          # Nest the new content outside the existing history
-          formatted_history = f'<div class="gmail_quote">{gmail_note}<br><blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">{email_content}{formatted_history}</blockquote></div><br><br>'
+          email_content = html.escape(email_content)  # Sanitize HTML content
+
+          # Create the formatted message for the current response
+          formatted_message = f'<div class="gmail_quote">{gmail_note}<blockquote>{email_content}</blockquote></div>'
+
+          # Append the new formatted message only if it's not already in the history
+          if formatted_message not in formatted_history:
+              formatted_history = f'{formatted_message}{formatted_history}'
+
+      # Print the final formatted history after processing
+      print("Final formatted history:", formatted_history)
+
       return formatted_history
-    
-    
+ 
 
   def format_conversation_history_plain(self, agent_responses):
-      formatted_history = ""
-      quote_level = 0
-      for agent_name, agent_email, email_content in reversed(agent_responses):
-          timestamp = format_datetime_for_email()
-          gmail_note = format_note(agent_name, email=agent_email, timestamp=timestamp)
-          quoted_content = "\n".join([">" * quote_level + line for line in email_content.split('\n')])
-          formatted_history = f"{gmail_note}\n{quoted_content}\n{formatted_history}"
-          quote_level += 1
-      return formatted_history
-    
+    formatted_history = ""
+    quote_level = 1  # Start with one level of quoting for the most recent message
+    for agent_name, agent_email, email_content in agent_responses:
+      timestamp = format_datetime_for_email()
+      gmail_note = format_note(agent_name,
+                               email=agent_email,
+                               timestamp=timestamp)
+      # Prepend the quote characters to each line of the email content
+      quoted_content = "\n".join([
+          ">" * quote_level + line if line.strip() else line
+          for line in email_content.split('\n')
+      ])
+      # Combine the note with the quoted content
+      formatted_history = f"{gmail_note}\n{quoted_content}\n\n{formatted_history}"
+      quote_level += 1  # Increment the quote level for the next message
+    return formatted_history.strip()  # Remove any leading/trailing whitespace
 
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
                                               agent_loader, gpt):
@@ -172,7 +226,7 @@ class AgentSelector:
         agents_to_remove.add(tag[3:])
 
     # Process other tags like !ff! and !ff.creator!
-    for agent_name in explicit_tags: 
+    for agent_name in explicit_tags:
       if agent_name.startswith('no.'):
         continue  # Skip agents prefixed with 'no.'
 
@@ -281,7 +335,7 @@ class AgentSelector:
                                            is_summarize=False)
           responses.append(response)
         else:
-          additional_context_chunk = additional_context
+          pass
 
         formatted_response = self.format_conversation_history_html([
             (agent_name, agent["email"], response)
@@ -328,7 +382,6 @@ class AgentSelector:
 
       # Handle Default Type
       else:
-        structured_response_json = {}
         if structured_response and structured_response.strip():
           try:
             structured_response_dict = json.loads(structured_response)

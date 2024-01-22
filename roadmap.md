@@ -56,3 +56,8 @@ functioncalling / instructor integration
 agents over api 
 make each agent call their own api type and settings incl. temp, maxt, etc.
 handle multiple 
+
+context awareness
+current date awareness
+newsupdate awareness 
+

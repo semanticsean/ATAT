@@ -1,7 +1,16 @@
 # Email Server for Agents: README
 
 ## Overview:
-The system is designed to act as an email server for agents. It processes incoming emails, sends responses, and manages agents and their personas. The system leverages the OpenAI GPT model to generate dynamic responses based on agent personas.
+The system is designed to act as an email server for agents. It processes incoming emails, sends responses, and manages agents and their personas. The system leverages the OpenAI GPT model to generate dynamic responses based on agent personas. It works by using aliases. It's primarily built for Google Workspace integration for initial testing, but should be compatible with almost all clients, and has been tested with Hey.com, and privately hosted IMAP / SMTP.
+
+
+## Capacitites 
+
+1. Do very long processes (i.e. multi-step API calls) without the user sitting at a chatbot or discord / slack terminal waiting. Run 24 hour responses, or more. It's normal for an email to take a day to get back.
+2. Take advantage of existing email infrastructure, security, archiving, etc.
+3. Make Mixture-of-Experts coordination easy by making it an email thread -- just cc as many experts as you want to hear from.
+4. Shortcodes give superpowers, in particular writing long-form multi-pass content.
+5. 
 
 
 
