@@ -200,14 +200,16 @@ class EmailServer:
 
       # Extract body and PDF content
       for part in email_message.walk():
-        if part.get_content_type() == 'text/plain' or part.get_content_type(
-        ) == 'text/html':
-          content_encoding = part.get("Content-Transfer-Encoding")
-          payload = part.get_payload()
-          if content_encoding == 'base64':
-            content += base64.b64decode(payload).decode('utf-8')
+        if part.get_content_type() == 'text/plain' or part.get_content_type() == 'text/html':
+          payload = part.get_payload(decode=True)  # Always decode=True
+          charset = part.get_content_charset()  # Get charset of the part
+          if charset is not None:
+            try:
+              content += payload.decode(charset)  
+            except LookupError:  # Catch encoding not found error
+              content += payload.decode('utf-8', errors='replace')  
           else:
-            content += payload
+            content += payload.decode('utf-8', errors='replace')  
 
         elif part.get_content_type() == 'application/pdf':
           pdf_data = part.get_payload(decode=True)
@@ -239,7 +241,7 @@ class EmailServer:
                                       ','.join(to_emails + cc_emails))
         return None, None, None, None, None, None, None, None
 
-      # Return the content which now includes both the email body and the PDF contents
+      # Return the content which now includes both the email body and the PDF 
       return message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid
 
     except Exception as e:
@@ -646,7 +648,6 @@ class EmailServer:
               email_history, from_,
               datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
-          # Debugging: Print the involved variables to trace the issue
           #print("Debug: Response:", response)
           #print("Debug: Formatted email history HTML:",formatted_email_history_html)
 
