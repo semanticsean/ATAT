@@ -1,2 +1,6 @@
 __pycache__/
 *.log
+.DS_Store
+.pythonlibs/.DS_Store
+.pythonlibs/lib/.DS_Store
+.pythonlibs/lib/python3.10/.DS_Store
