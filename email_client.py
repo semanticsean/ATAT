@@ -130,31 +130,40 @@ class EmailClient:
 
   def format_email_history_html(self, history, from_email, date):
     try:
-      decoded_history = quopri.decodestring(history).decode('utf-8')
+        decoded_history = quopri.decodestring(history).decode('utf-8')
     except ValueError:
-      logging.warning(
-          "Unable to decode email history with quopri. Using the original string."
-      )
-      decoded_history = history
+        logging.warning("Unable to decode email history with quopri. Using the original string.")
+        decoded_history = history
+
     header = f"On {date} {from_email} wrote:"
     lines = decoded_history.split('<br>')
     output_lines = [f'<div>{line}</div>' for line in lines]
+
+    # Wrap the entire history in a blockquote
+    
     return f'<blockquote>{header}{"".join(output_lines)}</blockquote>'
+
 
   def format_email_history_plain(self, history, from_email, date):
     try:
-      decoded_history = quopri.decodestring(history).decode('utf-8')
+        decoded_history = quopri.decodestring(history).decode('utf-8')
     except ValueError:
-      logging.warning(
-          "Unable to decode email history with quopri. Using the original string."
-      )
-      decoded_history = history
+        logging.warning("Unable to decode email history with quopri. Using the original string.")
+        decoded_history = history
     # Remove HTML tags from the decoded history
     decoded_history = self.strip_html_tags(decoded_history)
-    header = f"On {date} {from_email} wrote:"
+
+    # Split the history into lines and process each line for quoting
     lines = decoded_history.split('\n')
-    output_lines = [f'>{line}' for line in lines]
-    return f'{header}\n' + '\n'.join(output_lines)
+    quoted_lines = [f'>{line}' for line in lines]
+
+    # Header for the most recent email content
+    header = f"On {date} {from_email} wrote:"
+
+    # Combine the header with the quoted history, and quote the header as well
+    # This maintains the structure similar to the HTML version
+    return f'>{header}\n' + '\n'.join(quoted_lines)
+
 
   def process_email(self, num):
     try:
@@ -197,25 +206,30 @@ class EmailClient:
 
       content = ""
       pdf_attachments = []
+      html_content = ""
+      plain_text_content = ""
 
       # Extract body and PDF content
       for part in email_message.walk():
-        if part.get_content_type() == 'text/plain' or part.get_content_type(
-        ) == 'text/html':
-          content_encoding = part.get("Content-Transfer-Encoding")
-          payload = part.get_payload()
-          if content_encoding == 'base64':
-            content += base64.b64decode(payload).decode('utf-8')
-          else:
-            content += payload
+        if part.get_content_type() == 'text/html':
+            html_content = part.get_payload(decode=True).decode('utf-8')
+        elif part.get_content_type() == 'text/plain':
+            plain_text_content = part.get_payload(decode=True).decode('utf-8')
+            content_encoding = part.get("Content-Transfer-Encoding")
+            payload = part.get_payload()
+            if content_encoding == 'base64':
+                content += base64.b64decode(payload).decode('utf-8')
+            else:
+                content += payload
 
         elif part.get_content_type() == 'application/pdf':
-          pdf_data = part.get_payload(decode=True)
-          pdf_text = extract_pdf_text(pdf_data)
-          pdf_attachments.append({
-              'filename': part.get_filename(),
-              'text': pdf_text
-          })
+            pdf_data = part.get_payload(decode=True)
+            pdf_text = extract_pdf_text(pdf_data)
+            pdf_attachments.append({
+                'filename': part.get_filename(),
+                'text': pdf_text
+            })
+
 
       # Append PDF contents to the content
       for pdf_attachment in pdf_attachments:
@@ -224,7 +238,10 @@ class EmailClient:
           pdf_label = f"PDF: {pdf_attachment['filename']}"
           content += f"\n\n{pdf_label}\n{pdf_text}\n{pdf_label}\n"
 
-      # Adjust character limit based on the presence of !detail or !summarize shortcodes
+
+      email_content = html_content if html_content else plain_text_content
+
+      
       MAX_LIMIT = 350000
       if "!detail" in content or re.search(r"!summarize\.", content):
         MAX_LIMIT = 2000000
@@ -607,7 +624,15 @@ class EmailClient:
 
         if message_id not in self.conversation_threads:
           self.conversation_threads[message_id] = [thread_content]
-        self.conversation_threads[message_id].append(response)
+        
+        if '<html>' in thread_content:
+          formatted_email_history = self.format_email_history_html(thread_content, from_, datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
+        else:
+          formatted_email_history = self.format_email_history_plain(thread_content, from_, datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
+
+        # Update conversation_history
+        self.conversation_threads[message_id].append(formatted_email_history)
+        
         previous_responses.append(response)
 
         agent = self.agent_loader.get_agent(agent_name)
@@ -716,7 +741,7 @@ class EmailClient:
 
       if message_id in self.conversation_threads:
         conversation_history = '\n'.join(self.conversation_threads[message_id])
-        print(f"Conversation history: {conversation_history[:142]}")
+        print(f"START Conversation history: {conversation_history} END CONVERSATION HISTORY")
 
       return all_responses_successful
 
