@@ -10,6 +10,7 @@
 🚩 summarize not working 
 🚩 agent confusion / context awareness of each other
 🚩 duplicate and triplicate responses, especially in detail
+🚩 email formatting needs to be its own class / set of tools 
 🚩 atlas awareness 
 🚩 create airbnb manager 
 🚩 new orion 
@@ -23,6 +24,7 @@
 🚩 sender name included in information 
 🚩 remove old new agent from gpt 
 🚩 test all again 
+
 
 
 

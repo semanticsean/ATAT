@@ -41,7 +41,7 @@ The shortcodes are integrated into the shortcode.py module, which acts as an int
 
 ## Modules:
 
-### email_server.py:
+### email_client.py:
 - Manages operations related to the email server.
 - Connects to an IMAP server to process incoming emails.
 - Sends out emails.
@@ -78,8 +78,8 @@ The shortcodes are integrated into the shortcode.py module, which acts as an int
 ## How to Run:
 To execute the system, run the `main.py` script, which initializes the agent manager, GPT model, and email server, then starts the email server to begin processing emails.
 
-## email_server.py Overview:
-**Purpose:** This module appears to handle the operations related to an email server, including connecting to an IMAP server, processing incoming emails, and sending emails.
+## email_client.py Overview:
+**Purpose:** This module appears to handle the operations related to an email client, including connecting to an IMAP server, processing incoming emails, and sending emails.
 
 **Key Functions:**
 - `__init__`: Initializes the email server with necessary credentials.
