@@ -200,22 +200,31 @@ class EmailServer:
 
       # Extract body and PDF content
       for part in email_message.walk():
-        if part.get_content_type() == 'text/plain' or part.get_content_type(
-        ) == 'text/html':
-          content_encoding = part.get("Content-Transfer-Encoding")
-          payload = part.get_payload()
-          if content_encoding == 'base64':
-            content += base64.b64decode(payload).decode('utf-8')
-          else:
-            content += payload
+        # Check for text parts in the email
+        if part.get_content_type() in ('text/plain', 'text/html'):
+            content_encoding = part.get("Content-Transfer-Encoding", "").lower()
+            payload = part.get_payload()
 
+            # Decode content from Base64 if needed
+            if content_encoding == 'base64':
+                try:
+                    decoded_payload = base64.b64decode(payload)
+                    content += decoded_payload.decode('utf-8')
+                except (ValueError, UnicodeDecodeError) as e:
+                    logging.error(f"Decoding error: {e}")
+            else:
+                # Directly add the payload if not Base64-encoded
+                content += payload
+
+        # Process PDF attachments
         elif part.get_content_type() == 'application/pdf':
-          pdf_data = part.get_payload(decode=True)
-          pdf_text = extract_pdf_text(pdf_data)
-          pdf_attachments.append({
-              'filename': part.get_filename(),
-              'text': pdf_text
-          })
+            pdf_data = part.get_payload(decode=True)
+            pdf_text = extract_pdf_text(pdf_data)
+            pdf_attachments.append({
+                'filename': part.get_filename(),
+                'text': pdf_text
+            })
+
 
       # Append PDF contents to the content
       for pdf_attachment in pdf_attachments:
