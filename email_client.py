@@ -128,23 +128,41 @@ class EmailClient:
     print("Restarting system...")
     self.connect_to_imap_server()
 
-  def format_email_history_html(self,history, from_email, date):
-    decoded_history = quopri.decodestring(history).decode('utf-8')
+  def format_email_history_html(self, history, from_email, date):
+    try:
+        decoded_history = quopri.decodestring(history).decode('utf-8')
+    except ValueError:
+        logging.warning("Unable to decode email history with quopri. Using the original string.")
+        decoded_history = history
+
     header = f"On {date} {from_email} wrote:"
     lines = decoded_history.split('<br>')
     output_lines = [f'<div>{line}</div>' for line in lines]
+
+    # Wrap the entire history in a blockquote
+    
     return f'<blockquote>{header}{"".join(output_lines)}</blockquote>'
 
 
+  def format_email_history_plain(self, history, from_email, date):
+    try:
+        decoded_history = quopri.decodestring(history).decode('utf-8')
+    except ValueError:
+        logging.warning("Unable to decode email history with quopri. Using the original string.")
+        decoded_history = history
+    # Remove HTML tags from the decoded history
+    decoded_history = self.strip_html_tags(decoded_history)
 
-  def format_email_history_plain(self,history, from_email, date):
-    decoded_history = quopri.decodestring(history).decode('utf-8')
-    decoded_history = re.sub(r'<.*?>', '', html.unescape(decoded_history))
+    # Split the history into lines and process each line for quoting
     lines = decoded_history.split('\n')
     quoted_lines = [f'>{line}' for line in lines]
-    header = f"On {date} {from_email} wrote:"
-    return f'>{header}\n' + '\n'.join(quoted_lines)
 
+    # Header for the most recent email content
+    header = f"On {date} {from_email} wrote:"
+
+    # Combine the header with the quoted history, and quote the header as well
+    # This maintains the structure similar to the HTML version
+    return f'>{header}\n' + '\n'.join(quoted_lines)
 
 
   def process_email(self, num):
@@ -644,6 +662,10 @@ class EmailClient:
             print(f"Sending email to: {to_emails_without_agent}")
             print(f"CC: {cc_emails_without_agent}")
 
+          if message_id in self.conversation_threads:
+            self.conversation_threads[message_id].append(response)
+
+
           # Collect the email history of the thread
           email_history = '\n'.join(
               self.conversation_threads.get(message_id, [])[:-1])
@@ -724,6 +746,7 @@ class EmailClient:
       if message_id in self.conversation_threads:
         conversation_history = '\n'.join(self.conversation_threads[message_id])
         print(f"START Conversation history: {conversation_history} END CONVERSATION HISTORY")
+  
 
       return all_responses_successful
 
