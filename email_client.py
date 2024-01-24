@@ -128,43 +128,23 @@ class EmailClient:
     print("Restarting system...")
     self.connect_to_imap_server()
 
-  def format_email_history_html(self, history, from_email, date, agent_responses=None):
-    try:
-        decoded_history = quopri.decodestring(history).decode('utf-8')
-    except ValueError:
-        logging.warning("Unable to decode email history with quopri. Using the original string.")
-        decoded_history = history
-
+  def format_email_history_html(self,history, from_email, date):
+    decoded_history = quopri.decodestring(history).decode('utf-8')
     header = f"On {date} {from_email} wrote:"
     lines = decoded_history.split('<br>')
     output_lines = [f'<div>{line}</div>' for line in lines]
-
-    if agent_responses:
-        for agent_name, agent_email, agent_response in agent_responses:
-            agent_header = f"On {date} {agent_name} <{agent_email}> wrote:"
-            history = f'<blockquote>{agent_header}<div>{agent_response}</div></blockquote>{history}'
-
     return f'<blockquote>{header}{"".join(output_lines)}</blockquote>'
 
 
-  def format_email_history_plain(self, history, from_email, date, agent_responses=None):
-    try:
-        decoded_history = quopri.decodestring(history).decode('utf-8')
-    except ValueError:
-        logging.warning("Unable to decode email history with quopri. Using the original string.")
-        decoded_history = history
-    decoded_history = self.strip_html_tags(decoded_history)
+
+  def format_email_history_plain(self,history, from_email, date):
+    decoded_history = quopri.decodestring(history).decode('utf-8')
+    decoded_history = re.sub(r'<.*?>', '', html.unescape(decoded_history))
     lines = decoded_history.split('\n')
     quoted_lines = [f'>{line}' for line in lines]
     header = f"On {date} {from_email} wrote:"
-
-    if agent_responses:
-        for agent_name, agent_email, agent_response in agent_responses:
-            agent_header = f"On {date} {agent_name} <{agent_email}> wrote:"
-            quoted_agent_response = '\n'.join([f'>{line}' for line in agent_response.split('\n')])
-            history = f'>{agent_header}\n{quoted_agent_response}\n{history}'
-
     return f'>{header}\n' + '\n'.join(quoted_lines)
+
 
 
   def process_email(self, num):

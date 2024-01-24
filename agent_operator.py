@@ -119,51 +119,25 @@ class AgentSelector:
   def safe_ascii_string(s):
     return ''.join(c if ord(c) < 128 else '?' for c in s)
 
-  def format_conversation_history_html(self, agent_responses, exclude_recent=1, existing_history=None):
-    # If there is existing history, start with that
+  def format_conversation_history_html(self,agent_responses, existing_history=None):
     formatted_history = existing_history or ""
-  
-    # Process all but the most recent response for nested history
-    for agent_name, agent_email, email_content in reversed(agent_responses[:-exclude_recent]):
+    for agent_name, agent_email, email_content in reversed(agent_responses):
         timestamp = format_datetime_for_email()
         gmail_note = format_note(agent_name, email=agent_email, timestamp=timestamp)
-        formatted_history = f'<div class="gmail_quote">{gmail_note}<blockquote>{email_content}{formatted_history}</blockquote></div>'
-  
-    # Process the most recent response
-    if agent_responses and exclude_recent > 0:
-        recent_agent_name, recent_agent_email, recent_email_content = agent_responses[-exclude_recent]
-        recent_timestamp = format_datetime_for_email()
-        recent_gmail_note = format_note(recent_agent_name, email=recent_agent_email, timestamp=recent_timestamp)
-        formatted_history = f'<blockquote>{recent_gmail_note}{recent_email_content}{formatted_history}</blockquote>'
-
-    print(f"formatted history: {formatted_history}")
+        formatted_history = f'<div class="gmail_quote">{agent_name} {gmail_note}<blockquote>{email_content}{formatted_history}</blockquote></div>'
     return formatted_history
   
-  
 
-  def format_conversation_history_plain(self, agent_responses, exclude_recent=1, existing_history=None):
+  def format_conversation_history_plain(self,agent_responses, existing_history=None):
     formatted_plain_history = existing_history or ""
     quote_level = 1
-  
-    # Process all but the most recent response for nested history
-    for agent_name, agent_email, email_content in reversed(agent_responses[:-exclude_recent]):
+    for agent_name, agent_email, email_content in reversed(agent_responses):
         timestamp = format_datetime_for_email()
         gmail_note = format_note(agent_name, email=agent_email, timestamp=timestamp)
-        quoted_content = "\n".join([">" * quote_level + line if line.strip() else line for line in email_content.split('\n')])
-        formatted_history = f"{gmail_note}\n{quoted_content}\n\n{formatted_history}"
-        quote_level += 1  # Increment the quote level for the next message
-  
-    # Process the most recent response
-    if agent_responses and exclude_recent > 0:
-        recent_agent_name, recent_agent_email, recent_email_content = agent_responses[-exclude_recent]
-        recent_timestamp = format_datetime_for_email()
-        recent_gmail_note = format_note(recent_agent_name, email=recent_agent_email, timestamp=recent_timestamp)
-        quoted_recent_content = "\n".join([">" + line if line.strip() else line for line in recent_email_content.split('\n')])
-        formatted_history = f"{recent_gmail_note}\n{quoted_recent_content}\n\n{formatted_history}"
-
-    print(f"formatted history: {formatted_history}")
+        quoted_content = "\n".join([">" * quote_level + f"[PLAIN_HISTORY: {agent_name}] " + line if line.strip() else line for line in email_content.split('\n')])
+        formatted_plain_history += f"{gmail_note}\n{quoted_content}\n\n"
+        quote_level += 1
     return formatted_plain_history.strip()
-  
 
 
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
@@ -223,6 +197,9 @@ class AgentSelector:
     return agent_queue
 
   def get_response_for_agent(self, agent_loader, gpt, agent_name, order, total_order, content, additional_context=None):
+
+        chunk = ""
+    
         # Count tokens before the API call
         tokens_for_this_request = self.gpt.count_tokens(content)
 
@@ -310,12 +287,18 @@ class AgentSelector:
                         additional_context = structured_response
 
                 dynamic_prompt = self._create_dynamic_prompt(agent_loader, agent_name, order, total_order, additional_context, modality=modality)
-                response = gpt.generate_response(dynamic_prompt, content, self.conversation_history, is_summarize=False)
+                response = gpt.generate_response(dynamic_prompt, chunk, self.conversation_history, is_summarize=False)
+                # ... existing code ...
                 if response:
-                    agent_email = agent_loader.get_agent(agent_name)["email"]
-                    formatted_response = self.format_conversation_history_html([(agent_name, agent_email, response)], existing_history=self.conversation_history)
-                    self.conversation_history += f"\n{agent_name} said: {formatted_response}"
-                    responses.append(response)
+                  agent_email = agent_loader.get_agent(agent_name)["email"]
+                  agent_response_info = [(agent_name, agent_email, response)]
+  
+                  # Corrected call to format_conversation_history_html
+                  formatted_response = self.format_conversation_history_html(agent_response_info, existing_history=self.conversation_history)
+  
+                  self.conversation_history += f"\n{agent_name} said: {formatted_response}"
+                  responses.append(response)
+  
 
             final_response = " ".join(responses)
             signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
