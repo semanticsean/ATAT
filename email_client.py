@@ -128,7 +128,7 @@ class EmailClient:
     print("Restarting system...")
     self.connect_to_imap_server()
 
-  def format_email_history_html(self, history, from_email, date):
+  def format_email_history_html(self, history, from_email, date, agent_responses=None):
     try:
         decoded_history = quopri.decodestring(history).decode('utf-8')
     except ValueError:
@@ -139,29 +139,31 @@ class EmailClient:
     lines = decoded_history.split('<br>')
     output_lines = [f'<div>{line}</div>' for line in lines]
 
-    # Wrap the entire history in a blockquote
-    
+    if agent_responses:
+        for agent_name, agent_email, agent_response in agent_responses:
+            agent_header = f"On {date} {agent_name} <{agent_email}> wrote:"
+            history = f'<blockquote>{agent_header}<div>{agent_response}</div></blockquote>{history}'
+
     return f'<blockquote>{header}{"".join(output_lines)}</blockquote>'
 
 
-  def format_email_history_plain(self, history, from_email, date):
+  def format_email_history_plain(self, history, from_email, date, agent_responses=None):
     try:
         decoded_history = quopri.decodestring(history).decode('utf-8')
     except ValueError:
         logging.warning("Unable to decode email history with quopri. Using the original string.")
         decoded_history = history
-    # Remove HTML tags from the decoded history
     decoded_history = self.strip_html_tags(decoded_history)
-
-    # Split the history into lines and process each line for quoting
     lines = decoded_history.split('\n')
     quoted_lines = [f'>{line}' for line in lines]
-
-    # Header for the most recent email content
     header = f"On {date} {from_email} wrote:"
 
-    # Combine the header with the quoted history, and quote the header as well
-    # This maintains the structure similar to the HTML version
+    if agent_responses:
+        for agent_name, agent_email, agent_response in agent_responses:
+            agent_header = f"On {date} {agent_name} <{agent_email}> wrote:"
+            quoted_agent_response = '\n'.join([f'>{line}' for line in agent_response.split('\n')])
+            history = f'>{agent_header}\n{quoted_agent_response}\n{history}'
+
     return f'>{header}\n' + '\n'.join(quoted_lines)
 
 

@@ -222,191 +222,107 @@ class AgentSelector:
 
     return agent_queue
 
-  def get_response_for_agent(self,
-                             agent_loader,
-                             gpt,
-                             agent_name,
-                             order,
-                             total_order,
-                             content,
-                             additional_context=None):
+  def get_response_for_agent(self, agent_loader, gpt, agent_name, order, total_order, content, additional_context=None):
+        # Count tokens before the API call
+        tokens_for_this_request = self.gpt.count_tokens(content)
 
-    # Count tokens before the API call
-    tokens_for_this_request = self.gpt.count_tokens(content)
+        # Check rate limits
+        self.gpt.check_rate_limit(tokens_for_this_request)
 
-    # Check rate limits
-    self.gpt.check_rate_limit(tokens_for_this_request)
+        custom_instruction_for_detail = "THIS IS A MULTI-PART LOOP ASSEMBLING A LARGE MESSAGE IN CHUNKS. THIS IS A MULTI-PART LOOP ASSEMBLING A LARGE MESSAGE IN CHUNKS. FOR EACH SECTION ALWAYS PROVIDE A CLEAR TITLE, SUBHEADING, AND VERY SHORT (JUST A FEW WORDS) DESCRIPTION OF THE CONTENT TO FOLLOW. IN THIS CASE DO NOT RESPOND AS THOUGH IT IS AN EMAIL IN SPITE OF PRIOR INSTRUCTIONS, JUST PROVIDE THE CONTENT. IF ANSWERING FORM QUESTIONS ANSWER THEM THOROUGHLY AND PLACE THE QUESTION YOU ARE ANSWERING ABOVE THE ANSWER, RESTATING IT. DO NOT USE EMAIL QUOTING CHARACTERS, AND DO NOT SAY THINGS LIKE 'HELLO' OR PROVIDE SIGNATURES. DO NOT SAY 'ON [DATE] [USER] SAID' OR ANYTHING LIKE THAT."
 
-    #custom instructions
-    custom_instruction_for_detail = "THIS IS A MULTI-PART LOOP ASSEMBLING A LARGE MESSAGE IN CHUNKS. FOR EACH SECTION ALWAYS PROVIDE A CLEAR TITLE, SUBHEADING, AND VERY SHORT (JUST A FEW WORDS) DESCRIPTION OF THE CONTENT TO FOLLOW. IN THIS CASE DO NOT RESPOND AS THOUGH IT IS AN EMAIL IN SPITE OF PRIOR INSTRUCTIONS, JUST PROVIDE THE CONTENT. IF ANSWERING FORM QUESTIONS ANSWER THEM THOROUGHLY AND PLACE THE QUESTION YOU ARE ANSWERING ABOVE THE ANSWER, RESTATING IT. DO NOT USE EMAIL QUOTING CHARACTERS, AND DO NOT SAY THINGS LIKE 'HELLO' OR PROVIDE SIGNATURES. DO NOT SAY 'ON [DATE] [USER] SAID' OR ANYTHING LIKE THAT."
+        content = self.replace_agent_shortcodes(content)
 
-    content = self.replace_agent_shortcodes(content)
+        timestamp = format_datetime_for_email()
 
-    timestamp = format_datetime_for_email()
+        modality = 'default'
+        with self.lock:
+            if "!previousResponse" in content:
+                content = content.replace('!previousResponse', self.last_agent_response)
+                content = content.replace('!useLastResponse', '').strip()
 
-    modality = 'default'
-    with self.lock:
-      if "!previousResponse" in content:
-        content = content.replace('!previousResponse',
-                                  self.last_agent_response)
-        content = content.replace('!useLastResponse', '').strip()
+            responses = []
+            dynamic_prompt = ""
+            agent = agent_loader.get_agent(agent_name, case_sensitive=False)
 
-      responses = []
-      dynamic_prompt = ""
-      agent = agent_loader.get_agent(agent_name, case_sensitive=False)
+            if not agent:
+                logging.warning(f"No agent found for name {agent_name}. Skipping...")
+                return ""
 
-      if not agent:
-        logging.warning(f"No agent found for name {agent_name}. Skipping...")
-        return ""
+            result = handle_document_short_code(content, self.openai_api_key, self.conversation_history)
+            if result is None:
+                print("Error: agent_operator - handle_document_short_code returned None.")
+                return False
 
-      result = handle_document_short_code(content, self.openai_api_key,
-                                          self.conversation_history)
-      if result is None:
-        print(
-            "Error: agent_operator - handle_document_short_code returned None."
-        )
-        return False
-      structured_response = result.get('structured_response')
-      new_content = result.get('new_content')
+            structured_response = result.get('structured_response')
+            new_content = result.get('new_content')
 
-      # Timestamp for formatting note
-      timestamp = format_datetime_for_email()
+            if result['type'] == 'pro':
+                descriptions = result.get('content', [])
+                for desc in descriptions:
+                    generated_profile = self.gpt.generate_agent_profile(desc)
+                    unique_key = f"GeneratedAgent_{hash(desc)}"
+                    self.invoked_agents[unique_key] = generated_profile
+                print("Debug: About to save invoked agents:", self.invoked_agents)
+                self.save_rendered_agents()
 
-      if result['type'] == 'pro':
-        descriptions = result.get('content', [])
-        for desc in descriptions:
-          generated_profile = self.gpt.generate_agent_profile(desc)
-          # Generate a unique key for each generated agent, based on the description
-          unique_key = f"GeneratedAgent_{hash(desc)}"
-          self.invoked_agents[unique_key] = generated_profile
-        print("Debug: About to save invoked agents:", self.invoked_agents)
-        self.save_rendered_agents()
+            elif result['type'] == 'summarize':
+                modality = result.get('modality', 'default')
+                additional_context = self.instructions['summarize'].get(modality, self.instructions['summarize']['default'])
 
-      # Handle Summarize Type
-      if result['type'] == 'summarize':
-        modality = result.get('modality', 'default')
-        additional_context = self.instructions['summarize'].get(
-            modality, self.instructions['summarize']['default'])
+                chunks = result.get('content', [])
+                self.conversation_history = self.conversation_history[-16000:]
 
-        chunks = result.get('content', [])
-        self.conversation_history = self.conversation_history[-16000:]
+                for idx, chunk in enumerate(chunks):
+                    dynamic_prompt = self._create_dynamic_prompt(agent_loader, agent_name, order, total_order, structured_response, modality=modality, content=chunk)
+                    response = gpt.generate_response(dynamic_prompt, chunk, self.conversation_history, is_summarize=False)
+                    if response:
+                        agent_email = agent_loader.get_agent(agent_name)["email"]
+                        formatted_response = self.format_conversation_history_html([(agent_name, agent_email, response)], existing_history=self.conversation_history)
+                        self.conversation_history += f"\n{agent_name} said: {formatted_response}"
+                        responses.append(response)
 
-        for idx, chunk in enumerate(chunks):
-          dynamic_prompt = self._create_dynamic_prompt(agent_loader,
-                                                       agent_name,
-                                                       order,
-                                                       total_order,
-                                                       structured_response,
-                                                       modality=modality,
-                                                       content=chunk)
-          response = gpt.generate_response(dynamic_prompt,
-                                           chunk,
-                                           self.conversation_history,
-                                           is_summarize=False)
-          responses.append(response)
-        else:
-          additional_context_chunk = additional_context
+            elif result['type'] == 'detail':
+                chunks = result.get('content', [])
+                self.conversation_history = self.conversation_history[-16000:]
 
-        formatted_response = self.format_conversation_history_html([
-            (agent_name, agent["email"], response)
-        ])
+                for idx, chunk in enumerate(chunks):
+                    dynamic_prompt = self._create_dynamic_prompt(agent_loader, agent_name, order, total_order, additional_context, modality=modality)
+                    dynamic_prompt += f" {custom_instruction_for_detail}"
+                    response = gpt.generate_response(dynamic_prompt, chunk, self.conversation_history, is_summarize=False)
+                    if response:
+                        agent_email = agent_loader.get_agent(agent_name)["email"]
+                        formatted_response = self.format_conversation_history_html([(agent_name, agent_email, response)], existing_history=self.conversation_history)
+                        self.conversation_history += f"\n{agent_name} said: {formatted_response}"
+                        responses.append(response)
 
-        self.conversation_history += f"\n{agent_name} said: {formatted_response}"
+            else:
+                if structured_response and structured_response.strip():
+                    try:
+                        structured_response_dict = json.loads(structured_response)
+                        structured_response_type = structured_response_dict.get('type', None)
+                        structured_response_content = structured_response_dict.get('structured_response', None)
+                        if structured_response_type and structured_response_content:
+                            additional_context = f"\nGuidelines for crafting response:\n{json.dumps(structured_response_content, indent=4)}"
+                            content = new_content
+                    except json.JSONDecodeError:
+                        logging.warning("Unable to parse structured response as JSON.")
+                        additional_context = structured_response
 
-      # Handle Detail Type
-      elif result['type'] == 'detail':
-        chunks = result.get('content', [])
-        self.conversation_history = self.conversation_history[-16000:]
+                dynamic_prompt = self._create_dynamic_prompt(agent_loader, agent_name, order, total_order, additional_context, modality=modality)
+                response = gpt.generate_response(dynamic_prompt, content, self.conversation_history, is_summarize=False)
+                if response:
+                    agent_email = agent_loader.get_agent(agent_name)["email"]
+                    formatted_response = self.format_conversation_history_html([(agent_name, agent_email, response)], existing_history=self.conversation_history)
+                    self.conversation_history += f"\n{agent_name} said: {formatted_response}"
+                    responses.append(response)
 
-        responses = []
-        agent_responses = []  # List to hold tuples of agent responses
+            final_response = " ".join(responses)
+            signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
+            final_response_with_signature = final_response + signature
 
-        for idx, chunk in enumerate(chunks):
-          dynamic_prompt = self._create_dynamic_prompt(agent_loader,
-                                                       agent_name,
-                                                       order,
-                                                       total_order,
-                                                       additional_context,
-                                                       modality=modality)
-          # Add custom instruction to the dynamic prompt
-          dynamic_prompt += f" {custom_instruction_for_detail}"
+            return final_response_with_signature
 
-          response = gpt.generate_response(dynamic_prompt,
-                                           chunk,
-                                           self.conversation_history,
-                                           is_summarize=False)
-
-          responses.append(response)
-          agent_responses.append((agent_name, agent["email"], response))
-
-        final_response = ' '.join(
-            responses)  # Join responses to avoid repetition
-        formatted_response = self.format_conversation_history_html(
-            agent_responses)
-
-        self.conversation_history += f"\n{agent_name} said: {formatted_response}"
-
-        #logging.debug(f"Appending response {idx}")
-        responses.append(response)
-      #logging.debug(f"Final Responses: {responses}")
-
-      # Handle Default Type
-      else:
-        structured_response_json = {}
-        if structured_response and structured_response.strip():
-          try:
-            structured_response_dict = json.loads(structured_response)
-            structured_response_type = structured_response_dict.get(
-                'type', None)
-            structured_response_content = structured_response_dict.get(
-                'structured_response', None)
-            if structured_response_type and structured_response_content:
-              additional_context = f"\nGuidelines for crafting response:\n{json.dumps(structured_response_content, indent=4)}"
-              content = new_content
-          except json.JSONDecodeError:
-            logging.warning("Unable to parse structured response as JSON.")
-            additional_context = structured_response
-
-        dynamic_prompt = self._create_dynamic_prompt(agent_loader,
-                                                     agent_name,
-                                                     order,
-                                                     total_order,
-                                                     additional_context,
-                                                     modality=modality)
-        response = gpt.generate_response(dynamic_prompt,
-                                         content,
-                                         self.conversation_history,
-                                         is_summarize=False)
-
-        responses.append(response)
-        formatted_response = self.format_conversation_history_html([
-            (agent_name, agent["email"], response)
-        ])
-
-        self.conversation_history += f"\n{agent_name} said: {formatted_response}"
-        time.sleep(30)
-
-      # After handling all types, append the final response
-      final_response = " ".join(responses)
-      signature = f"\n\n- GENERATIVE AI AGENT: {agent_name}"
-      final_response_with_signature = final_response + signature  # Append the signature only to the final response
-
-      # Formatting the nested history
-      agent_email = agent["email"]
-      timestamp = format_datetime_for_email()
-      gmail_note = format_note(agent_name, agent_email, timestamp)
-      agent_responses = [(agent_name, agent["email"],
-                          final_response_with_signature)]
-      nested_history = self.format_conversation_history_html(
-          agent_responses, existing_history=gmail_note)
-
-      self.conversation_structure.setdefault("responses", []).append(
-          (agent_name,
-           nested_history))  # Store the formatted response with signature
-
-      self.last_agent_response = nested_history  # Update the last agent response to include the signature
-
-      return final_response_with_signature
 
   def save_rendered_agents(self):
     formatted_agents_list = []
