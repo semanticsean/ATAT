@@ -120,23 +120,20 @@ class AgentSelector:
     return ''.join(c if ord(c) < 128 else '?' for c in s)
 
   def format_conversation_history_html(self, agent_responses, exclude_recent=1, existing_history=None):
-    # If there is existing history, start with that
     formatted_history = existing_history or ""
-  
-    # Process all but the most recent response for nested history
+    # Processing agent responses
     for agent_name, agent_email, email_content in reversed(agent_responses[:-exclude_recent]):
         timestamp = format_datetime_for_email()
         gmail_note = format_note(agent_name, email=agent_email, timestamp=timestamp)
-        formatted_history = f'"Fformat_conversation_history_html :"<div class="gmail_quote">{gmail_note}<blockquote>{email_content}{formatted_history}</blockquote></div>'
+        formatted_history = f'<div class="gmail_quote">{gmail_note}<blockquote>{email_content}</blockquote></div>{formatted_history}'
   
-    # Process the most recent response
+    # Processing the most recent response
     if agent_responses and exclude_recent > 0:
         recent_agent_name, recent_agent_email, recent_email_content = agent_responses[-exclude_recent]
         recent_timestamp = format_datetime_for_email()
         recent_gmail_note = format_note(recent_agent_name, email=recent_agent_email, timestamp=recent_timestamp)
-        formatted_history = f'<blockquote>{recent_gmail_note}{recent_email_content}{formatted_history}</blockquote>'
-
-    print(f"formatted history: {formatted_history}")
+        formatted_history = f'<div class="gmail_quote">{recent_gmail_note}<blockquote>{recent_email_content}</blockquote></div>{formatted_history}'
+  
     return formatted_history
   
   

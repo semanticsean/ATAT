@@ -127,42 +127,50 @@ class EmailClient:
   def restart_system(self):
     print("Restarting system...")
     self.connect_to_imap_server()
+    
 
   def format_email_history_html(self, history, from_email, date):
+    """
+    Formats the email history for HTML content. Ensures proper line breaks
+    and use of the gmail_quote div for each email content block.
+    """
+    # Decoding the history if it's encoded
     try:
         decoded_history = quopri.decodestring(history).decode('utf-8')
     except ValueError:
         logging.warning("Unable to decode email history with quopri. Using the original string.")
         decoded_history = history
 
-    header = f"On {date} {from_email} wrote:"
-    lines = decoded_history.split('<br>')
-    output_lines = [f'<div>{line}</div>' for line in lines]
+    # Splitting and formatting each line
+    lines = decoded_history.split('\n')
+    formatted_lines = ['<div>{}</div>'.format(line) for line in lines]
 
-    # Wrap the entire history in a blockquote
-    
-    return f'<blockquote>{header}{"".join(output_lines)}</blockquote>'
+    # Building the complete HTML content with the gmail_quote div
+    html_content = '<div class="gmail_quote"><blockquote>On {} {} wrote:<br>{}<br></blockquote></div>'.format(
+        date, from_email, ''.join(formatted_lines))
 
+    return html_content
 
   def format_email_history_plain(self, history, from_email, date):
+    """
+    Formats the email history for plain text content. Ensures proper quoting
+    and line preservation.
+    """
     try:
         decoded_history = quopri.decodestring(history).decode('utf-8')
     except ValueError:
         logging.warning("Unable to decode email history with quopri. Using the original string.")
         decoded_history = history
-    # Remove HTML tags from the decoded history
-    decoded_history = self.strip_html_tags(decoded_history)
 
-    # Split the history into lines and process each line for quoting
+    # Splitting and quoting each line
     lines = decoded_history.split('\n')
-    quoted_lines = [f'>{line}' for line in lines]
+    quoted_lines = ['> {}'.format(line) for line in lines]
 
-    # Header for the most recent email content
-    header = f"On {date} {from_email} wrote:"
+    # Combining quoted lines with header
+    plain_text_content = 'On {} {} wrote:\n{}\n'.format(
+        date, from_email, '\n'.join(quoted_lines))
 
-    # Combine the header with the quoted history, and quote the header as well
-    # This maintains the structure similar to the HTML version
-    return f'>{header}\n' + '\n'.join(quoted_lines)
+    return plain_text_content
 
 
   def process_email(self, num):
@@ -630,6 +638,7 @@ class EmailClient:
         else:
           formatted_email_history = self.format_email_history_plain(thread_content, from_, datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
+
         # Update conversation_history
         self.conversation_threads[message_id].append(formatted_email_history)
         
@@ -687,24 +696,23 @@ class EmailClient:
           #print("Debug: Formatted email history Plain:",formatted_email_history_plain)
 
           response = response.replace("\n", "<br/>")
-          part1_plain = MIMEText(f"{response}\n", 'plain', "utf-8")
-          part1_html = MIMEText(
-              f"<!DOCTYPE html><html><body>{response}<br/></body></html>",
-              'html', "utf-8")
+          # Commenting out the plain text part for testing
+          # part1_plain = MIMEText(f"{response}\n", 'plain', "utf-8")
+          part1_html = MIMEText(f"<!DOCTYPE html><html><body>{response}<br/></body></html>", 'html', "utf-8")
 
-          part2_plain = MIMEText(formatted_email_history_plain, 'plain',
-                                 "utf-8")
-          part2_html = MIMEText(
-              f"<!DOCTYPE html><html><body>{formatted_email_history_html}</body></html>",
-              'html', "utf-8")
+          formatted_email_history_html = self.format_email_history_html(email_history, from_, datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
+
+          # Commenting out the plain text part for testing
+          # part2_plain = MIMEText(formatted_email_history_plain, 'plain', "utf-8")
+          part2_html = MIMEText(f"<!DOCTYPE html><html><body>{formatted_email_history_html}</body></html>", 'html', "utf-8")
 
           # Create 'alternative' MIMEMultipart object for each segment
           alternative1 = MIMEMultipart('alternative')
-          alternative1.attach(part1_plain)
+          # alternative1.attach(part1_plain)  # Commented out for testing
           alternative1.attach(part1_html)
 
           alternative2 = MIMEMultipart('alternative')
-          alternative2.attach(part2_plain)
+          # alternative2.attach(part2_plain)  # Commented out for testing
           alternative2.attach(part2_html)
 
           # Create 'mixed' MIMEMultipart object to combine them
