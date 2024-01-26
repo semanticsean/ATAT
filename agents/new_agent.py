@@ -8,7 +8,8 @@ import uuid
 import openai
 import requests
 
-## NOTE: WILL ONLY WORK IF OPENAI_API_KEY SET IN ENV VARS / SECREST 
+## NOTE: WILL ONLY WORK IF OPENAI_API_KEY SET IN ENV VARS / SECREST
+
 
 def log_to_file(message):
   log_file = "api_log.txt"
@@ -43,12 +44,18 @@ def download_and_save_image(url, path):
       file.write(response.content)
 
 
-def generate_persona(description, max_tokens=3000, temperature=0.7, top_p=0.5):
+def generate_persona(agent_name,
+                     description,
+                     max_tokens=3000,
+                     temperature=0.7,
+                     top_p=0.5):
   prompt_message = {
       "role":
       "system",
       "content":
-      "Generate a detailed narrative description of a persona based on this information and convert it into JSON format with these fields: persona, summary, keywords, and image_prompt. Each is a single field, and only keywords is a dictionary, the rest are single text block answers in the value. so it's exactly like this: 'persona':'','summary':'','keywords':['keyword1','keyword2','keyword3','keyword4','keyword5','keyword6'],'image_prompt':'' -- it is critical that the JSON be exactly like that. An important consideration is that the keyword dictionary is JUST the keywords and not using any labels / keys for the values within the dictionary. For details, persona should include this stuff: 'Job Title, Field of Expertise, THEORY OF MIND, ACTION TENDENCY MECHANISM, SOCIAL IMPORTANCE DYNAMICS, MODEL OF GOALS, MODEL OF DESIRES, MODEL OF AGENDAS, MODEL OF THOUGHT COMPLEXITY, MODEL OF CURIOSITY, MODEL OF INTERNAL FAMILY SYSTEMS OF UNNAMED BUT RECOGNIZED INFLUENCES, General Character Disposition, Primary Company Name, Position in the Company, Company's Work, Associated Company Name, Relation to Primary Company, Associated Company's Work, Products and/or Services Offered, Emotional Processing, Memory Processing, Decision-making Mechanism, Social Interaction Understanding, Anticipating Others' Behavior, Action Guidance, Symbolic or Representational Stories or Experiences, Future Vision and Philosophical Stance, Important Collaborative Relationships, Primary Aims and Targets' and Summary should be a one sentence version of this. image_prompt is descriptions for dalle and should emphasize character details as well as backgrounds and contexts that provide many clues about the agent. PERSONA SHOULD BE VERY VERBOSE. "
+      "Generate a detailed narrative description of a persona based on this information, including the agent's name ("
+      + agent_name +
+      ") in the image_prompt. Generate a detailed narrative description of a persona based on this information and convert it into JSON format with these fields: persona, summary, keywords, and image_prompt. Each is a single field, and only keywords is a dictionary, the rest are single text block answers in the value. so it's exactly like this: 'persona':'','summary':'','keywords':['keyword1','keyword2','keyword3','keyword4','keyword5','keyword6'],'image_prompt':'' -- it is critical that the JSON be exactly like that. An important consideration is that the keyword dictionary is JUST the keywords and not using any labels / keys for the values within the dictionary. For details, persona should include this stuff: 'Job Title, Field of Expertise, THEORY OF MIND, ACTION TENDENCY MECHANISM, SOCIAL IMPORTANCE DYNAMICS, MODEL OF GOALS, MODEL OF DESIRES, MODEL OF AGENDAS, MODEL OF THOUGHT COMPLEXITY, MODEL OF CURIOSITY, MODEL OF INTERNAL FAMILY SYSTEMS OF UNNAMED BUT RECOGNIZED INFLUENCES, General Character Disposition, Primary Company Name, Position in the Company, Company's Work, Associated Company Name, Relation to Primary Company, Associated Company's Work, Products and/or Services Offered, Emotional Processing, Memory Processing, Decision-making Mechanism, Social Interaction Understanding, Anticipating Others' Behavior, Action Guidance, Symbolic or Representational Stories or Experiences, Future Vision and Philosophical Stance, Important Collaborative Relationships, Primary Aims and Targets' and Summary should be a one sentence version of this. image_prompt is descriptions for dalle and should emphasize character details as well as backgrounds and contexts that provide many clues about the agent. PERSONA SHOULD BE VERY VERBOSE. "
   }
   narrative_prompt = {"role": "user", "content": description}
 

@@ -1,5 +1,11 @@
 # Email Server for Agents: README
 
+add cards.py explanation 
+new agent explanation 
+pdf2text 
+rename files / functions 
+
+
 ## Overview:
 The system is designed to act as an email server for agents. It processes incoming emails, sends responses, and manages agents and their personas. The system leverages the OpenAI GPT model to generate dynamic responses based on agent personas. It works by using aliases. It's primarily built for Google Workspace integration for initial testing, but should be compatible with almost all clients, and has been tested with Hey.com, and privately hosted IMAP / SMTP.
 

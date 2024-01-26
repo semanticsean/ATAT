@@ -23,7 +23,7 @@ def format_note(agent_name, email="agent@semantic-life.com", timestamp=None):
   return f'On {timestamp} {agent_name} <{email}> wrote:'
 
 
-def load_instructions(filename='agents/instructions.json'):
+def load_instructions(filename='instructions.json'):
   with open(filename, 'r') as file:
     return json.load(file)
 
