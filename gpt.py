@@ -5,7 +5,11 @@ import tiktoken
 import re
 import pickle
 
+
 from random import uniform
+
+from openai import OpenAI
+
 
 openai_api_key = os.environ['OPENAI_API_KEY']
 
@@ -160,53 +164,62 @@ class GPTModel:
     total_tokens = self.count_tokens(
         full_content + dynamic_prompt) + api_buffer + tokens_limit
     self.check_rate_limit(total_tokens)
+    
 
-    response = None
-    for i in range(max_retries):
-      try:
-        request_payload = {
-            "model":
-            "gpt-4-1106-preview",
-            "messages": [{
-                "role": "system",
-                "content": dynamic_prompt
-            }, {
-                "role": "user",
-                "content": full_content
-            }],
-            "max_tokens":
-            tokens_limit,
-            "top_p":
-            0.5,
-            "frequency_penalty":
-            0.2,
-            "presence_penalty":
-            0.2,
-            "temperature":
-            0.6
-        }
+    def generate_response(self, dynamic_prompt, content, conversation_history, additional_context=None, note=None, is_summarize=False):
+      print("Generating Response from gpt-4 call")
 
-        print("\n--- API Request Payload ---")
-        # print((json.dumps(request_payload, indent=4)))
 
-        response = openai.ChatCompletion.create(**request_payload)
+      # Initialize the OpenAI client
+      client = OpenAI(api_key=openai_api_key)
 
-        print("\n--- API Response ---")
-        # print(json.dumps(response, indent=4)[:142])
+      response = None
+      for i in range(max_retries):
+          try:
+              # Construct the messages list
+              messages = [
+                  {"role": "system", "content": dynamic_prompt},
+                  {"role": "user", "content": full_content}
+              ]
 
-        break
+              request_payload = {
+                  "model": "gpt-4",
+                  "messages": messages,  
+                  "max_tokens": tokens_limit,
+                  "temperature": 0.6,
+                  "top_p": 0.5,
+                  "frequency_penalty": 0.2,
+                  "presence_penalty": 0.2
+              }
 
-      except openai.OpenAIError as e:
-        print(e)
-        sleep_time = max(
-            min(delay * (2**i) + uniform(5, 0.1 * (2**i)), max_delay), 30)
-        print(f"Retrying in {sleep_time:.2f} seconds.")
-        time.sleep(sleep_time)
+              print("\n--- API Request Payload ---")
+              try:
+                  print(json.dumps(request_payload, indent=4))
+              except Exception as e:
+                  print("Error printing request payload:", e)
+              response = client.chat_completions.create(**request_payload)
 
-    if response is None:
-      print("Max retries reached. Could not generate a response.")
-      return None
+              print("\n--- API Response ---")
+              try:
+                  print(json.dumps(response, indent=4)[:142])
+              except Exception as e:
+                  print("Error printing response:", e)
 
-    self.last_api_call_time = time.time()
+              break
 
-    return response['choices'][0]['message']['content']
+          except openai.OpenAIError as e:
+              print("OpenAI Error:", e)
+              sleep_time = max(min(delay * (2**i) + uniform(5, 0.1 * (2**i)), max_delay), 30)
+              print(f"Retrying in {sleep_time:.2f} seconds.")
+              time.sleep(sleep_time)
+
+      if response is None:
+          print("Max retries reached. Could not generate a response.")
+          return None
+
+      # Update response parsing to match the new format
+      generated_text = response.choices[0].message.content
+
+      self.last_api_call_time = time.time()
+
+      return generated_text

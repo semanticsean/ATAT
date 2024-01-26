@@ -41,7 +41,7 @@ body {
 
 .header-logo {
   flex: 0 1 auto; /* Don't grow, but allow shrink */
-  max-width: 150px;
+  max-width: 250px;
   margin: 0 auto; /* Automatic margins for auto centering */
 }
 
