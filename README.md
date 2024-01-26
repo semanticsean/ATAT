@@ -9,6 +9,11 @@ Why no testing?
 
 Doing a lot of unit testing and using Replit IDE rewards using print statements because the AI catches the error automatically. 
 
+Why is it the old version? 
+
+1. Threshold reached of what I can support on my own
+2. Ultimately it should be that email addresses work on locked, older systems that don't require upgrade and can be localized if the user desires 
+
 
 ## Overview:
 The system is designed to act as an email server for agents. It processes incoming emails, sends responses, and manages agents and their personas. The system leverages the OpenAI GPT model to generate dynamic responses based on agent personas. It works by using aliases. It's primarily built for Google Workspace integration for initial testing, but should be compatible with almost all clients, and has been tested with Hey.com, and privately hosted IMAP / SMTP.
