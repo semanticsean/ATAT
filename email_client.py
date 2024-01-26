@@ -441,9 +441,12 @@ class EmailClient:
       #print(f"Debug: Email content at start of handle_incoming_email:{thread_content[:50]}")
 
       new_content = thread_content
+      
       # Reset conversation history for a new email thread
       self.agent_operator.reset_for_new_thread()
+      
       #print("Before human_threads initialization:", from_, to_emails,cc_emails, subject, message_id, references, num)
+      
       human_threads = set()
       if from_ == self.smtp_username:
         print("Ignoring self-sent email.")
@@ -454,9 +457,8 @@ class EmailClient:
       print(f"CC emails: {cc_emails}")
 
       thread_content = self.strip_html_tags(thread_content)
-      print(
-          f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:242]}..."
-      )
+      
+      #print(f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:242]}...")
 
       result = handle_document_short_code(
           thread_content, self.agent_operator.openai_api_key,

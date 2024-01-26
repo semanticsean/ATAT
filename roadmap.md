@@ -31,6 +31,8 @@
 # next steps 
 handle the case where the inbox is existing and all existing emails have to be indexed before responding to any. thread_recionciler.py fixes inboxes prior to running. 
 
+Integrate AB/E "ABE" - election and polling generator. 
+
 Move config, new agent, other actions to web interface through flask with loading indicators, etc. 
 
 testing infrastructure. 
