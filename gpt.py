@@ -3,7 +3,7 @@ import time
 import openai
 import tiktoken
 import re
-import pickle 
+import pickle
 
 from random import uniform
 
@@ -18,11 +18,7 @@ class GPTModel:
     self.encoding = tiktoken.get_encoding("cl100k_base")
     self.api_calls_in_current_window = 0
 
-
-  # UTILITIES 
-
-
-  
+  # UTILITIES
 
   def load_state(self):
     try:
@@ -77,10 +73,7 @@ class GPTModel:
     self.api_calls_in_current_window += 1
     self.save_state()
 
-
-  
-  # GENERATE RESPONSE 
-  
+  # GENERATE RESPONSE
 
   def generate_response(self,
                         dynamic_prompt,
@@ -120,7 +113,6 @@ class GPTModel:
 
     # New max tokens for the response
     tokens_limit = 4096
-
 
     while True:
       total_tokens = self.count_tokens(full_content +

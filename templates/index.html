@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Trading Cards</title>
+    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+      <nav class="navbar">
+          <div class="nav-section">
+              
+          </div>
+          <img src="{{ url_for('static', filename='logo.png') }}" class="header-logo">
+          <div class="nav-section">
+              
+          </div>
+      </nav>
+  </header>
+  <div class="title-container">
+      <h1>ATAT: AI Agents Over Email</h1>
+      <h2>By Semantic Life</h2>
+  </div>
+
+    <main class="main">
+      <div class="responsive-card-container">
+            {% for agent in agents %}
+            {% if agent.id and agent.summary and agent.keywords and agent.photo_path %}
+            <div class="card">
+                <div class="card-image-wrapper">
+                    <!-- Updated image src to point to the new route -->
+                    <img src="/agents/pics/{{ agent.photo_path.split('/')[-1] }}" class="card-image">
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">{{ agent.id }}</h2>
+                    <p class="card-summary">{{ agent.summary }}</p>
+                    <div class="card-keywords">
+                        {% for keyword in agent.keywords %}
+                        <span class="keyword">{{ keyword }}</span>
+                        {% endfor %}
+                    </div>
+                    <a href="mailto:{{ agent.email }}" class="email-link">Email</a>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </main>
+    <footer class="footer">
+        &copy; 2023 Semantic Life. All rights reserved.
+        <div class="footer-links">
+            <a href="/terms" class="footer-link">Terms of Service</a>
+            <a href="/privacy" class="footer-link">Privacy Policy</a>
+        </div>
+    </footer>
+</body>
+</html>  

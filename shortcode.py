@@ -3,8 +3,7 @@ import quopri
 from html import unescape
 from bs4 import BeautifulSoup
 
-# UTILITIES 
-
+# UTILITIES
 
 
 def auto_split_content(content, char_limit=11000):
@@ -32,10 +31,10 @@ def auto_split_content(content, char_limit=11000):
 
   return chunks
 
-def filter_non_ascii(string):
-    """Remove non-ASCII characters from the string."""
-    return ''.join(c for c in string if ord(c) < 128)
 
+def filter_non_ascii(string):
+  """Remove non-ASCII characters from the string."""
+  return ''.join(c for c in string if ord(c) < 128)
 
 
 def split_content_into_chunks(content, max_char_count=9000):
@@ -55,10 +54,7 @@ def split_content_into_chunks(content, max_char_count=9000):
   return chunks
 
 
-
-# HANDLE SHORTCODES 
-
-
+# HANDLE SHORTCODES
 
 
 def handle_document_short_code(email_content,
@@ -109,8 +105,8 @@ def handle_document_short_code(email_content,
     return result
 
   summarize_matches = re.findall(
-    r"!\s*summarize\.\s*(\S+?)\s*_start\s*!([\s\S]*?)!\s*summarize\s*_stop\s*!",
-    email_content, re.DOTALL | re.IGNORECASE)
+      r"!\s*summarize\.\s*(\S+?)\s*_start\s*!([\s\S]*?)!\s*summarize\s*_stop\s*!",
+      email_content, re.DOTALL | re.IGNORECASE)
   if summarize_matches:
     modality, summarize_content = summarize_matches[0]
     summarize_content = summarize_content.strip()
@@ -139,5 +135,3 @@ def handle_document_short_code(email_content,
 
   # Ensuring result is a dictionary before returning
   return {'type': None, 'content': None, 'new_content': email_content}
-
-

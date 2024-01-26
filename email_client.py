@@ -24,10 +24,7 @@ from agent_operator import AgentSelector
 
 class EmailClient:
 
-
-  # INIT & SETUP EMAIL ACCESS 
-
-  
+  # INIT & SETUP EMAIL ACCESS
 
   def __init__(self, agent_loader, gpt, testing=False):
     logging.basicConfig(filename='email_client.log',
@@ -41,7 +38,6 @@ class EmailClient:
     self.agent_operator = AgentSelector()
     self.conversation_threads = {}
     self.openai_api_key = os.getenv('OPENAI_API_KEY')
-    
 
   def setup_email_client(self):
     self.smtp_server = os.getenv('SMTP_SERVER')
@@ -49,14 +45,12 @@ class EmailClient:
     self.smtp_username = os.getenv('SMTP_USERNAME')
     self.smtp_password = os.getenv('SMTP_PASSWORD')
     self.connect_to_imap_server()
-    
 
   def connect_to_imap_server(self):
     self.imap_server = imaplib.IMAP4_SSL(os.getenv('IMAP_SERVER'))
     self.imap_server.login(self.smtp_username, self.smtp_password)
     self.imap_server.debug = 4
 
-  
   def check_imap_connection(self):
     try:
       response = self.imap_server.noop()
@@ -65,7 +59,6 @@ class EmailClient:
     except:
       return False
 
-  
   def start(self):
     print("Started email server")
     restart_counter = 0
@@ -89,7 +82,6 @@ class EmailClient:
         print(f"Outer exception occurred: {outer_exception}")
         self.restart_system()
 
-  
   def run_server_loop(self, sleep_time):
     while True:
       if not self.check_imap_connection():
@@ -111,7 +103,6 @@ class EmailClient:
       timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
       print(f"[{timestamp}] Resuming processing.")
 
-
   @contextmanager
   def smtp_connection(self):
     server = smtplib.SMTP(self.smtp_server, self.smtp_port)
@@ -124,19 +115,12 @@ class EmailClient:
     finally:
       server.quit()
 
-  
   def restart_system(self):
     print("Restarting system...")
     self.connect_to_imap_server()
 
-  
+  # HANDLE THREAD PROCESSING
 
-  
-  # HANDLE THREAD PROCESSING 
-
-  
-
-  
   def save_processed_threads(self):
     file_path = "processed_threads.json"
     with tempfile.NamedTemporaryFile('w',
@@ -162,7 +146,6 @@ class EmailClient:
           )
           return {}
 
-
   def validate_processed_threads(self, threads):
     if not isinstance(threads, dict):
       raise ValueError("Processed threads must be a dictionary.")
@@ -174,19 +157,19 @@ class EmailClient:
         raise ValueError(f"Invalid 'metadata' field for {x_gm_thrid}.")
 
   def update_processed_threads(self, message_id, x_gm_thrid, num, subject,
-                             in_reply_to, references, sender, receiver):
+                               in_reply_to, references, sender, receiver):
     timestamp = datetime.now()
     num_str = str(num)
 
     # Convert receiver to a list if it's not already
     if isinstance(receiver, str):
-        receiver = [receiver]
+      receiver = [receiver]
     elif not isinstance(receiver, list):
-        receiver = list(receiver)  # Convert to list if it's another iterable
+      receiver = list(receiver)  # Convert to list if it's another iterable
 
     # Initialize the thread record if it doesn't exist
     if x_gm_thrid not in self.processed_threads:
-        self.processed_threads[x_gm_thrid] = {'nums': {}, 'metadata': {}}
+      self.processed_threads[x_gm_thrid] = {'nums': {}, 'metadata': {}}
 
     # Add the new UID under the existing thread ID
     self.processed_threads[x_gm_thrid]['nums'][num_str] = {'processed': True}
@@ -202,14 +185,7 @@ class EmailClient:
     }
     self.save_processed_threads()
 
-
-  
-  
-  
-
-
-  #  PROCESS EMAILS 
-
+  #  PROCESS EMAILS
 
   def is_email_processed(self, x_gm_thrid, num):
     num_str = str(num)
@@ -225,8 +201,6 @@ class EmailClient:
         f"is_email_processed allowing response of UID {num} in thread {x_gm_thrid}."
     )
     return False
-
-  
 
   def load_email(self, num):
     try:
@@ -273,24 +247,23 @@ class EmailClient:
       # Extract body and PDF content
       for part in email_message.walk():
         if part.get_content_type() == 'text/html':
-            part.get_payload(decode=True).decode('utf-8')
+          part.get_payload(decode=True).decode('utf-8')
         elif part.get_content_type() == 'text/plain':
-            part.get_payload(decode=True).decode('utf-8')
-            content_encoding = part.get("Content-Transfer-Encoding")
-            payload = part.get_payload()
-            if content_encoding == 'base64':
-                content += base64.b64decode(payload).decode('utf-8')
-            else:
-                content += payload
+          part.get_payload(decode=True).decode('utf-8')
+          content_encoding = part.get("Content-Transfer-Encoding")
+          payload = part.get_payload()
+          if content_encoding == 'base64':
+            content += base64.b64decode(payload).decode('utf-8')
+          else:
+            content += payload
 
         elif part.get_content_type() == 'application/pdf':
-            pdf_data = part.get_payload(decode=True)
-            pdf_text = extract_pdf_text(pdf_data)
-            pdf_attachments.append({
-                'filename': part.get_filename(),
-                'text': pdf_text
-            })
-
+          pdf_data = part.get_payload(decode=True)
+          pdf_text = extract_pdf_text(pdf_data)
+          pdf_attachments.append({
+              'filename': part.get_filename(),
+              'text': pdf_text
+          })
 
       # Append PDF contents to the content
       for pdf_attachment in pdf_attachments:
@@ -298,7 +271,7 @@ class EmailClient:
         if pdf_text:
           pdf_label = f"PDF: {pdf_attachment['filename']}"
           content += f"\n\n{pdf_label}\n{pdf_text}\n{pdf_label}\n"
-      
+
       MAX_LIMIT = 350000
       if "!detail" in content or re.search(r"!summarize\.", content):
         MAX_LIMIT = 2000000
@@ -321,7 +294,6 @@ class EmailClient:
       import traceback
       print(traceback.format_exc())
       return None, None, None, None, None, None, None, None
-
 
   def process_thread(self):
     try:
@@ -415,7 +387,7 @@ class EmailClient:
     try:
       # Ensure num is decoded to a string if it's bytes
       num_str = num.decode('utf-8') if isinstance(num, bytes) else str(num)
-      
+
       #print( f"Debug: Marking email as seen with UID: {num_str}, Type: {type(num_str)}" )
 
       print(
@@ -430,7 +402,6 @@ class EmailClient:
       print(f"Exception while marking email as seen with UID {num}: {e}")
       import traceback
       print(traceback.format_exc())
-
 
   def send_error_email(self, to_email, original_subject, error_reason):
     error_file_path = "error-response-email.txt"
@@ -447,9 +418,7 @@ class EmailClient:
       msg['To'] = to_email
       msg['Subject'] = subject
       server.sendmail(self.smtp_username, [to_email], msg.as_string())
-      
 
-  
   def strip_html_tags(self, text):
     clean = re.compile('<.*?>')
     return re.sub(clean, '', html.unescape(text))
@@ -488,7 +457,6 @@ class EmailClient:
       print(
           f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:242]}..."
       )
-      
 
       result = handle_document_short_code(
           thread_content, self.agent_operator.openai_api_key,
@@ -513,7 +481,7 @@ class EmailClient:
       if shortcode_type == "detail":
         # Stitch the detailed responses together
         stitched_response = "\n\n".join(structured_response)
-        # Use the stitched response as the thread_content 
+        # Use the stitched response as the thread_content
         thread_content = stitched_response
 
       elif shortcode_type is not None:
@@ -532,9 +500,8 @@ class EmailClient:
       agents = self.agent_operator.get_agent_names_from_content_and_emails(
           thread_content, recipient_emails, self.agent_loader, self.gpt)
 
-
       #print(f"Raw agents list before filtering: {agents}")
-      
+
       # Filter out invalid agent info and ensure we unpack the expected format
       agents = [
           agent_info for agent_info in agents
@@ -636,16 +603,19 @@ class EmailClient:
 
         if message_id not in self.conversation_threads:
           self.conversation_threads[message_id] = [thread_content]
-        
-        if '<html>' in thread_content:
-          formatted_email_history = self.format_email_history_html(thread_content, from_, datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
-        else:
-          formatted_email_history = self.format_email_history_plain(thread_content, from_, datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
+        if '<html>' in thread_content:
+          formatted_email_history = self.format_email_history_html(
+              thread_content, from_,
+              datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
+        else:
+          formatted_email_history = self.format_email_history_plain(
+              thread_content, from_,
+              datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
         # Update conversation_history
         self.conversation_threads[message_id].append(formatted_email_history)
-        
+
         previous_responses.append(response)
 
         agent = self.agent_loader.get_agent(agent_name)
@@ -695,10 +665,13 @@ class EmailClient:
           response_plain = MIMEText(response, 'plain')
 
           response_with_breaks = response.replace('\n', '<br/>')
-          response_html = MIMEText(f"<html><body>{response_with_breaks}</body></html>", 'html')
+          response_html = MIMEText(
+              f"<html><body>{response_with_breaks}</body></html>", 'html')
 
           history_plain = MIMEText(formatted_email_history_plain, 'plain')
-          history_html = MIMEText(f"<html><body>{formatted_email_history_html}</body></html>", 'html')
+          history_html = MIMEText(
+              f"<html><body>{formatted_email_history_html}</body></html>",
+              'html')
 
           # Creating 'alternative' MIME containers for response and history
           alternative_response = MIMEMultipart('alternative')
@@ -748,7 +721,6 @@ class EmailClient:
       if message_id in self.conversation_threads:
         conversation_history = '\n'.join(self.conversation_threads[message_id])
         # print(f"START Conversation history: {conversation_history} END CONVERSATION HISTORY")
-  
 
       return all_responses_successful
 
@@ -758,22 +730,18 @@ class EmailClient:
       print(traceback.format_exc())
       return False
 
-  
-
-  
-  # FORMAT EMAIL HISTORY 
-
-
-
+  # FORMAT EMAIL HISTORY
 
   def format_email_history_html(self, history, from_email, date):
-    
+
     # Decoding the history if it's encoded
     try:
-        decoded_history = quopri.decodestring(history).decode('utf-8')
+      decoded_history = quopri.decodestring(history).decode('utf-8')
     except ValueError:
-        logging.warning("Unable to decode email history with quopri. Using the original string.")
-        decoded_history = history
+      logging.warning(
+          "Unable to decode email history with quopri. Using the original string."
+      )
+      decoded_history = history
 
     # Splitting and formatting each line
     lines = decoded_history.split('\n')
@@ -786,12 +754,14 @@ class EmailClient:
     return html_content
 
   def format_email_history_plain(self, history, from_email, date):
-    
+
     try:
-        decoded_history = quopri.decodestring(history).decode('utf-8')
+      decoded_history = quopri.decodestring(history).decode('utf-8')
     except ValueError:
-        logging.warning("Unable to decode email history with quopri. Using the original string.")
-        decoded_history = history
+      logging.warning(
+          "Unable to decode email history with quopri. Using the original string."
+      )
+      decoded_history = history
 
     # Splitting and quoting each line
     lines = decoded_history.split('\n')
@@ -803,13 +773,7 @@ class EmailClient:
 
     return plain_text_content
 
-
-  
-
-  # SEND EMAIL 
-
-
-  
+  # SEND EMAIL
 
   def send_email(self,
                  from_email,

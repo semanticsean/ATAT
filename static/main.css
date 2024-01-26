@@ -1,0 +1,311 @@
+
+/* Tailwind CSS overrides for Agent Trading Cards */
+
+/* Reset padding and margins for a clean slate */
+*,
+*:before,
+*:after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Set the font and background for the entire page */
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-color: #F7FAFC;
+  color: #333;
+  margin: 0;
+}
+
+/* Style the header and footer with a consistent background and text color */
+.header, .footer {
+  background-color: #FFFFFF; /* White background */
+  color: #333333; /* Dark grey text */
+  text-align: center;
+  padding: 1rem 0;
+}
+
+/* This will ensure that the logo maintains its position in the center */
+.navbar {
+  display: flex;
+  justify-content: space-between; /* Change to space-between */
+  align-items: center; /* Align items vertically */
+  flex-wrap: wrap;
+}
+
+.nav-section {
+  display: flex;
+  justify-content: center;
+}
+
+.header-logo {
+  flex: 0 1 auto; /* Don't grow, but allow shrink */
+  max-width: 150px;
+  margin: 0 auto; /* Automatic margins for auto centering */
+}
+
+/* Remove the pseudo-elements as they are no longer needed */
+.navbar:before,
+.navbar:after {
+  display: none;
+}
+
+.navbar:before {
+  order: -1; /* This pseudo-element goes before the logo */
+}
+
+.navbar:after {
+  order: 1; /* This pseudo-element goes after the logo */
+}
+
+.nav-link {
+  color: #333333; /* Dark grey links */
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  margin: 0 10px;
+}
+
+.nav-link:hover {
+  color: #666666; /* Lighter grey on hover */
+}
+
+.title-container {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+h1, h2 {
+  color: #333333; /* Dark grey text */
+  margin: 0.5rem 0;
+}
+
+/* Main content padding */
+.main {
+  padding: 2rem;
+}
+
+/* Card styles */
+.card {
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+/* Card hover effect */
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* Image styles */
+.card-image {
+  width: 100%;
+  display: block; /* Remove vertical space below images */
+  aspect-ratio: 3 / 2; /* Maintain aspect ratio for images */
+  object-fit: cover; /* Ensure the image covers the area nicely */
+}
+
+/* Content area within card */
+.card-content {
+  padding: 1rem; /* Add some padding around the text */
+  background: rgba(0, 0, 0, 0.8); /* Semi-transparent overlay for legibility */
+  color: white;
+}
+
+/* Title within the card */
+.card-title {
+  font-size: 1.25rem; /* Larger font size for titles */
+  margin-bottom: 0.5rem; /* Space below the title */
+  color: white; 
+}
+
+/* Summary within the card */
+.card-summary {
+  font-size: 1rem; /* Standard font size for body text */
+  margin-bottom: 1rem; /* Space below the summary */
+}
+
+/* Keyword tag styles */
+.keyword {
+  display: none; /* Hide keywords in grid view */
+}
+
+/* Email link styles */
+.email-link {
+  background-color: #F56565;
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  display: block; /* Ensure it's a block to fill width */
+  text-align: center; /* Center the text within the button */
+  margin-top: 1rem; /* Space above the button */
+  font-weight: bold;
+}
+
+.responsive-card-container {
+    /* Styles for card list view */
+}
+
+/* Adjustments for grid layout */
+@media (min-width: 640px) {
+    .responsive-card-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .card {
+        margin-bottom: 0; /* Remove margin as gap takes care of spacing */
+    }
+}
+
+
+  .card {
+    margin-bottom: 0; /* Remove margin as gap takes care of spacing */
+  }
+}
+
+
+/* Footer link padding */
+.footer-link {
+    padding: 0.5rem 1rem;
+}
+
+/* Responsive adjustments for better legibility and layout */
+@media (max-width: 768px) {
+
+  .navbar {
+    justify-content: center; /* Center navbar items */
+  }
+
+  .nav-section {
+    flex-basis: 100%; /* Take full width */
+    justify-content: center; /* Center links */
+    margin-top: 10px; /* Provide space between the nav-sections */
+  }
+
+  .header-logo {
+    margin: 0 auto 10px; /* Center logo and provide space below */
+  }
+    .main {
+        padding: 1rem;
+    }
+
+    .card-grid {
+        grid-template-columns: 1fr; /* Stack cards in a single column */
+    }
+
+    .card {
+        margin-bottom: 2rem; /* Increase space between cards */
+    }
+
+    .card-content {
+        margin-top: -25px; /* Less overlap on smaller screens */
+    }
+
+    .card-title {
+        font-size: 1.1rem; /* Slightly larger for mobile legibility */
+        color: black;
+        margin-top: 8px;
+    }
+
+    .card-summary {
+        -webkit-line-clamp: 2; /* Shorten the visible text to two lines */
+    }
+
+    .email-link {
+        margin-top: 0.75rem; /* Adjust spacing above the button */
+    }
+
+    .view-mode-switcher {
+        margin-bottom: 0.5rem; /* Reduce bottom margin */
+    }
+
+    .logo {
+        max-width: 150px; /* Smaller logo for mobile */
+    }
+}
+
+
+/* Adjustments for smaller screens, focusing on mobile */
+@media (max-width: 639px) {
+  .card-grid {
+    display: block; /* Stack cards in a single column on small screens */
+  }
+
+  .card-content {
+    position: static; /* Reset position */
+    background: transparent; /* Clear the overlay for a lighter look */
+    color: #333; /* Default text color */
+  }
+
+  .card-title, .card-summary {
+    text-align: left; /* Align text to the start */
+    color: black;
+    margin-top: 8px; 
+  }
+
+  .card-image {
+    height: 50%; /* Make image take half of the card height */
+  }
+
+  /* View mode switcher is hidden on mobile as per spec */
+  .view-mode-switcher {
+    display: none;
+  }
+}
+
+/* Truncate the description text to fit the content area */
+.card-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; /* Limit to 3 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 4.5rem; /* Fixed height to accommodate 3 lines of text */
+}
+
+/* Center the view mode switcher and apply styling */
+.view-mode-switcher {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  gap: 1rem; /* Spacing between buttons */
+}
+
+.view-mode-switcher button {
+  background-color: #4299E1;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  cursor: pointer;
+  border-radius: 0.3125rem; /* 5px */
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.view-mode-switcher button:hover {
+  background-color: #2a4365; /* Darker shade on hover */
+}
+
+.view-mode-switcher button.active {
+  background-color: #2a4365;
+}
+
+/* Card view full-screen behavior */
+@media (min-width: 1024px) { /* Large screens */
+  .card-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Three columns */
+  }
+
+  .card-list .card {
+    max-width: 20rem; /* Maximum width similar to mobile */
+    margin: auto; /* Center the card in the column */
+  }
+}
