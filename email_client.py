@@ -423,13 +423,19 @@ class EmailClient:
         raise ValueError(f"Invalid 'metadata' field for {x_gm_thrid}.")
 
   def update_processed_threads(self, message_id, x_gm_thrid, num, subject,
-                               in_reply_to, references, sender, receiver):
+                             in_reply_to, references, sender, receiver):
     timestamp = datetime.now()
     num_str = str(num)
 
+    # Convert receiver to a list if it's not already
+    if isinstance(receiver, str):
+        receiver = [receiver]
+    elif not isinstance(receiver, list):
+        receiver = list(receiver)  # Convert to list if it's another iterable
+
     # Initialize the thread record if it doesn't exist
     if x_gm_thrid not in self.processed_threads:
-      self.processed_threads[x_gm_thrid] = {'nums': {}, 'metadata': {}}
+        self.processed_threads[x_gm_thrid] = {'nums': {}, 'metadata': {}}
 
     # Add the new UID under the existing thread ID
     self.processed_threads[x_gm_thrid]['nums'][num_str] = {'processed': True}
@@ -439,7 +445,7 @@ class EmailClient:
         'subject': subject,
         'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'),
         'sender': sender,
-        'receiver': ','.join(receiver),
+        'receiver': ','.join(receiver),  # Joining the list of emails
         'in_reply_to': in_reply_to,
         'references': references
     }
