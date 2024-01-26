@@ -441,12 +441,9 @@ class EmailClient:
       #print(f"Debug: Email content at start of handle_incoming_email:{thread_content[:50]}")
 
       new_content = thread_content
-      
       # Reset conversation history for a new email thread
       self.agent_operator.reset_for_new_thread()
-      
       #print("Before human_threads initialization:", from_, to_emails,cc_emails, subject, message_id, references, num)
-      
       human_threads = set()
       if from_ == self.smtp_username:
         print("Ignoring self-sent email.")
@@ -457,8 +454,9 @@ class EmailClient:
       print(f"CC emails: {cc_emails}")
 
       thread_content = self.strip_html_tags(thread_content)
-      
-      #print(f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:242]}...")
+      print(
+          f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:242]}..."
+      )
 
       result = handle_document_short_code(
           thread_content, self.agent_operator.openai_api_key,
@@ -653,41 +651,38 @@ class EmailClient:
           # Collect the email history of the thread
           email_history = '\n'.join(
               self.conversation_threads.get(message_id, [])[:-1])
-
           # Format the email history based on content type
-          formatted_email_history_html = self.format_email_history_html(
-              email_history, from_,
-              datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
-
           formatted_email_history_plain = self.format_email_history_plain(
-              email_history, from_,
-              datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
+              email_history, from_, datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
           # Formatting response and history in both plain text and HTML
           response_plain = MIMEText(response, 'plain')
+          
+          newline = '<br>' # Define newline replacement
+          prepared_response = response.replace('\n', newline)
+          response_html = MIMEText(f"<html><body>{prepared_response}</body></html>", 'html')
 
-          response_with_breaks = response.replace('\n', '<br/>')
-          response_html = MIMEText(
-              f"<html><body>{response_with_breaks}</body></html>", 'html')
 
-          history_plain = MIMEText(formatted_email_history_plain, 'plain')
-          history_html = MIMEText(
-              f"<html><body>{formatted_email_history_html}</body></html>",
-              'html')
 
           # Creating 'alternative' MIME containers for response and history
           alternative_response = MIMEMultipart('alternative')
           alternative_response.attach(response_plain)
           alternative_response.attach(response_html)
 
-          alternative_history = MIMEMultipart('alternative')
-          alternative_history.attach(history_plain)
-          alternative_history.attach(history_html)
-
           # Creating 'mixed' MIME container for the entire email
           msg = MIMEMultipart('mixed')
           msg.attach(alternative_response)
-          msg.attach(alternative_history)
+
+          # Attach formatted email history after response
+          history_plain = MIMEText(formatted_email_history_plain, 'plain')
+          msg.attach(history_plain)
+
+          # Finally, wrap the entire history including the latest response in the gmail_quote div
+          formatted_email_history_html = self.format_email_history_html(
+              '\n'.join([formatted_email_history_plain, response]),
+              from_, datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
+          history_html = MIMEText(f"<html><body>{formatted_email_history_html}</body></html>", 'html')
+          msg.attach(history_html)
 
           try:
             self.send_email(
@@ -696,7 +691,7 @@ class EmailClient:
                 to_emails=to_emails_without_agent,
                 cc_emails=cc_emails_without_agent,
                 subject=f"Re: {subject}",
-                msg=msg,  # Pass the MIMEMultipart object here
+                msg=msg,  
                 message_id=message_id,
                 references=references)
             print("Email sent successfully.")
@@ -735,24 +730,27 @@ class EmailClient:
   # FORMAT EMAIL HISTORY
 
   def format_email_history_html(self, history, from_email, date):
-
     # Decoding the history if it's encoded
     try:
-      decoded_history = quopri.decodestring(history).decode('utf-8')
+        decoded_history = quopri.decodestring(history).decode('utf-8')
     except ValueError:
-      logging.warning(
-          "Unable to decode email history with quopri. Using the original string."
-      )
-      decoded_history = history
-
+        logging.warning(
+            "Unable to decode email history with quopri. Using the original string."
+        )
+        decoded_history = history
+  
+    # Remove all existing gmail_quote divs from the history
+    decoded_history = re.sub(r'<div class="gmail_quote"><blockquote>(.*?)</blockquote></div>', '', 
+                             decoded_history, flags=re.DOTALL)
+  
     # Splitting and formatting each line
     lines = decoded_history.split('\n')
     formatted_lines = ['<div>{}</div>'.format(line) for line in lines]
-
-    # Building the complete HTML content with the gmail_quote div
+  
+    # Building the complete HTML content with a single new gmail_quote div
     html_content = '<div class="gmail_quote"><blockquote>On {} {} wrote:<br>{}<br></blockquote></div>'.format(
         date, from_email, ''.join(formatted_lines))
-
+  
     return html_content
 
   def format_email_history_plain(self, history, from_email, date):

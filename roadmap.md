@@ -26,12 +26,23 @@
 🚩 test all again 
 
 
-
+Integrate AB/E "ABE" - election and polling generator. 
 
 # next steps 
-handle the case where the inbox is existing and all existing emails have to be indexed before responding to any. thread_recionciler.py fixes inboxes prior to running. 
 
-Integrate AB/E "ABE" - election and polling generator. 
+Refactor with community feedback and guidance. Needs proper class structure, testing, and utlimately to read off of a database and accept API hooks for agents instead of just static JSON. 
+
+Improve thread_recionciler.py and self-healing of data storage, move processed_threads.json to a db. update onboarding so no risk in plugging into older email inboxes with hundreds / thousands of old messages to index, and prevent uninentional triggering of send emails in that process. 
+
+Build a stand-alone email constructor including handling of various client types, history management, history css. Read history from a local db that is in sync with remove server, in most robust case. 
+
+LLAMA and other API integrations, probably HF. 
+
+Give agents the ability to run ABE. 
+
+
+
+Go full George Hotz - test in every method / function, 100% testing all the time. 
 
 Move config, new agent, other actions to web interface through flask with loading indicators, etc. 
 

@@ -362,31 +362,33 @@ class AgentSelector:
           #truncates conversation history to 100,000 characters - should be token count
           self.conversation_history = self.conversation_history[-100000:]
   
-          
           responses = []
-          agent_responses = []
-      
+          agent_responses = []  # List to hold tuples of agent responses
+  
           for idx, chunk in enumerate(chunks):
-              dynamic_prompt = self.create_dynamic_prompt(agent_loader, agent_name, order, total_order, additional_context, modality)
-              
-              
-              response = gpt.generate_response(dynamic_prompt, chunk, self.conversation_history, is_summarize=False)
-      
-             
-              responses.append(response)
-      
-              
-              agent_responses.append((agent_name, agent["email"], response))
-      
-          # Combine all responses for the final output
-          final_response = ' '.join(responses)
-      
-          # Format the conversation history
-          formatted_response = self.format_conversation_history_html(agent_responses)
-      
+            dynamic_prompt = self.create_dynamic_prompt(agent_loader,
+                                                        agent_name,
+                                                        order,
+                                                        total_order,
+                                                        additional_context,
+                                                        modality=modality)
+            # Add custom instruction to the dynamic prompt
+            dynamic_prompt += f" {custom_instruction_for_detail}"
+  
+            response = gpt.generate_response(dynamic_prompt,
+                                             chunk,
+                                             self.conversation_history,
+                                             is_summarize=False)
+  
+            responses.append(response)
+            agent_responses.append((agent_name, agent["email"], response))
+  
+          final_response = ' '.join(
+              responses)  # Join responses to avoid repetition
+          formatted_response = self.format_conversation_history_html(
+              agent_responses)
           # Update conversation history after each agent's response
           self.conversation_history += f"\n{agent_name} said: {formatted_response}"
-      
   
           #logging.debug(f"Appending response {idx}")
           responses.append(response)

@@ -5,12 +5,22 @@ new agent explanation
 pdf2text 
 rename files / functions 
 
+Why no testing? 
+
+Doing a lot of unit testing and using Replit IDE rewards using print statements because the AI catches the error automatically. 
+
 
 ## Overview:
 The system is designed to act as an email server for agents. It processes incoming emails, sends responses, and manages agents and their personas. The system leverages the OpenAI GPT model to generate dynamic responses based on agent personas. It works by using aliases. It's primarily built for Google Workspace integration for initial testing, but should be compatible with almost all clients, and has been tested with Hey.com, and privately hosted IMAP / SMTP.
 
 
-## Capacitites 
+# About Me 
+I have worked at companies that published open source code, in which I played a small role developing, but this is my first fully self-authored (with various AIs) open source project and first large python project. If (when) you see things that can (must) be done better, please contribute or at least comment. I'm on X -- @seanmcdonaldxyz. 
+
+My main compalint with the code right now is the lack of testing. Coming soon.
+
+
+# Capacitites 
 
 1. Do very long processes (i.e. multi-step API calls) without the user sitting at a chatbot or discord / slack terminal waiting. Run 24 hour responses, or more. It's normal for an email to take a day to get back.
 2. Take advantage of existing email infrastructure, security, archiving, etc.
