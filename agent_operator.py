@@ -104,9 +104,26 @@ class AgentSelector:
         agent_queue.append((agent["id"], overall_order))
         overall_order += 1
 
-    # Compile the regex pattern
-    regex_pattern = re.compile(
-        r"no\.([\w\d_]+)|!ff\.creator\((.*?)\)!|!ff\(([\w\d_]+)\)!", re.DOTALL)
+    # Search for !ff.creator and other tags in the content
+    regex_pattern = re.compile(r"!ff\.creator\((.*?)\)!|!ff\(([\w\d_]+)\)!", re.DOTALL)
+    ff_tags = regex_pattern.findall(content)
+
+    for ff_creator_match, ff_match in ff_tags:
+        if ff_creator_match:
+            # Process !ff.creator! - Create a new agent and add to the queue
+            agent_description = ff_creator_match
+            generated_profile = gpt.generate_agent_profile(agent_description)
+            unique_id = f"GeneratedAgent_{hash(agent_description)}"
+            self.invoked_agents[unique_id] = generated_profile
+            agent_loader.agents[unique_id] = generated_profile
+            agent_queue.append((unique_id, overall_order))
+        elif ff_match:
+            # Process !ff! - Add existing agent to the queue
+            agent = agent_loader.get_agent(ff_match, case_sensitive=False)
+            if agent:
+                agent_queue.append((ff_match, overall_order))
+
+        overall_order += 1
 
     # Search for explicit tags in the content
     explicit_tags = regex_pattern.findall(content)
@@ -119,10 +136,11 @@ class AgentSelector:
       if tag.startswith("no."):
         agents_to_remove.add(tag[3:])
 
-    # Process other tags like !ff! and !ff.creator!
+    # Process other tags 
     for agent_name in explicit_tags:
       if agent_name.startswith('no.'):
         continue  # Skip agents prefixed with 'no.'
+
 
       # Process !ff.creator!
       if "Embody " in agent_name:

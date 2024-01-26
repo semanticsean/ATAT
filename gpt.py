@@ -210,3 +210,45 @@ class GPTModel:
     self.last_api_call_time = time.time()
 
     return response['choices'][0]['message']['content']
+
+
+  def generate_agent_profile(self, description):
+      """
+      Generates a profile for a new agent based on the provided description.
+      """
+      # Construct the prompt for generating the agent profile
+      prompt = f"Generate a detailed profile for an AI agent with the following characteristics: {description}"
+
+      # Call the GPT model to generate the profile
+      generated_profile = self.generate_response(prompt, "", "", is_summarize=False)
+
+      # Parse the generated profile to extract relevant information
+      # Note: The parsing logic here depends on how the response is structured.
+      # You might need to adapt this based on the actual response format.
+      profile_info = self.parse_generated_profile(generated_profile)
+
+      # Construct the agent profile dictionary
+      agent_profile = {
+          "description": profile_info.get("description", ""),
+          "name": profile_info.get("name", "Generated Agent"),
+          "email": profile_info.get("email", "generated_agent@semantic-life.com"),
+          # Add other relevant attributes from the profile
+      }
+      return agent_profile
+
+  def parse_generated_profile(self, generated_text):
+      """
+      Parses the generated text to extract profile information.
+      This is a placeholder function and should be implemented based on 
+      the expected format of the generated profile text.
+      """
+      # Example parsing logic (this is just a placeholder)
+      profile_info = {}
+      if "Name:" in generated_text:
+          profile_info["name"] = generated_text.split("Name:")[1].split("\n")[0].strip()
+      if "Email:" in generated_text:
+          profile_info["email"] = generated_text.split("Email:")[1].split("\n")[0].strip()
+      if "Description:" in generated_text:
+          profile_info["description"] = generated_text.split("Description:")[1].split("\n")[0].strip()
+
+      return profile_info
