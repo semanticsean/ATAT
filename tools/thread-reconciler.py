@@ -1,4 +1,4 @@
-# In the case that processed_threads.json is corrupted, run this to re-sync it with the inbox.
+# In the case that processed_threads.json is corrupted, run this to re-sync it with the inbox. Do not rely on this - double check it. 
 
 import imaplib
 import json

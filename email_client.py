@@ -9,18 +9,25 @@ import smtplib
 import quopri
 import tempfile
 import shutil
-from pdf2text import extract_pdf_text
-from contextlib import contextmanager
+
+from time import sleep
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import getaddresses
+from contextlib import contextmanager
+
+from pdf2text import extract_pdf_text
 from shortcode import handle_document_short_code
-from time import sleep
 from agent_operator import AgentSelector
 
 
 class EmailClient:
+
+
+  # INIT & SETUP EMAIL ACCESS 
+
+  
 
   def __init__(self, agent_loader, gpt, testing=False):
     logging.basicConfig(filename='email_client.log',
@@ -34,6 +41,7 @@ class EmailClient:
     self.agent_operator = AgentSelector()
     self.conversation_threads = {}
     self.openai_api_key = os.getenv('OPENAI_API_KEY')
+    
 
   def setup_email_client(self):
     self.smtp_server = os.getenv('SMTP_SERVER')
@@ -41,12 +49,23 @@ class EmailClient:
     self.smtp_username = os.getenv('SMTP_USERNAME')
     self.smtp_password = os.getenv('SMTP_PASSWORD')
     self.connect_to_imap_server()
+    
 
   def connect_to_imap_server(self):
     self.imap_server = imaplib.IMAP4_SSL(os.getenv('IMAP_SERVER'))
     self.imap_server.login(self.smtp_username, self.smtp_password)
     self.imap_server.debug = 4
 
+  
+  def check_imap_connection(self):
+    try:
+      response = self.imap_server.noop()
+      status = response[0]
+      return status == 'OK'
+    except:
+      return False
+
+  
   def start(self):
     print("Started email server")
     restart_counter = 0
@@ -70,13 +89,14 @@ class EmailClient:
         print(f"Outer exception occurred: {outer_exception}")
         self.restart_system()
 
+  
   def run_server_loop(self, sleep_time):
     while True:
       if not self.check_imap_connection():
         print("IMAP connection lost. Reconnecting...")
         self.connect_to_imap_server()
 
-      self.process_emails()
+      self.process_thread()
 
       print(
           f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Sleeping for {sleep_time} seconds."
@@ -91,14 +111,32 @@ class EmailClient:
       timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
       print(f"[{timestamp}] Resuming processing.")
 
-  def check_imap_connection(self):
-    try:
-      response = self.imap_server.noop()
-      status = response[0]
-      return status == 'OK'
-    except:
-      return False
 
+  @contextmanager
+  def smtp_connection(self):
+    server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+    server.starttls()
+    server.login(self.smtp_username, self.smtp_password)
+    try:
+      yield server
+    except Exception as e:
+      logging.error(f"Exception occurred in smtp_connection: {e}")
+    finally:
+      server.quit()
+
+  
+  def restart_system(self):
+    print("Restarting system...")
+    self.connect_to_imap_server()
+
+  
+
+  
+  # HANDLE THREAD PROCESSING 
+
+  
+
+  
   def save_processed_threads(self):
     file_path = "processed_threads.json"
     with tempfile.NamedTemporaryFile('w',
@@ -124,56 +162,73 @@ class EmailClient:
           )
           return {}
 
-  def restart_system(self):
-    print("Restarting system...")
-    self.connect_to_imap_server()
-    
 
-  def format_email_history_html(self, history, from_email, date):
-    """
-    Formats the email history for HTML content. Ensures proper line breaks
-    and use of the gmail_quote div for each email content block.
-    """
-    # Decoding the history if it's encoded
-    try:
-        decoded_history = quopri.decodestring(history).decode('utf-8')
-    except ValueError:
-        logging.warning("Unable to decode email history with quopri. Using the original string.")
-        decoded_history = history
+  def validate_processed_threads(self, threads):
+    if not isinstance(threads, dict):
+      raise ValueError("Processed threads must be a dictionary.")
+    for x_gm_thrid, data in threads.items():
+      if 'nums' not in data or not (isinstance(data['nums'], list)
+                                    or isinstance(data['nums'], dict)):
+        raise ValueError(f"Invalid 'nums' field for {x_gm_thrid}.")
+      if 'metadata' not in data or not isinstance(data['metadata'], dict):
+        raise ValueError(f"Invalid 'metadata' field for {x_gm_thrid}.")
 
-    # Splitting and formatting each line
-    lines = decoded_history.split('\n')
-    formatted_lines = ['<div>{}</div>'.format(line) for line in lines]
+  def update_processed_threads(self, message_id, x_gm_thrid, num, subject,
+                             in_reply_to, references, sender, receiver):
+    timestamp = datetime.now()
+    num_str = str(num)
 
-    # Building the complete HTML content with the gmail_quote div
-    html_content = '<div class="gmail_quote"><blockquote>On {} {} wrote:<br>{}<br></blockquote></div>'.format(
-        date, from_email, ''.join(formatted_lines))
+    # Convert receiver to a list if it's not already
+    if isinstance(receiver, str):
+        receiver = [receiver]
+    elif not isinstance(receiver, list):
+        receiver = list(receiver)  # Convert to list if it's another iterable
 
-    return html_content
+    # Initialize the thread record if it doesn't exist
+    if x_gm_thrid not in self.processed_threads:
+        self.processed_threads[x_gm_thrid] = {'nums': {}, 'metadata': {}}
 
-  def format_email_history_plain(self, history, from_email, date):
-    """
-    Formats the email history for plain text content. Ensures proper quoting
-    and line preservation.
-    """
-    try:
-        decoded_history = quopri.decodestring(history).decode('utf-8')
-    except ValueError:
-        logging.warning("Unable to decode email history with quopri. Using the original string.")
-        decoded_history = history
+    # Add the new UID under the existing thread ID
+    self.processed_threads[x_gm_thrid]['nums'][num_str] = {'processed': True}
 
-    # Splitting and quoting each line
-    lines = decoded_history.split('\n')
-    quoted_lines = ['> {}'.format(line) for line in lines]
-
-    # Combining quoted lines with header
-    plain_text_content = 'On {} {} wrote:\n{}\n'.format(
-        date, from_email, '\n'.join(quoted_lines))
-
-    return plain_text_content
+    # Update metadata
+    self.processed_threads[x_gm_thrid]['metadata'] = {
+        'subject': subject,
+        'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+        'sender': sender,
+        'receiver': ','.join(receiver),  # Joining the list of emails
+        'in_reply_to': in_reply_to,
+        'references': references
+    }
+    self.save_processed_threads()
 
 
-  def process_email(self, num):
+  
+  
+  
+
+
+  #  PROCESS EMAILS 
+
+
+  def is_email_processed(self, x_gm_thrid, num):
+    num_str = str(num)
+    if x_gm_thrid in self.processed_threads:
+      if num_str in self.processed_threads[x_gm_thrid]['nums']:
+        if self.processed_threads[x_gm_thrid]['nums'][num_str].get(
+            'processed', False):
+          print(
+              f"Skipping already processed message with UID {num} in thread {x_gm_thrid}."
+          )
+          return True
+    print(
+        f"is_email_processed allowing response of UID {num} in thread {x_gm_thrid}."
+    )
+    return False
+
+  
+
+  def load_email(self, num):
     try:
       # Standardize the num to string type
       num_str = num.decode('utf-8') if isinstance(num, bytes) else str(num)
@@ -214,15 +269,13 @@ class EmailClient:
 
       content = ""
       pdf_attachments = []
-      html_content = ""
-      plain_text_content = ""
 
       # Extract body and PDF content
       for part in email_message.walk():
         if part.get_content_type() == 'text/html':
-            html_content = part.get_payload(decode=True).decode('utf-8')
+            part.get_payload(decode=True).decode('utf-8')
         elif part.get_content_type() == 'text/plain':
-            plain_text_content = part.get_payload(decode=True).decode('utf-8')
+            part.get_payload(decode=True).decode('utf-8')
             content_encoding = part.get("Content-Transfer-Encoding")
             payload = part.get_payload()
             if content_encoding == 'base64':
@@ -245,10 +298,6 @@ class EmailClient:
         if pdf_text:
           pdf_label = f"PDF: {pdf_attachment['filename']}"
           content += f"\n\n{pdf_label}\n{pdf_text}\n{pdf_label}\n"
-
-
-      email_content = html_content if html_content else plain_text_content
-
       
       MAX_LIMIT = 350000
       if "!detail" in content or re.search(r"!summarize\.", content):
@@ -273,38 +322,8 @@ class EmailClient:
       print(traceback.format_exc())
       return None, None, None, None, None, None, None, None
 
-  def send_error_email(self, to_email, original_subject, error_reason):
-    error_file_path = "error-response-email.txt"
-    if os.path.exists(error_file_path):
-      with open(error_file_path, 'r') as file:
-        error_content = file.read().replace("{error_reason}", error_reason)
-    else:
-      error_content = f"Thank you for using Semantic Life. Your email with the subject '{original_subject}' could not be processed because {error_reason}. Please try sending your email again. It may be that your email included an attachment, or that your email text was too long. If you did not get the agent you are looking for, email agent@semantic-life.com to ask for help. To customize your personal agent, email atlas@semantic-life.com. For sales inquiries about highly personalized synthetic copies of yourself and others, please email sean@semantic-life.com."
 
-    subject = f"Please try again. || Error:  '{original_subject}'"
-    with self.smtp_connection() as server:
-      msg = MIMEText(error_content, 'plain')
-      msg['From'] = self.smtp_username
-      msg['To'] = to_email
-      msg['Subject'] = subject
-      server.sendmail(self.smtp_username, [to_email], msg.as_string())
-
-  def is_email_processed(self, x_gm_thrid, num):
-    num_str = str(num)
-    if x_gm_thrid in self.processed_threads:
-      if num_str in self.processed_threads[x_gm_thrid]['nums']:
-        if self.processed_threads[x_gm_thrid]['nums'][num_str].get(
-            'processed', False):
-          print(
-              f"Skipping already processed message with UID {num} in thread {x_gm_thrid}."
-          )
-          return True
-    print(
-        f"is_email_processed allowing response of UID {num} in thread {x_gm_thrid}."
-    )
-    return False
-
-  def process_emails(self):
+  def process_thread(self):
     try:
       self.imap_server.select("INBOX")
       result, data = self.imap_server.uid('search', None, 'UNSEEN')
@@ -317,7 +336,7 @@ class EmailClient:
 
       # Group unseen emails by thread
       for num in unseen_emails:
-        email_data = self.process_email(num)
+        email_data = self.load_email(num)
         if email_data is None or len(email_data) != 10:
           continue
         message_id, _, subject, _, from_, _, _, _, _, x_gm_thrid = email_data
@@ -371,7 +390,7 @@ class EmailClient:
   def process_single_thread(self, num):
     processed = False
     try:
-      message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid = self.process_email(
+      message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid = self.load_email(
           num)
       if not message_id:
         return processed  # Skip if email couldn't be processed
@@ -396,9 +415,9 @@ class EmailClient:
     try:
       # Ensure num is decoded to a string if it's bytes
       num_str = num.decode('utf-8') if isinstance(num, bytes) else str(num)
-      # Debug print
+      
       #print( f"Debug: Marking email as seen with UID: {num_str}, Type: {type(num_str)}" )
-      # Debug: Check IMAP Server state before issuing STORE command
+
       print(
           f"Debug: IMAP Server state before STORE command: {self.imap_server.state}"
       )
@@ -412,45 +431,25 @@ class EmailClient:
       import traceback
       print(traceback.format_exc())
 
-  def validate_processed_threads(self, threads):
-    if not isinstance(threads, dict):
-      raise ValueError("Processed threads must be a dictionary.")
-    for x_gm_thrid, data in threads.items():
-      if 'nums' not in data or not (isinstance(data['nums'], list)
-                                    or isinstance(data['nums'], dict)):
-        raise ValueError(f"Invalid 'nums' field for {x_gm_thrid}.")
-      if 'metadata' not in data or not isinstance(data['metadata'], dict):
-        raise ValueError(f"Invalid 'metadata' field for {x_gm_thrid}.")
 
-  def update_processed_threads(self, message_id, x_gm_thrid, num, subject,
-                             in_reply_to, references, sender, receiver):
-    timestamp = datetime.now()
-    num_str = str(num)
+  def send_error_email(self, to_email, original_subject, error_reason):
+    error_file_path = "error-response-email.txt"
+    if os.path.exists(error_file_path):
+      with open(error_file_path, 'r') as file:
+        error_content = file.read().replace("{error_reason}", error_reason)
+    else:
+      error_content = f"Thank you for using Semantic Life. Your email with the subject '{original_subject}' could not be processed because {error_reason}. Please try sending your email again. It may be that your email included an attachment, or that your email text was too long. If you did not get the agent you are looking for, email agent@semantic-life.com to ask for help. To customize your personal agent, email atlas@semantic-life.com. For sales inquiries about highly personalized synthetic copies of yourself and others, please email sean@semantic-life.com."
 
-    # Convert receiver to a list if it's not already
-    if isinstance(receiver, str):
-        receiver = [receiver]
-    elif not isinstance(receiver, list):
-        receiver = list(receiver)  # Convert to list if it's another iterable
+    subject = f"Please try again. || Error:  '{original_subject}'"
+    with self.smtp_connection() as server:
+      msg = MIMEText(error_content, 'plain')
+      msg['From'] = self.smtp_username
+      msg['To'] = to_email
+      msg['Subject'] = subject
+      server.sendmail(self.smtp_username, [to_email], msg.as_string())
+      
 
-    # Initialize the thread record if it doesn't exist
-    if x_gm_thrid not in self.processed_threads:
-        self.processed_threads[x_gm_thrid] = {'nums': {}, 'metadata': {}}
-
-    # Add the new UID under the existing thread ID
-    self.processed_threads[x_gm_thrid]['nums'][num_str] = {'processed': True}
-
-    # Update metadata
-    self.processed_threads[x_gm_thrid]['metadata'] = {
-        'subject': subject,
-        'timestamp': timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-        'sender': sender,
-        'receiver': ','.join(receiver),  # Joining the list of emails
-        'in_reply_to': in_reply_to,
-        'references': references
-    }
-    self.save_processed_threads()
-
+  
   def strip_html_tags(self, text):
     clean = re.compile('<.*?>')
     return re.sub(clean, '', html.unescape(text))
@@ -489,7 +488,7 @@ class EmailClient:
       print(
           f"Handling shortcode for email with subject '{subject}' and content: {thread_content[:242]}..."
       )
-      # Debug: Print email content right before calling handle_document_short_code
+      
 
       result = handle_document_short_code(
           thread_content, self.agent_operator.openai_api_key,
@@ -514,7 +513,7 @@ class EmailClient:
       if shortcode_type == "detail":
         # Stitch the detailed responses together
         stitched_response = "\n\n".join(structured_response)
-        # Use the stitched response as the thread_content for further processing
+        # Use the stitched response as the thread_content 
         thread_content = stitched_response
 
       elif shortcode_type is not None:
@@ -533,10 +532,9 @@ class EmailClient:
       agents = self.agent_operator.get_agent_names_from_content_and_emails(
           thread_content, recipient_emails, self.agent_loader, self.gpt)
 
-      #print("Before agent assignment.")
-      #print(f"Agent queue from get_agent_names_from_content_and_emails: {agents}")
 
       #print(f"Raw agents list before filtering: {agents}")
+      
       # Filter out invalid agent info and ensure we unpack the expected format
       agents = [
           agent_info for agent_info in agents
@@ -565,9 +563,9 @@ class EmailClient:
       all_responses_successful = True
       previous_responses = []
 
-      # Ensure proper unpacking for the process_email function
+      # Ensure proper unpacking for the load_email function
 
-      message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid = self.process_email(
+      message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid = self.load_email(
           num)
 
       missing_values = [
@@ -584,7 +582,7 @@ class EmailClient:
         )
         return False
 
-      #print(f"Unpacking agents: {agents}")
+      # print(f"Unpacking agents: {agents}")
 
       for agent_info in agents:
         if len(agent_info) != 2:
@@ -680,7 +678,6 @@ class EmailClient:
           if message_id in self.conversation_threads:
             self.conversation_threads[message_id].append(response)
 
-
           # Collect the email history of the thread
           email_history = '\n'.join(
               self.conversation_threads.get(message_id, [])[:-1])
@@ -690,41 +687,32 @@ class EmailClient:
               email_history, from_,
               datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
-          # Debugging: Print the involved variables to trace the issue
-          #print("Debug: Response:", response)
-          #print("Debug: Formatted email history HTML:",formatted_email_history_html)
-
           formatted_email_history_plain = self.format_email_history_plain(
               email_history, from_,
               datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
-          #print("Debug: Formatted email history HTML:",formatted_email_history_html)
-          #print("Debug: Formatted email history Plain:",formatted_email_history_plain)
+          # Formatting response and history in both plain text and HTML
+          response_plain = MIMEText(response, 'plain')
 
-          response = response.replace("\n", "<br/>")
-          # Commenting out the plain text part for testing
-          # part1_plain = MIMEText(f"{response}\n", 'plain', "utf-8")
-          part1_html = MIMEText(f"<!DOCTYPE html><html><body>{response}<br/></body></html>", 'html', "utf-8")
+          response_with_breaks = response.replace('\n', '<br/>')
+          response_html = MIMEText(f"<html><body>{response_with_breaks}</body></html>", 'html')
 
-          formatted_email_history_html = self.format_email_history_html(email_history, from_, datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
+          history_plain = MIMEText(formatted_email_history_plain, 'plain')
+          history_html = MIMEText(f"<html><body>{formatted_email_history_html}</body></html>", 'html')
 
-          # Commenting out the plain text part for testing
-          # part2_plain = MIMEText(formatted_email_history_plain, 'plain', "utf-8")
-          part2_html = MIMEText(f"<!DOCTYPE html><html><body>{formatted_email_history_html}</body></html>", 'html', "utf-8")
+          # Creating 'alternative' MIME containers for response and history
+          alternative_response = MIMEMultipart('alternative')
+          alternative_response.attach(response_plain)
+          alternative_response.attach(response_html)
 
-          # Create 'alternative' MIMEMultipart object for each segment
-          alternative1 = MIMEMultipart('alternative')
-          # alternative1.attach(part1_plain)  # Commented out for testing
-          alternative1.attach(part1_html)
+          alternative_history = MIMEMultipart('alternative')
+          alternative_history.attach(history_plain)
+          alternative_history.attach(history_html)
 
-          alternative2 = MIMEMultipart('alternative')
-          # alternative2.attach(part2_plain)  # Commented out for testing
-          alternative2.attach(part2_html)
-
-          # Create 'mixed' MIMEMultipart object to combine them
+          # Creating 'mixed' MIME container for the entire email
           msg = MIMEMultipart('mixed')
-          msg.attach(alternative1)  # Attach response first
-          msg.attach(alternative2)  # Attach history
+          msg.attach(alternative_response)
+          msg.attach(alternative_history)
 
           try:
             self.send_email(
@@ -759,7 +747,7 @@ class EmailClient:
 
       if message_id in self.conversation_threads:
         conversation_history = '\n'.join(self.conversation_threads[message_id])
-        print(f"START Conversation history: {conversation_history} END CONVERSATION HISTORY")
+        # print(f"START Conversation history: {conversation_history} END CONVERSATION HISTORY")
   
 
       return all_responses_successful
@@ -770,17 +758,58 @@ class EmailClient:
       print(traceback.format_exc())
       return False
 
-  @contextmanager
-  def smtp_connection(self):
-    server = smtplib.SMTP(self.smtp_server, self.smtp_port)
-    server.starttls()
-    server.login(self.smtp_username, self.smtp_password)
+  
+
+  
+  # FORMAT EMAIL HISTORY 
+
+
+
+
+  def format_email_history_html(self, history, from_email, date):
+    
+    # Decoding the history if it's encoded
     try:
-      yield server
-    except Exception as e:
-      logging.error(f"Exception occurred in smtp_connection: {e}")
-    finally:
-      server.quit()
+        decoded_history = quopri.decodestring(history).decode('utf-8')
+    except ValueError:
+        logging.warning("Unable to decode email history with quopri. Using the original string.")
+        decoded_history = history
+
+    # Splitting and formatting each line
+    lines = decoded_history.split('\n')
+    formatted_lines = ['<div>{}</div>'.format(line) for line in lines]
+
+    # Building the complete HTML content with the gmail_quote div
+    html_content = '<div class="gmail_quote"><blockquote>On {} {} wrote:<br>{}<br></blockquote></div>'.format(
+        date, from_email, ''.join(formatted_lines))
+
+    return html_content
+
+  def format_email_history_plain(self, history, from_email, date):
+    
+    try:
+        decoded_history = quopri.decodestring(history).decode('utf-8')
+    except ValueError:
+        logging.warning("Unable to decode email history with quopri. Using the original string.")
+        decoded_history = history
+
+    # Splitting and quoting each line
+    lines = decoded_history.split('\n')
+    quoted_lines = ['> {}'.format(line) for line in lines]
+
+    # Combining quoted lines with header
+    plain_text_content = 'On {} {} wrote:\n{}\n'.format(
+        date, from_email, '\n'.join(quoted_lines))
+
+    return plain_text_content
+
+
+  
+
+  # SEND EMAIL 
+
+
+  
 
   def send_email(self,
                  from_email,

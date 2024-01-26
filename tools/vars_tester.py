@@ -1,3 +1,5 @@
+# Test your vars on setup 
+
 import os
 import smtplib
 import imaplib

@@ -1,4 +1,5 @@
-"""ALPHA email server for agents."""
+"""ATAT - ALPHA: Email server for AI agents."""
+
 from email_client import EmailClient
 from gpt import GPTModel
 from agent_loader import AgentManager

@@ -1,8 +1,10 @@
-import json
 import re
 import quopri
 from html import unescape
 from bs4 import BeautifulSoup
+
+# UTILITIES 
+
 
 
 def auto_split_content(content, char_limit=11000):
@@ -33,6 +35,31 @@ def auto_split_content(content, char_limit=11000):
 def filter_non_ascii(string):
     """Remove non-ASCII characters from the string."""
     return ''.join(c for c in string if ord(c) < 128)
+
+
+
+def split_content_into_chunks(content, max_char_count=9000):
+  chunks = []
+  # Split the content into sentences
+  sentences = re.split('(?<=[.!?]) +', content.strip())
+  current_chunk = ""
+  for sentence in sentences:
+    if len(current_chunk) + len(sentence) + 1 <= max_char_count:
+      current_chunk += (" " + sentence).strip()
+    else:
+      chunks.append(current_chunk.strip())
+      current_chunk = sentence.strip()
+  # After processing all sentences, if current_chunk is not empty, add it as a chunk
+  if current_chunk:
+    chunks.append(current_chunk.strip())
+  return chunks
+
+
+
+# HANDLE SHORTCODES 
+
+
+
 
 def handle_document_short_code(email_content,
                                api_key,
@@ -114,18 +141,3 @@ def handle_document_short_code(email_content,
   return {'type': None, 'content': None, 'new_content': email_content}
 
 
-def split_content_into_chunks(content, max_char_count=9000):
-  chunks = []
-  # Split the content into sentences
-  sentences = re.split('(?<=[.!?]) +', content.strip())
-  current_chunk = ""
-  for sentence in sentences:
-    if len(current_chunk) + len(sentence) + 1 <= max_char_count:
-      current_chunk += (" " + sentence).strip()
-    else:
-      chunks.append(current_chunk.strip())
-      current_chunk = sentence.strip()
-  # After processing all sentences, if current_chunk is not empty, add it as a chunk
-  if current_chunk:
-    chunks.append(current_chunk.strip())
-  return chunks

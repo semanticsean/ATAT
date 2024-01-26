@@ -1,11 +1,11 @@
 import os
 import time
-import json
 import openai
 import tiktoken
 import re
+import pickle 
+
 from random import uniform
-import pickle  # for serialization
 
 openai_api_key = os.environ['OPENAI_API_KEY']
 
@@ -17,6 +17,12 @@ class GPTModel:
     self.load_state()  # Load state variables
     self.encoding = tiktoken.get_encoding("cl100k_base")
     self.api_calls_in_current_window = 0
+
+
+  # UTILITIES 
+
+
+  
 
   def load_state(self):
     try:
@@ -70,6 +76,11 @@ class GPTModel:
     self.tokens_used_in_current_window += tokens_needed
     self.api_calls_in_current_window += 1
     self.save_state()
+
+
+  
+  # GENERATE RESPONSE 
+  
 
   def generate_response(self,
                         dynamic_prompt,
