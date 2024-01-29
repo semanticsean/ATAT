@@ -369,10 +369,12 @@ class AgentSelector:
             pass
   
           formatted_response = self.format_conversation_history_html([
-              (agent_name, agent["email"], response)
-          ])
+            (agent_name, agent["email"], response)
+          ], exclude_recent=0)  
+
           # Update conversation history after each agent's response
           self.conversation_history += f"\n{agent_name} said: {formatted_response}"
+
   
         # Handle Detail Type
         elif result['type'] == 'detail':

@@ -1,10 +1,9 @@
 # test routine - send these emails 
 ✅  multi-agent multi-human to / cc handling / history nesting  (non ff) / writes to processed_threads 
-✅  ff basic / ff history nesting 
+✅  ff / ff creator 
 ✅  ff creator (render new agents inline)
 ✅  summarize  -- summarize to json / other formats 
 ✅  detail / split 
-
 
 
 # multi-agent multi-human to / cc handling / history nesting  (non ff) / writes to processed_threads 
@@ -56,19 +55,7 @@ agent1 - what is the most important question for grant applicants to answer when
 
 
 # ff creator 
-_!ff.creator!(agent description)_
-
-
-
-
-
-
-
-
-
-
-
-
+_!ff.creator!(Embody an agent who ... description)_
 
 
 # summarize  -- summarize to json / other formats 
