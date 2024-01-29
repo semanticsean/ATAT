@@ -1,5 +1,46 @@
-# test routine - send these emails 
+one human / one agent - first response in gmail quote, second not. duplicating. 
 
+one human one agent / first response WITH pdf not gmail quotes
+
+summarize with modifier not triggering 
+
+
+
+
+
+error from writing generated agent to rendered_agents.json. 
+
+"expected str instance, NoneType found
+Traceback (most recent call last):
+  File "/home/runner/dev-agent-atat-v023/email_client.py", line 569, in handle_incoming_email
+    response = self.agent_operator.get_response_for_agent(
+  File "/home/runner/dev-agent-atat-v023/agent_operator.py", line 424, in get_response_for_agent
+    dynamic_prompt = self.create_dynamic_prompt(agent_loader, agent_name, order, total_order, additional_context, modality)
+  File "/home/runner/dev-agent-atat-v023/agent_operator.py", line 218, in create_dynamic_prompt
+    other_agent_roles = ", ".join(
+TypeError: sequence item 1: expected str instance, NoneType found"
+
+
+
+check / maybe fixed
+
+detail instructions as to what is happening / what to do / dont' include agent details. 
+
+ff multiplayer instruction clarity 
+
+
+
+
+
+
+
+
+
+
+
+
+
+# test routine - send these emails 
 
 
 ✅  multi-agent multi-human to / cc handling / history nesting  (non ff) / writes to processed_threads 

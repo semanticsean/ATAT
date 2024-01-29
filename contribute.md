@@ -26,10 +26,13 @@
 🚩 test all again 
 
 
-Integrate AB/E "ABE" - election and polling generator. 
+Integrate AB/E "ABE" - election and polling generator as a shortcode / function call. 
+
+Integrate new agent as a shortcode -> function call. 
 
 Adadpt to work on GH and local. 
 
+Add self-awareness of name and email to the prompt. Was buggy / don't want to pass emails to LLM model right now. 
 
 # next steps 
 
@@ -42,6 +45,8 @@ Build a stand-alone email constructor including handling of various client types
 LLAMA and other API integrations, probably HF. 
 
 Give agents the ability to run ABE. 
+
+Integrating chain / brain tools. 
 
 
 

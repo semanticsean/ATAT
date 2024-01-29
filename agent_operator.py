@@ -68,8 +68,8 @@ class AgentSelector:
     try:
       # Read existing data from the file first
       existing_data = []
-      if os.path.exists("rendered_agents.json"):
-        with open("rendered_agents.json", "r") as f:
+      if os.path.exists("agents/rendered_agents.json"):
+        with open("agents/rendered_agents.json", "r") as f:
           existing_data = json.load(f)
 
       # Make sure existing_data is a list
@@ -306,7 +306,7 @@ class AgentSelector:
     # Check rate limits
     gpt.check_rate_limit(tokens_for_this_request)
 
-    custom_instruction_for_detail = "THIS IS A MULTI-PART LOOP ASSEMBLING A LARGE MESSAGE IN CHUNKS. FOR EACH SECTION ALWAYS PROVIDE A CLEAR TITLE, SUBHEADING, AND VERY SHORT (JUST A FEW WORDS) DESCRIPTION OF THE CONTENT TO FOLLOW. IN THIS CASE DO NOT RESPOND AS THOUGH IT IS AN EMAIL IN SPITE OF PRIOR INSTRUCTIONS, JUST PROVIDE THE CONTENT. IF ANSWERING FORM QUESTIONS ANSWER THEM THOROUGHLY AND PLACE THE QUESTION YOU ARE ANSWERING ABOVE THE ANSWER, RESTATING IT. DO NOT USE EMAIL QUOTING CHARACTERS, AND DO NOT SAY THINGS LIKE 'HELLO' OR PROVIDE SIGNATURES. DO NOT SAY 'ON [DATE] [USER] SAID' OR ANYTHING LIKE THAT."
+    custom_instruction_for_detail = self.instructions['default']['custom_instruction_for_detail']
 
     content = self.replace_agent_shortcodes(content)
     timestamp = format_datetime_for_email()
