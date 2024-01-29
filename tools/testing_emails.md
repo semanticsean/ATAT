@@ -1,12 +1,8 @@
 # test routine - send these emails 
+
+
+
 ✅  multi-agent multi-human to / cc handling / history nesting  (non ff) / writes to processed_threads 
-✅  ff / ff creator 
-✅  ff creator (render new agents inline)
-✅  summarize  -- summarize to json / other formats 
-✅  detail / split 
-
-
-# multi-agent multi-human to / cc handling / history nesting  (non ff) / writes to processed_threads 
 
 _multiple humans cc'd and respond before agents respond_
 
@@ -15,32 +11,35 @@ agent1 - please tell me a joke about AI.
 agent2 - please tell me a joke about working in education technology. 
 
 
+✅  pdf test (text only right now)
 
-# detail / split 
+what does this pdf say? 
+
+
+✅  detail / split 
 
 agent1,
 
-please tell me about the history of america in a whitepaper.
+please tell me about the history of america in a whitepaper in this multi-pass llm construction. put clear ALL CAPS section headers in each section.
 
 !detail_start!
-an introduction written in clickbait attention grabbing ideas
+an introduction written in social media engagement / attention grabbing ideas.
 
 !split!
 
-an ascii style graph of the historical timeline of the founding of america.
+an ascii style graph of the historical timeline of the founding of america and key events in our history.
 
 !split!
 
-a history of the federal reserver and global policy.
+a summary of the constitution.
 
 !split!
-our story in an emoji story made of only emojis. 
+our story in an emoji-based "graphic novel" made of only emojis with some subheadings for the various scenes describing key moments.
 
 !detail_stop!
 
 
-
-# ff basic / ff history nesting 
+✅  ff / ff creator 
 agent1 - what is the most important question for grant applicants to answer when writing nonprofit grants?
 
 !ff(agent2)! what do you think??
@@ -57,8 +56,12 @@ agent1 - what is the most important question for grant applicants to answer when
 # ff creator 
 _!ff.creator!(Embody an agent who ... description)_
 
+An important note is, until the code is improved, ff.creator requires the use of both !ff.creator(Embody)! 
 
-# summarize  -- summarize to json / other formats 
+
+
+
+✅  summarize  -- summarize to json / other formats 
 _!summarize_start!_
 _!summarize_stop!_
 OR

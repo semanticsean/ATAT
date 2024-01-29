@@ -28,6 +28,9 @@
 
 Integrate AB/E "ABE" - election and polling generator. 
 
+Adadpt to work on GH and local. 
+
+
 # next steps 
 
 Refactor with community feedback and guidance. Needs proper class structure, testing, and utlimately to read off of a database and accept API hooks for agents instead of just static JSON. 
