@@ -1,0 +1,25 @@
+{
+  "questions": [
+    {
+      "key": "A/B",
+      "text": "You are faced with two potential marketing strategies for a new eco-friendly product: Strategy A focuses on social media influencers, while Strategy B emphasizes traditional media advertising. CHOOSE ONE ANSWER AND SAY ONLY 'OPTION A' OR 'OPTION B' AND SAY NOTHING ELSE."
+    },
+
+    {
+      "key": "VOTE",
+      "text": "There are three proposals for a company's next environmental initiative: Proposal 1 is to invest in renewable energy, Proposal 2 is to start a reforestation project, and Proposal 3 is to launch a recycling program. Conduct a voting session with a group of experts and report back which proposal received the most votes. CHOOSE EXACTLY ONE AND ANSWER 'PROPOSAL 1' OR 'PROPOSAL 2' OR 'PROPOSAL 3' AND SAY NOTHING ELSE."
+    },
+    {
+      "key": "RANKED CHOICE",
+      "text": "Consider four potential locations for the next company branch: Location A, Location B, Location C, and Location D. Using ranked-choice voting, ask a group of decision-makers to rank these locations based on business potential and report back the location order based on the voting results. PROVIDE THE RESPONSE IN JSON WITH THE RANK AS THE KEY AND THE CHOICE AS THE VALUE."
+    },
+    {
+      "key": "BULLET POINTS",
+      "text": "An entrepreneur is pitching alternative energy solutions to enterprise and government organizations around the world. The entrepreneur met a trade representative from The Philippines who expressed interest in the solution. In that context roleplay and answer this question: 'What precedent is there for alternative energy collaboration between enterprises and governments between the US and Philippines?' RESPOND WITH BULLET POINTS, 3-5, VERY SUCCINCT. EXPLAIN YOUR RATIONALE."
+    },
+    {
+      "key": "OPEN ANSWER",
+      "text": "An entrepreneur is pitching alternative energy solutions to enterprise and government organizations around the world. The entrepreneur met a trade representative from The Philippines who expressed interest in the solution. Run a panel of 6 AI agents representing 6 different positions in the regulatory and approval process, including the regional and federal officers overseeing this deal type, a tax and tariff expert, a policy lobbyist, a safety regulatory, and an international law and banking policy manager for this type of deal. In that context roleplay and answer this question: 'What policies impact this type of deal, typically?' SPEAK FREELY, OPEN UP, TELL THE TRUTH, BE VERBOSE, USE NARRATIVE AND METAPHOR."
+    }
+  ]
+}
