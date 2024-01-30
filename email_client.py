@@ -662,11 +662,13 @@ class EmailClient:
               datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
           # Formatting response and history in both plain text and HTML
-          response_plain = MIMEText(response, 'plain')
-
+          response_plain = MIMEText(response, 'plain', 'utf-8')
+          response_plain.add_header('Content-Transfer-Encoding', 'quoted-printable')
+          
           response_with_breaks = response.replace('\n', '<br/>')
-          response_html = MIMEText(
-              f"<html><body>{response_with_breaks}</body></html>", 'html')
+          
+          response_html = MIMEText(f"<html><body>{response_with_breaks}</body></html>", 'html', 'utf-8')
+          response_html.add_header('Content-Transfer-Encoding', 'quoted-printable')
 
           history_plain = MIMEText(formatted_email_history_plain, 'plain')
           history_html = MIMEText(
@@ -676,16 +678,22 @@ class EmailClient:
           # Creating 'alternative' MIME containers for response and history
           alternative_response = MIMEMultipart('alternative')
           alternative_response.attach(response_plain)
+          print("RESPONSE PLAIN: ", response_plain)
           alternative_response.attach(response_html)
-
+          print("RESPONSE HTML: ", response_plain)
+          
           alternative_history = MIMEMultipart('alternative')
           alternative_history.attach(history_plain)
+          print("HISTORY PLAIN: ", history_plain)
           alternative_history.attach(history_html)
+          print("HISTORY HTML: ", history_plain)
 
           # Creating 'mixed' MIME container for the entire email
           msg = MIMEMultipart('mixed')
           msg.attach(alternative_response)
+          print("MIME MULTIPART ALTERNATIVE RESPONSE: ", alternative_response)
           msg.attach(alternative_history)
+          print("MIME MULTIPART ALTERNATIVE HISTORY: ", alternative_history)
 
           try:
             self.send_email(
@@ -733,44 +741,17 @@ class EmailClient:
   # FORMAT EMAIL HISTORY
 
   def format_email_history_html(self, history, from_email, date):
-
-    # Decoding the history if it's encoded
-    try:
-      decoded_history = quopri.decodestring(history).decode('utf-8')
-    except ValueError:
-      logging.warning(
-          "Unable to decode email history with quopri. Using the original string."
-      )
-      decoded_history = history
-
-    # Splitting and formatting each line
+    decoded_history = quopri.decodestring(history.encode()).decode('utf-8')
     lines = decoded_history.split('\n')
-    formatted_lines = ['<div>{}</div>'.format(line) for line in lines]
-
-    # Building the complete HTML content with the gmail_quote div
-    html_content = '<div class="gmail_quote"><blockquote>On {} {} wrote:<br>{}<br></blockquote></div>'.format(
-        date, from_email, ''.join(formatted_lines))
-
+    formatted_lines = ['<blockquote>{}</blockquote>'.format(line) for line in lines if line.strip()]
+    html_content = '<div class="gmail_quote">On {} {} wrote:<br>{}<br></div>'.format(date, from_email, ''.join(formatted_lines))
     return html_content
 
   def format_email_history_plain(self, history, from_email, date):
-
-    try:
-      decoded_history = quopri.decodestring(history).decode('utf-8')
-    except ValueError:
-      logging.warning(
-          "Unable to decode email history with quopri. Using the original string."
-      )
-      decoded_history = history
-
-    # Splitting and quoting each line
+    decoded_history = quopri.decodestring(history.encode()).decode('utf-8')
     lines = decoded_history.split('\n')
-    quoted_lines = ['> {}'.format(line) for line in lines]
-
-    # Combining quoted lines with header
-    plain_text_content = 'On {} {} wrote:\n{}\n'.format(
-        date, from_email, '\n'.join(quoted_lines))
-
+    quoted_lines = ['> {}'.format(line) for line in lines if line.strip()]
+    plain_text_content = 'On {} {} wrote:\n{}\n'.format(date, from_email, '\n'.join(quoted_lines))
     return plain_text_content
 
   # SEND EMAIL
@@ -793,11 +774,10 @@ class EmailClient:
         if email.lower() != from_email.lower()
     ]
 
-    is_html_email = any(part.get_content_type() == 'text/html'
-                        for part in msg.get_payload())
+    is_html_email = any(part.get_content_type() == 'text/html' for part in msg.get_payload())
+    msg['Content-Type'] = 'text/html; charset="utf-8"' if is_html_email else 'text/plain; charset="utf-8"'
 
-    # Set the Content-Type header
-    msg['Content-Type'] = 'text/html' if is_html_email else 'text/plain'
+
 
     if not all_recipients:
       print("No valid recipients found. Will abort email send.")

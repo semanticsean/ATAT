@@ -233,19 +233,12 @@ class AgentSelector:
         """
     return re.sub(r"!ff\((\w+)\)!", r"\1", content)
 
-  def format_conversation_history_html(self,
-                                       agent_responses,
-                                       exclude_recent=1,
-                                       existing_history=None):
+  def format_conversation_history_html(self, agent_responses, exclude_recent=1, existing_history=None):
     formatted_history = existing_history or ""
-    # Processing agent responses
-    for agent_name, agent_email, email_content in reversed(
-        agent_responses[:-exclude_recent]):
-      timestamp = format_datetime_for_email()
-      gmail_note = format_note(agent_name,
-                               email=agent_email,
-                               timestamp=timestamp)
-      formatted_history = f'<div class="gmail_quote">{gmail_note}<blockquote>{email_content}</blockquote></div>{formatted_history}'
+    for agent_name, agent_email, email_content in reversed(agent_responses[:-exclude_recent]):
+        timestamp = format_datetime_for_email()
+        gmail_note = format_note(agent_name, email=agent_email, timestamp=timestamp)
+        formatted_history = f'<blockquote>{gmail_note}{email_content}</blockquote>'
 
     # Processing the most recent response
     if agent_responses and exclude_recent > 0:
@@ -259,10 +252,8 @@ class AgentSelector:
 
     return formatted_history
 
-  def format_conversation_history_plain(self,
-                                        agent_responses,
-                                        exclude_recent=1,
-                                        existing_history=None):
+  def format_conversation_history_plain(self, agent_responses, exclude_recent=1, existing_history=None):
+    
     formatted_plain_history = existing_history or ""
     quote_level = 1
 
@@ -379,11 +370,11 @@ class AgentSelector:
         # Handle Detail Type
         elif result['type'] == 'detail':
           chunks = result.get('content', [])
-          #truncates conversation history to 100,000 characters - should be token count
+          #truncates conversation history to 100,000 characters - should be token count not characters 
           self.conversation_history = self.conversation_history[-100000:]
   
           responses = []
-          agent_responses = []  # List to hold tuples of agent responses
+          agent_responses = []  
   
           for idx, chunk in enumerate(chunks):
             dynamic_prompt = self.create_dynamic_prompt(agent_loader,
@@ -438,6 +429,7 @@ class AgentSelector:
         signature = "\n\n- GENERATIVE AI AGENT: " + agent_name
         final_response_with_signature = final_response + signature
 
+        """
         # Formatting the nested history
         agent_email = agent["email"]
         timestamp = format_datetime_for_email()
@@ -452,5 +444,7 @@ class AgentSelector:
              nested_history))  # Store the formatted response with signature
 
         self.last_agent_response = nested_history 
+
+        """
 
         return final_response_with_signature

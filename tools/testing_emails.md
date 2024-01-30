@@ -1,9 +1,6 @@
-one human / one agent - first response in gmail quote, second not. duplicating. 
-
-one human one agent / first response WITH pdf not gmail quotes
+one human / one agent - first response in gmail quote, second not. duplicating. one human one agent / first response WITH pdf not gmail quotes
 
 summarize with modifier not triggering 
-
 
 
 

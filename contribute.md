@@ -26,6 +26,9 @@
 🚩 test all again 
 
 
+Most important: API so other apps can sync to email rapidly. 
+
+
 Integrate AB/E "ABE" - election and polling generator as a shortcode / function call. 
 
 Integrate new agent as a shortcode -> function call. 

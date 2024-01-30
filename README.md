@@ -1,7 +1,8 @@
 Time travel / fast forward / predict / coach / react / translate. 
 
+Help people see how people are going to react to things. 
 
-
+Autist -> Normie 
 
 
 
@@ -19,7 +20,7 @@ That means a powerful agent can be accessed with the "fw" button or a "cc" on an
 
 🛠️ Shortcode System: Provides powerful shortcodes like !detail, !summarize, and !ff, enabling AI agents to perform complex, multi-step tasks with simple commands, and call complex chains of agents from a single email. In the roadmap, the goal is to enable shortcodes as a mecanism to enable shortcodes in emails to serve as function call operators, so average users can quickly integrate function calls into long-chain multi-part operations. 
 
-⏰ Time-Efficient Medium: With email as the medium, responses that take a day are acceptable, leveraging the platform's slow nature to benefit legacy hardware and provide global access to LLMs.
+⏰ Email is the GOAT of Slow Responses: With email as the medium, responses that take a day are acceptable, leveraging the platform's slow nature to benefit legacy hardware and provide global access to LLMs. Text streaming chatbots and real-time voice assistants are good for instant feedback; text messages are good for quick feedback; email is the best for long, slow responses that need to be archived forever and compliant with policies.
 
 🚀 Rapid Agent Deployment: Simplifies the rollout of a diverse fleet of AI agents, allowing for quick integration into existing email systems, significantly reducing setup time.
 
