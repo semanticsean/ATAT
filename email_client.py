@@ -663,12 +663,16 @@ class EmailClient:
 
           # Formatting response and history in both plain text and HTML
           response_plain = MIMEText(response, 'plain', 'utf-8')
-          response_plain.add_header('Content-Transfer-Encoding', 'quoted-printable')
-          
+          response_plain.add_header('Content-Transfer-Encoding',
+                                    'quoted-printable')
+
           response_with_breaks = response.replace('\n', '<br/>')
-          
-          response_html = MIMEText(f"<html><body>{response_with_breaks}</body></html>", 'html', 'utf-8')
-          response_html.add_header('Content-Transfer-Encoding', 'quoted-printable')
+
+          response_html = MIMEText(
+              f"<html><body>{response_with_breaks}</body></html>", 'html',
+              'utf-8')
+          response_html.add_header('Content-Transfer-Encoding',
+                                   'quoted-printable')
 
           history_plain = MIMEText(formatted_email_history_plain, 'plain')
           history_html = MIMEText(
@@ -681,7 +685,7 @@ class EmailClient:
           print("RESPONSE PLAIN: ", response_plain)
           alternative_response.attach(response_html)
           print("RESPONSE HTML: ", response_plain)
-          
+
           alternative_history = MIMEMultipart('alternative')
           alternative_history.attach(history_plain)
           print("HISTORY PLAIN: ", history_plain)
@@ -696,15 +700,14 @@ class EmailClient:
           print("MIME MULTIPART ALTERNATIVE HISTORY: ", alternative_history)
 
           try:
-            self.send_email(
-                from_email=self.smtp_username,
-                from_alias=agent["email"],
-                to_emails=to_emails_without_agent,
-                cc_emails=cc_emails_without_agent,
-                subject=f"Re: {subject}",
-                msg=msg,  
-                message_id=message_id,
-                references=references)
+            self.send_email(from_email=self.smtp_username,
+                            from_alias=agent["email"],
+                            to_emails=to_emails_without_agent,
+                            cc_emails=cc_emails_without_agent,
+                            subject=f"Re: {subject}",
+                            msg=msg,
+                            message_id=message_id,
+                            references=references)
             print("Email sent successfully.")
           except Exception as e:
             print(f"Exception while handling incoming email: {e}")
@@ -743,15 +746,25 @@ class EmailClient:
   def format_email_history_html(self, history, from_email, date):
     decoded_history = quopri.decodestring(history.encode()).decode('utf-8')
     lines = decoded_history.split('\n')
-    formatted_lines = ['<blockquote>{}</blockquote>'.format(line) for line in lines if line.strip()]
-    html_content = '<div class="gmail_quote">On {} {} wrote:<br>{}<br></div>'.format(date, from_email, ''.join(formatted_lines))
+    formatted_lines = [
+        '<blockquote>{}</blockquote>'.format(line) for line in lines
+        if line.strip()
+    ]
+    # Check if the div class 'gmail_quote' exists inside another 'gmail_quote' and strip all nested ones
+    pattern = re.compile(
+        r'(<div class="gmail_quote">.*?</div>)(?=.*<div class="gmail_quote">)',
+        re.DOTALL)
+    formatted_lines = [re.sub(pattern, '', line) for line in formatted_lines]
+    html_content = '<div class="gmail_quote">On {} {} wrote:<br>{}<br></div>'.format(
+        date, from_email, ''.join(formatted_lines))
     return html_content
 
   def format_email_history_plain(self, history, from_email, date):
     decoded_history = quopri.decodestring(history.encode()).decode('utf-8')
     lines = decoded_history.split('\n')
     quoted_lines = ['> {}'.format(line) for line in lines if line.strip()]
-    plain_text_content = 'On {} {} wrote:\n{}\n'.format(date, from_email, '\n'.join(quoted_lines))
+    plain_text_content = 'On {} {} wrote:\n{}\n'.format(
+        date, from_email, '\n'.join(quoted_lines))
     return plain_text_content
 
   # SEND EMAIL
@@ -774,10 +787,9 @@ class EmailClient:
         if email.lower() != from_email.lower()
     ]
 
-    is_html_email = any(part.get_content_type() == 'text/html' for part in msg.get_payload())
+    is_html_email = any(part.get_content_type() == 'text/html'
+                        for part in msg.get_payload())
     msg['Content-Type'] = 'text/html; charset="utf-8"' if is_html_email else 'text/plain; charset="utf-8"'
-
-
 
     if not all_recipients:
       print("No valid recipients found. Will abort email send.")

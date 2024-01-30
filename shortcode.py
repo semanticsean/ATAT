@@ -81,6 +81,7 @@ def handle_document_short_code(email_content,
   detail_matches = re.findall(r"!detail_start!(.*?)!detail_stop!",
                               email_content, re.DOTALL)
   if detail_matches:
+    print("Detail shortcode triggered.")
     detailed_responses = []
     for match in detail_matches:
       detail_content = match.strip()
@@ -107,7 +108,9 @@ def handle_document_short_code(email_content,
   summarize_matches = re.findall(
       r"!\s*summarize\.\s*(\S+?)\s*_start\s*!([\s\S]*?)!\s*summarize\s*_stop\s*!",
       email_content, re.DOTALL | re.IGNORECASE)
+  
   if summarize_matches:
+    print(f"Summarize shortcode triggered with modality: {summarize_matches[0][0]}")
     modality, summarize_content = summarize_matches[0]
     summarize_content = summarize_content.strip()
 

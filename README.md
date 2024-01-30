@@ -4,6 +4,8 @@ Help people see how people are going to react to things.
 
 Autist -> Normie 
 
+there are testing emails a couple dev prompts 
+
 
 
 # ATAT - Email Client for AI Agents  💪🏼🦾

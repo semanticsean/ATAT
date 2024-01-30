@@ -90,42 +90,43 @@ class AgentSelector:
 
   # GET AGENTS FROM EMAIL ADDRESSES AND CONTENT
 
-  def get_agent_names_from_content_and_emails(self, content, recipient_emails,
-                                              agent_loader, gpt):
+  def get_agent_names_from_content_and_emails(self, content, recipient_emails, agent_loader, gpt):
     agent_queue = []
     ff_agent_queue = []
-    overall_order = 1  # To keep track of the overall order
+    overall_order = 1
     agents_to_remove = set()
 
     # Get agents from recipient emails
     for email in recipient_emails:
-      agent = agent_loader.get_agent_by_email(email)
-      if agent:
-        agent_queue.append((agent["id"], overall_order))
-        overall_order += 1
+        agent = agent_loader.get_agent_by_email(email)
+        if agent:
+            agent_queue.append((agent["id"], overall_order))
+            overall_order += 1
 
-    # Search for !ff.creator and other tags in the content
+    # Search for !ff.creator and !ff tags in the content
     regex_pattern = re.compile(r"!ff\.creator\((.*?)\)!|!ff\(([\w\d_]+)\)!", re.DOTALL)
     ff_tags = regex_pattern.findall(content)
 
     for ff_creator_match, ff_match in ff_tags:
         if ff_creator_match:
-            # Process !ff.creator! - Create a new agent and add to the queue
             agent_description = ff_creator_match
             generated_profile = gpt.generate_agent_profile(agent_description)
             unique_id = f"GeneratedAgent_{hash(agent_description)}"
-            self.invoked_agents[unique_id] = generated_profile
-            agent_loader.agents[unique_id] = generated_profile
-            agent_queue.append((unique_id, overall_order))
+            if unique_id not in self.invoked_agents:
+                self.invoked_agents[unique_id] = generated_profile
+                agent_loader.agents[unique_id] = generated_profile
+                ff_agent_queue.append((unique_id, overall_order))
         elif ff_match:
-            # Process !ff! - Add existing agent to the queue
             agent = agent_loader.get_agent(ff_match, case_sensitive=False)
-            if agent:
-                agent_queue.append((ff_match, overall_order))
+            if agent and (ff_match, overall_order) not in agent_queue:
+                ff_agent_queue.append((ff_match, overall_order))
 
         overall_order += 1
 
-    # Search for explicit tags in the content
+    # Merge and filter the agent queue
+    agent_queue.extend(ff_agent_queue)
+
+    # Process explicit tags in the content
     explicit_tags = regex_pattern.findall(content)
     explicit_tags = [
         tag for sublist in explicit_tags for tag in sublist if tag
@@ -133,36 +134,21 @@ class AgentSelector:
 
     # Identify agents to remove from the queue
     for tag in explicit_tags:
-      if tag.startswith("no."):
-        agents_to_remove.add(tag[3:])
+        if tag.startswith("no."):
+            agents_to_remove.add(tag[3:])
+        elif tag not in agents_to_remove and tag in self.invoked_agents:
+            # Add existing agents to the queue from explicit tags
+            agent_queue.append((tag, overall_order))
+            overall_order += 1
 
-    # Process other tags 
-    for agent_name in explicit_tags:
-      if agent_name.startswith('no.'):
-        continue  # Skip agents prefixed with 'no.'
-
-
-      # Process !ff.creator!
-      if "Embody " in agent_name:
-        generated_profile = self.gpt.generate_agent_profile(agent_name)
-        unique_id = f"Temporary Agent_{hash(agent_name)}"
-        generated_profile["email"] = f"{str(unique_id)[:14]}@semantic-life.com"
-        agent_loader.agents[unique_id] = generated_profile
-        ff_agent_queue.append((unique_id, overall_order))
-      else:
-        # Process !ff!
-        agent = agent_loader.get_agent(agent_name, case_sensitive=False)
-        if agent:
-          ff_agent_queue.append((agent_name, overall_order))
-      overall_order += 1
-
-    # Merge and filter the agent queue
-    agent_queue.extend(ff_agent_queue)
-    agent_queue = [(agent_name, order) for agent_name, order in agent_queue
-                   if agent_name not in agents_to_remove]
+    # Final filtering and sorting of the agent queue
+    agent_queue = [(agent_name, order) for agent_name, order in agent_queue if agent_name not in agents_to_remove]
     agent_queue = sorted(agent_queue, key=lambda x: x[1])[:self.max_agents]
 
+    print(f"Debug: Full agent queue: {agent_queue}")
+
     return agent_queue
+
 
   # CREATE PROMPT FOR AGENTS
 
@@ -238,19 +224,24 @@ class AgentSelector:
     for agent_name, agent_email, email_content in reversed(agent_responses[:-exclude_recent]):
         timestamp = format_datetime_for_email()
         gmail_note = format_note(agent_name, email=agent_email, timestamp=timestamp)
-        formatted_history = f'<blockquote>{gmail_note}{email_content}</blockquote>'
-
+        formatted_history += f'<div class="gmail_quote">{gmail_note}<blockquote>{email_content}</blockquote></div>'
+  
     # Processing the most recent response
     if agent_responses and exclude_recent > 0:
-      recent_agent_name, recent_agent_email, recent_email_content = agent_responses[
-          -exclude_recent]
-      recent_timestamp = format_datetime_for_email()
-      recent_gmail_note = format_note(recent_agent_name,
-                                      email=recent_agent_email,
-                                      timestamp=recent_timestamp)
-      formatted_history = f'<div class="gmail_quote">{recent_gmail_note}<blockquote>{recent_email_content}</blockquote></div>{formatted_history}'
-
+        recent_agent_name, recent_agent_email, recent_email_content = agent_responses[-exclude_recent]
+        recent_timestamp = format_datetime_for_email()
+        recent_gmail_note = format_note(recent_agent_name, email=recent_agent_email, timestamp=recent_timestamp)
+        formatted_history += f'<div class="gmail_quote">{recent_gmail_note}<blockquote>{recent_email_content}</blockquote></div>'
+  
+    # Remove nested or consecutive gmail_quote divs
+    pattern = re.compile(r'(?:<div class="gmail_quote">.*?</div>\s*)+', re.DOTALL)
+    match = pattern.search(formatted_history)
+    if match:
+        nested_content = match.group(0)
+        formatted_history = pattern.sub(nested_content, formatted_history, 1)
+  
     return formatted_history
+
 
   def format_conversation_history_plain(self, agent_responses, exclude_recent=1, existing_history=None):
     

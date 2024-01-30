@@ -1,42 +1,3 @@
-one human / one agent - first response in gmail quote, second not. duplicating. one human one agent / first response WITH pdf not gmail quotes
-
-summarize with modifier not triggering 
-
-
-
-
-error from writing generated agent to rendered_agents.json. 
-
-"expected str instance, NoneType found
-Traceback (most recent call last):
-  File "/home/runner/dev-agent-atat-v023/email_client.py", line 569, in handle_incoming_email
-    response = self.agent_operator.get_response_for_agent(
-  File "/home/runner/dev-agent-atat-v023/agent_operator.py", line 424, in get_response_for_agent
-    dynamic_prompt = self.create_dynamic_prompt(agent_loader, agent_name, order, total_order, additional_context, modality)
-  File "/home/runner/dev-agent-atat-v023/agent_operator.py", line 218, in create_dynamic_prompt
-    other_agent_roles = ", ".join(
-TypeError: sequence item 1: expected str instance, NoneType found"
-
-
-
-check / maybe fixed
-
-detail instructions as to what is happening / what to do / dont' include agent details. 
-
-ff multiplayer instruction clarity 
-
-
-
-
-
-
-
-
-
-
-
-
-
 # test routine - send these emails 
 
 
@@ -61,17 +22,19 @@ agent1,
 please tell me about the history of america in a whitepaper in this multi-pass llm construction. put clear ALL CAPS section headers in each section.
 
 !detail_start!
+Heading: INTRODUCTION
 an introduction written in social media engagement / attention grabbing ideas.
 
 !split!
-
-an ascii style graph of the historical timeline of the founding of america and key events in our history.
+Heading: TIMELINE
+an ascii diagram / flow chart style of the historical timeline of the founding of america and key events in our history.
 
 !split!
-
+heading: SUMMARY 
 a summary of the constitution.
 
 !split!
+heading: CREATIVE STORY OF THE CONSTITUTION BEING WRITTEN AS A CHILDREN'S STORY
 our story in an emoji-based "graphic novel" made of only emojis with some subheadings for the various scenes describing key moments.
 
 !detail_stop!
@@ -104,26 +67,32 @@ _!summarize_start!_
 _!summarize_stop!_
 OR
 _!summarize.modality_start!_
-_!summarize_stop!_
+_!summarize.modality_stop!_
 
-agent1, please convert the constitution to json:
+Example - JSON Modality: 
 
 !summarize.json_start!
-
 We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defence, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.
 Article. I.
 Section. 1.
 
-  All legislative Powers herein granted shall be vested in a Congress of the United States, which shall consist of a Senate and House of Representatives.
-  Section. 2.
-  
-  The House of Representatives shall be composed of Members chosen every second Year by the People of the several States, and the Electors in each State shall have the Qualifications requisite for Electors of the most numerous Branch of the State Legislature.
-  
-  No Person shall be a Representative who shall not have attained to the Age of twenty five Years, and been seven Years a Citizen of the United States, and who shall not, when elected, be an Inhabitant of that State in which he shall be chosen.
-  
-  ...
-  
-  
-  !summarize_stop! 
-  
+All legislative Powers herein granted shall be vested in a Congress of the United States, which shall consist of a Senate and House of Representatives.
+Section. 2.
+
+The House of Representatives shall be composed of Members chosen every second Year by the People of the several States, and the Electors in each State shall have the Qualifications requisite for Electors of the most numerous Branch of the State Legislature.
+
+No Person shall be a Representative who shall not have attained to the Age of twenty five Years, and been seven Years a Citizen of the United States, and who shall not, when elected, be an Inhabitant of that State in which he shall be chosen.
+
+Representatives and direct Taxes shall be apportioned among the several States which may be included within this Union, according to their respective Numbers, which shall be determined by adding to the whole Number of free Persons, including those bound to Service for a Term of Years, and excluding Indians not taxed, three fifths of all other Persons. The actual Enumeration shall be made within three Years after the first Meeting of the Congress of the United States, and within every subsequent Term of ten Years, in such Manner as they shall by Law direct. The Number of Representatives shall not exceed one for every thirty Thousand, but each State shall have at Least one Representative; and until such enumeration shall be made, the State of New Hampshire shall be entitled to chuse three, Massachusetts eight, Rhode-Island and Providence Plantations one, Connecticut five, New-York six, New Jersey four, Pennsylvania eight, Delaware one, Maryland six, Virginia ten, North Carolina five, South Carolina five, and Georgia three.
+
+When vacancies happen in the Representation from any State, the Executive Authority thereof shall issue Writs of Election to fill such Vacancies.
+
+The House of Representatives shall chuse their Speaker and other Officers; and shall have the sole Power of Impeachment.
+Section. 3.
+
+The Senate of the United States shall be composed of two Senators from each State, chosen by the Legislature thereof, for six Years; and each Senator shall have one Vote.
+
+Immediately after they shall be assembled in Consequence of the first Election, they shall be divided as equally as may be into three Classes. The Seats of the Senators of the first Class shall be vacated at the Expiration of the second Year, of the second Class at the Expiration of the fourth Year, and of the third Class at the Expiration of the sixth Year, so that one third may be chosen every second Year; and if Vacancies happen by Resignation, or otherwise, during the Recess of the Legislature of any State, the Executive thereof may make temporary Appointments until the next Meeting of the Legislature, which shall then fill such Vacancies.
+
+!summarize.json_stop!
 

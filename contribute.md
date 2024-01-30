@@ -25,8 +25,14 @@
 🚩 remove old new agent from gpt 
 🚩 test all again 
 
+🚩 Rendered Agents replying twice, not writing to json, not labeled properly in headers 
+
+ff / creator need better logic for handling multiple agents / calling multiple agents / calling the same agent more than once if explicitly doing that to be fluid / natural. 
+
 
 Most important: API so other apps can sync to email rapidly. 
+
+Rewrite ABE with function calling / structured output / instructor. 
 
 
 Integrate AB/E "ABE" - election and polling generator as a shortcode / function call. 
@@ -36,6 +42,9 @@ Integrate new agent as a shortcode -> function call.
 Adadpt to work on GH and local. 
 
 Add self-awareness of name and email to the prompt. Was buggy / don't want to pass emails to LLM model right now. 
+
+Make shortcode detection an agent operation for detection and then write out to function call not regex. 
+
 
 # next steps 
 
