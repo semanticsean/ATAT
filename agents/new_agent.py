@@ -72,7 +72,7 @@ def generate_persona(agent_name,
 
 def add_new_agent(agent_name, description):
   """Adds a new agent and generates an image for them."""
-  new_persona_json = generate_persona(description)
+  new_persona_json = generate_persona(agent_name, description)
   try:
     new_persona = json.loads(new_persona_json)
     email = agent_name.replace(" ", "").lower() + "@semantic-life.com"

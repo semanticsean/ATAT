@@ -1,4 +1,11 @@
 # critical
+
+Update to OpenAI SDK 1.0. 
+
+Refactor 
+
+
+
 🚩 FF LOOPING AGENTS 
 🚩 line breaks in ff history not working right 
 🚩 embody vs. creator 
@@ -25,7 +32,11 @@
 🚩 remove old new agent from gpt 
 🚩 test all again 
 
+
 🚩 Rendered Agents replying twice, not writing to json, not labeled properly in headers 
+
+Certain agent instructions prevent summarize.json from working. 
+
 
 ff / creator need better logic for handling multiple agents / calling multiple agents / calling the same agent more than once if explicitly doing that to be fluid / natural. 
 

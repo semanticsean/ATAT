@@ -17,24 +17,28 @@ what does this pdf say?
 
 ✅  detail / split 
 
-agent1,
-
 please tell me about the history of america in a whitepaper in this multi-pass llm construction. put clear ALL CAPS section headers in each section.
+
+BE VERY VERY VERBOSE. REPEAT THE HEADING AT THE TOP OF EACH SECTION.
 
 !detail_start!
 Heading: INTRODUCTION
 an introduction written in social media engagement / attention grabbing ideas.
+15 ideas in bullet points.
 
 !split!
 Heading: TIMELINE
 an ascii diagram / flow chart style of the historical timeline of the founding of america and key events in our history.
+15 items included.
 
 !split!
-heading: SUMMARY 
+heading: SUMMARY
 a summary of the constitution.
+at least 10 paragraphs
 
 !split!
 heading: CREATIVE STORY OF THE CONSTITUTION BEING WRITTEN AS A CHILDREN'S STORY
+50 bullet points
 our story in an emoji-based "graphic novel" made of only emojis with some subheadings for the various scenes describing key moments.
 
 !detail_stop!
@@ -57,7 +61,11 @@ agent1 - what is the most important question for grant applicants to answer when
 # ff creator 
 _!ff.creator!(Embody an agent who ... description)_
 
-An important note is, until the code is improved, ff.creator requires the use of both !ff.creator(Embody)! 
+I'm working on a new creative project and need some roleplaying. Please render this agent and have it answer the question below.
+
+!ff.creator(Embody a playful vampire who is friends with a dolphin in a children's book style who speaks in comical vampire voice.)!
+
+Mr. Vampire, what is your favorite game to play?
 
 
 
