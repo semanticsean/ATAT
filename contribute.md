@@ -3,7 +3,11 @@ Update the application to leverage OpenAI SDK version 1.0.
 
 
 # Big Needs 
-Refactor gpt.py and new_agent.py for compatibility with OpenAI SDK 1.0, incorporating function calling and instructor logic. 
+Refactor gpt.py and new_agent.py for compatibility with OpenAI SDK 1.0, incorporating function calling and instructor logic. Update agents to integrate with Assistants. 
+
+Integrate with LLAMA and other models. 
+
+Pass custom LLM settings for each API call based on agent record details, e.g. add custom temp, max_tokens, etc. to each agent record; and write shortcode to control custom LLM controls through shortcode. 
 
 Engage community feedback for a structured class-based refactor, including robust testing and database integration.
 
@@ -70,5 +74,3 @@ Enhance context and date awareness, incorporating news update functionalities.
 Explore backup solutions and stability improvements for Replit deployment.
 Focus on developing a progressive/regressive inbox checking system based on activity levels.
 Consider adding agent profile pictures to email signatures and integrating images retrieved from Gmail URLs.
-Develop an API for assistant integration and response evaluation.
-Introduce exponential backoff strategies for responses and IMAP server checks.
