@@ -162,12 +162,18 @@ class AgentSelector:
     # Concatenate the values of each dictionary in the relationships list into a single string
     relationship_strings = []
     for relationship in relationships_data:
-        relationship_strings.append(' '.join(relationship.values()))
+        # Check if relationship is a dictionary and get the values
+        if isinstance(relationship, dict):
+            relationship_strings.append(' '.join(relationship.values()))
+        else:
+            # If relationship is a string, just append it
+            relationship_strings.append(str(relationship))
 
     # Combine all relationship strings into a single string, separated by a space
     combined_relationships = ' '.join(relationship_strings)
 
     return combined_relationships
+
 
   # CREATE PROMPT FOR AGENTS
 
