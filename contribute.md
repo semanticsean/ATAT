@@ -5,11 +5,13 @@ Update the application to leverage OpenAI SDK version 1.0.
 # Big Needs 
 Refactor gpt.py and new_agent.py for compatibility with OpenAI SDK 1.0, incorporating function calling and instructor logic. Update agents to integrate with Assistants. 
 
-Integrate with LLAMA and other models. 
+Engage community feedback for a structured class-based refactor, including robust testing and database integration. Simultaneously refactor to be properly pythonic, smarter class structure, proper docstrings and comments; remove early-stage solo developer cruft. 
+
+Integrate with LLAMA and other models, model selection per agent. 
 
 Pass custom LLM settings for each API call based on agent record details, e.g. add custom temp, max_tokens, etc. to each agent record; and write shortcode to control custom LLM controls through shortcode. 
 
-Engage community feedback for a structured class-based refactor, including robust testing and database integration.
+
 
 Develop a robust email constructor to handle various client types, history management, and CSS. Overhaul email formatting and structure to address issues with quoted printable, Gmail quotes, divs, and email construction loops. 
 

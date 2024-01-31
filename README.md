@@ -1,17 +1,3 @@
-📊 A/B+E Polling System: Includes the ABE script for creating synthetic polling systems, facilitating the generation of agent profiles and responses in structured formats.
-
-Looking for collaborators and sponsors, see contribute.md. 
-
-supports personas and utility agents. 
-
-Get a gut check 
-
-Assemble a team when you can't afford 
-
-
-
-
-
 # (@@) - ATAT - Email Client for AI Agents - 💪🏼🦾
 
 ATAT simplifies adoption of Human-to-AI, AI-to-AI interactions over one of the largest and most important communication stacks: email. 
@@ -20,11 +6,18 @@ That means a powerful agent - or fleet of agents - can be accessed with the "fw"
 
 (a.k.a. MoE for normies.)
 
-I did a lot of market testing of bots and saw that many of the most powerful use cases of LLMs are far too slow for a chatbot, at least right now. Email is wonderfully slow. Elegantly slow. You have 24 hours of compute to get to the user's ideal output. What will you build? 
+I did a lot of hands-on market testing of bots and saw that many of the most powerful use cases of LLMs are far too slow for a chatbot, at least right now. Email is wonderfully slow. Elegantly slow. You have 24 hours of compute to get to the user's ideal output, using person and / or utility agents. What will you build with all that time? 
 
-(If you are testing it, see "critical warning" below.)
+The biggest and most important update is it needs to use openai 0.28.0. The code needs to be immediately refactored to use the 1.0 SDK.
 
-🚀 Rapid Agent Deployment: Simplifies the rollout of a diverse fleet of AI agents, allowing for quick integration into existing email systems, significantly reducing setup time. The new agent script results in a fairly sophisticated agent with a DALLE generated profile photo, which is automatically integrated into the Agent Dashboard. 
+(Setup is easy. Guide below. Read the 'critical warning'!)
+
+Looking for collaborators and sponsors, see contribute.md. 
+
+# Features & Benefits 
+
+# 🚀 Rapid Agent Deployment
+Simplifies the rollout of a diverse fleet of AI agents, allowing for quick integration into existing email systems, significantly reducing setup time. The new agent script results in a fairly sophisticated agent with a DALLE generated profile photo, which is automatically integrated into the Agent Dashboard. 
 
 Which is easier: deploying a new in-development chatbot across an enterprise, or adding a new email address? @@
 
@@ -32,27 +25,35 @@ Get all the benefits of email when testing a new AI: like archiving, traceabilit
 
 Your least savvy user can absolutely use the "fw" button. 
 
-🤖 Agent-Centric Communication: ATAT is specially designed for AI agents, offering a unique platform for Human-to-AI and AI-to-AI interactions over email, a crucial communication channel. Includes automatic Agent Dashboard that displays agent descriptions and links to their email addresses. Dashboard is mobile friendly. ATAT is not built to pretend to be you or ghost compose your emails for you. 
+# 🤖 Agent-Centric Communication
+ATAT is specially designed for AI agents, offering a unique platform for Human-to-AI and AI-to-AI interactions over email, a crucial communication channel. Includes automatic Agent Dashboard that displays agent descriptions and links to their email addresses. Dashboard is mobile friendly. ATAT is not built to pretend to be you or ghost compose your emails for you. 
 
 Pre-baked agents included. Delete the records in agents.json and update new_agent_files to re-render your own customized agents. More details below in New Agent. 
 
-🦾🦾 Multi-Agent Collaboration: Allows simultaneous engagement of multiple AI agents, facilitating a "mixture of experts" approach for enhanced problem-solving and decision-making. Each agent is influenced not only be an agentic profile, but a social graph of relationships that influence their decision-making. Anecdotally, this generates more realistic results in role-playing. 
+# 🦾🦾 Multi-Agent Collaboration for Normies 
+Allows simultaneous engagement of multiple AI agents, facilitating a "mixture of experts" approach for enhanced problem-solving and decision-making. Each agent is influenced not only be an agentic profile, but a social graph of relationships that influence their decision-making. Anecdotally, this generates more realistic results in role-playing. 
 
-🛠️ Shortcode System: Provides powerful shortcodes like !detail, !summarize, and !ff, enabling AI agents to perform complex, multi-step tasks with simple commands, and call complex chains of agents from a single email. In the roadmap, the goal is to enable shortcodes as a mecanism to enable shortcodes in emails to serve as function call operators, so average users can quickly integrate function calls into long-chain multi-part operations. The @@ shortcode allows you to reference any agent, whether they have an email alias or not, and the @@.creator shortcode enables you to embody a new agent inline from the email. 
+# 🛠️ Shortcode System
+Provides powerful shortcodes like !detail, !summarize, and !ff, enabling AI agents to perform complex, multi-step tasks with simple commands, and call complex chains of agents from a single email. In the roadmap, the goal is to enable shortcodes as a mecanism to enable shortcodes in emails to serve as function call operators, so average users can quickly integrate function calls into long-chain multi-part operations. The @@ shortcode allows you to reference any agent, whether they have an email alias or not, and the @@.creator shortcode enables you to embody a new agent inline from the email. 
 
-⏰ Email is the GOAT of Slow Responses: With email as the medium, responses that take a day are acceptable, leveraging the platform's slow nature to benefit legacy hardware and provide global access to LLMs. Text streaming chatbots and real-time voice assistants are good for instant feedback; text messages are good for quick feedback; email is the best for long, slow responses that need to be archived forever and compliant with policies. 
+# ⏰ Email is the GOAT of Slow Responses
+With email as the medium, responses that take a day are acceptable, leveraging the platform's slow nature to benefit legacy hardware and provide global access to LLMs. Text streaming chatbots and real-time voice assistants are good for instant feedback; text messages are good for quick feedback; email is the best for long, slow responses that need to be archived forever and compliant with policies. 
 
 It can be, with localized llm integrations, slow and local, yet perfect for many use cases. Slow and local -- _slowcal_. 
 
-💡 Easy Setup on Replit: Offers a straightforward setup process on Replit, making it possible to have a functional AI agent email system running in just minutes. You need to add OPENAI_API_KEY and SMTP / IMAP credentials in Secrets, but then you can use pre-baked agents to have an Agent Dashboard deployed in a minute or so. Adding a new email address, and optionally aliases on top of it, should also only take a few minutes. 
+# 💡 Easy Setup on Replit
+Offers a straightforward setup process on Replit, making it possible to have a functional AI agent email system running in just minutes. You need to add OPENAI_API_KEY and SMTP / IMAP credentials in Secrets, but then you can use pre-baked agents to have an Agent Dashboard deployed in a minute or so. Adding a new email address, and optionally aliases on top of it, should also only take a few minutes. 
 
-📝 PDF Reading Capability: Enables AI agents to read and interpret text from PDFs, expanding the range of document formats the agents can handle.
+# 📝 PDF Reading Capability
+Enables AI agents to read and interpret text from PDFs, expanding the range of document formats the agents can handle.
 
-🎨 Dashboard uses CSS so you can customize look and feel very easily. Add your logo easily in /static. 
+# 🎨 Customizable HTML/CSS Dashboard
+Uses CSS so you can customize look and feel very easily. Add your logo easily in /static. 
 
-⏳⚡️ TIME TRAVEL. The inspiration behind @@ - being able to summon an agent from within an email - comes from my own struggles with being on the spectrum and having a weak model for how people will feel when I say things. I've always wanted to "time travel" to see their reaction and be able to adjust if it's not good. Now I can. @@ 
+# ⏳⚡️ TIME TRAVEL for Spectrum People 
+The inspiration behind @@ is, in part, from my own struggles with being on the spectrum and having a weak model for how people will feel when I say things. I've always wanted to "time travel" to see their reaction and be able to adjust if it's not good. Being able to summon an agent from within an email enables me to do just that, and I do it all the time now. It's like practcing the world before it happens. @@ 
 
-Additional benefits: 
+# Additional benefits: 
 
 * Thread Indexing to prevent duplicative sending, even if user marks things unread, resesnds, etc.
 * Error handling and error email sending with customizable text content
@@ -101,16 +102,6 @@ The Flask server will open the Card site showing all agents automatically on Rep
 (If you want to use an existing dev or sandbox account, run thread-reconciler.py in /tools to index processed_threads.json.)
 
 
-# Features 
-AI-Focused Email Client: Tailored specifically for AI agents, enhancing their communication capabilities and availability to do real work with nothing more than a "fw" or "cc". 
-
-Email Addresses for AI Agents: Enable dozens of agents through a single new email address using email aliases. Nothing more than IMAP / SMTP required.* Keep archives of all conversations, and secure AI by boxing it into your existing email security infrastructure. 
-
-Automated Agent Management: Manage multiple AI personas effortlessly. Once the client is running, it can handle a queue of messages, or sleep and check every 10 minutes for new messages. 
-
-Advanced Shortcode System: Empower your AI agents with unique, powerful shortcodes for complex tasks. Run multi-chunk API calls with !detail! request part one !split! request part two !detail!. See Shortcode section for details. 
-
-Agents can read PDFs but text only. 
 
 
 # 🦾 NEW AGENT 
@@ -123,14 +114,6 @@ To add new agents, follow this simple file structure in new_agent_files:
 
 First Line: Agent Name
 Rest of the Document: In-depth agent description
-
-
-# 🎩 A/B+E ("ABE") 
-ABE Script: Synthesize polling systems with JSON and HTML outputs for agent profiles and a static html page accessible via the flask app. 
-
-This script is designed to create a synthetic polling system using the OpenAI GPT model to generate responses to a set of questions. The generated responses are saved in a structured JSON format, and a static HTML page is created to display the agent profiles along with their answers. Additionally, this script copies images associated with the agents to a local folder for display on the HTML page.
-
-ABE runs through all the agents by default. 
 
 
 # 🎩 CARDS 
@@ -175,9 +158,10 @@ Usage: The shortcode !summarize! triggers this functionality. Modifiers can be a
 ### Examples: Modifiers like !summarize.json!, !summarize.marketing!, and !summarize.budget! instruct the system to format the summarized content in a specific way, be it JSON structure, marketing-oriented language, or budget format.
 
 
-
 # 📜 License
-This project is proudly under the MIT License. Feel free to adapt, use, and share it in your AI endeavors.
+This project is proudly under the MIT License. 
+See LICENSE. 
 
 
-
+# Accelerate. 
+💪🏼🦾

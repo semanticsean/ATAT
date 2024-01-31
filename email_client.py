@@ -752,7 +752,12 @@ class EmailClient:
   # FORMAT EMAIL HISTORY
 
   def format_email_history_html(self, history, from_email, date):
-    decoded_history = quopri.decodestring(history.encode()).decode('utf-8')
+    
+    try:
+        decoded_history = quopri.decodestring(history.encode()).decode('utf-8')
+    except UnicodeDecodeError:
+        # If utf-8 decoding fails, fall back to 'latin1' encoding
+        decoded_history = quopri.decodestring(history.encode()).decode('latin1')
 
     # Detect if history is already wrapped in 'gmail_quote' and avoid re-wrapping
     if '<div class="gmail_quote">' not in decoded_history:
@@ -764,6 +769,7 @@ class EmailClient:
         html_content = decoded_history  # Use as-is if already wrapped
 
     return html_content
+
 
 
   def format_email_history_plain(self, history, from_email, date):
