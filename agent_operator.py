@@ -93,7 +93,7 @@ class AgentSelector:
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
                                               agent_loader, gpt):
     agent_queue = []
-    ff_agent_queue = []
+    atat_agent_queue = []
     overall_order = 1
     agents_to_remove = set()
 
@@ -104,29 +104,30 @@ class AgentSelector:
         agent_queue.append((agent["id"], overall_order))
         overall_order += 1
 
-    # Search for !ff.creator and !ff tags in the content
-    regex_pattern = re.compile(r"!ff\.creator\((.*?)\)!|!ff\(([\w\d_]+)\)!",
-                               re.DOTALL)
-    ff_tags = regex_pattern.findall(content)
+    # Search for @@.creator and @@ tags in the content
+    regex_pattern = re.compile(r"@@\.creator\((.*?)\)|@@\(([\w\d_]+)\)",
+                                   re.DOTALL)
+    atat_tags = regex_pattern.findall(content)
 
-    for ff_creator_match, ff_match in ff_tags:
-      if ff_creator_match:
-        agent_description = ff_creator_match
+
+    for atat_creator_match, atat_match in atat_tags:
+      if atat_creator_match:
+        agent_description = atat_creator_match
         generated_profile = gpt.generate_agent_profile(agent_description)
         unique_id = f"GeneratedAgent_{hash(agent_description)}"
         if unique_id not in self.invoked_agents:
           self.invoked_agents[unique_id] = generated_profile
           agent_loader.agents[unique_id] = generated_profile
-          ff_agent_queue.append((unique_id, overall_order))
-      elif ff_match:
-        agent = agent_loader.get_agent(ff_match, case_sensitive=False)
-        if agent and (ff_match, overall_order) not in agent_queue:
-          ff_agent_queue.append((ff_match, overall_order))
+          atat_agent_queue.append((unique_id, overall_order))
+      elif atat_match:
+        agent = agent_loader.get_agent(atat_match, case_sensitive=False)
+        if agent and (atat_match, overall_order) not in agent_queue:
+          atat_agent_queue.append((atat_match, overall_order))
 
       overall_order += 1
 
     # Merge and filter the agent queue
-    agent_queue.extend(ff_agent_queue)
+    agent_queue.extend(atat_agent_queue)
 
     # Process explicit tags in the content
     explicit_tags = regex_pattern.findall(content)
@@ -217,9 +218,10 @@ class AgentSelector:
 
   def replace_agent_shortcodes(self, content):
     """
-        Replaces !ff(agent_name)! shortcodes with the agent's name.
+        Replaces @@(agent_name) shortcodes with the agent's name.
         """
-    return re.sub(r"!ff\((\w+)\)!", r"\1", content)
+    return re.sub(r"@@\((\w+)\)", r"\1", content)
+
 
   def format_conversation_history_html(self,
                                        agent_responses,

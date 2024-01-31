@@ -18,6 +18,15 @@ body {
   margin: 0;
 }
 
+
+/* Paragraph styles */
+p {
+  font-size: 1rem; /* Standard font size for paragraph text */
+  line-height: 1.5; /* Standard line height for readability */
+  margin-bottom: 1rem; /* Space below paragraphs */
+}
+
+
 /* Style the header and footer with a consistent background and text color */
 .header, .footer {
   background-color: #FFFFFF; /* White background */
@@ -135,7 +144,7 @@ h1, h2 {
 
 /* Email link styles */
 .email-link {
-  background-color: #F56565;
+  background-color: #0055ff;
   color: white;
   text-decoration: none;
   padding: 0.5rem 1rem;

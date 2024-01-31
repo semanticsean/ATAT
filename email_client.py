@@ -591,9 +591,9 @@ class EmailClient:
                     for agent in self.agent_loader.agents.values()
                 ]:
 
-          # Check for explicit tags or 'ff!' shortcode in the content
-          if "!ff!" not in thread_content and not any(
-              f"!ff({name})!" in thread_content for name, _ in agents):
+          # Check for explicit tags or '@@' shortcode in the content
+          if "@@" not in thread_content and not any(
+              f"@@({name})" in thread_content for name, _ in agents):
             #print("Thread Content:", thread_content)
             print(
                 f"Skipping response from {agent_name} to prevent agent-to-agent loop."
@@ -750,14 +750,24 @@ class EmailClient:
         '<blockquote>{}</blockquote>'.format(line) for line in lines
         if line.strip()
     ]
-    # Check if the div class 'gmail_quote' exists inside another 'gmail_quote' and strip all nested ones
-    pattern = re.compile(
-        r'(<div class="gmail_quote">.*?</div>)(?=.*<div class="gmail_quote">)',
-        re.DOTALL)
-    formatted_lines = [re.sub(pattern, '', line) for line in formatted_lines]
+  
+    # Combine the lines back into a single string
+    combined_history = '\n'.join(formatted_lines)
+  
+    # Remove any nested 'gmail_quote' divs
+    pattern = re.compile(r'<div class="gmail_quote">.*?</div>', re.DOTALL)
+    combined_history = pattern.sub(lambda m: m.group(0).replace('<div class="gmail_quote">', '').replace('</div>', ''), combined_history)
+  
+    # This maintains the structure of the original function's return value
     html_content = '<div class="gmail_quote">On {} {} wrote:<br>{}<br></div>'.format(
-        date, from_email, ''.join(formatted_lines))
+        date, from_email, combined_history)
+  
+    # Ensure the entire content is within a single 'gmail_quote' div
+    if not re.match(r'^<div class="gmail_quote">.*</div>$', html_content, re.DOTALL):
+        html_content = f'<div class="gmail_quote">{html_content}</div>'
+  
     return html_content
+  
 
   def format_email_history_plain(self, history, from_email, date):
     decoded_history = quopri.decodestring(history.encode()).decode('utf-8')

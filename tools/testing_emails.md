@@ -1,7 +1,7 @@
 # test routine - send these emails 
 
 
-✅  multi-agent multi-human to / cc handling / history nesting  (non ff) / writes to processed_threads 
+✅  multi-agent multi-human to / cc handling / history nesting  (non @@) / writes to processed_threads 
 
 _multiple humans cc'd and respond before agents respond_
 
@@ -44,26 +44,21 @@ our story in an emoji-based "graphic novel" made of only emojis with some subhea
 !detail_stop!
 
 
-✅  ff / ff creator 
-agent1 - what is the most important question for grant applicants to answer when writing nonprofit grants?
+✅  @@ / @@.creator 
+agent1 - what is the most important question to answer in a startup pitch deck? 
 
-!ff(agent2)! what do you think??
+@@(agent2) what do you think??
 
-!ff(agent3)! what have we not thought of?
-
-!ff(agent4)! what grants should we apply for?
-
-!ff(agent2)! what grant are we most likely to get? what questions are in their grant application? or what are most likely to be on the application? 
-
-!ff(agent1)! please draft an answer for each question for our nonprofit. 
+@@(agent3) what have we not thought of?
 
 
-# ff creator 
-_!ff.creator!(Embody an agent who ... description)_
+
+# @@ creator 
+_@@.creator!(Embody an agent who ... description)_
 
 I'm working on a new creative project and need some roleplaying. Please render this agent and have it answer the question below.
 
-!ff.creator(Embody a playful vampire who is friends with a dolphin in a children's book style who speaks in comical vampire voice.)!
+@@.creator(Embody a playful vampire who is friends with a dolphin in a children's book style who speaks in comical vampire voice.)!
 
 Mr. Vampire, what is your favorite game to play?
 

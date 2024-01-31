@@ -7,7 +7,6 @@ Autist -> Normie
 there are testing emails a couple dev prompts 
 
 
-
 # ATAT - Email Client for AI Agents  💪🏼🦾
 
 ATAT simplifies adoption of Human-to-AI, AI-to-AI interactions over one of the largest and most important communication stacks: email. 
@@ -20,7 +19,7 @@ That means a powerful agent can be accessed with the "fw" button or a "cc" on an
 
 🌐 Multi-Agent Collaboration: Allows simultaneous engagement of multiple AI agents, facilitating a "mixture of experts" approach for enhanced problem-solving and decision-making.
 
-🛠️ Shortcode System: Provides powerful shortcodes like !detail, !summarize, and !ff, enabling AI agents to perform complex, multi-step tasks with simple commands, and call complex chains of agents from a single email. In the roadmap, the goal is to enable shortcodes as a mecanism to enable shortcodes in emails to serve as function call operators, so average users can quickly integrate function calls into long-chain multi-part operations. 
+🛠️ Shortcode System: Provides powerful shortcodes like !detail, !summarize, and !ff, enabling AI agents to perform complex, multi-step tasks with simple commands, and call complex chains of agents from a single email. In the roadmap, the goal is to enable shortcodes as a mecanism to enable shortcodes in emails to serve as function call operators, so average users can quickly integrate function calls into long-chain multi-part operations. The @@ shortcode allows you to reference any agent, whether they have an email alias or not, and the @@.creator shortcode enables you to embody a new agent inline from the email. 
 
 ⏰ Email is the GOAT of Slow Responses: With email as the medium, responses that take a day are acceptable, leveraging the platform's slow nature to benefit legacy hardware and provide global access to LLMs. Text streaming chatbots and real-time voice assistants are good for instant feedback; text messages are good for quick feedback; email is the best for long, slow responses that need to be archived forever and compliant with policies.
 
@@ -111,17 +110,19 @@ cards.py is a simple flask server that reads agents.json to generate a dashboard
 ## Shortcode Functionalities:
 The shortcode.py module in the Atat system introduces several advanced functionalities to enhance the processing of email content. These functionalities are triggered through specific shortcodes embedded in the email text. Here's an overview of the available shortcodes:
 
-## Fast Forward (ff):
+## @@ - Engage an agent from inline 
 
-Functionality: The Fast Forward shortcode allows for the simultaneous dispatch of emails to multiple agents, effectively creating a hybrid multi-agent model. This is particularly useful in scenarios where a collaborative response from different personas is required.
+Functionality: The @@ shortcode allows for the simultaneous dispatch of emails to multiple agents, effectively creating a hybrid multi-agent model. This is particularly useful in scenarios where a collaborative response from different personas is required.
 
-Usage: Embed !ff! in the email content, followed by agent identifiers. The system interprets this as a command to engage multiple agents in the email response process.
+Usage: Embed @@(agent name) or @@.creator(Embody and agent who...) in the email content, followed by agent identifiers. The system interprets this as a command to engage multiple agents in the email response process.
 
-## Fast Forward Creator:
+NOTE: "Embody" must be present. 
+
+## @@ Creator:
 
 Functionality: This shortcode dynamically generates a new agent in real time. It's a powerful tool for on-the-fly customization, allowing the system to adapt and create new personas based on evolving conversation needs.
 
-Usage: Use !ff.creator(Embody an agent...)! followed by persona specifications or modification instructions. The system then processes these instructions to instantiate a new agent persona. For now "Embody" must be present for creator to work. 
+Usage: Use @@.creator(Embody an agent...) followed by persona specifications or modification instructions. The system then processes these instructions to instantiate a new agent persona. For now "Embody" must be present for creator to work. 
 
 ## Detail:
 
