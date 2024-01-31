@@ -750,24 +750,19 @@ class EmailClient:
         '<blockquote>{}</blockquote>'.format(line) for line in lines
         if line.strip()
     ]
-  
+
     # Combine the lines back into a single string
     combined_history = '\n'.join(formatted_lines)
-  
-    # Remove any nested 'gmail_quote' divs
-    pattern = re.compile(r'<div class="gmail_quote">.*?</div>', re.DOTALL)
-    combined_history = pattern.sub(lambda m: m.group(0).replace('<div class="gmail_quote">', '').replace('</div>', ''), combined_history)
-  
-    # This maintains the structure of the original function's return value
+
+    # Remove any existing 'gmail_quote' divs
+    combined_history = re.sub(r'<div class="gmail_quote">(.+?)</div>', r'\1', combined_history, flags=re.DOTALL)
+
+    # Wrap the entire content in a single 'gmail_quote' div
     html_content = '<div class="gmail_quote">On {} {} wrote:<br>{}<br></div>'.format(
         date, from_email, combined_history)
-  
-    # Ensure the entire content is within a single 'gmail_quote' div
-    if not re.match(r'^<div class="gmail_quote">.*</div>$', html_content, re.DOTALL):
-        html_content = f'<div class="gmail_quote">{html_content}</div>'
-  
+
     return html_content
-  
+
 
   def format_email_history_plain(self, history, from_email, date):
     decoded_history = quopri.decodestring(history.encode()).decode('utf-8')

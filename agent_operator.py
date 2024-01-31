@@ -257,43 +257,35 @@ class AgentSelector:
     return formatted_history
 
   def format_conversation_history_plain(self,
-                                        agent_responses,
-                                        exclude_recent=1,
-                                        existing_history=None):
+                                      agent_responses,
+                                      exclude_recent=1,
+                                      existing_history=None):
 
     formatted_plain_history = existing_history or ""
     quote_level = 1
 
     # Process all but the most recent response for nested history
-    for agent_name, agent_email, email_content in reversed(
-        agent_responses[:-exclude_recent]):
-      timestamp = format_datetime_for_email()
-      gmail_note = format_note(agent_name,
-                               email=agent_email,
-                               timestamp=timestamp)
-      quoted_content = "\n".join([
-          ">" * quote_level + line if line.strip() else line
-          for line in email_content.split('\n')
-      ])
-      formatted_history = f"format_conversation_history_plain {gmail_note}\n{quoted_content}\n\n{formatted_history}"
-      quote_level += 1  # Increment the quote level for the next message
+    for agent_name, agent_email, email_content in reversed(agent_responses[:-exclude_recent]):
+        timestamp = format_datetime_for_email()
+        gmail_note = format_note(agent_name, email=agent_email, timestamp=timestamp)
+        quoted_content = "\n".join(
+            [">" * quote_level + line if line.strip() else "" for line in email_content.split('\n')]
+        ).strip()  # Remove leading and trailing whitespace and blank lines
+        formatted_plain_history = f"{gmail_note}\n{quoted_content}\n\n{formatted_plain_history}"
+        quote_level += 1  # Increment the quote level for the next message
 
     # Process the most recent response
     if agent_responses and exclude_recent > 0:
-      recent_agent_name, recent_agent_email, recent_email_content = agent_responses[
-          -exclude_recent]
-      recent_timestamp = format_datetime_for_email()
-      recent_gmail_note = format_note(recent_agent_name,
-                                      email=recent_agent_email,
-                                      timestamp=recent_timestamp)
-      quoted_recent_content = "\n".join([
-          ">" + line if line.strip() else line
-          for line in recent_email_content.split('\n')
-      ])
-      formatted_history = f"{recent_gmail_note}\n{quoted_recent_content}\n\n{formatted_history}"
+        recent_agent_name, recent_agent_email, recent_email_content = agent_responses[-exclude_recent]
+        recent_timestamp = format_datetime_for_email()
+        recent_gmail_note = format_note(recent_agent_name, email=recent_agent_email, timestamp=recent_timestamp)
+        quoted_recent_content = "\n".join(
+            [">" + line if line.strip() else "" for line in recent_email_content.split('\n')]
+        ).strip()  # Remove leading and trailing whitespace and blank lines
+        formatted_plain_history = f"{recent_gmail_note}\n{quoted_recent_content}\n\n{formatted_plain_history}"
 
-    # print(f"formatted history: {formatted_history}")
-    return formatted_plain_history.strip()
+    return formatted_plain_history.strip()  # Remove any extra newlines at the beginning and end
+
 
   def get_response_for_agent(self,
                              agent_loader,

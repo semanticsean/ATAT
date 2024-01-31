@@ -220,6 +220,7 @@ h1, h2 {
         font-size: 1.1rem; /* Slightly larger for mobile legibility */
         color: black;
         margin-top: 8px;
+        padding-top: 6px;
     }
 
     .card-summary {

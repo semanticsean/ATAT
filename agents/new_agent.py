@@ -27,9 +27,17 @@ def read_description(file_path):
 
 
 def generate_image_with_dalle(prompt):
-  """Generates an image using DALL-E and returns the response."""
+  """Generates an image using DALL-E with additional hardcoded instructions and returns the response."""
+
+  # Hardcoded instructions
+  instructions = "Create a highly detailed, vivid, and somewhat imaginative image as a work headshot for the AI agent. Make the backdrop indicative of their work."
+
+  # Combine the base prompt with the hardcoded instructions
+  full_prompt = f"{prompt}. {instructions}"
+
+  # Call the DALL-E API with the combined prompt
   response = openai.Image.create(model="dall-e-3",
-                                 prompt=prompt,
+                                 prompt=full_prompt,
                                  n=1,
                                  size="1024x1024",
                                  quality="standard")

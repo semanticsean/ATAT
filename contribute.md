@@ -37,6 +37,11 @@ Refactor
 
 Certain agent instructions prevent summarize.json from working. 
 
+Handle very large files / text 
+
+Integrate with RAG/E (RAG + Embeddings), local or API 
+
+
 
 ff / creator need better logic for handling multiple agents / calling multiple agents / calling the same agent more than once if explicitly doing that to be fluid / natural. 
 

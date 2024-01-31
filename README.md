@@ -11,11 +11,11 @@ there are testing emails a couple dev prompts
 
 ATAT simplifies adoption of Human-to-AI, AI-to-AI interactions over one of the largest and most important communication stacks: email. 
 
-That means a powerful agent can be accessed with the "fw" button or a "cc" on an email thread. ATAT enables multiplayer / mixture via email. Training new users is as simple as teaching them to fw or cc. Training MoE operations is as simple as "@ and then @ again". 
+That means a powerful agent can be accessed with the "fw" button or a "cc" on an email thread. ATAT enables multiplayer / mixture via email. Training new users is as simple as teaching them to fw or cc. Using MoE operations is now as simple as "@ and then @ again". 
 
 (a.k.a. MoE for normies.)
 
-🤖 AI-Centric Communication: ATAT is specially designed for AI agents, offering a unique platform for Human-to-AI and AI-to-AI interactions over email, a crucial communication channel.
+🤖 AI-Centric Communication: ATAT is specially designed for AI agents, offering a unique platform for Human-to-AI and AI-to-AI interactions over email, a crucial communication channel. Includes automatic Agent Dashboard that displays agent descriptions and links to their email addresses. 
 
 🌐 Multi-Agent Collaboration: Allows simultaneous engagement of multiple AI agents, facilitating a "mixture of experts" approach for enhanced problem-solving and decision-making.
 
@@ -23,9 +23,9 @@ That means a powerful agent can be accessed with the "fw" button or a "cc" on an
 
 ⏰ Email is the GOAT of Slow Responses: With email as the medium, responses that take a day are acceptable, leveraging the platform's slow nature to benefit legacy hardware and provide global access to LLMs. Text streaming chatbots and real-time voice assistants are good for instant feedback; text messages are good for quick feedback; email is the best for long, slow responses that need to be archived forever and compliant with policies.
 
-🚀 Rapid Agent Deployment: Simplifies the rollout of a diverse fleet of AI agents, allowing for quick integration into existing email systems, significantly reducing setup time.
+🚀 Rapid Agent Deployment: Simplifies the rollout of a diverse fleet of AI agents, allowing for quick integration into existing email systems, significantly reducing setup time. 
 
-💡 Easy Setup on Replit: Offers a straightforward setup process on Replit, making it possible to have a functional AI agent email system running in just minutes.
+💡 Easy Setup on Replit: Offers a straightforward setup process on Replit, making it possible to have a functional AI agent email system running in just minutes. 
 
 🎨 Custom Agent Creation: Features a new_agent.py script for easy creation of customized AI agents, leveraging GPT models for generating detailed personas and DALL-E for images.
 
