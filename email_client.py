@@ -613,7 +613,7 @@ class EmailClient:
               thread_content, from_,
               datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
-        # Update conversation_history
+        
         self.conversation_threads[message_id].append(formatted_email_history)
 
         previous_responses.append(response)
@@ -719,6 +719,14 @@ class EmailClient:
             print(".")
 
       if all_responses_successful:
+        # Concatenate all previous responses into a single string
+        full_response_content = "\n\n".join(previous_responses)
+
+        # Format the entire conversation history with 'gmail_quote' div only once
+        formatted_email_history_html = self.format_email_history_html(
+            full_response_content, from_,
+            datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
+        
         if not references:
           print("No references found, possibly the first email in the thread.")
           references = message_id
@@ -745,21 +753,15 @@ class EmailClient:
 
   def format_email_history_html(self, history, from_email, date):
     decoded_history = quopri.decodestring(history.encode()).decode('utf-8')
-    lines = decoded_history.split('\n')
-    formatted_lines = [
-        '<blockquote>{}</blockquote>'.format(line) for line in lines
-        if line.strip()
-    ]
 
-    # Combine the lines back into a single string
-    combined_history = '\n'.join(formatted_lines)
-
-    # Remove any existing 'gmail_quote' divs
-    combined_history = re.sub(r'<div class="gmail_quote">(.+?)</div>', r'\1', combined_history, flags=re.DOTALL)
-
-    # Wrap the entire content in a single 'gmail_quote' div
-    html_content = '<div class="gmail_quote">On {} {} wrote:<br>{}<br></div>'.format(
-        date, from_email, combined_history)
+    # Detect if history is already wrapped in 'gmail_quote' and avoid re-wrapping
+    if '<div class="gmail_quote">' not in decoded_history:
+        lines = decoded_history.split('\n')
+        formatted_lines = ['<blockquote>{}</blockquote>'.format(line) for line in lines if line.strip()]
+        combined_history = '\n'.join(formatted_lines)
+        html_content = '<div class="gmail_quote">On {} {} wrote:<br>{}<br></div>'.format(date, from_email, combined_history)
+    else:
+        html_content = decoded_history  # Use as-is if already wrapped
 
     return html_content
 

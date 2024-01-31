@@ -223,38 +223,25 @@ class AgentSelector:
     return re.sub(r"@@\((\w+)\)", r"\1", content)
 
 
-  def format_conversation_history_html(self,
-                                       agent_responses,
-                                       exclude_recent=1,
-                                       existing_history=None):
+  def format_conversation_history_html(self, agent_responses, exclude_recent=1, existing_history=None):
     formatted_history = existing_history or ""
-    for agent_name, agent_email, email_content in reversed(
-        agent_responses[:-exclude_recent]):
-      timestamp = format_datetime_for_email()
-      gmail_note = format_note(agent_name,
-                               email=agent_email,
-                               timestamp=timestamp)
-      formatted_history += f'<div class="gmail_quote">{gmail_note}<blockquote>{email_content}</blockquote></div>'
+    for agent_name, agent_email, email_content in reversed(agent_responses[:-exclude_recent]):
+        timestamp = format_datetime_for_email()
+        gmail_note = format_note(agent_name, email=agent_email, timestamp=timestamp)
+        formatted_history += f"{gmail_note}<blockquote>{email_content}</blockquote>"
 
     # Processing the most recent response
     if agent_responses and exclude_recent > 0:
-      recent_agent_name, recent_agent_email, recent_email_content = agent_responses[
-          -exclude_recent]
-      recent_timestamp = format_datetime_for_email()
-      recent_gmail_note = format_note(recent_agent_name,
-                                      email=recent_agent_email,
-                                      timestamp=recent_timestamp)
-      formatted_history += f'<div class="gmail_quote">{recent_gmail_note}<blockquote>{recent_email_content}</blockquote></div>'
+        recent_agent_name, recent_agent_email, recent_email_content = agent_responses[-exclude_recent]
+        recent_timestamp = format_datetime_for_email()
+        recent_gmail_note = format_note(recent_agent_name, email=recent_agent_email, timestamp=recent_timestamp)
+        formatted_history += f"{recent_gmail_note}<blockquote>{recent_email_content}</blockquote>"
 
-    # Remove nested or consecutive gmail_quote divs
-    pattern = re.compile(r'(?:<div class="gmail_quote">.*?</div>\s*)+',
-                         re.DOTALL)
-    match = pattern.search(formatted_history)
-    if match:
-      nested_content = match.group(0)
-      formatted_history = pattern.sub(nested_content, formatted_history, 1)
+    # Wrap the entire history in a single 'gmail_quote' div
+    formatted_history = f'<div>{formatted_history}</div>'
 
     return formatted_history
+
 
   def format_conversation_history_plain(self,
                                       agent_responses,
