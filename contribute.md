@@ -10,7 +10,14 @@ new_agent.py needs to be openai sdk 1.0 and function calling + instructor
 
 add automated emails for daily / morning briefs / followup / consistent task list management. 
 
+update instructions to get company name during onboarding and build profile around every agent working there / user config. 
 
+Would love to see equivalent of custom gpts on an offline commodity box running a local model. a "slowcal" model -- slow and local. 
+
+Fix CSS Grid 
+
+
+Integrate with Assistants / GPTs / custom trains / HF 
 
 breaking on: 
 

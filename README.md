@@ -11,6 +11,7 @@ Assemble a team when you can't afford
 
 
 
+
 # (@@) - ATAT - Email Client for AI Agents - 💪🏼🦾
 
 ATAT simplifies adoption of Human-to-AI, AI-to-AI interactions over one of the largest and most important communication stacks: email. 
@@ -18,6 +19,10 @@ ATAT simplifies adoption of Human-to-AI, AI-to-AI interactions over one of the l
 That means a powerful agent - or fleet of agents - can be accessed with the "fw" button or a "cc" on an email thread. ATAT enables multiplayer / mixture via email. Training new users is as simple as teaching them to fw or cc. Using MoE operations is now as simple as "@ and then @ again". 
 
 (a.k.a. MoE for normies.)
+
+I did a lot of market testing of bots and saw that many of the most powerful use cases of LLMs are far too slow for a chatbot, at least right now. Email is wonderfully slow. Elegantly slow. You have 24 hours of compute to get to the user's ideal output. What will you build? 
+
+(If you are testing it, see "critical warning" below.)
 
 🚀 Rapid Agent Deployment: Simplifies the rollout of a diverse fleet of AI agents, allowing for quick integration into existing email systems, significantly reducing setup time. The new agent script results in a fairly sophisticated agent with a DALLE generated profile photo, which is automatically integrated into the Agent Dashboard. 
 
@@ -29,22 +34,34 @@ Your least savvy user can absolutely use the "fw" button.
 
 🤖 Agent-Centric Communication: ATAT is specially designed for AI agents, offering a unique platform for Human-to-AI and AI-to-AI interactions over email, a crucial communication channel. Includes automatic Agent Dashboard that displays agent descriptions and links to their email addresses. Dashboard is mobile friendly. ATAT is not built to pretend to be you or ghost compose your emails for you. 
 
+Pre-baked agents included. Delete the records in agents.json and update new_agent_files to re-render your own customized agents. More details below in New Agent. 
+
 🦾🦾 Multi-Agent Collaboration: Allows simultaneous engagement of multiple AI agents, facilitating a "mixture of experts" approach for enhanced problem-solving and decision-making. Each agent is influenced not only be an agentic profile, but a social graph of relationships that influence their decision-making. Anecdotally, this generates more realistic results in role-playing. 
 
 🛠️ Shortcode System: Provides powerful shortcodes like !detail, !summarize, and !ff, enabling AI agents to perform complex, multi-step tasks with simple commands, and call complex chains of agents from a single email. In the roadmap, the goal is to enable shortcodes as a mecanism to enable shortcodes in emails to serve as function call operators, so average users can quickly integrate function calls into long-chain multi-part operations. The @@ shortcode allows you to reference any agent, whether they have an email alias or not, and the @@.creator shortcode enables you to embody a new agent inline from the email. 
 
 ⏰ Email is the GOAT of Slow Responses: With email as the medium, responses that take a day are acceptable, leveraging the platform's slow nature to benefit legacy hardware and provide global access to LLMs. Text streaming chatbots and real-time voice assistants are good for instant feedback; text messages are good for quick feedback; email is the best for long, slow responses that need to be archived forever and compliant with policies. 
 
-I did a lot of market testing of bots and saw that many of the most powerful use cases of LLMs are far too slow for a chatbot, at least right now. Email is wonderfully slow. Elegantly slow. You have 24 hours of compute to get to the customer's ideal output. What will you build? 
+It can be, with localized llm integrations, slow and local, yet perfect for many use cases. Slow and local -- _slowcal_. 
 
 💡 Easy Setup on Replit: Offers a straightforward setup process on Replit, making it possible to have a functional AI agent email system running in just minutes. You need to add OPENAI_API_KEY and SMTP / IMAP credentials in Secrets, but then you can use pre-baked agents to have an Agent Dashboard deployed in a minute or so. Adding a new email address, and optionally aliases on top of it, should also only take a few minutes. 
 
 📝 PDF Reading Capability: Enables AI agents to read and interpret text from PDFs, expanding the range of document formats the agents can handle.
 
-🎨 Dashboard uses CSS so you can customize look and feel very easily. 
+🎨 Dashboard uses CSS so you can customize look and feel very easily. Add your logo easily in /static. 
 
 ⏳⚡️ TIME TRAVEL. The inspiration behind @@ - being able to summon an agent from within an email - comes from my own struggles with being on the spectrum and having a weak model for how people will feel when I say things. I've always wanted to "time travel" to see their reaction and be able to adjust if it's not good. Now I can. @@ 
 
+Additional benefits: 
+
+* Thread Indexing to prevent duplicative sending, even if user marks things unread, resesnds, etc.
+* Error handling and error email sending with customizable text content
+* All LLM instructions centralized into JSON files for easy, rapid modification of behaviors.
+* Image prompt, keywords, and other creature comforts for development in the agent profiles
+* Tools in tools folder including a thread-reconciler for restoring processed_threads.json, and a vars_tester.py if you want to test vars before sending.
+* Extensive docs and roadmap / known issues in contribute.md.
+* Tested against hundreds of real-world use cases by real users in private one-on-one testing and development.
+* Inspired by Wordpress shortcode system. 🫡
 
 
 # Getting Started 
