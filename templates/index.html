@@ -42,14 +42,14 @@
                         <span class="keyword">{{ keyword }}</span>
                         {% endfor %}
                     </div>
-                    <a href="mailto:{{ agent.email }}" class="email-link">Email</a>
+                    <a href="mailto:{{ agent.email }}" class="email-link">{{ agent.email }}</a>
                 </div>
                       {% endif %}
                       {% endfor %}
             </div>
         {% else %}
         <div class="message-container">
-            <h2>RENDERING AGENTS - REFRESH THE PAGE PERIODICALLY TO SEE IF THEY'RE READY. </h2>
+            <h2>RENDERING AGENTS - Refresh the page to check progress. </h2>
           <p>If you haven't already, you need to add these Secrets to Replit: <br>{
   "SMTP_SERVER": "",<br>
   "IMAP_SERVER": "",<br>

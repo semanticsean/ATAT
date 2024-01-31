@@ -1,3 +1,4 @@
+import os
 import datetime
 import glob
 import json
@@ -57,10 +58,14 @@ def generate_image_with_dalle(prompt):
 
 def download_and_save_image(url, path):
   """Downloads and saves an image from a URL."""
+  # Ensure the directory exists
+  os.makedirs(os.path.dirname(path), exist_ok=True)
+
   response = requests.get(url)
   if response.status_code == 200:
-    with open(path, 'wb') as file:
-      file.write(response.content)
+      with open(path, 'wb') as file:
+          file.write(response.content)
+
 
 
 def generate_persona(agent_name,
@@ -116,7 +121,7 @@ def add_new_agent(agent_name, description):
       image_response = generate_image_with_dalle(image_prompt)
       if image_response:
         image_url = image_response['data'][0]['url']
-        image_path = f"pics/{new_agent['unique_id']}.png"
+        image_path = os.path.join(os.path.dirname(__file__), "pics", f"{new_agent['unique_id']}.png")
         download_and_save_image(image_url, image_path)
         new_agent['photo_path'] = image_path
 

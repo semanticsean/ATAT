@@ -52,7 +52,7 @@ class AgentSelector:
   def safe_ascii_string(s):
     return ''.join(c if ord(c) < 128 else '?' for c in s)
 
-  def save_rendered_agents(self):
+  def save_temp_agents(self):
     formatted_agents_list = []
     for agent_id, agent_profile in self.invoked_agents.items():
       formatted_agent = {
@@ -68,8 +68,8 @@ class AgentSelector:
     try:
       # Read existing data from the file first
       existing_data = []
-      if os.path.exists("agents/rendered_agents.json"):
-        with open("agents/rendered_agents.json", "r") as f:
+      if os.path.exists("agents/temp_agents.json"):
+        with open("agents/temp_agents.json", "r") as f:
           existing_data = json.load(f)
 
       # Make sure existing_data is a list
@@ -81,12 +81,12 @@ class AgentSelector:
           formatted_agents_list)  # Using extend to append the list
 
       # Write the updated data back to the file
-      with open("agents/rendered_agents.json", "w") as f:
+      with open("agents/temp_agents.json", "w") as f:
         json.dump(existing_data, f, indent=4)
 
-      print("Debug: Successfully saved to rendered agents.json")
+      print("Debug: Successfully saved to temped agents.json")
     except Exception as e:
-      print(f"Debug: Failed to save to rendered agents.json, Error: {e}")
+      print(f"Debug: Failed to save to temped agents.json, Error: {e}")
 
   # GET AGENTS FROM EMAIL ADDRESSES AND CONTENT
 
@@ -362,7 +362,7 @@ class AgentSelector:
           unique_key = f"GeneratedAgent_{hash(desc)}"
           self.invoked_agents[unique_key] = generated_profile
         print("Debug: About to save invoked agents:", self.invoked_agents)
-        self.save_rendered_agents()
+        self.save_temp_agents()
 
       # Handle Summarize Type
       if result['type'] == 'summarize':
