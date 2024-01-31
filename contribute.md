@@ -4,18 +4,24 @@ Update to OpenAI SDK 1.0.
 
 Refactor 
 
+breaking on: 
+
+n > 1 agent in cc's 
+
+n > 1 agent in @@ 
 
 
 🚩 FF LOOPING AGENTS 
-🚩 line breaks in ff history not working right 
+
 🚩 embody vs. creator 
-🚩 CARDS not integrated 
-🚩 multiplayer putting response inside quoted content 
-🚩 explain multi-part nature 
-🚩 summarize json not working 
-🚩 prompt control for detail shortcodes / not an email /
-🚩 summarize not working 
+
+🚩 summarize json not working consistently / should be function calling? 
+
+🚩 have intermediary llm handle shortcode detection and even repair of incorrect shortcode vs. brittle regex 
+
 🚩 agent confusion / context awareness of each other
+
+
 🚩 duplicate and triplicate responses, especially in detail
 🚩 email formatting needs to be its own class / set of tools 
 🚩 atlas awareness 

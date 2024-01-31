@@ -1,44 +1,47 @@
-Time travel / fast forward / predict / coach / react / translate. 
-
-Help people see how people are going to react to things. 
-
-Autist -> Normie 
-
-there are testing emails a couple dev prompts 
+📊 A/B+E Polling System: Includes the ABE script for creating synthetic polling systems, facilitating the generation of agent profiles and responses in structured formats.
 
 
-# ATAT - Email Client for AI Agents  💪🏼🦾
+# (@@) - ATAT - Email Client for AI Agents - 💪🏼🦾
 
 ATAT simplifies adoption of Human-to-AI, AI-to-AI interactions over one of the largest and most important communication stacks: email. 
 
-That means a powerful agent can be accessed with the "fw" button or a "cc" on an email thread. ATAT enables multiplayer / mixture via email. Training new users is as simple as teaching them to fw or cc. Using MoE operations is now as simple as "@ and then @ again". 
+That means a powerful agent - or fleet of agents - can be accessed with the "fw" button or a "cc" on an email thread. ATAT enables multiplayer / mixture via email. Training new users is as simple as teaching them to fw or cc. Using MoE operations is now as simple as "@ and then @ again". 
 
 (a.k.a. MoE for normies.)
 
-🤖 AI-Centric Communication: ATAT is specially designed for AI agents, offering a unique platform for Human-to-AI and AI-to-AI interactions over email, a crucial communication channel. Includes automatic Agent Dashboard that displays agent descriptions and links to their email addresses. Dashboard is mobile friendly. 
+🚀 Rapid Agent Deployment: Simplifies the rollout of a diverse fleet of AI agents, allowing for quick integration into existing email systems, significantly reducing setup time. The new agent script results in a fairly sophisticated agent with a DALLE generated profile photo, which is automatically integrated into the Agent Dashboard. 
 
-🌐 Multi-Agent Collaboration: Allows simultaneous engagement of multiple AI agents, facilitating a "mixture of experts" approach for enhanced problem-solving and decision-making.
+Which is easier: deploying a new in-development chatbot across an enterprise, or adding a new email address? @@
+
+Get all the benefits of email when testing a new AI: like archiving, traceability, security, identity management, access pathways, in-place policies, and familiarity for people of all technical experience and comfort levels. 
+
+Your least savvy user can absolutely use the "fw" button. 
+
+🤖 Agent-Centric Communication: ATAT is specially designed for AI agents, offering a unique platform for Human-to-AI and AI-to-AI interactions over email, a crucial communication channel. Includes automatic Agent Dashboard that displays agent descriptions and links to their email addresses. Dashboard is mobile friendly. ATAT is not built to pretend to be you or ghost compose your emails for you. 
+
+🦾🦾 Multi-Agent Collaboration: Allows simultaneous engagement of multiple AI agents, facilitating a "mixture of experts" approach for enhanced problem-solving and decision-making. Each agent is influenced not only be an agentic profile, but a social graph of relationships that influence their decision-making. Anecdotally, this generates more realistic results in role-playing. 
 
 🛠️ Shortcode System: Provides powerful shortcodes like !detail, !summarize, and !ff, enabling AI agents to perform complex, multi-step tasks with simple commands, and call complex chains of agents from a single email. In the roadmap, the goal is to enable shortcodes as a mecanism to enable shortcodes in emails to serve as function call operators, so average users can quickly integrate function calls into long-chain multi-part operations. The @@ shortcode allows you to reference any agent, whether they have an email alias or not, and the @@.creator shortcode enables you to embody a new agent inline from the email. 
 
-⏰ Email is the GOAT of Slow Responses: With email as the medium, responses that take a day are acceptable, leveraging the platform's slow nature to benefit legacy hardware and provide global access to LLMs. Text streaming chatbots and real-time voice assistants are good for instant feedback; text messages are good for quick feedback; email is the best for long, slow responses that need to be archived forever and compliant with policies.
+⏰ Email is the GOAT of Slow Responses: With email as the medium, responses that take a day are acceptable, leveraging the platform's slow nature to benefit legacy hardware and provide global access to LLMs. Text streaming chatbots and real-time voice assistants are good for instant feedback; text messages are good for quick feedback; email is the best for long, slow responses that need to be archived forever and compliant with policies. 
 
-🚀 Rapid Agent Deployment: Simplifies the rollout of a diverse fleet of AI agents, allowing for quick integration into existing email systems, significantly reducing setup time. 
+I did a lot of market testing of bots and saw that many of the most powerful use cases of LLMs are far too slow for a chatbot, at least right now. Email is wonderfully slow. Elegantly slow. You have 24 hours of compute to get to the customer's ideal output. What will you build? 
 
-💡 Easy Setup on Replit: Offers a straightforward setup process on Replit, making it possible to have a functional AI agent email system running in just minutes. 
-
-🎨 Custom Agent Creation: Features a new_agent.py script for easy creation of customized AI agents, leveraging GPT models for generating detailed personas and DALL-E for images.
-
-📊 A/B+E Polling System: Includes the ABE script for creating synthetic polling systems, facilitating the generation of agent profiles and responses in structured formats.
-
-🖥️ Convenient Agent Dashboard: Provides a Flask server-based dashboard (cards.py) for easy access and management of all AI agents.
+💡 Easy Setup on Replit: Offers a straightforward setup process on Replit, making it possible to have a functional AI agent email system running in just minutes. You need to add OPENAI_API_KEY and SMTP / IMAP credentials in Secrets, but then you can use pre-baked agents to have an Agent Dashboard deployed in a minute or so. Adding a new email address, and optionally aliases on top of it, should also only take a few minutes. 
 
 📝 PDF Reading Capability: Enables AI agents to read and interpret text from PDFs, expanding the range of document formats the agents can handle.
+
+🎨 Dashboard uses CSS so you can customize look and feel very easily. 
+
+⏳⚡️ TIME TRAVEL. The inspiration behind @@ - being able to summon an agent from within an email - comes from my own struggles with being on the spectrum and having a weak model for how people will feel when I say things. I've always wanted to "time travel" to see their reaction and be able to adjust if it's not good. Now I can. @@ 
+
 
 
 # Getting Started 
 
-ATAT is built for Replit. Please see contribute.md, where a request for help adapting it to GH and for local deployment is included. 
+ATAT is built to work out of the box on Replit. Please see contribute.md, where a request for help adapting it to GH and for local deployment is included. 
+
+(Deploying is a bit different. Contact me for help or paid hosting. x.com/seanmcdonaldxyz)
 
 
 ## 1. Set Secrets
