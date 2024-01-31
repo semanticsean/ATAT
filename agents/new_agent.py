@@ -8,8 +8,7 @@ import uuid
 import openai
 import requests
 
-## NOTE: WILL ONLY WORK IF OPENAI_API_KEY SET IN ENV VARS / SECREST
-
+## NOTE: WILL ONLY WORK IF OPENAI_API_KEY SET IN SECRETS 
 
 def log_to_file(message):
   log_file = "api_log.txt"
@@ -24,7 +23,19 @@ def read_description(file_path):
         random.choices(string.ascii_letters + string.digits, k=16))
     description = ' '.join(lines[1:]).strip() if len(lines) > 1 else ''
     return agent_name, description
+    
 
+def agent_exists(agent_name, agents_file="agents.json"):
+  """Check if an agent with the given name already exists in the agents file."""
+  try:
+      with open(agents_file, "r") as file:
+          agents = json.load(file)
+      for agent in agents:
+          if agent["id"] == agent_name:
+              return True
+      return False
+  except FileNotFoundError:
+      return False 
 
 def generate_image_with_dalle(prompt):
   """Generates an image using DALL-E with additional hardcoded instructions and returns the response."""
@@ -115,22 +126,30 @@ def add_new_agent(agent_name, description):
 
 
 if __name__ == "__main__":
-  print("Starting script...")
-  text_files = glob.glob('new_agent_files/*.txt')
-  print(f"Found {len(text_files)} text files.")
+    print("Starting script...")
+    text_files = glob.glob('new_agent_files/*.txt')
+    print(f"Found {len(text_files)} text files.")
 
-  for text_file in text_files:
-    print(f"Processing {text_file}...")
-    agent_name, description = read_description(text_file)
-    new_agent = add_new_agent(agent_name, description)
+    for text_file in text_files:
+        print(f"Processing {text_file}...")
+        agent_name, description = read_description(text_file)
 
-    agents_file = "agents.json"
-    with open(agents_file, "r+") as file:
-      agents = json.load(file)
-      agents.append(new_agent)
-      file.seek(0)
-      json.dump(agents, file, indent=4)
+        if agent_exists(agent_name):
+            print(f"Agent '{agent_name}' already exists. Skipping.")
+            continue
 
-    print(f"Added new agent: {agent_name}\n---")
+        new_agent = add_new_agent(agent_name, description)
 
-  print("Script finished.")
+        agents_file = "agents.json"
+        with open(agents_file, "r+") as file:
+            try:
+                agents = json.load(file)
+            except json.JSONDecodeError:
+                agents = []  # Initialize an empty list if the file is empty or invalid
+            agents.append(new_agent)
+            file.seek(0)
+            json.dump(agents, file, indent=4)
+
+        print(f"Added new agent: {agent_name}\n---")
+
+    print("Script finished.")

@@ -4,11 +4,28 @@ Update to OpenAI SDK 1.0.
 
 Refactor 
 
+Email formatting / structure in general, quoted printable, gmail quotes, gmail not divs, email construction loop -- all needs refactored. 
+
+new_agent.py needs to be openai sdk 1.0 and function calling + instructor 
+
+add automated emails for daily / morning briefs / followup / consistent task list management. 
+
+
+
 breaking on: 
 
 n > 1 agent in cc's 
 
 n > 1 agent in @@ 
+
+Profiles for each agent in flask app 
+
+Auth for flask app access so can be private. 
+
+Onboarding through flask app. 
+
+Smooth out Deploy on Replit so it's < 1 minute to deploy 25 agents once the email credentials, aliases, and agent rendering are done. 
+
 
 
 🚩 FF LOOPING AGENTS 

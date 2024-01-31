@@ -1,5 +1,15 @@
 📊 A/B+E Polling System: Includes the ABE script for creating synthetic polling systems, facilitating the generation of agent profiles and responses in structured formats.
 
+Looking for collaborators and sponsors, see contribute.md. 
+
+supports personas and utility agents. 
+
+Get a gut check 
+
+Assemble a team when you can't afford 
+
+
+
 
 # (@@) - ATAT - Email Client for AI Agents - 💪🏼🦾
 
@@ -57,13 +67,15 @@ On Replit, fork the repl and add your Secrets. This example uses a popular email
   "
 }
 
-## 2. Add Email Aliases 
+## 2. Add Email Address / Get Credentials Aliases 
 If you are using the pre-baked agents, go to agents/agents.json and add the id of each agent as an email alias to your email management system. In Google (TM) Workspace, this is called "Add Alternate Emails".
+
+The password for Workspace has to be an 'app password' https://support.google.com/accounts/answer/185833?hl=en. 
 
 ## 3. Run 
 Deployment may require additional config, but Run should work out of the gate. 
 
-The Flask server will open the Card site showing all agents automatically on Replit. 
+The Flask server will open the Card site showing all agents automatically on Replit. Open the Webview pane if it doesn't open automatically. 
 
 
 # ⚠️ Critical:

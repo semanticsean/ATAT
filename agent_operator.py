@@ -90,6 +90,7 @@ class AgentSelector:
 
   # GET AGENTS FROM EMAIL ADDRESSES AND CONTENT
 
+
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
                                               agent_loader, gpt):
     agent_queue = []
@@ -153,6 +154,21 @@ class AgentSelector:
 
     return agent_queue
 
+  def extract_relationships(self, agent_loader, agent_name):
+    # Assuming agent_loader can access the agents.json data
+    agent_data = agent_loader.get_agent(agent_name)
+    relationships_data = agent_data.get("relationships", [])
+
+    # Concatenate the values of each dictionary in the relationships list into a single string
+    relationship_strings = []
+    for relationship in relationships_data:
+        relationship_strings.append(' '.join(relationship.values()))
+
+    # Combine all relationship strings into a single string, separated by a space
+    combined_relationships = ' '.join(relationship_strings)
+
+    return combined_relationships
+
   # CREATE PROMPT FOR AGENTS
 
   def create_dynamic_prompt(self,
@@ -172,7 +188,7 @@ class AgentSelector:
     # Order and Persona Context
     order_context = f"You are role-playing as the {agent_name}. This is response {order} in a conversation with {total_order} interactions. The agent sequence is: [{order_explanation}]."
     print(f"Debug: create_dynamic_prompt called with agent_name: {agent_name}")
-    persona = agent_loader.get_agent_persona(agent_name)
+    
 
     # Main Instructions
     instructions = self.instructions['default']['main_instructions']
@@ -206,9 +222,27 @@ class AgentSelector:
     ]
     other_agent_roles = ", ".join(
         [agent_loader.get_agent_persona(name) for name in other_agent_names])
-    explicit_role_context = f"You are NOT {other_agent_roles}. You are {agent_name}. {persona}"
 
-    dynamic_prompt += f" {explicit_role_context}. Act as this agent."
+    persona = agent_loader.get_agent_persona(agent_name)
+    relationships = self.extract_relationships(agent_loader, agent_name)
+
+    other_agent_names = [
+        name for name, _ in self.conversation_structure.get("responses", [])
+        if name != agent_name
+    ]
+    other_agent_roles = ", ".join(
+        [agent_loader.get_agent_persona(name) for name in other_agent_names]
+    )
+
+    explicit_role_context = (
+        f"You are NOT {other_agent_roles}. You ARE ROLE PLAYING AS {agent_name}. "
+        f"YOU ARE HIGHLY INFLUENCED BY YOUR SOCIAL AND PROFESSIONAL MOTIVATIONS, "
+        f"CORRELATE TO THE PEOPLE IN YOUR LIFE. YOUR PERSONA DETAILS ARE: '{persona}' "
+        f"YOUR RELATIONSHIPS THAT MOST INFLUENCE YOU ARE: '{relationships}. NOW ROLE PLAY AS THIS AGENT."
+    )
+
+    dynamic_prompt += f" {explicit_role_context}. Role play as this agent."
+
 
     # print(f"{dynamic_prompt}")
 

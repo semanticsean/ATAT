@@ -767,12 +767,18 @@ class EmailClient:
 
 
   def format_email_history_plain(self, history, from_email, date):
-    decoded_history = quopri.decodestring(history.encode()).decode('utf-8')
+    # Attempt to decode the history with utf-8, replace characters that are not utf-8
+    try:
+        decoded_history = quopri.decodestring(history.encode('utf-8')).decode('utf-8')
+    except UnicodeDecodeError:
+        # If utf-8 decoding fails, use 'latin1' which is a single-byte encoding that can represent the first 256 Unicode points
+        decoded_history = quopri.decodestring(history.encode('latin1')).decode('latin1')
+
     lines = decoded_history.split('\n')
     quoted_lines = ['> {}'.format(line) for line in lines if line.strip()]
-    plain_text_content = 'On {} {} wrote:\n{}\n'.format(
-        date, from_email, '\n'.join(quoted_lines))
+    plain_text_content = 'On {} {} wrote:\n{}\n'.format(date, from_email, '\n'.join(quoted_lines))
     return plain_text_content
+
 
   # SEND EMAIL
 
