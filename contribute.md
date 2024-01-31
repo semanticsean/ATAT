@@ -11,7 +11,7 @@ Integrate with LLAMA and other models, model selection per agent.
 
 Pass custom LLM settings for each API call based on agent record details, e.g. add custom temp, max_tokens, etc. to each agent record; and write shortcode to control custom LLM controls through shortcode. 
 
-
+Modify onboarding so the "semantic-life.com" domain name is replaced by whatever the user chooses, including new_agents.py. 
 
 Develop a robust email constructor to handle various client types, history management, and CSS. Overhaul email formatting and structure to address issues with quoted printable, Gmail quotes, divs, and email construction loops. 
 

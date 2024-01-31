@@ -1,3 +1,6 @@
+replace semantic-life.com throughout code. 
+
+
 # (@@) - ATAT - Email Client for AI Agents - 💪🏼🦾
 
 ATAT simplifies adoption of Human-to-AI, AI-to-AI interactions over one of the largest and most important communication stacks: email. 
