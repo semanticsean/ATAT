@@ -1,5 +1,7 @@
 replace semantic-life.com throughout code. 
 
+add ad agency to workers 
+
 
 # (@@) - ATAT - Email Client for AI Agents - 💪🏼🦾
 

@@ -1,5 +1,10 @@
-# OpenAI SDK 1.0 Update
-Update the application to leverage OpenAI SDK version 1.0.
+# Collaborators, Sponsors, Potential Co-Owner 
+
+I'm looking for collaborators, sponsors, and potentially, a co-owner of the project. 😁
+
+Ideally someone with vast experience in email clients and the nuances and countless edge cases therein. 😬
+
+Statista estimates 347.3 Billion emails were sent last year. Let's enable AI agents to increase the quality and capacity of email in minutes of setup. 🤝
 
 
 # Big Picture 
