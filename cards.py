@@ -32,6 +32,12 @@ def index():
   return render_template('index.html', agents=agents)
 
 
+@app.route('/readme.html')
+def readme():
+    return render_template('readme.html')
+
+
+
 def get_image_path(agent):
   # Retrieve the relative photo path from agent's data
   # The photo path is assumed to be in the format "pics/filename.png"
