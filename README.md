@@ -1,8 +1,3 @@
-replace semantic-life.com throughout code. 
-
-add ad agency to workers 
-
-
 # (@@) - ATAT - Email Client for AI Agents - 💪🏼🦾
 
 ATAT simplifies adoption of Human-to-AI, AI-to-AI interactions over one of the largest and most important communication stacks: email. 
@@ -90,6 +85,8 @@ On Replit, fork the repl and add your Secrets. This example uses a popular email
   "
 }
 
+Also 
+
 ## 2. Add Email Address / Get Credentials Aliases 
 If you are using the pre-baked agents, go to agents/agents.json and add the id of each agent as an email alias to your email management system. In Google (TM) Workspace, this is called "Add Alternate Emails".
 
@@ -168,5 +165,5 @@ This project is proudly under the MIT License.
 See LICENSE. 
 
 
-# Accelerate. 
+# Generally Accelerate. 
 💪🏼🦾
