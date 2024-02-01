@@ -76,14 +76,30 @@ h1, h2 {
   padding: 2rem;
 }
 
+
+
+
 /* Card styles */
+.responsive-card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  margin: 0 auto;
+  
+}
+
 .card {
   background-color: white;
-  border-radius: 10px;
-  overflow: hidden;
+  border-radius: 15px; /* Adjust this value to increase or decrease the roundness of the corners */
+  overflow: hidden; /* Ensures the content inside also conforms to the rounded corners */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 1rem auto; /* Centering the card */
+  margin: 1rem auto;
   transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 
 .card:hover {
@@ -97,11 +113,31 @@ h1, h2 {
   object-fit: cover;
 }
 
+/* Card content styles */
 .card-content {
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
+  flex-grow: 1; /* Allow card content to fill the space */
+  display: flex;
+  flex-direction: column; /* Stack the children vertically */
+  justify-content: space-between; /* Move the email link to the bottom */
+  background: rgba(0, 0, 0, 0.8); /* Extend the background to the entire content */
+  padding: 1rem; /* Add padding inside the card content */
 }
+
+/* Email link styles */
+.email-link {
+  background-color: grey; /* Change the color to grey */
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  display: block;
+  text-align: center;
+  font-weight: bold;
+  margin-top: auto; /* Push the email link to the bottom */
+  margin-bottom: 1rem; /* Add space below the email link */
+}
+
+
 
 .card-title {
   font-size: 1.25rem;
@@ -112,29 +148,52 @@ h1, h2 {
 .card-summary {
   font-size: 1rem;
   margin-bottom: 1rem;
+  color:white;
 }
 
-/* Email link styles */
-.email-link {
-  background-color: #0055ff;
-  color: white;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 9999px;
-  display: block;
-  text-align: center;
-  margin-top: 1rem;
-  font-weight: bold;
+
+/*Shortcode Styles*/
+.shortcode-container {
+  background-color: white; /* Adjust color as needed */
+  border-radius: 15px; /* Same border-radius as cards for consistency */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Same shadow as cards */
+  padding: 1rem; /* Padding for internal spacing */
+  margin: 2rem auto; /* For spacing around the container */
+  max-width: 800px; /* Max width of the container, adjust as needed */
 }
+
+.shortcode {
+  border-bottom: 1px solid #eaeaea; /* Light line between each shortcode for separation */
+  padding-bottom: 1rem; /* Space at the bottom of each shortcode */
+  margin-bottom: 1rem; /* Space after the bottom border */
+}
+
+.shortcode:last-child {
+  border-bottom: none; /* No border for the last item */
+  padding-bottom: 0; /* No padding for the last item */
+  margin-bottom: 0; /* No margin for the last item */
+}
+
+/* Responsive adjustments can be added if needed */
+@media (min-width: 768px) {
+  .shortcode-container {
+    /* Styles for wider screens */
+  }
+}
+
 
 /* Responsive adjustments for screens wider than 768px */
 @media (min-width: 768px) {
   .responsive-card-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    width: 100%; /* Ensure the container is full width */
+    max-width: 1200px; /* Optional, for setting a max container width */
+    margin: 0 auto; /* Center the container */
   }
 }
+
 
 /* Responsive adjustments for screens 768px wide or less */
 @media (max-width: 768px) {
