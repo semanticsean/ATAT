@@ -7,7 +7,7 @@ import subprocess
 from email_client import EmailClient
 from gpt import GPTModel
 from agent_loader import AgentManager
-
+ 
 domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com')  
 company_name = os.environ.get('COMPANY_NAME')
 

@@ -63,7 +63,7 @@ now the resolution happens
 
 ✅  pdf test (text only right now)
 
-what does this pdf say? 
+summarize this? 
 
 
 

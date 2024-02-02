@@ -82,6 +82,8 @@ Move configuration, agent creation, and other functionalities to the Flask web i
 
 Relationship data is formatting inconsistently. 
 
+PDF emails break quoting. 
+
 Address looping issues in ff agents and discrepancies between embody vs. creator.
 
 Rectify issues with ff creator not functioning as expected.
