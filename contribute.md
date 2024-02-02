@@ -78,6 +78,8 @@ Move configuration, agent creation, and other functionalities to the Flask web i
 
 # Bug Fixes and Enhancements
 
+Relationship data is formatting inconsistently. 
+
 Address looping issues in ff agents and discrepancies between embody vs. creator.
 
 Rectify issues with ff creator not functioning as expected.

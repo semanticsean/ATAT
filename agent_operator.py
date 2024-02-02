@@ -158,28 +158,32 @@ class AgentSelector:
     return agent_queue
 
   def extract_relationships(self, agent_loader, agent_name):
+    def dump_relationships(data):
+        # Base case: if data is not a dictionary or list, return it as a string
+        if not isinstance(data, (dict, list)):
+            return str(data)
+
+        if isinstance(data, list):
+            # Process each item in the list recursively and join with ", "
+            return '[ ' + ', '.join(dump_relationships(item) for item in data) + ' ]'
+
+        if isinstance(data, dict):
+            # Process each key-value pair in the dictionary
+            items = []
+            for key, value in data.items():
+                # Recursively process the value
+                dumped_value = dump_relationships(value)
+                items.append(f'"{key}": {dumped_value}')
+            return '{ ' + ', '.join(items) + ' }'
+
     # Assuming agent_loader can access the agents.json data
     agent_data = agent_loader.get_agent(agent_name)
     relationships_data = agent_data.get("relationships", [])
 
-    # Concatenate the values of each dictionary in the relationships list into a single string
-    relationship_strings = []
-    for relationship in relationships_data:
-        if isinstance(relationship, dict):
-            for value in relationship.values():
-                # If the value is a list, join its elements; otherwise, use the value as is
-                if isinstance(value, list):
-                    relationship_strings.extend(value)
-                else:
-                    relationship_strings.append(str(value))
-        else:
-            # If relationship is not a dictionary, convert it to string and append
-            relationship_strings.append(str(relationship))
+    # Use the recursive function to dump the relationships
+    dumped_relationships = dump_relationships(relationships_data)
 
-    # Combine all relationship strings into a single string, separated by a space
-    combined_relationships = ' '.join(relationship_strings)
-
-    return combined_relationships
+    return dumped_relationships
 
 
 
@@ -258,7 +262,7 @@ class AgentSelector:
     dynamic_prompt += f" {explicit_role_context}. Role play as this agent."
 
 
-    # print(f"{dynamic_prompt}")
+    print(f"{dynamic_prompt}")
 
     return dynamic_prompt
 
