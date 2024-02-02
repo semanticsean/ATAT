@@ -12,12 +12,15 @@ from gpt import GPTModel
 
 # logging.basicConfig(level=logging.DEBUG)
 
+domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com')  
+
 
 def format_datetime_for_email():
   return datetime.now().strftime('%a, %b %d, %Y at %I:%M %p')
 
 
-def format_note(agent_name, email="agent@semantic-life.com", timestamp=None):
+
+def format_note(agent_name, email=f"agent@{domain_name}", timestamp=None):
   if not timestamp:
     timestamp = format_datetime_for_email()
   return f'On {timestamp} {agent_name} <{email}> wrote:'
@@ -57,7 +60,7 @@ class AgentSelector:
     for agent_id, agent_profile in self.invoked_agents.items():
       formatted_agent = {
           "id": agent_id,
-          "email": "agent@semantic-life.com",
+          "email": f"agent@{domain_name}",
           "persona": agent_profile.get("description", "")
       }
       formatted_agents_list.append(formatted_agent)

@@ -662,7 +662,7 @@ class EmailClient:
               datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
           # Formatting response and history in both plain text and HTML
-          response_plain = MIMEText(response, 'plain', 'utf-8')
+          response_plain = MIMEText(response, 'plain', 'utf-8')     
           response_plain.add_header('Content-Transfer-Encoding',
                                     'quoted-printable')
 
@@ -678,26 +678,29 @@ class EmailClient:
           history_html = MIMEText(
               f"<html><body>{formatted_email_history_html}</body></html>",
               'html')
-
-          # Creating 'alternative' MIME containers for response and history
+          
+          
+          
           alternative_response = MIMEMultipart('alternative')
-          alternative_response.attach(response_plain)
-          print("RESPONSE PLAIN: ", response_plain)
+          #alternative_response.attach(response_plain)
+          
           alternative_response.attach(response_html)
-          print("RESPONSE HTML: ", response_plain)
+          
 
           alternative_history = MIMEMultipart('alternative')
           alternative_history.attach(history_plain)
-          print("HISTORY PLAIN: ", history_plain)
-          alternative_history.attach(history_html)
-          print("HISTORY HTML: ", history_plain)
+          
+          #alternative_history.attach(history_html)
+          
 
           # Creating 'mixed' MIME container for the entire email
           msg = MIMEMultipart('mixed')
           msg.attach(alternative_response)
-          print("MIME MULTIPART ALTERNATIVE RESPONSE: ", alternative_response)
+          
           msg.attach(alternative_history)
-          print("MIME MULTIPART ALTERNATIVE HISTORY: ", alternative_history)
+          
+          
+          
 
           try:
             self.send_email(from_email=self.smtp_username,
@@ -838,6 +841,25 @@ class EmailClient:
         if email.lower() != self.smtp_username.lower()
     ]
 
+
+    """
+    LOGGING 
+
+    # Generate a unique filename for the log file
+    log_filename = f'logs/email_log_{datetime.now().strftime("%Y%m%d%H%M%S")}_{message_id}.txt'
+
+
+    # Log the email content
+    with open(log_filename, 'w') as log_file:
+        log_file.write(f"From: {from_alias} <{from_alias}>\n")
+        log_file.write(f"To: {', '.join(to_emails)}\n")
+        if cc_emails:
+            log_file.write(f"Cc: {', '.join(cc_emails)}\n")
+        log_file.write(f"Subject: {subject}\n")
+        log_file.write("Message Body:\n")
+        log_file.write(msg.as_string()) 
+
+    """
     with self.smtp_connection() as server:
       server.sendmail(from_email, all_recipients, msg.as_string())
       print(
