@@ -221,7 +221,6 @@ class AgentSelector:
     if modality and modality in self.instructions['summarize']:
       instructions = self.instructions['summarize'][modality]
 
-      # If there's an additional_context_chunk for the modality, append it
       if 'additional_context_chunk' in self.instructions['summarize']:
         additional_context_chunk = self.instructions['summarize'][
             'additional_context_chunk'].format(part_number=1, total_parts=1)
