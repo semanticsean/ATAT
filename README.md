@@ -1,20 +1,57 @@
 # (@@) - ATAT - Email Client for AI Agents - 💪🏼🦾
 
-ATAT simplifies adoption of Human-to-AI, AI-to-AI interactions over one of the largest and most important communication stacks: email. 
+ATAT simplifies adoption of Human-to-AI, AI-to-AI interactions over one of the largest and most important communication stacks: email. That means a powerful agent - or fleet of agents - can be accessed with the "fw" button or a "cc" on an email thread. ATAT enables multiplayer / mixture via email. Training new users is as simple as telling them to fw or cc. 
 
-That means a powerful agent - or fleet of agents - can be accessed with the "fw" button or a "cc" on an email thread. ATAT enables multiplayer / mixture via email. Training new users is as simple as teaching them to fw or cc. Using MoE operations is now as simple as "@ and then @ again". 
+The goal is to enable anybody to build a "company" of AI Agents in minutes that can be accessed by everybody, not just technical experts. (a.k.a. MoE for normies.)
 
-(a.k.a. MoE for normies.)
+Many of the most powerful - and most affordable - use cases of LLMs are too slow for a chatbot interface. Email is wonderfully slow. Elegantly slow. You have 24 hours of compute to get to the user's ideal output, using persona and / or utility agents. What will you build with all that time? 
 
-I did a lot of hands-on market testing of bots and saw that many of the most powerful use cases of LLMs are far too slow for a chatbot, at least right now. Email is wonderfully slow. Elegantly slow. You have 24 hours of compute to get to the user's ideal output, using person and / or utility agents. What will you build with all that time? 
+🤝 If this is valuable to you and you want to contribute, please do! I'm looking for collaborators. Please find me on x.com/seanmcdonalxyz. 
 
-The other big benefit is that email is generally recognized as safe, redundant, and very simple. In most businesses, a lot of the most important work is done over email.
+# Getting Started 
 
-The biggest and most important update is it needs to use openai 0.28.0. The code needs to be immediately refactored to use the 1.0 SDK.
+🚨 ATAT is alpha software provided with no warranties. You will find errors and, because email formatting is complex across clients, users will see uneven formatting. It is released for testing, experimentation, and research. Use it for testing only.  You MUST declare and label that the respondents are generative AI.
 
-(Setup is easy. Guide below. Read the 'critical warning'!)
+ATAT is built to work out of the box on Replit. Please see contribute.md, where a request for help adapting it to GH and for local deployment is included. 
 
-Looking for collaborators and sponsors, see contribute.md. 
+(Deploying is a bit different. Contact me for help or paid hosting. x.com/seanmcdonaldxyz)
+
+
+## 1. Prepare Replit 
+Depending on your config, you may have to downgrade to the pre-1.0 version of OpenAI python package, using "pip install openai==0.28.0". 
+
+(Upgrading to the new version is next on the roadmap.)
+
+Then add your secrets. This example uses a popular email service. 
+
+{
+  "SMTP_SERVER": "smtp.gmail.com",
+  "IMAP_SERVER": "imap.gmail.com",
+  "SMTP_PORT": "587",
+  "SMTP_USERNAME": "your agent email address at your domain name",
+  "SMTP_PASSWORD": "for Google (TM) Workspace this is an 'app password' which you get from Security > Two-Factor Authentication > App Password",
+  "OPENAI_API_KEY": "sk-...
+  "
+}
+
+If you want to enable logging (or disable it) check send_email at the end in email_client.py. 
+
+
+## 2. Add Email Address / Get Credentials Aliases 
+If you are using the pre-baked agents, go to agents/agents.json and add the id of each agent as an email alias to your email management system. In Google (TM) Workspace, this is called "Add Alternate Emails". You can get and change the agent email addresses and details in /agents/agents.json. You don't have to add an Alias to reference at agent with the @@ shortcode using @@(agent name). 
+
+The password for Workspace has to be an 'app password' https://support.google.com/accounts/answer/185833?hl=en. 
+
+## 3. Run 
+Deployment may require additional config, but Run should work out of the gate. 
+
+The Flask server will open the Card site showing all agents automatically on Replit. Open the Webview pane if it doesn't open automatically. 
+
+
+# ⚠️ Critical:
+###  Do NOT add an existing email address, as you may trigger unwanted emails being sent to senders in your history. Create a NEW ACCOUNT and only use that. 
+
+(If you want to use an existing dev or sandbox account, run thread-reconciler.py in /tools to index processed_threads.json.)
 
 # Features & Benefits 
 
@@ -31,6 +68,12 @@ Your least savvy user can absolutely use the "fw" button.
 ATAT is specially designed for AI agents, offering a unique platform for Human-to-AI and AI-to-AI interactions over email, a crucial communication channel. Includes automatic Agent Dashboard that displays agent descriptions and links to their email addresses. Dashboard is mobile friendly. ATAT is not built to pretend to be you or ghost compose your emails for you. 
 
 Pre-baked agents included. Delete the records in agents.json and update new_agent_files to re-render your own customized agents. More details below in New Agent. 
+
+
+# ✅ Any email sent is reactive to a human email, not proactive -- by design. (!)
+
+Does not support or enable any bulk sending, proactive sending, or agent autonomy. The goal is to make it easy for entrepreneurs and organizations to adopt the technology, putting it to work quickly. 
+
 
 # 🦾🦾 Multi-Agent Collaboration for Normies 
 Allows simultaneous engagement of multiple AI agents, facilitating a "mixture of experts" approach for enhanced problem-solving and decision-making. Each agent is influenced not only be an agentic profile, but a social graph of relationships that influence their decision-making. Anecdotally, this generates more realistic results in role-playing. 
@@ -50,15 +93,15 @@ Offers a straightforward setup process on Replit, making it possible to have a f
 Enables AI agents to read and interpret text from PDFs, expanding the range of document formats the agents can handle.
 
 # 🎨 Customizable HTML/CSS Dashboard
-Uses CSS so you can customize look and feel very easily. Add your logo easily in /static. 
+Uses CSS so you can customize look and feel easily. Add your logo easily in /static. 
 
 # ⏳⚡️ TIME TRAVEL for Spectrum People 
-The inspiration behind @@ is, in part, from my own struggles with being on the spectrum and having a weak model for how people will feel when I say things. I've always wanted to "time travel" to see their reaction and be able to adjust if it's not good. Being able to summon an agent from within an email enables me to do just that, and I do it all the time now. It's like practcing the world before it happens. @@ 
+The inspiration behind @@ is, in part, from my struggles with being on the spectrum and having a weak model for how people will feel when I say things. I've always wanted to "time travel" to see their reaction and be able to adjust if it's not good. Being able to summon an agent from within an email enables me to do just that, and I frequently do it now. It's like practicing the world before it happens. @@ 
 
 # Additional benefits: 
 
 * Thread Indexing to prevent duplicative sending, even if user marks things unread, resesnds, etc.
-* Error handling and error email sending with customizable text content
+* Error handling, ubiquitous print statements, and error email sending with customizable text content.
 * All LLM instructions centralized into JSON files for easy, rapid modification of behaviors.
 * Image prompt, keywords, and other creature comforts for development in the agent profiles
 * Tools in tools folder including a thread-reconciler for restoring processed_threads.json, and a vars_tester.py if you want to test vars before sending.
@@ -66,44 +109,6 @@ The inspiration behind @@ is, in part, from my own struggles with being on the s
 * Tested against hundreds of real-world use cases by real users in private one-on-one testing and development.
 * Inspired by Wordpress shortcode system. 🫡
 
-
-# Getting Started 
-
-ATAT is built to work out of the box on Replit. Please see contribute.md, where a request for help adapting it to GH and for local deployment is included. 
-
-(Deploying is a bit different. Contact me for help or paid hosting. x.com/seanmcdonaldxyz)
-
-
-## 1. Set Secrets
-On Replit, fork the repl and add your Secrets. This example uses a popular email service. 
-
-{
-  "SMTP_SERVER": "smtp.gmail.com",
-  "IMAP_SERVER": "imap.gmail.com",
-  "SMTP_PORT": "587",
-  "SMTP_USERNAME": "your agent email address at your domain name",
-  "SMTP_PASSWORD": "for Google (TM) Workspace this is an 'app password'",
-  "OPENAI_API_KEY": "sk-...
-  "
-}
-
-Also 
-
-## 2. Add Email Address / Get Credentials Aliases 
-If you are using the pre-baked agents, go to agents/agents.json and add the id of each agent as an email alias to your email management system. In Google (TM) Workspace, this is called "Add Alternate Emails".
-
-The password for Workspace has to be an 'app password' https://support.google.com/accounts/answer/185833?hl=en. 
-
-## 3. Run 
-Deployment may require additional config, but Run should work out of the gate. 
-
-The Flask server will open the Card site showing all agents automatically on Replit. Open the Webview pane if it doesn't open automatically. 
-
-
-# ⚠️ Critical:
-###  Do NOT add an existing email address, as you may trigger unwanted emails being sent to senders in your history. Create a NEW ACCOUNT and only use that. 
-
-(If you want to use an existing dev or sandbox account, run thread-reconciler.py in /tools to index processed_threads.json.)
 
 
 
@@ -167,5 +172,10 @@ This project is proudly under the MIT License.
 See LICENSE. 
 
 
-# Generally Accelerate. 
-💪🏼🦾
+# Accelerate / Steer / Brake. 
+acc/s/b 💪🏼🦾
+
+(In a car, you don't *just* accelerate. You also steer and brake.)
+
+
+@@ and ATAT are trademarks of Semantic Life. All Rights Reserved, 2024. Copyright Semantic Life 2024. 
