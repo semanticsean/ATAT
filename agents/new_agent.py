@@ -9,6 +9,8 @@ import uuid
 import openai
 import requests
 
+domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com') 
+
 ## NOTE: WILL ONLY WORK IF OPENAI_API_KEY SET IN SECRETS 
 
 def log_to_file(message):
@@ -99,7 +101,7 @@ def add_new_agent(agent_name, description):
   new_persona_json = generate_persona(agent_name, description)
   try:
     new_persona = json.loads(new_persona_json)
-    email = agent_name.replace(" ", "").lower() + "@semantic-life.com"
+    email = agent_name.replace(" ", "").lower() + f"@{domain_name}"
     timestamp = datetime.datetime.now().isoformat()
 
     new_agent = {

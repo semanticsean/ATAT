@@ -2,23 +2,25 @@
 
 I'm looking for collaborators, sponsors, and potentially, a co-owner of the project. 😁
 
-Ideally someone with vast experience in email clients and the nuances and countless edge cases therein. 😬
+Ideally someone with vast experience in email clients and the nuances and countless edge cases therein. 😬😭
 
-Statista estimates 347.3 Billion emails were sent last year. Let's enable AI agents to increase the quality and capacity of email in minutes of setup. 🤝
+Statista estimates 347.3 Billion emails were sent last year. Let's enable AI agents to increase the quality and capacity of email in minutes of setup, so users can have swarms of agents quickly and easily. 🤝
 
 
 # Big Picture 
+
+Fix multiple problems with history construction including email quoting / mimetype / encoding / and multi-agent decomposition of style (and logic). Develop a robust email constructor to handle various client types, history management, and CSS. Overhaul email formatting and structure to address issues with quoted printable, Gmail quotes, divs, and email construction loops. Remove kludge from email history and conversation history formatting. 
+
 Refactor gpt.py and new_agent.py for compatibility with OpenAI SDK 1.0, incorporating function calling and instructor logic. Update agents to integrate with Assistants. 
 
-Engage community feedback for a structured class-based refactor, including robust testing and database integration. Simultaneously refactor to be properly pythonic, smarter class structure, proper docstrings and comments; remove early-stage solo developer cruft. 
+Make gpt.py capable of using different APIs for different agents, e.g. a LLAMA agent, a Mixtral Agent, and OpenAI agent, each defined by their agent-level config. Make parameters per-agent, and expose API call parameters as a shortcode so user can request either specific parameters or a library of humanized terms like "fast and speedy" or "max" for a multi-pass MoE with a judge and editor who force feedback and refinement loops. 
 
-Develop a robust email constructor to handle various client types, history management, and CSS. Overhaul email formatting and structure to address issues with quoted printable, Gmail quotes, divs, and email construction loops. 
+Integrate a watermarking system. 
 
-Integrate with LLAMA and other models, model selection per agent. Local model fork for a "slowcal" (slow and local) AI model.
+Build a community and get feedback for a plan to do a large-scale refactor, including robust testing and database integration. Simultaneously refactor to be properly pythonic, class structures, proper docstrings and comments; remove early-stage solo developer cruft and move from print statements to logging, centralize logging. 
 
-Incorporate comprehensive testing in every method/function.
+Build a synthetic email server that has testing data persistently available for full-system and feature testing with red light / green light high-level test to ensure system integrity with changes. Once this is done the code can be refactored into less monolithic code. 
 
-Progressive/regressive inbox checking system based on activity levels. Implement adaptive rate limiting based on the model type and agent-specific API settings, including temperature and max tokens.
 
 Add security / Auth / passphrases in email to ensure only desired user can utilie functionality. Also time-based / temporary agents. 
 
@@ -37,6 +39,8 @@ Revise onboarding to include company name capture, shaping agent profiles around
 
 # Smaller Functionality 
 Implement automated emails for daily briefs, follow-ups, and task list management.
+
+Progressive/regressive inbox checking system based on activity levels. Implement adaptive rate limiting based on the model type and agent-specific API settings, including temperature and max tokens.
 
 Enhance agent context awareness and prevent duplicate/triplicate responses, especially in detailed responses.
 

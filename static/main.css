@@ -135,9 +135,13 @@ h1, h2 {
   font-weight: bold;
   margin-top: auto; /* Push the email link to the bottom */
   margin-bottom: 1rem; /* Add space below the email link */
+  
+
 }
 
-
+.email-link:hover {
+  background-color: #1d41d3;
+}
 
 .card-title {
   font-size: 1.25rem;

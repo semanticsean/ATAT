@@ -8,6 +8,8 @@ import pickle
 from random import uniform
 
 openai_api_key = os.environ['OPENAI_API_KEY']
+domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com')  
+
 
 
 class GPTModel:
@@ -186,12 +188,12 @@ class GPTModel:
             0.6
         }
 
-        print("\n--- API Request Payload ---")
+        #print("\n--- API Request Payload ---")
         # print((json.dumps(request_payload, indent=4)))
 
         response = openai.ChatCompletion.create(**request_payload)
 
-        print("\n--- API Response ---")
+        #print("\n--- API Response ---")
         # print(json.dumps(response, indent=4)[:142])
 
         break
@@ -231,7 +233,7 @@ class GPTModel:
       agent_profile = {
           "description": profile_info.get("description", ""),
           "name": profile_info.get("name", "Generated Agent"),
-          "email": profile_info.get("email", "generated_agent@semantic-life.com"),
+          "email": profile_info.get("email", f"generated_agent@{domain_name}"),
           # Add other relevant attributes from the profile
       }
       return agent_profile
