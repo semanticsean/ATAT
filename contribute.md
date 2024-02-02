@@ -1,4 +1,4 @@
-# Collaborators, Sponsors, Potential Co-Owner 
+# Collaborators / Co-Owner 
 
 I'm looking for collaborators, sponsors, and potentially, a co-owner of the project. 😁
 
@@ -7,7 +7,7 @@ Ideally someone with vast experience in email clients and the nuances and countl
 Statista estimates 347.3 Billion emails were sent last year. Let's enable AI agents to increase the quality and capacity of email in minutes of setup, so users can have swarms of agents quickly and easily. 🤝
 
 
-# Big Picture 
+# Big Picture Roadmap 
 
 Fix multiple problems with history construction including email quoting / mimetype / encoding / and multi-agent decomposition of style (and logic). Develop a robust email constructor to handle various client types, history management, and CSS. Overhaul email formatting and structure to address issues with quoted printable, Gmail quotes, divs, and email construction loops. Remove kludge from email history and conversation history formatting. 
 
@@ -21,7 +21,6 @@ Build a community and get feedback for a plan to do a large-scale refactor, incl
 
 Build a synthetic email server that has testing data persistently available for full-system and feature testing with red light / green light high-level test to ensure system integrity with changes. Once this is done the code can be refactored into less monolithic code. 
 
-
 Add security / Auth / passphrases in email to ensure only desired user can utilie functionality. Also time-based / temporary agents. 
 
 Token / credit counting regime. 
@@ -33,6 +32,8 @@ Response judgement by llm and new rules. Agent judge for whether or not to respo
 Pass custom LLM settings for each API call based on agent record details, e.g. add custom temp, max_tokens, etc. to each agent record; and write shortcode to control custom LLM controls through shortcode. 
 
 Create API so other apps can send, receive, and control multi-agent emails, e.g. voice-to-email. "Send me an email that says..." Also get agent details from an API. 
+
+Centralize configs / limits / deal with model variation in limits.
 
 
 # Onboarding 

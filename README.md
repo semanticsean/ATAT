@@ -8,6 +8,8 @@ That means a powerful agent - or fleet of agents - can be accessed with the "fw"
 
 I did a lot of hands-on market testing of bots and saw that many of the most powerful use cases of LLMs are far too slow for a chatbot, at least right now. Email is wonderfully slow. Elegantly slow. You have 24 hours of compute to get to the user's ideal output, using person and / or utility agents. What will you build with all that time? 
 
+The other big benefit is that email is generally recognized as safe, redundant, and very simple. In most businesses, a lot of the most important work is done over email.
+
 The biggest and most important update is it needs to use openai 0.28.0. The code needs to be immediately refactored to use the 1.0 SDK.
 
 (Setup is easy. Guide below. Read the 'critical warning'!)
