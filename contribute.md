@@ -26,6 +26,8 @@ Add security / Auth / passphrases in email to ensure only desired user can utili
 
 Token / credit counting regime. 
 
+Response judgement by llm and new rules. Agent judge for whether or not to respond. Time throttling / don't respond if have responded within x amount of time. 
+
 
 ### API Specific 
 Pass custom LLM settings for each API call based on agent record details, e.g. add custom temp, max_tokens, etc. to each agent record; and write shortcode to control custom LLM controls through shortcode. 

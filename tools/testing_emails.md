@@ -1,60 +1,32 @@
 # test routine - send these emails 
 
+# ✅ Basic Function 
+please say 'test 1a' and nothing else. 
 
-✅  multi-agent multi-human to / cc handling / history nesting  (non @@) / writes to processed_threads 
 
-_multiple humans cc'd and respond before agents respond_
+# ✅  multi-agent multi-human 
+_cc another human account and respond prior to these two responding_
 
 agent1 - please tell me a joke about AI.
 
 agent2 - please tell me a joke about working in education technology. 
 
+# ✅  @@ 
 
-✅  pdf test (text only right now)
+devatlas - what is the most important question for grant applicants to answer when writing startup pitch decks?
 
-what does this pdf say? 
+@@(castor) what startups do you like?
 
+@@(Nova) what do you think?
 
-✅  detail / split 
+@@(Orion) what do you think? 
 
-please tell me about the history of america in a whitepaper in this multi-pass llm construction. put clear ALL CAPS section headers in each section.
+@@(Nebula) what do you think?
 
-BE VERY VERY VERBOSE. REPEAT THE HEADING AT THE TOP OF EACH SECTION.
-
-!detail_start!
-Heading: INTRODUCTION
-an introduction written in social media engagement / attention grabbing ideas.
-15 ideas in bullet points.
-
-!split!
-Heading: TIMELINE
-an ascii diagram / flow chart style of the historical timeline of the founding of america and key events in our history.
-15 items included.
-
-!split!
-heading: SUMMARY
-a summary of the constitution.
-at least 10 paragraphs
-
-!split!
-heading: CREATIVE STORY OF THE CONSTITUTION BEING WRITTEN AS A CHILDREN'S STORY
-50 bullet points
-our story in an emoji-based "graphic novel" made of only emojis with some subheadings for the various scenes describing key moments.
-
-!detail_stop!
-
-
-✅  @@ / @@.creator 
-agent1 - what is the most important question to answer in a startup pitch deck? 
-
-@@(agent2) what do you think??
-
-@@(agent3) what have we not thought of?
-
+@@(Altair) what do you think? 
 
 
 # @@ creator 
-_@@.creator!(Embody an agent who ... description)_
 
 I'm working on a new creative project and need some roleplaying. Please render this agent and have it answer the question below.
 
@@ -64,16 +36,38 @@ Mr. Vampire, what is your favorite game to play?
 
 
 
+# ✅  detail / split 
+
+please write a short story using the detail shortcode. make sure to do one section at a time. thanks. 
+
+!detail_start!
+introduction: it's the year 2050 and AI driven synthetic time travel is easily possible
+!split!
+we meet our protagonist, in detail
+!split!
+we meet our antagonist, in detail
+!split!
+we see the first conflict between the protagonist and antagonist, the first act ends
+!split!
+the second act begins with a new player, a romantic interest who hasn't been mentioned yet
+!split!
+the second act has a principal conflit
+!split!
+the climax happens
+!split!
+the resolution doesn't happen yet
+!split!
+now the resolution happens
+!detail_stop! 
+
+
+✅  pdf test (text only right now)
+
+what does this pdf say? 
+
+
 
 ✅  summarize  -- summarize to json / other formats 
-_!summarize_start!_
-_!summarize_stop!_
-OR
-_!summarize.modality_start!_
-_!summarize.modality_stop!_
-
-Example - JSON Modality: 
-
 !summarize.json_start!
 We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defence, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.
 Article. I.
@@ -98,4 +92,3 @@ The Senate of the United States shall be composed of two Senators from each Stat
 Immediately after they shall be assembled in Consequence of the first Election, they shall be divided as equally as may be into three Classes. The Seats of the Senators of the first Class shall be vacated at the Expiration of the second Year, of the second Class at the Expiration of the fourth Year, and of the third Class at the Expiration of the sixth Year, so that one third may be chosen every second Year; and if Vacancies happen by Resignation, or otherwise, during the Recess of the Legislature of any State, the Executive thereof may make temporary Appointments until the next Meeting of the Legislature, which shall then fill such Vacancies.
 
 !summarize.json_stop!
-
