@@ -26,14 +26,15 @@
     {% if agents %}
         <div class="responsive-card-container">
             {% for agent in agents %}
-                {% if agent.id and agent.summary and agent.photo_path %}
+                {% if agent.id and agent.summary and agent.photo_path and agent.jobtitle%}
                     <div class="card">
                 <div class="card-image-wrapper">
                     
                     <img src="/agents/pics/{{ agent.photo_path.split('/')[-1] }}" class="card-image">
                 </div>
                 <div class="card-content">
-                    <h2 class="card-title">{{ agent.id }}</h2>
+                    <h2 class="agent-id">{{ agent.id }}</h2>
+                    <h2 class="agent-jobtitle">{{ agent.jobtitle }}</h2>
                     <p class="card-summary">{{ agent.summary }}</p>
                     <div class="card-keywords">
                         {% for keyword in agent.keywords %}

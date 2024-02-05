@@ -143,11 +143,20 @@ h1, h2 {
   background-color: #1d41d3;
 }
 
-.card-title {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-  color: white; 
+.agent-id {
+  font-size: 1.1rem;
+  color: white;
+  margin-top: 8px;
+  padding-top: 12px;
 }
+
+.agent-jobtitle {
+  font-size: 1.25rem;
+  color: white;
+  margin-bottom: 0.5rem;
+  
+}
+
 
 .card-summary {
   font-size: 1rem;
@@ -222,11 +231,18 @@ h1, h2 {
     margin-top: -25px;
   }
 
-  .card-title {
+  .agent-id {
     font-size: 1.1rem;
     color: white;
     margin-top: 8px;
     padding-top: 12px;
+  }
+  
+  .agent-jobtitle {
+    font-size: 1.1rem;
+    color: white;
+    margin-top: 1px;
+    padding-top: 2px;
   }
 
   .card-summary {
