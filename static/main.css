@@ -89,40 +89,57 @@ h1, h2 {
   
 }
 
-.card {
-  background-color: white;
-  border-radius: 15px; /* Adjust this value to increase or decrease the roundness of the corners */
-  overflow: hidden; /* Ensures the content inside also conforms to the rounded corners */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 1rem auto;
-  transition: transform 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-}
-
 .card:hover {
   transform: translateY(-5px);
+}
+
+.card {
+  /* existing styles */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* new */
+  background: white;
+  border-radius: 20px; /* Adjust as needed for rounded corners */
+  border: 3px solid #333; /* High contrast border */
+  overflow: hidden; /* Contains children within the border radius */
+}
+
+/* Image wrapper styles */
+.card-image-wrapper {
+  border-top-left-radius: 20px; /* Match the parent's border-radius */
+  border-top-right-radius: 20px; /* Match the parent's border-radius */
+  overflow: hidden; /* Ensures the image doesn't break out of rounded corners */
 }
 
 .card-image {
   width: 100%;
   display: block;
-  aspect-ratio: 3 / 2;
   object-fit: cover;
+  /* Remove aspect-ratio to allow image to fill the div while maintaining border-radius */
 }
 
-/* Button styles */
+/* Card content styles with padding */
+.card-content {
+  /* existing styles */
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px; /* Add padding to content */
+}
+
+/* Button styles with specific width and centered */
 .button {
-  background-color: #4A5568; /* A nice dark gray that contrasts well with your card */
+  /* existing styles */
+  background-color: #4A5568;
   color: white;
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 0.375rem; /* 6px */
+  border-radius: 0.375rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  margin-top: 0.5rem; /* Space between buttons if stacked */
+  width: 50%; /* Set the width to 50% */
+  margin: 10px auto; /* Center the button with automatic margins */
 }
 
 .button:hover {
@@ -136,13 +153,39 @@ h1, h2 {
   padding: 1rem 0; /* Add some padding above and below the buttons */
 }
 
-/* Adjust card content padding */
+/* Agent ID and Jobtitle styles with padding */
+.agent-id, .agent-jobtitle {
+  /* existing styles */
+  padding: 4px 0; /* Add padding to top and bottom */
+}
+
+/* Adjust button container styles */
+.card-actions {
+  /* existing styles */
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically */
+  align-items: center; /* Center buttons horizontally */
+}
+
+/* Apply changes to button first-child and last-child if needed */
+.card-actions button:first-child {
+  /* existing styles */
+}
+
+.card-actions button:last-child {
+  /* existing styles */
+}
+
+
 .card-content {
-  padding: 1rem;
+  /* existing styles */
+  flex-grow: 1; /* new - allows this div to grow and fill the space */
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Keep content spaced out */
+  justify-content: space-between; /* modified - this now works because of flex-grow */
+  padding: 16px;
 }
+
 
 
 /* Email link styles */
@@ -166,10 +209,10 @@ h1, h2 {
 }
 
 .agent-id {
-  font-size: 1.1rem;
+  font-size: 2.1rem;
   color: black;
-  margin-top: 8px;
-  padding-top: 12px;
+  margin-top: 2px;
+  padding-top: 2px;
 }
 
 .agent-jobtitle {
@@ -246,18 +289,32 @@ h1, h2 {
   }
 
   .card {
-    margin-bottom: 2rem;
+    /* existing styles */
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background: white;
+    border-radius: 20px;
+    border: 3px solid #333;
+    overflow: hidden; /* This will contain the image within the border radius */
   }
 
+  /* Card content styles with padding */
   .card-content {
-    margin-top: -25px;
+    /* existing styles */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 20px;
+    padding: 16px; /* Add padding to content */
   }
 
   .agent-id {
-    font-size: 1.1rem;
+    font-size: 2.1rem;
     color: black;
-    margin-top: 8px;
-    padding-top: 12px;
+    margin-top:12px;
+    padding-top: 8px;
   }
   
   .agent-jobtitle {

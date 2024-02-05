@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+
     <title>ATAT: AI Agents Over Email by Semantic Life</title>
     <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
     <script>
@@ -51,17 +53,24 @@
                               <h2 class="agent-id">{{ agent.id }}</h2>
                               <h3 class="agent-jobtitle">{{ agent.jobtitle }}</h3>
                               <p class="card-summary">{{ agent.summary }}</p>
-                              <div class="card-keywords">
+                            <!-- <div class="card-keywords">
                                   {% for keyword in agent.keywords %}
                                       <span class="keyword">{{ keyword }}</span>
                                   {% endfor %}
-                              </div>
+                              </div> !--> 
+                            <div class="card-actions">
+                              <!-- Copy Shortcode Button -->
+                              <button id="copyShortcode{{ agent.id }}" class="button" data-original-text="Copy Shortcode" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
+
+                              
                             <!-- Email Agent Button -->
                             <button class="button" onclick="location.href='mailto:{{ agent.email }}'">Link to Email</button>
   <!-- Copy Email Address Button -->
                           <button id="copyEmail{{ agent.id }}" class="button" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email Address</button>
-                          <!-- Copy Shortcode Button -->
-                          <button id="copyShortcode{{ agent.id }}" class="button" data-original-text="Copy Shortcode" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
+
+                              
+                          
+                            </div>
                       </div>
                                       </div>
                                         
