@@ -81,6 +81,8 @@ Move configuration, agent creation, and other functionalities to the Flask web i
 
 # Bug Fixes and Enhancements
 
+Add job titles to new_agent.py 
+
 Relationship data is formatting inconsistently. 
 
 PDF emails break quoting. 

@@ -47,6 +47,8 @@ Deployment may require additional config, but Run should work out of the gate.
 
 The Flask server will open the Card site showing all agents automatically on Replit. Open the Webview pane if it doesn't open automatically. 
 
+If you don't see responses, check whitelist and spam settings. 
+
 
 # ⚠️ Critical:
 ###  Do NOT add an existing email address, as you may trigger unwanted emails being sent to senders in your history. Create a NEW ACCOUNT and only use that. 
