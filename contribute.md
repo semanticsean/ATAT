@@ -1,96 +1,36 @@
-# Collaborators / Co-Owner 
+# ATAT Project Collaboration and Roadmap
 
-I'm looking for collaborators, sponsors, and potentially, a co-owner of the project. 😁
+## Seeking Collaborators and Co-Owners
 
-Ideally someone with vast experience in email clients and the nuances and countless edge cases therein. 😬😭
+We're on the lookout for collaborators, sponsors, and potentially a co-owner to join the ATAT project. Ideal candidates have extensive experience with email clients and are familiar with the challenges and nuances they present. With 347.3 billion emails sent last year, our mission is to leverage AI agents to enhance email communication efficiency and quality, making it easy for users to deploy and manage agent swarms with minimal setup.
 
-Statista estimates 347.3 Billion emails were sent last year. Let's enable AI agents to increase the quality and capacity of email in minutes of setup, so users can have swarms of agents quickly and easily. 🤝
+## Big Picture Roadmap
 
+- **Email Client Improvements:** Tackle challenges in email history construction, including quoting, mime types, encoding, and style decomposition for multi-agent systems. Develop a comprehensive email constructor to address compatibility across clients and improve history management and CSS handling.
+- **SDK Integration:** Update `gpt.py` and `new_agent.py` for compatibility with OpenAI SDK 1.0. Expand functionality to include diverse API integrations and shortcode-driven API call parameters.
+- **API Diversity:** Enable per-agent API settings, allowing for the integration of various AI models (e.g., LLAMA, Mixtral, OpenAI) with configurable parameters accessible via shortcode.
+- **Security and Testing:** Implement watermarking, authentication, and passphrase systems for enhanced security. Develop a synthetic email server for robust testing and introduce token/credit counting for usage management.
+- **Community Building:** Engage with the community to gather feedback and plan a large-scale refactor for more robust testing, database integration, and code optimization.
 
-# Big Picture Roadmap 
+## API and Onboarding Enhancements
 
-Fix multiple problems with history construction including email quoting / mimetype / encoding / and multi-agent decomposition of style (and logic). Develop a robust email constructor to handle various client types, history management, and CSS. Overhaul email formatting and structure to address issues with quoted printable, Gmail quotes, divs, and email construction loops. Remove kludge from email history and conversation history formatting. 
+- **API Flexibility:** Customize LLM settings per agent, including temperature and max tokens. Develop an external API for multi-agent email control, facilitating applications like voice-to-email interactions.
+- **Onboarding Improvements:** Revise the onboarding process to capture company-specific configurations and allow for domain customization.
 
-Refactor gpt.py and new_agent.py for compatibility with OpenAI SDK 1.0, incorporating function calling and instructor logic. Update agents to integrate with Assistants. 
+## Functionality and Feature Updates
 
-Make gpt.py capable of using different APIs for different agents, e.g. a LLAMA agent, a Mixtral Agent, and OpenAI agent, each defined by their agent-level config. Make parameters per-agent, and expose API call parameters as a shortcode so user can request either specific parameters or a library of humanized terms like "fast and speedy" or "max" for a multi-pass MoE with a judge and editor who force feedback and refinement loops. 
+- **Inbox Management:** Automate emails for daily briefs and task lists, adapt inbox checking based on activity, and implement adaptive rate limiting.
+- **Context Awareness:** Improve agent's context and date awareness, prevent duplicate responses, and integrate advanced functionalities like ABE within the system.
+- **GitHub Integration:** Transition development from Replit to GitHub for enhanced collaboration and version control.
 
-Integrate a watermarking system. 
+## HTML, CSS, and Flask App Enhancements
 
-Build a community and get feedback for a plan to do a large-scale refactor, including robust testing and database integration. Simultaneously refactor to be properly pythonic, class structures, proper docstrings and comments; remove early-stage solo developer cruft and move from print statements to logging, centralize logging. 
+- **Email and CSS:** Address challenges with multiple agents in emails, refine CSS Grid designs, and resolve issues with HTML email content.
+- **Flask App Development:** Enhance the Flask app for streamlined onboarding, configuration management, and secure access to agent profiles.
 
-Build a synthetic email server that has testing data persistently available for full-system and feature testing with red light / green light high-level test to ensure system integrity with changes. Once this is done the code can be refactored into less monolithic code. 
+## Bug Fixes and Project Enhancements
 
-Add security / Auth / passphrases in email to ensure only desired user can utilie functionality. Also time-based / temporary agents. 
+- **Data Consistency:** Address inconsistencies in relationship data formatting, PDF email quoting, and agent operation behaviors.
+- **Functionality Improvements:** Enhance shortcode detection, fix issues with agent rendering, and optimize performance for features like summarization and thread reconciliation.
 
-Token / credit counting regime. 
-
-Response judgement by llm and new rules. Agent judge for whether or not to respond. Time throttling / don't respond if have responded within x amount of time. 
-
-
-### API Specific 
-Pass custom LLM settings for each API call based on agent record details, e.g. add custom temp, max_tokens, etc. to each agent record; and write shortcode to control custom LLM controls through shortcode. 
-
-Create API so other apps can send, receive, and control multi-agent emails, e.g. voice-to-email. "Send me an email that says..." Also get agent details from an API. 
-
-Centralize configs / limits / deal with model variation in limits.
-
-
-# Onboarding 
-Revise onboarding to include company name capture, shaping agent profiles around company-specific user configurations. Modify onboarding so the "semantic-life.com" domain name is replaced by whatever the user chooses, including new_agents.py. 
-
-
-# Smaller Functionality 
-Implement automated emails for daily briefs, follow-ups, and task list management.
-
-Progressive/regressive inbox checking system based on activity levels. Implement adaptive rate limiting based on the model type and agent-specific API settings, including temperature and max tokens.
-
-Enhance agent context awareness and prevent duplicate/triplicate responses, especially in detailed responses.
-
-Enhance context and date awareness, incorporating news update functionalities.
-
-Enhance thread reconciliation and introduce unit testing scripts.
-
-Add awareness of sender and masked email to dynamic_prompt. 
-
-Integrate ABE as a shortcode/function call within the system.
-
-Adapt the system for GitHub collabortion from Replit development. 
-
-Enhance shortcode detection as an agent operation, transitioning from regex to function calls. 
-
-Improve thread_reconciler.py for self-healing data storage, transitioning from JSON to a database system.
-
-Change agent rendering to a front-end workflow rather than folder of text files. In the short term, check to see if all text files are "rendered" rather than current check which is if agents.json is empty. For now you can manually run new_agent.py to add more agents with new / updated files, but watch out for duplicates in agents.json. 
-
-Fix agents.json relationships rendering / cheap trick to clean up inconsistent output. Should be formatted with instructor / function calling. 
-
-Integrate AI agents with the ability to run ABE and other advanced tools.
-
-# HTML in Email and CSS in Flask 
-
-Resolve issues arising when more than one agent is included in CC or @@ fields.
-
-Address and fix issues in CSS Grid design.
-
-Click for profiles for each agent in the Flask app and implement authentication for private access.
-
-Streamline onboarding through the Flask app.
-
-Move configuration, agent creation, and other functionalities to the Flask web interface with user feedback indicators.
-
-# Bug Fixes and Enhancements
-
-Add job titles to new_agent.py 
-
-Relationship data is formatting inconsistently. 
-
-PDF emails break quoting. 
-
-Address looping issues in ff agents and discrepancies between embody vs. creator.
-
-Rectify issues with ff creator not functioning as expected.
-
-Fix inconsistencies in summarize.json and consider function calling for better performance.
-
-Improve shortcode detection and repair incorrect usage through intermediary LLM rather than relying on regex.
+Our roadmap is ambitious, focusing on enhancing ATAT's core functionality, expanding its capabilities, and ensuring a secure, efficient, and user-friendly experience. Join us in revolutionizing email communication with AI, contributing your expertise, feedback, and innovation to shape the future of ATAT.

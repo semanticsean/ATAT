@@ -2,22 +2,52 @@
 
 ATAT is designed to democratize the use of AI, allowing quick setup of an AI agent "company" in minutes, with the steering handled over email. That means training is as simple as providing a new email to forward to or cc. This approach leverages the inherent slowness of email for thoughtful, comprehensive AI responses.
 
-# Table of Contents
+The other big advantage of email is it's slow. As demonstrated in the @@ and !detail! shortcodes, multi-pass (multi-API-call) components can be integrated and the time it takes to run all the calls, be it minutes or even hours, is normal for email. 
+
+** For Example, a team of 3 AI agents can be instructed a short story about AI easily:**
+
+> Subject: Write a Story About AI using @@
+> Body: 
+>
+> Agent 1: Please write an outline for two AI agents to write a scifi story about AI. 
+>
+> @@(Agent 2): Please write the first draft based on the outline
+> 
+> @@(Agent 3): Please proofread and finalize the story
+>
+> Thanks
+
+
+**Or 1 AI agent can be instructed to write a story in three parts:**
+
+> Subject: Write a Story About AI using !detail!
+> Body:
+>
+> Agent 1: please write a story about AI.
+> !detail_start!
+> First Act: The Emergence of sentient AI
+> !split!
+> Second Act: The Role of AI in Peace and Abundance
+> !split!
+> Third Act: The Role of Humans and AI in Exploring the Cosmos
+> !detail_stop!
+>
+> Thanks
 
 - [ATAT - Email Client for AI Agents 💪🦾](#atat---email-client-for-ai-agents-)
-  * [Key Highlights](#key-highlights)
-  * [Getting Started](#getting-started)
-    + [1. Prepare Replit](#1-prepare-replit)
-    + [2. Email Address Configuration](#2-email-address-configuration)
-    + [3. Deployment and Usage](#3-deployment-and-usage)
-    + [⚠️ Critical Advice](#️-critical-advice)
-  * [Features & Benefits](#features--benefits)
-    + [🦾 New Agent Creation](#-new-agent-creation)
-    + [🎩 Agent Dashboard](#-agent-dashboard)
-  * [Shortcode Overview](#shortcode-overview)
-  * [Contribution and Development](#contribution-and-development)
-  * [License](#license)
-  * [Trademark Notice](#trademark-notice)
+* [Key Highlights](#key-highlights)
+* [Getting Started](#getting-started)
+  + [1. Prepare Replit](#1-prepare-replit)
+  + [2. Email Address Configuration](#2-email-address-configuration)
+  + [3. Deployment and Usage](#3-deployment-and-usage)
+  + [⚠️ Critical Advice](#️-critical-advice)
+* [Features & Benefits](#features--benefits)
+  + [🦾 New Agent Creation](#-new-agent-creation)
+  + [🎩 Agent Dashboard](#-agent-dashboard)
+* [Shortcode Overview](#shortcode-overview)
+* [Contribution and Development](#contribution-and-development)
+* [License](#license)
+* [Trademark Notice](#trademark-notice)
 
 - **Collaboration Encouraged:** Join us in enhancing ATAT. Find collaboration details at [x.com/seanmcdonalxyz](https://x.com/seanmcdonalxyz).
 - **Alpha Stage Disclaimer:** ATAT is in alpha, with potential errors and formatting issues across different email clients. Use it for testing and clearly label AI-generated responses.
@@ -34,8 +64,8 @@ ATAT is designed to democratize the use of AI, allowing quick setup of an AI age
 ### **3. Deployment and Usage**
 - **Run and Explore:** Deploy via Replit and navigate the agent dashboard. Check spam settings if responses are missing.
 
-### **⚠️ Critical Advice**
-Do not use existing email accounts to prevent unintended emails. Create a new account exclusively for ATAT use.
+### **⚠️ Critical 🚨🚨**
+MAKE A NEW EMAIL TO USE WITH ATAT. DO NOT CONNECT EXISTING ACCOUNTS. ATAT is reactive and you may send unintended emails if you haven't indexed the history properly. Create a new account exclusively for ATAT use.
 
 ## **Features & Benefits**
 
