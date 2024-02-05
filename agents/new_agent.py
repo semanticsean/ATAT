@@ -45,7 +45,7 @@ def generate_image_with_dalle(prompt):
   """Generates an image using DALL-E with additional hardcoded instructions and returns the response."""
 
   # Hardcoded instructions
-  instructions = "Create a highly detailed, vivid, and somewhat imaginative image as a work headshot for the AI agent. Make the backdrop indicative of their work. Make sure the face is the foreground center looking at the camera. Psuedo-realistic as though taken with an imagination camera."
+  instructions = "Create a highly detailed, vivid, and somewhat imaginative image as a work headshot for the AI agent. Make the backdrop indicative of their work. Make sure the face is the foreground center looking at the camera. THEY SHOULD BE FRIENDLY UNLESS THEIR PERSONA EXPLICITLY SAYS THEY ARE NOT FRIENDLY. Eyes should be humanoid. No robot parts. Realistic as though taken with a camera. No white android robots -- use humanoid expressions with a near-future vibe from the 2015 era. These are headshots for work and should feel professional, from a pre-AI-generated-art era."
 
   # Combine the base prompt with the hardcoded instructions
   full_prompt = f"{prompt}. {instructions}"
