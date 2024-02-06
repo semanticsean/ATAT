@@ -1,5 +1,38 @@
 # ATAT - Email Client for AI Agents 💪🦾
 
+<div align="center">
+    <table>
+        <tr>
+            <td align="center" width="420"><em>Rapid AI Agent Setup</em></td>
+            <td align="center">→</td>
+            <td align="center" width="420"><strong><em>Email-Managed AI Interaction</em></strong></td>
+        </tr>
+        <tr>
+            <td align="center" width="420"><em>Simplified Training: Just Email</em></td>
+            <td align="center">→</td>
+            <td align="center" width="420"><strong><em>To, CC, and Fw: Multiple Agents</em></strong></td>
+        </tr>
+        <tr>
+            <td align="center" width="420"><em>Multi-Agent Collaboration Enabled</em></td>
+            <td align="center">→</td>
+            <td align="center" width="420"><strong><em>Powerful Shortcodes for AI</em></strong></td>
+        </tr>
+        <tr>
+            <td align="center" width="420"><em>Agent Dashboard Included</em></td>
+            <td align="center">→</td>
+            <td align="center" width="420"><strong><em>New Agent Generator Included</em></strong></td>
+        </tr>
+    </table>
+</div>
+
+
+Source Code [https://github.com/semanticsean/ATAT](https://github.com/semanticsean/ATAT)
+
+Roadmap: For those interested in contributing to the project, please refer to our [[contribution guide](contribute.md) ](https://github.com/semanticsean/ATAT/blob/main/contribute.md) for detailed information on how you can get involved.
+
+
+# Introduction 
+
 ATAT is an email client that hosts AI agents who respond to emails, so you can email them directly, cc them, or fw: emails to them. 
 
 ATAT is designed to democratize the use of AI, allowing quick setup of an AI agent "company" in minutes, with the steering handled over email. That means training is as simple as providing a new email to forward to or cc. This approach leverages the inherent slowness of email for thoughtful, comprehensive AI responses. It also opens up "MoE" or "CoE" thinking for normies. 
