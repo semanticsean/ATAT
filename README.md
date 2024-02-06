@@ -78,18 +78,6 @@ Another strength of email is that it's slow. As demonstrated in the @@ and !deta
 >
 > Thanks
 
-* [Getting Started](#getting-started)
-  + [1. Prepare Replit](#1-prepare-replit)
-  + [2. Email Address Configuration](#2-email-address-configuration)
-  + [3. Deployment and Usage](#3-deployment-and-usage)
-  + [⚠️ Critical Advice](#️-critical-advice)
-* [Features & Benefits](#features--benefits)
-  + [🦾 New Agent Creation](#-new-agent-creation)
-  + [🎩 Agent Dashboard](#-agent-dashboard)
-* [Shortcode Overview](#shortcode-overview)
-* [Contribution and Development](#contribution-and-development)
-* [License](#license)
-* [Trademark Notice](#trademark-notice)
 
 - **Collaboration Encouraged:** Join us in enhancing ATAT. Find collaboration details at [x.com/seanmcdonalxyz](https://x.com/seanmcdonalxyz).
 - **Alpha Stage Disclaimer:** ATAT is in alpha, with potential errors and formatting issues across different email clients. Use it for testing and clearly label AI-generated responses.
