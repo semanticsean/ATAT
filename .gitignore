@@ -1,13 +1,3 @@
 __pycache__/
 *.log
 processed_threads.json
-.pythonlibs
-.breakpoints 
-__pycache__
-.coverage
-.gitignore 
-replit.nix
-.replit 
-poetry.lock
-pyproject.toml 
-api_state.pkl
