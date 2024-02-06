@@ -3,24 +3,24 @@
 <div align="center">
     <table>
         <tr>
-            <td align="center" width="420"><em>Rapid AI Agent Setup</em></td>
+            <td align="center" width="420"><em>Rapid Setup for AI Agents Over Email</em></td>
             <td align="center">→</td>
-            <td align="center" width="420"><strong><em>Email-Managed AI Interaction</em></strong></td>
+            <td align="center" width="420"><strong><em>Deploy Agents In a Managed System</em></strong></td>
         </tr>
         <tr>
-            <td align="center" width="420"><em>Simplified Training: Just Email</em></td>
+            <td align="center" width="420"><em>To, CC, and Fw: Multiple Agents</em></td>
             <td align="center">→</td>
-            <td align="center" width="420"><strong><em>To, CC, and Fw: Multiple Agents</em></strong></td>
+            <td align="center" width="420"><strong><em>Simplified Training: Just Email</em></strong></td>
         </tr>
         <tr>
-            <td align="center" width="420"><em>Multi-Agent Collaboration Enabled</em></td>
+            <td align="center" width="420"><em>Powerful Shortcodes for AI</em></td>
             <td align="center">→</td>
-            <td align="center" width="420"><strong><em>Powerful Shortcodes for AI</em></strong></td>
+            <td align="center" width="420"><strong><em>Multi-Agent Multi-Step Collaboration Enabled</em></strong></td>
         </tr>
         <tr>
-            <td align="center" width="420"><em>Agent Dashboard Included</em></td>
+            <td align="center" width="420"><em>Batteries Included</em></td>
             <td align="center">→</td>
-            <td align="center" width="420"><strong><em>New Agent Generator Included</em></strong></td>
+            <td align="center" width="420"><strong><em> Just Add Credentials and Client and Stylized Dashboard Work</em></strong></td>
         </tr>
     </table>
 </div>
