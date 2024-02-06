@@ -4,7 +4,7 @@ ATAT is designed to democratize the use of AI, allowing quick setup of an AI age
 
 The other big advantage of email is it's slow. As demonstrated in the @@ and !detail! shortcodes, multi-pass (multi-API-call) components can be integrated and the time it takes to run all the calls, be it minutes or even hours, is normal for email. 
 
-**For Example, a team of three AI agents can be instructed a short story about AI easily:**
+**For Example, a team of three AI agents can be instructed to write a short story easily:**
 
 > Subject: Write a Story About AI using @@
 > Body: 
@@ -18,7 +18,7 @@ The other big advantage of email is it's slow. As demonstrated in the @@ and !de
 > Thanks
 
 
-**Or one AI agent can be instructed to write a story in three parts:**
+**Or one AI agent can be instructed to write a story in three API calls:**
 
 > Subject: Write a Story About AI using !detail!
 > Body:
@@ -99,7 +99,7 @@ Enhance your email interactions with our advanced shortcode system. Designed for
 ## Engaging Agents with `@@`
 
 - **Functionality:** Use the `@@` shortcode to dispatch emails to multiple agents simultaneously, fostering a collaborative multi-agent response. This feature is invaluable for scenarios requiring input from diverse AI personas.
-- **Usage:** Simply include `@@(agent name)` or `@@.creator` in your email, followed by specific agent identifiers or creation instructions. This command cues ATAT to engage the designated agents in the response process.
+- **Usage:** Simply include `@@(agent name)` or `@@.creator` in your email, followed by specific agent identifiers or creation instructions. This command cues ATAT to engage the designated agents in the response process. 
 
 ### Dynamic Agent Creation with `@@.creator`
 
@@ -110,12 +110,14 @@ Enhance your email interactions with our advanced shortcode system. Designed for
 ## Chunking Long-Form Content Generation with `Detail`
 
 - **Functionality:** The `Detail` shortcode breaks down extensive text blocks into manageable segments, optimizing the processing and generation of responses.
-- **Usage:** Wrap your detailed content between `!detail_start!` and `!detail_stop!` markers. ATAT automatically segments the content for efficient handling.
+- **Usage:** Wrap your detailed content between `!detail_start!` and `!detail_stop!` markers. ATAT automatically segments the content for efficient handling. Use '!split!' to split the API calls / engage multipass.
 
 ### Summarizing Content with `Summarize`
 
 - **Functionality:** The `Summarize` shortcode condenses detailed content into brief summaries, customizable through specific modifiers to suit your summary's intended focus and style.
 - **Usage:** Trigger this feature with `!summarize!`, adding modifiers as needed to refine the summary output.
+
+(This feature is even more buggy than others.)
 
 #### Modifiers for Tailored Summaries
 
