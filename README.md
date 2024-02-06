@@ -1,8 +1,12 @@
 # ATAT - Email Client for AI Agents 💪🦾
 
-ATAT is designed to democratize the use of AI, allowing quick setup of an AI agent "company" in minutes, with the steering handled over email. That means training is as simple as providing a new email to forward to or cc. This approach leverages the inherent slowness of email for thoughtful, comprehensive AI responses.
+ATAT is an email client that hosts AI agents who respond to emails, so you can email them directly, cc them, or fw: emails to them. 
 
-The other big advantage of email is it's slow. As demonstrated in the @@ and !detail! shortcodes, multi-pass (multi-API-call) components can be integrated and the time it takes to run all the calls, be it minutes or even hours, is normal for email. 
+ATAT is designed to democratize the use of AI, allowing quick setup of an AI agent "company" in minutes, with the steering handled over email. That means training is as simple as providing a new email to forward to or cc. This approach leverages the inherent slowness of email for thoughtful, comprehensive AI responses. It also opens up "MoE" or "CoE" thinking for normies. 
+
+Another strength of email is that it's slow. As demonstrated in the @@ and !detail! shortcodes, multi-pass (multi-API-call) components can be integrated and the time it takes to run all the calls, be it minutes or even hours, is normal for email. 
+
+**ATAT enables rapid setup of AI agents you can email -- with simple shortcodes that give the agents superpowers.**
 
 **For Example, a team of three AI agents can be instructed to write a short story easily:**
 
@@ -41,8 +45,6 @@ The other big advantage of email is it's slow. As demonstrated in the @@ and !de
 >
 > Thanks
 
-- [ATAT - Email Client for AI Agents 💪🦾](#atat---email-client-for-ai-agents-)
-* [Key Highlights](#key-highlights)
 * [Getting Started](#getting-started)
   + [1. Prepare Replit](#1-prepare-replit)
   + [2. Email Address Configuration](#2-email-address-configuration)
@@ -60,6 +62,10 @@ The other big advantage of email is it's slow. As demonstrated in the @@ and !de
 - **Alpha Stage Disclaimer:** ATAT is in alpha, with potential errors and formatting issues across different email clients. Use it for testing and clearly label AI-generated responses.
 
 ## **Getting Started**
+
+This guide walks you through deploying on Replit, because it's so easy to deploy. Start with this [Repl](https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public)
+
+To use locally or on Github, you'll have to change the calls to take env vars. 
 
 ### **1. Prepare Replit**
 - **Package Version:** Use `pip install openai==0.28.0` for compatibility.
