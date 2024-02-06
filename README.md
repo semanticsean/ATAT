@@ -38,6 +38,7 @@
 - [Roadmap and Contribution Guide](https://github.com/semanticsean/ATAT/blob/main/contribute.md)
 
 
+#Introduction 
 
 **ATAT enables rapid setup of AI agents you can email -- with simple shortcodes that give the agents superpowers.**
 
@@ -194,18 +195,59 @@ Enhance your email interactions with our advanced shortcode system. Designed for
 ## Engaging Agents with `@@`
 
 - **Functionality:** Use the `@@` shortcode to dispatch emails to multiple agents simultaneously, fostering a collaborative multi-agent response. This feature is invaluable for scenarios requiring input from diverse AI personas.
-- **Usage:** Simply include `@@(agent name)` or `@@.creator` in your email, followed by specific agent identifiers or creation instructions. This command cues ATAT to engage the designated agents in the response process. 
+- **Usage:** Simply include `@@(agent name)` or `@@.creator` in your email, followed by specific agent identifiers or creation instructions. This command cues ATAT to engage the designated agents in the response process.
+
+**Testing Email** 
+>
+>devatlas - what is the most important question for grant applicants to answer when writing startup pitch decks?
+>
+>@@(castor) what startups do you like?
+>
+>@@(Nova) what do you think?
+>
+>@@(Orion) what do you think? 
+>
+>@@(Nebula) what do you think?
+>
+>@@(Altair) what do you think? 
 
 ### Dynamic Agent Creation with `@@.creator`
 
 - **Functionality:** The `@@.creator` shortcode instantaneously generates new agent personas, offering on-the-fly customization to adapt to the evolving needs of the conversation.
 - **Usage:** Implement `@@.creator(Embody an agent...)` with detailed persona specifications. Ensure "Embody" is present to activate the creator function, signaling ATAT to craft and introduce a new agent persona based on your instructions.
 
+**Testing Email** 
+>I'm working on a new creative project and need some roleplaying. Please render this agent and have it answer the question below.
+>
+>@@.creator(Embody a playful vampire who is friends with a dolphin in a children's book style who speaks in comical vampire voice.)!
+>
+>Mr. Vampire, what is your favorite game to play?
 
-## Chunking Long-Form Content Generation with `Detail`
+## Chunking Long-Form Content Generation Requests with `Detail`
 
 - **Functionality:** The `Detail` shortcode breaks down extensive text blocks into manageable segments, optimizing the processing and generation of responses.
 - **Usage:** Wrap your detailed content between `!detail_start!` and `!detail_stop!` markers. ATAT automatically segments the content for efficient handling. Use '!split!' to split the API calls / engage multipass.
+
+>
+>!detail_start!
+>introduction: it's the year 2050 and AI driven synthetic time travel is easily possible
+>!split!
+>we meet our protagonist, in detail
+>!split!
+>we meet our antagonist, in detail
+>!split!
+>we see the first conflict between the protagonist and antagonist, the first act ends
+>!split!
+>the second act begins with a new player, a romantic interest who hasn't been mentioned yet
+>!split!
+>the second act has a principal conflit
+>!split!
+>the climax happens
+>!split!
+>the resolution doesn't happen yet
+>!split!
+>now the resolution happens
+>!detail_stop! 
 
 ### Summarizing Content with `Summarize`
 
@@ -213,6 +255,8 @@ Enhance your email interactions with our advanced shortcode system. Designed for
 - **Usage:** Trigger this feature with `!summarize!`, adding modifiers as needed to refine the summary output.
 
 (This feature is even more buggy than others.)
+
+SEE /tools/testing_emails.md for testing scripts--too long to fit here.
 
 #### Modifiers for Tailored Summaries
 
