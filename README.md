@@ -1,5 +1,12 @@
 # ATAT - Email Client for AI Agents 💪🦾
 
+**ATAT enables rapid setup of AI agents you can email -- with simple shortcodes that give the agents superpowers.**
+
+ATAT is an email client that hosts AI agents who respond to emails, so you can email them directly, cc them, or fw: emails to them. ATAT is designed to democratize the use of AI, allowing quick setup of an AI agent "company" in minutes, with the steering handled over email. That means training is as simple as providing a new email to forward to or cc. This approach leverages the inherent slowness of email for thoughtful, comprehensive AI responses. It also opens up "MoE" or "CoE" thinking for normies. 
+
+Another strength of email is that it's slow. As demonstrated in the @@ and !detail! shortcodes, multi-pass (multi-API-call) components can be integrated and the time it takes to run all the calls, be it minutes or even hours, is normal for email. 
+
+
 <div align="center">
     <table>
         <tr>
@@ -31,17 +38,7 @@ Source Code [https://github.com/semanticsean/ATAT](https://github.com/semanticse
 Roadmap: For those interested in contributing to the project, please refer to our [[contribution guide](https://github.com/semanticsean/ATAT/blob/main/contribute.md) for detailed information on how you can get involved.
 
 
-# Introduction 
-
-ATAT is an email client that hosts AI agents who respond to emails, so you can email them directly, cc them, or fw: emails to them. 
-
-ATAT is designed to democratize the use of AI, allowing quick setup of an AI agent "company" in minutes, with the steering handled over email. That means training is as simple as providing a new email to forward to or cc. This approach leverages the inherent slowness of email for thoughtful, comprehensive AI responses. It also opens up "MoE" or "CoE" thinking for normies. 
-
-Another strength of email is that it's slow. As demonstrated in the @@ and !detail! shortcodes, multi-pass (multi-API-call) components can be integrated and the time it takes to run all the calls, be it minutes or even hours, is normal for email. 
-
-**ATAT enables rapid setup of AI agents you can email -- with simple shortcodes that give the agents superpowers.**
-
-**For Example, a team of three AI agents can be instructed to write a short story easily:**
+**EXAMPLE: Email a team of three AI agents can be instructed to write a short story easily:**
 
 > Subject: Write a Story About AI using @@
 > Body: 
@@ -55,7 +52,7 @@ Another strength of email is that it's slow. As demonstrated in the @@ and !deta
 > Thanks
 
 
-**Or one AI agent can be instructed to write a story in three API calls:**
+**Email one AI agent, instructed to write a story in three API calls:**
 
 > Subject: Write a Story About AI using !detail!
 > Body:
@@ -78,9 +75,6 @@ Another strength of email is that it's slow. As demonstrated in the @@ and !deta
 >
 > Thanks
 
-
-- **Collaboration Encouraged:** Join us in enhancing ATAT. Find collaboration details at [x.com/seanmcdonalxyz](https://x.com/seanmcdonalxyz).
-- **Alpha Stage Disclaimer:** ATAT is in alpha, with potential errors and formatting issues across different email clients. Use it for testing and clearly label AI-generated responses.
 
 ## **Getting Started**
 
