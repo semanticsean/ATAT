@@ -79,23 +79,33 @@ This guide walks you through deploying on Replit, because it's so easy to deploy
 
 To use locally or on Github, you'll have to change the calls to take env vars. 
 
-### **1. Prepare Replit**
+### **1. Packages & Secrets / Env Vars**
 - **Package Version:** Use `pip install openai==0.28.0` for compatibility.
 - **Secrets Configuration:** Enter your SMTP and OpenAI API credentials as secrets.
 - 
 >{
 >  "SMTP_SERVER": "",
 >  "IMAP_SERVER": "",
->  "SMTP_PORT": "587",
+>  "SMTP_PORT": "",
 >  "SMTP_USERNAME": "",
 >  "SMTP_PASSWORD": "",
 >  "OPENAI_API_KEY": "",
 >  "DOMAIN_NAME": "",
 >  "COMPANY_NAME": ""
 >}
+
+For SMTP_PORT using Google Workspace, use Port 587.
+
+For SMTP_PASSWORD, if you're using Google / Gmail it needs to be an APP PASSWORD which requires 2FA.
+
+DOMAIN_NAME should be what follows @ in an email address. For example, "acme.com" like "info@acme.com". 
+
+COMPANY_NAME should be as it appears in writing, like "ACME Corp."
+
   
 ### **2. Email Address Configuration**
-- **Create An Agent@ Email Address:** This unique address will require IMAP/SMTP access and the password, if you're using Google / Gmail needs to be an APP PASSWORD which requires 2FA. 
+- **Create An Agent@ Email Address:** This must be a new email address with no history. 
+  
 - **Agent Aliases:** Assign at least one email alias for at least one agent in `agents/agents.json`. The rest are optional and can be called with the @@(Agent Name) shortcode, or can receive their own alias. @@ is helpful if you want more agents than your email server supports as aliases. For example Google Workspace limits to 25, but you can deploy hundreds of agent models accessible through the @@ shortcode. 
 
 ### **3. Deployment and Usage**
@@ -176,3 +186,5 @@ ATAT is licensed under the MIT License. Refer to the LICENSE file for details.
 ## **Trademark Notice**
 
 @@ and ATAT are trademarks of Semantic Life, Copyright 2024. All rights reserved.
+
+Google / Google Workspace (TM) Google.
