@@ -4,14 +4,35 @@
     <img src="https://atat-dev-0-3.replit.app/static/atat-board.png" width="400" alt="ATAT by Semantic Life"/>
 </p>
 
+<div align="center">
+    <table>
+        <tr>
+            <td align="center" width="420"><em>Rapid Setup for AI Agents Over Email</em></td>
+            <td align="center">→</td>
+            <td align="center" width="420"><strong><em>Deploy Agents In the Easiest Way for Your Users</em></strong></td>
+        </tr>
+        <tr>
+            <td align="center" width="420"><em>To, CC, and Fw: Multiple Agents</em></td>
+            <td align="center">→</td>
+            <td align="center" width="420"><strong><em>Simplified Training: Just Email</em></strong></td>
+        </tr>
+        <tr>
+            <td align="center" width="420"><em>Powerful Shortcodes for AI</em></td>
+            <td align="center">→</td>
+            <td align="center" width="420"><strong><em>Multi-Agent Multi-Step Collaboration for All</em></strong></td>
+        </tr>
+        <tr>
+            <td align="center" width="420"><em>Batteries Included, Just Add Credentials</em></td>
+            <td align="center">→</td>
+            <td align="center" width="420"><strong><em>Includes Email Client and Agent Dashboard</em></strong></td>
+        </tr>
+    </table>
+</div>
+
 # Table of Contents
 
 - [Introduction](#introduction)
 - [Getting Started](#getting-started)
-  - [Prepare Replit](#1-prepare-replit)
-  - [Email Address Configuration](#2-email-address-configuration)
-  - [Deployment and Usage](#3-deployment-and-usage)
-  - [Critical Advice](#️-critical-)
 - [Features & Benefits](#features--benefits)
   - [Rapid Deployment](#-rapid-deployment)
   - [Agent-Centric Communication](#-agent-centric-communication)
@@ -25,50 +46,13 @@
   - [Synthetic Time Travel](#-synthetic-time-travel)
   - [New Agent Creation](#-new-agent-creation)
   - [Agent Dashboard](#-agent-dashboard)
-- [Shortcode Overview](#shortcode-overview)
-  - [Engaging Agents with @@](#engaging-agents-with-)
-  - [Dynamic Agent Creation with @@.creator](#dynamic-agent-creation-with-creator)
-  - [Chunking Long-Form Content Generation with Detail](#chunking-long-form-content-generation-with-detail)
-  - [Summarizing Content with Summarize](#summarizing-content-with-summarize)
-  - [Modifiers for Tailored Summaries](#modifiers-for-tailored-summaries)
+- [Shortcodes](#shortcode-overview)
 - [Contribution and Development](#contribution-and-development)
-- [License](#license)
-- [Trademark Notice](#trademark-notice)
-- [Source Code](https://github.com/semanticsean/ATAT)
-- [Roadmap and Contribution Guide](https://github.com/semanticsean/ATAT/blob/main/contribute.md)
 
 
 #Introduction 
 
 **ATAT enables rapid setup of AI agents you can email -- with simple shortcodes that give the agents superpowers.**
-
-Just add credentials (see Setup Guide) and you've got dozens of agents deployed over safe, reliable, email. 
-
-<div align="center">
-    <table>
-        <tr>
-            <td align="center" width="420"><em>Rapid Setup for AI Agents Over Email</em></td>
-            <td align="center">→</td>
-            <td align="center" width="420"><strong><em>Deploy Agents In a Managed System</em></strong></td>
-        </tr>
-        <tr>
-            <td align="center" width="420"><em>To, CC, and Fw: Multiple Agents</em></td>
-            <td align="center">→</td>
-            <td align="center" width="420"><strong><em>Simplified Training: Just Email</em></strong></td>
-        </tr>
-        <tr>
-            <td align="center" width="420"><em>Powerful Shortcodes for AI</em></td>
-            <td align="center">→</td>
-            <td align="center" width="420"><strong><em>Multi-Agent Multi-Step Collaboration Enabled</em></strong></td>
-        </tr>
-        <tr>
-            <td align="center" width="420"><em>Batteries Included, Just Add Credentials</em></td>
-            <td align="center">→</td>
-            <td align="center" width="420"><strong><em>Email Client and Stylized Dashboard Work</em></strong></td>
-        </tr>
-    </table>
-</div>
-
 
 Source Code [https://github.com/semanticsean/ATAT](https://github.com/semanticsean/ATAT)
 
@@ -77,40 +61,15 @@ Roadmap: For those interested in contributing to the project, please refer to ou
 
 **EXAMPLE: Email a team of three AI agents who collaborate to write a short story:**
 
-> Subject: Write a Story About AI using @@
-> Body: 
->
-> Agent 1: Please write an outline for two AI agents to write a scifi story about AI. 
->
-> @@(Agent 2): Please write the first draft based on the outline
-> 
-> @@(Agent 3): Please proofread and finalize the story
->
-> Thanks
-
+<p align="left">
+    <img src="https://atat-dev-0-3.replit.app/static/email-example-1.png" width="600" alt="ATAT by Semantic Life"/>
+</p>
 
 **Email one AI agent, instructed to write a story in three acts (three API calls):**
 
-> Subject: Write a Story About AI using !detail!
-> Body:
->
-> Agent 1: please write a story about AI.
-> 
-> !detail_start!
-> 
-> Act 1: The Emergence of sentient AI
-> 
-> !split!
-> 
-> Act 2: The Role of AI in Peace and Abundance
-> 
-> !split!
-> 
-> Act 3: The Role of Humans and AI in Exploring the Cosmos
-> 
-> !detail_stop!
->
-> Thanks
+<p align="left">
+    <img src="https://atat-dev-0-3.replit.app/static/email-example-2.png" width="600" alt="ATAT by Semantic Life"/>
+</p>
 
 
 # **Getting Started**
