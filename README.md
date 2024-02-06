@@ -75,7 +75,7 @@ Roadmap: For those interested in contributing to the project, please refer to ou
 
 # **Getting Started**
 
-This guide walks you through deploying on Replit, because it's so easy to deploy. Start with this [Repl](https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public)
+This guide walks you through deploying on Replit, because it's so easy to deploy. Start with this [Repl.](https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public)
 
 To use locally or on Github, you'll have to change the calls to take env vars. 
 
@@ -83,22 +83,25 @@ To use locally or on Github, you'll have to change the calls to take env vars.
 - **Package Version:** Use `pip install openai==0.28.0` for compatibility.
 - **Secrets Configuration:** Enter your SMTP and OpenAI API credentials as secrets.
 - 
-{
-  "SMTP_SERVER": "",
-  "IMAP_SERVER": "",
-  "SMTP_PORT": "587",
-  "SMTP_USERNAME": "",
-  "SMTP_PASSWORD": "",
-  "OPENAI_API_KEY": "",
-  "DOMAIN_NAME": "",
-  "COMPANY_NAME": ""
-}
+>{
+>  "SMTP_SERVER": "",
+>  "IMAP_SERVER": "",
+>  "SMTP_PORT": "587",
+>  "SMTP_USERNAME": "",
+>  "SMTP_PASSWORD": "",
+>  "OPENAI_API_KEY": "",
+>  "DOMAIN_NAME": "",
+>  "COMPANY_NAME": ""
+>}
   
 ### **2. Email Address Configuration**
-- **Agent Aliases:** Assign email aliases for agents in `agents/agents.json`. Use app passwords for secure access.
+- **Create An Agent@ Email Address:** This unique address will require IMAP/SMTP access and the password, if you're using Google / Gmail needs to be an APP PASSWORD which requires 2FA. 
+- **Agent Aliases:** Assign at least one email alias for at least one agent in `agents/agents.json`. The rest are optional and can be called with the @@(Agent Name) shortcode, or can receive their own alias. @@ is helpful if you want more agents than your email server supports as aliases. For example Google Workspace limits to 25, but you can deploy hundreds of agent models accessible through the @@ shortcode. 
 
 ### **3. Deployment and Usage**
 - **Run and Explore:** Deploy via Replit and navigate the agent dashboard. Check spam settings if responses are missing.
+
+See /tools/testing_emails.md for emails to test with.
 
 ### **⚠️ Critical 🚨🚨**
 MAKE A NEW EMAIL TO USE WITH ATAT. DO NOT CONNECT EXISTING ACCOUNTS. ATAT is reactive and you may send unintended emails if you haven't indexed the history properly. Create a new account exclusively for ATAT use.
