@@ -4,7 +4,7 @@ ATAT is designed to democratize the use of AI, allowing quick setup of an AI age
 
 The other big advantage of email is it's slow. As demonstrated in the @@ and !detail! shortcodes, multi-pass (multi-API-call) components can be integrated and the time it takes to run all the calls, be it minutes or even hours, is normal for email. 
 
-** For Example, a team of 3 AI agents can be instructed a short story about AI easily:**
+**For Example, a team of three AI agents can be instructed a short story about AI easily:**
 
 > Subject: Write a Story About AI using @@
 > Body: 
@@ -18,7 +18,7 @@ The other big advantage of email is it's slow. As demonstrated in the @@ and !de
 > Thanks
 
 
-**Or 1 AI agent can be instructed to write a story in three parts:**
+**Or one AI agent can be instructed to write a story in three parts:**
 
 > Subject: Write a Story About AI using !detail!
 > Body:
