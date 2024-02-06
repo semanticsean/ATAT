@@ -1,8 +1,9 @@
 # ATAT - Email Client for AI Agents 💪🦾
 
 <p align="center">
-    <a href="https://www.mirascope.io"><img src="[https://uploads-ssl.webflow.com/65a6fd6a1c3b2704d6217d3d/65b5674e9ceef563dc57eb11_Medium%20length%20hero%20headline%20goes%20here.svg](https://atat-dev-0-3.replit.app/static/atat.png)" alt="ATAT by Semantic Life"/></a>
+    <img src="https://atat-dev-0-3.replit.app/static/atat.png" alt="ATAT by Semantic Life"/>
 </p>
+
 
 **ATAT enables rapid setup of AI agents you can email -- with simple shortcodes that give the agents superpowers.**
 
