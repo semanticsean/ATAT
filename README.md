@@ -84,13 +84,21 @@ To use locally or on Github, you'll have to change the calls to take env vars.
 - **Secrets Configuration:** Enter your SMTP and OpenAI API credentials as secrets.
 - 
 >{
+>
 >  "SMTP_SERVER": "",
+> 
 >  "IMAP_SERVER": "",
+> 
 >  "SMTP_PORT": "",
+> 
 >  "SMTP_USERNAME": "",
+> 
 >  "SMTP_PASSWORD": "",
+> 
 >  "OPENAI_API_KEY": "",
+> 
 >  "DOMAIN_NAME": "",
+> 
 >  "COMPANY_NAME": ""
 >}
 
