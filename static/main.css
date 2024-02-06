@@ -16,6 +16,8 @@ body {
   color: #333;
 }
 
+
+
 /* Paragraph styles */
 p {
   font-size: 1rem;
@@ -77,6 +79,19 @@ h1, h2 {
 }
 
 
+
+/* Make table headers left justified */
+th {
+  text-align: left;
+}
+
+
+/* Make table data font size smaller */
+td {
+  font-size: 0.875rem; /* Smaller font size for table data elements */
+  
+
+}
 
 
 /* Card styles */
