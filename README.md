@@ -2,10 +2,7 @@
 
 **ATAT enables rapid setup of AI agents you can email -- with simple shortcodes that give the agents superpowers.**
 
-ATAT is an email client that hosts AI agents who respond to emails, so you can email them directly, cc them, or fw: emails to them. ATAT is designed to democratize the use of AI, allowing quick setup of an AI agent "company" in minutes, with the steering handled over email. That means training is as simple as providing a new email to forward to or cc. This approach leverages the inherent slowness of email for thoughtful, comprehensive AI responses. It also opens up "MoE" or "CoE" thinking for normies. 
-
-Another strength of email is that it's slow. As demonstrated in the @@ and !detail! shortcodes, multi-pass (multi-API-call) components can be integrated and the time it takes to run all the calls, be it minutes or even hours, is normal for email. 
-
+Just add credentials (see Setup Guide) and you've got dozens of agents deployed over safe, reliable, email. 
 
 <div align="center">
     <table>
@@ -35,7 +32,7 @@ Another strength of email is that it's slow. As demonstrated in the @@ and !deta
 
 Source Code [https://github.com/semanticsean/ATAT](https://github.com/semanticsean/ATAT)
 
-Roadmap: For those interested in contributing to the project, please refer to our [[contribution guide](https://github.com/semanticsean/ATAT/blob/main/contribute.md) for detailed information on how you can get involved.
+Roadmap: For those interested in contributing to the project, please refer to our [contribution guide](https://github.com/semanticsean/ATAT/blob/main/contribute.md) for detailed information on how you can get involved.
 
 
 **EXAMPLE: Email a team of three AI agents can be instructed to write a short story easily:**
@@ -76,7 +73,7 @@ Roadmap: For those interested in contributing to the project, please refer to ou
 > Thanks
 
 
-## **Getting Started**
+# **Getting Started**
 
 This guide walks you through deploying on Replit, because it's so easy to deploy. Start with this [Repl](https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public)
 
@@ -85,6 +82,17 @@ To use locally or on Github, you'll have to change the calls to take env vars.
 ### **1. Prepare Replit**
 - **Package Version:** Use `pip install openai==0.28.0` for compatibility.
 - **Secrets Configuration:** Enter your SMTP and OpenAI API credentials as secrets.
+- 
+{
+  "SMTP_SERVER": "",
+  "IMAP_SERVER": "",
+  "SMTP_PORT": "587",
+  "SMTP_USERNAME": "",
+  "SMTP_PASSWORD": "",
+  "OPENAI_API_KEY": "",
+  "DOMAIN_NAME": "",
+  "COMPANY_NAME": ""
+}
   
 ### **2. Email Address Configuration**
 - **Agent Aliases:** Assign email aliases for agents in `agents/agents.json`. Use app passwords for secure access.
@@ -95,7 +103,12 @@ To use locally or on Github, you'll have to change the calls to take env vars.
 ### **⚠️ Critical 🚨🚨**
 MAKE A NEW EMAIL TO USE WITH ATAT. DO NOT CONNECT EXISTING ACCOUNTS. ATAT is reactive and you may send unintended emails if you haven't indexed the history properly. Create a new account exclusively for ATAT use.
 
-## **Features & Benefits**
+# **Features & Benefits**
+
+ATAT is an email client that hosts AI agents who respond to emails, so you can email them directly, cc them, or fw: emails to them. ATAT is designed to democratize the use of AI, allowing quick setup of an AI agent "company" in minutes, with the steering handled over email. That means training is as simple as providing a new email to forward to or cc. This approach leverages the inherent slowness of email for thoughtful, comprehensive AI responses. It also opens up "MoE" or "CoE" thinking for normies. 
+
+Another strength of email is that it's slow. As demonstrated in the @@ and !detail! shortcodes, multi-pass (multi-API-call) components can be integrated and the time it takes to run all the calls, be it minutes or even hours, is normal for email. 
+
 
 - **🚀 Rapid Deployment:** Easy integration into existing email systems.
 - **🤖 Agent-Centric Communication:** Designed for AI interactions, complete with an Agent Dashboard.
