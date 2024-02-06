@@ -1,7 +1,7 @@
 # ATAT - Email Client for AI Agents 💪🦾
 
 <p align="center">
-    <img src="https://atat-dev-0-3.replit.app/static/atat.png" alt="ATAT by Semantic Life"/>
+    <img src="https://atat-dev-0-3.replit.app/static/atat-white-board.png" alt="ATAT by Semantic Life"/>
 </p>
 
 
