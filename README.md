@@ -24,12 +24,19 @@ The other big advantage of email is it's slow. As demonstrated in the @@ and !de
 > Body:
 >
 > Agent 1: please write a story about AI.
+> 
 > !detail_start!
+> 
 > First Act: The Emergence of sentient AI
+> 
 > !split!
+> 
 > Second Act: The Role of AI in Peace and Abundance
+> 
 > !split!
+> 
 > Third Act: The Role of Humans and AI in Exploring the Cosmos
+> 
 > !detail_stop!
 >
 > Thanks
