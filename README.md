@@ -1,8 +1,42 @@
 # ATAT - Email Client for AI Agents 💪🦾
 
 <p align="center">
-    <img src="https://atat-dev-0-3.replit.app/static/atat-white-board.png" alt="ATAT by Semantic Life"/>
+    <img src="https://atat-dev-0-3.replit.app/static/atat-board.png" alt="ATAT by Semantic Life"/>
 </p>
+
+# Table of Contents
+
+- [Introduction](#introduction)
+- [Getting Started](#getting-started)
+  - [Prepare Replit](#1-prepare-replit)
+  - [Email Address Configuration](#2-email-address-configuration)
+  - [Deployment and Usage](#3-deployment-and-usage)
+  - [Critical Advice](#️-critical-)
+- [Features & Benefits](#features--benefits)
+  - [Rapid Deployment](#-rapid-deployment)
+  - [Agent-Centric Communication](#-agent-centric-communication)
+  - [Reactive Email Design](#-reactive-email-design)
+  - [Multi-Agent Collaboration](#-multi-agent-collaboration)
+  - [Shortcode System](#-shortcode-system)
+  - [Embracing Email's Pace](#-embracing-emails-pace)
+  - [Replit Setup](#-replit-setup)
+  - [PDF Capability](#-pdf-capability)
+  - [Custom Dashboard](#-custom-dashboard)
+  - [Synthetic Time Travel](#-synthetic-time-travel)
+  - [New Agent Creation](#-new-agent-creation)
+  - [Agent Dashboard](#-agent-dashboard)
+- [Shortcode Overview](#shortcode-overview)
+  - [Engaging Agents with @@](#engaging-agents-with-)
+  - [Dynamic Agent Creation with @@.creator](#dynamic-agent-creation-with-creator)
+  - [Chunking Long-Form Content Generation with Detail](#chunking-long-form-content-generation-with-detail)
+  - [Summarizing Content with Summarize](#summarizing-content-with-summarize)
+  - [Modifiers for Tailored Summaries](#modifiers-for-tailored-summaries)
+- [Contribution and Development](#contribution-and-development)
+- [License](#license)
+- [Trademark Notice](#trademark-notice)
+- [Source Code](https://github.com/semanticsean/ATAT)
+- [Roadmap and Contribution Guide](https://github.com/semanticsean/ATAT/blob/main/contribute.md)
+
 
 
 **ATAT enables rapid setup of AI agents you can email -- with simple shortcodes that give the agents superpowers.**
