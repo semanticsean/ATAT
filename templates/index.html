@@ -112,6 +112,32 @@
                             <h3>Follow Semantic Life <a href="https://x.com/semanticlife" target="_blank">x.com/@seanmcdonaldxyz</a></h3>
                           </div>
                         </div>
+
+                        <!-- All Agents Card -->
+                        <div class="shortcode-container">
+                          <div class="card-content">
+                            <h2>ALL AGENTS</h2>
+                            <table class="agents-table">
+                              <thead>
+                                <tr>
+                                  <th>Agent</th>
+                                  <th>Job</th>
+                                  <th>Email</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for agent in agents %}
+                                  <tr>
+                                    <td>{{ agent.id }}</td>
+                                    <td>{{ agent.jobtitle[:30] }}{{ '...' if agent.jobtitle|length > 30 else '' }}</td>
+                                    <td>{{ agent.email.split('@')[0] }}@</td>
+                                    
+                                  </tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
                           
       {% endif %}
 
