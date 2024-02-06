@@ -18,9 +18,9 @@
             <td align="center" width="420"><strong><em>Multi-Agent Multi-Step Collaboration Enabled</em></strong></td>
         </tr>
         <tr>
-            <td align="center" width="420"><em>Batteries Included</em></td>
+            <td align="center" width="420"><em>Batteries Included, Just Add Credentials</em></td>
             <td align="center">→</td>
-            <td align="center" width="420"><strong><em> Just Add Credentials and Client and Stylized Dashboard Work</em></strong></td>
+            <td align="center" width="420"><strong><em>Email Client and Stylized Dashboard Work</em></strong></td>
         </tr>
     </table>
 </div>
@@ -28,7 +28,7 @@
 
 Source Code [https://github.com/semanticsean/ATAT](https://github.com/semanticsean/ATAT)
 
-Roadmap: For those interested in contributing to the project, please refer to our [[contribution guide](contribute.md) ](https://github.com/semanticsean/ATAT/blob/main/contribute.md) for detailed information on how you can get involved.
+Roadmap: For those interested in contributing to the project, please refer to our [[contribution guide](https://github.com/semanticsean/ATAT/blob/main/contribute.md) for detailed information on how you can get involved.
 
 
 # Introduction 
