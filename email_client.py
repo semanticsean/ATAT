@@ -19,7 +19,7 @@ from contextlib import contextmanager
 
 from pdf2text import extract_pdf_text
 from shortcode import handle_document_short_code
-from agent_operator import AgentSelector
+from agent_operator import AgentManager
 
 
 class EmailClient:
@@ -35,7 +35,7 @@ class EmailClient:
     self.testing = testing
     self.setup_email_client()
     self.processed_threads = self.load_processed_threads()
-    self.agent_operator = AgentSelector()
+    self.agent_operator = AgentManager()
     self.conversation_threads = {}
     self.openai_api_key = os.getenv('OPENAI_API_KEY')
 

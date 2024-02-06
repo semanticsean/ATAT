@@ -1,7 +1,7 @@
 import json
 
 
-class AgentManager:
+class AgentLoader:
 
   def __init__(self):
     self.agents = self.load_agents()
@@ -18,16 +18,14 @@ class AgentManager:
     return agents
 
   def get_agent(self, id, case_sensitive=False):
-    agent = None
     if case_sensitive:
-      agent = self.agents.get(id, None)
+        return self.agents.get(id)
     else:
-      for name, agent in self.agents.items():
-        if name.lower() == id.lower():
-          agent = agent
-          break
-    #print(f"Debug: AgentManager.get_agent('{id}') returned: {agent}")
-    return agent
+        
+        for agent_id, agent_details in self.agents.items():
+            if agent_id.lower() == id.lower():
+                return agent_details
+        return None
 
   def is_agent_email(self, email):
     """Check if the given email belongs to one of the agents."""
@@ -37,10 +35,10 @@ class AgentManager:
     agent = self.get_agent(id, case_sensitive)
     if agent:
       persona = agent.get("persona", None)
-      # print(f"Debug: AgentManager.get_agent_persona('{id}') returned: {persona}")
+      # print(f"Debug: AgentLoader.get_agent_persona('{id}') returned: {persona}")
       return persona
     else:
-      print(f"Debug: AgentManager.get_agent_persona('{id}') found no agent.")
+      print(f"Debug: AgentLoader.get_agent_persona('{id}') found no agent.")
       return None
 
   def get_agent_by_email(self, email):

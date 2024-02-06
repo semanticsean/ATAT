@@ -9,9 +9,10 @@ from datetime import datetime
 
 from shortcode import handle_document_short_code
 from gpt import GPTModel
+from agent_loader import AgentLoader
 
-# logging.basicConfig(level=logging.DEBUG)
 
+logging.basicConfig(filename='agent_operator.log', level=logging.DEBUG)
 domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com')  
 
 
@@ -31,7 +32,7 @@ def load_instructions(filename='instructions.json'):
     return json.load(file)
 
 
-class AgentSelector:
+class AgentManager:
 
   def __init__(self, max_agents=12):
     self.lock = threading.Lock()
@@ -41,7 +42,10 @@ class AgentSelector:
     self.conversation_history = ""
     self.invoked_agents = {}
     self.last_agent_response = ""
+    self.agent_loader = AgentLoader() 
     self.instructions = load_instructions()
+
+    logging.debug(f"Loaded agent_superpower_instructions: {self.instructions.get('default', {}).get('agent_superpower_instructions')}")
     self.gpt = GPTModel()
 
   # UTILITIES
@@ -93,6 +97,15 @@ class AgentSelector:
 
   # GET AGENTS FROM EMAIL ADDRESSES AND CONTENT
 
+  def process_queued_agents(self):
+    logging.debug("Starting to process queued agents")
+    for agent_id, agent_info in self.invoked_agents.items():
+        if agent_info.get('needs_processing', False):
+            self.generate_response_for_agent(agent_id)
+            # Ensure the agent is marked as processed
+            agent_info['needs_processing'] = False
+    logging.debug("Finished processing queued agents")
+  
 
   def get_agent_names_from_content_and_emails(self, content, recipient_emails,
                                               agent_loader, gpt):
@@ -157,6 +170,34 @@ class AgentSelector:
 
     return agent_queue
 
+  def queue_agents_from_shortcodes(self, content):
+    # Pattern to find shortcodes like @@(agentName)
+    regex_pattern = re.compile(r"@@\(([\w\d_]+)\)")
+    atat_tags = regex_pattern.findall(content)
+
+    agents_queued = False  
+
+    for atat_match in atat_tags:
+        agent = self.agent_loader.get_agent(atat_match, case_sensitive=False)
+        if agent:
+          
+            if agent["id"] not in [a[0] for a in self.invoked_agents]:
+                self.invoked_agents[agent["id"]] = {
+                    'name': agent["id"],
+                    'content': '',  
+                    'order': len(self.invoked_agents) + 1, 
+                    'needs_processing': True  
+                }
+                agents_queued = True  
+                
+                logging.debug(f"Queued agent {agent['id']} from shortcode in response.")
+
+    
+    if agents_queued:
+        logging.debug("Agents have been queued from shortcodes.")
+
+
+
   def extract_relationships(self, agent_loader, agent_name):
     def dump_relationships(data):
         # Base case: if data is not a dictionary or list, return it as a string
@@ -206,7 +247,7 @@ class AgentSelector:
     # Order and Persona Context
     order_context = f"You are role-playing as the {agent_name}. This is response {order} in a conversation with {total_order} interactions. The agent sequence is: [{order_explanation}]."
     print(f"Debug: create_dynamic_prompt called with agent_name: {agent_name}")
-    
+
 
     # Main Instructions
     instructions = self.instructions['default']['main_instructions']
@@ -260,19 +301,44 @@ class AgentSelector:
 
     dynamic_prompt += f" {explicit_role_context}. Role play as this agent."
 
+    # Fetch agent details to check for shortcode_superpower
+    agent_details = agent_loader.get_agent(agent_name, case_sensitive=False)
 
-    print(f"{dynamic_prompt}")
+    # Enhanced check for shortcode_superpower attribute
+    if agent_details and agent_details.get("shortcode_superpower") == "true":
+        # Append agent_superpower_instructions if the agent has the shortcode superpower
+        superpower_instructions = self.instructions.get('default', {}).get('agent_superpower_instructions', '')
+        if superpower_instructions:  # Ensure instructions are not empty
+            dynamic_prompt += f"\n\n{superpower_instructions}"
+            logging.debug("Appended superpower instructions for %s: %s", agent_name, superpower_instructions)
 
+        else:
+            logging.warning("No superpower instructions found to append for %s.", agent_name)
+    else:
+        logging.debug("%s does not have shortcode_superpower set to true or does not exist.", agent_name)
+
+    
     return dynamic_prompt
 
   # FORMATTING
 
-  def replace_agent_shortcodes(self, content):
+  def replace_agent_shortcodes(self, content, agent_name, is_top_level_call):
     """
-        Replaces @@(agent_name) shortcodes with the agent's name.
-        """
-    return re.sub(r"@@\((\w+)\)", r"\1", content)
+    Replaces @@(agent_name) shortcodes with the agent's name only if it's a top-level call
+    or if the agent does not have the shortcode superpower.
+    """
+    agent_details = self.agent_loader.get_agent(agent_name, case_sensitive=False)
+    if is_top_level_call or not agent_details.get("shortcode_superpower"):
+        return re.sub(r"@@\((\w+)\)", r"\1", content)
+    else:
+        return content
 
+
+
+  def should_handle_shortcodes(self, agent_name):
+    agent_details = self.agent_loader.get_agent(agent_name, case_sensitive=False)
+
+    return not agent_details.get("shortcode_superpower") == "true"
 
   def format_conversation_history_html(self, agent_responses, exclude_recent=1, existing_history=None):
     formatted_history = existing_history or ""
@@ -325,177 +391,151 @@ class AgentSelector:
     return formatted_plain_history.strip()  # Remove any extra newlines at the beginning and end
 
 
-  def get_response_for_agent(self,
-                             agent_loader,
-                             gpt,
-                             agent_name,
-                             order,
-                             total_order,
-                             content,
-                             additional_context=None):
+  def process_agent_response_and_queue_agents(self, agent_name, response):
+    # Check if the agent has the shortcode superpower and if the response contains shortcodes
+    agent_details = self.agent_loader.get_agent(agent_name, case_sensitive=False)
+    if agent_details and agent_details.get("shortcode_superpower") == "true":
+        # Queue new agents from the shortcodes in the response
+        self.queue_agents_from_shortcodes(response)
+        # Process the newly queued agents
+        self.process_queued_agents()
+        logging.debug(f"Processed queued agents: {self.invoked_agents}")
+       
+
+  
+  def get_response_for_agent(self, agent_loader, gpt, agent_name, order, total_order, content, additional_context=None):
+
+    responses = []
+
+    
     # Count tokens before the API call
     tokens_for_this_request = gpt.count_tokens(content)
 
     # Check rate limits
     gpt.check_rate_limit(tokens_for_this_request)
 
-    custom_instruction_for_detail = self.instructions['default'][
-        'custom_instruction_for_detail']
+    custom_instruction_for_detail = self.instructions['default']['custom_instruction_for_detail']
 
-    content = self.replace_agent_shortcodes(content)
+    # Decide whether to handle shortcodes based on the agent's superpower
+    if self.should_handle_shortcodes(agent_name):
+      content = self.replace_agent_shortcodes(content, agent_name, is_top_level_call)
+    else:
+        # Log or handle accordingly when shortcodes are not replaced
+        logging.debug(f"Preserving shortcodes for {agent_name} due to shortcode_superpower.")
+
     timestamp = format_datetime_for_email()
 
     modality = 'default'
     with self.lock:
-      if "!previousResponse" in content:
-        content = content.replace('!previousResponse',
-                                  self.last_agent_response)
-        content = content.replace('!useLastResponse', '').strip()
-
-      responses = []
-      dynamic_prompt = ""
-      agent = agent_loader.get_agent(agent_name, case_sensitive=False)
-
-      if not agent:
-        logging.warning(f"No agent found for name {agent_name}. Skipping...")
-        return ""
-
-      result = handle_document_short_code(content, self.openai_api_key,
-                                          self.conversation_history)
-      if result is None:
-        print(
-            "Error: agent_operator - handle_document_short_code returned None."
-        )
-        return False
-
-      structured_response = result.get('structured_response')
-      new_content = result.get('new_content')
-
-      if result['type'] == 'pro':
-        descriptions = result.get('content', [])
-        for desc in descriptions:
-          generated_profile = self.gpt.generate_agent_profile(desc)
-          # Generate a unique key for each generated agent, based on the description
-          unique_key = f"GeneratedAgent_{hash(desc)}"
-          self.invoked_agents[unique_key] = generated_profile
-        print("Debug: About to save invoked agents:", self.invoked_agents)
-        self.save_temp_agents()
-
-      # Handle Summarize Type
-      if result['type'] == 'summarize':
-        modality = result.get('modality', 'default')
-        additional_context = self.instructions['summarize'].get(
-            modality, self.instructions['summarize']['default'])
-
-        chunks = result.get('content', [])
-        self.conversation_history = self.conversation_history[-16000:]
-
-        for idx, chunk in enumerate(chunks):
-          dynamic_prompt = self.create_dynamic_prompt(agent_loader,
-                                                      agent_name,
-                                                      order,
-                                                      total_order,
-                                                      structured_response,
-                                                      modality=modality,
-                                                      content=chunk)
-          response = gpt.generate_response(dynamic_prompt,
-                                           chunk,
-                                           self.conversation_history,
-                                           is_summarize=False)
-          responses.append(response)
-        else:
-          pass
-
-        formatted_response = self.format_conversation_history_html(
-            [(agent_name, agent["email"], response)], exclude_recent=0)
-
-        # Update conversation history after each agent's response
-        self.conversation_history += f"\n{agent_name} said: {formatted_response}"
-
-      # Handle Detail Type
-      elif result['type'] == 'detail':
-        chunks = result.get('content', [])
-        #truncates conversation history to 100,000 characters - should be token count not characters
-        self.conversation_history = self.conversation_history[-100000:]
+        if "!previousResponse" in content:
+            content = content.replace('!previousResponse', self.last_agent_response)
+            content = content.replace('!useLastResponse', '').strip()
 
         responses = []
-        agent_responses = []
+        dynamic_prompt = ""
+        agent = agent_loader.get_agent(agent_name, case_sensitive=False)
 
-        for idx, chunk in enumerate(chunks):
-          dynamic_prompt = self.create_dynamic_prompt(agent_loader,
-                                                      agent_name,
-                                                      order,
-                                                      total_order,
-                                                      additional_context,
-                                                      modality=modality)
-          # Add custom instruction to the dynamic prompt
-          dynamic_prompt += f" {custom_instruction_for_detail}"
+        if not agent:
+            logging.warning(f"No agent found for name {agent_name}. Skipping...")
+            return ""
 
-          response = gpt.generate_response(dynamic_prompt,
-                                           chunk,
-                                           self.conversation_history,
-                                           is_summarize=False)
+        # Check if the agent has the shortcode_superpower flag set to true
+        if not agent.get("shortcode_superpower", "false") == "true":
+            content = self.replace_agent_shortcodes(content, agent_name)
 
-          responses.append(response)
-          agent_responses.append((agent_name, agent["email"], response))
+        result = handle_document_short_code(content, self.openai_api_key, self.conversation_history)
+        if result is None:
+            print("Error: agent_operator - handle_document_short_code returned None.")
+            return False
 
-        final_response = ' '.join(
-            responses)  # Join responses to avoid repetition
-        formatted_response = self.format_conversation_history_html(
-            agent_responses)
-        # Update conversation history after each agent's response
-        self.conversation_history += f"\n{agent_name} said: {formatted_response}"
+        structured_response = result.get('structured_response')
+        new_content = result.get('new_content')
 
-        #logging.debug(f"Appending response {idx}")
-        responses.append(response)
-        #logging.debug(f"Final Responses: {responses}")
+        if result['type'] == 'pro':
+            descriptions = result.get('content', [])
+            for desc in descriptions:
+                generated_profile = self.gpt.generate_agent_profile(desc)
+                # Generate a unique key for each generated agent, based on the description
+                unique_key = f"GeneratedAgent_{hash(desc)}"
+                self.invoked_agents[unique_key] = generated_profile
+            print("Debug: About to save invoked agents:", self.invoked_agents)
+            self.save_temp_agents()
 
-      # Handle Default Type
-      else:
-        # Handling the default type
-        if structured_response:
-          additional_context = structured_response
-          content = new_content
+        # Handle Summarize Type
+        if result['type'] == 'summarize':
+            modality = result.get('modality', 'default')
+            additional_context = self.instructions['summarize'].get(modality, self.instructions['summarize']['default'])
 
-        dynamic_prompt = self.create_dynamic_prompt(agent_loader, agent_name,
-                                                    order, total_order,
-                                                    additional_context,
-                                                    modality)
-        response = gpt.generate_response(dynamic_prompt,
-                                         content,
-                                         self.conversation_history,
-                                         is_summarize=False)
+            chunks = result.get('content', [])
+            self.conversation_history = self.conversation_history[-16000:]
 
-        if response is not None:
-          responses.append(response)
+            for idx, chunk in enumerate(chunks):
+                dynamic_prompt = self.create_dynamic_prompt(agent_loader, agent_name, order, total_order,
+                                                            structured_response, modality=modality, content=chunk)
+                response = gpt.generate_response(dynamic_prompt, chunk, self.conversation_history, is_summarize=False)
+                responses.append(response)
+            else:
+                pass
+
+            formatted_response = self.format_conversation_history_html([(agent_name, agent["email"], response)], exclude_recent=0)
+
+            # Update conversation history after each agent's response
+            self.conversation_history += f"\n{agent_name} said: {formatted_response}"
+
+        # Handle Detail Type
+        elif result['type'] == 'detail':
+            chunks = result.get('content', [])
+            # Truncates conversation history to 100,000 characters - should be token count not characters
+            self.conversation_history = self.conversation_history[-100000:]
+
+            responses = []
+            agent_responses = []
+
+            for idx, chunk in enumerate(chunks):
+                dynamic_prompt = self.create_dynamic_prompt(agent_loader, agent_name, order, total_order, additional_context, modality=modality)
+                # Add custom instruction to the dynamic prompt
+                dynamic_prompt += f" {custom_instruction_for_detail}"
+
+                response = gpt.generate_response(dynamic_prompt, chunk, self.conversation_history, is_summarize=False)
+
+                responses.append(response)
+                agent_responses.append((agent_name, agent["email"], response))
+
+            final_response = ' '.join(responses)  # Join responses to avoid repetition
+            formatted_response = self.format_conversation_history_html(agent_responses)
+            # Update conversation history after each agent's response
+            self.conversation_history += f"\n{agent_name} said: {formatted_response}"
+
+            responses.append(response)
+
+        # Handle Default Type
         else:
-          print(f"Warning: Received None response for agent {agent_name}")
+            # Handling the default type
+            if structured_response:
+                additional_context = structured_response
+                content = new_content
 
-      # Combine the responses, handling the case where no valid responses were generated
-      if responses:
-        final_response = " ".join(responses)
-      else:
-        final_response = "No response generated."
+            dynamic_prompt = self.create_dynamic_prompt(agent_loader, agent_name, order, total_order, additional_context, modality)
+            response = gpt.generate_response(dynamic_prompt, content, self.conversation_history, is_summarize=False)
 
-      signature = "\n\n- GENERATIVE AI AGENT: " + agent_name
-      final_response_with_signature = final_response + signature
-      
-      """
-        # Formatting the nested history
-        agent_email = agent["email"]
-        timestamp = format_datetime_for_email()
-        gmail_note = format_note(agent_name, agent_email, timestamp)
-        agent_responses = [(agent_name, agent["email"],
-                            final_response_with_signature)]
-        nested_history = self.format_conversation_history_html(
-            agent_responses, existing_history=gmail_note)
+            if response is not None:
+                responses.append(response)
+            else:
+                print(f"Warning: Received None response for agent {agent_name}")
 
-        self.conversation_structure.setdefault("responses", []).append(
-            (agent_name,
-             nested_history))  # Store the formatted response with signature
+    
+    if responses:
+      final_response = " ".join(responses)
+      logging.debug(f"Final response generated for {agent_name}: {final_response}")
 
-        self.last_agent_response = nested_history 
+      # Check for shortcodes and queue agents if necessary
+      self.process_agent_response_and_queue_agents(agent_name, final_response)
 
-        """
+    else:
+      final_response = "No response generated."
+      logging.debug(f"No response generated for {agent_name}.")
 
-      return final_response_with_signature
+    # Add signature and return the final response
+    signature = "\n\n- GENERATIVE AI AGENT: " + agent_name
+    final_response_with_signature = final_response + signature
+    return final_response_with_signature

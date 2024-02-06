@@ -6,7 +6,7 @@ import subprocess
 
 from email_client import EmailClient
 from gpt import GPTModel
-from agent_loader import AgentManager
+from agent_loader import AgentLoader
  
 domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com')  
 company_name = os.environ.get('COMPANY_NAME')
@@ -32,7 +32,7 @@ def main():
     # Check for and add new agents
     check_and_add_agent()
 
-    agent_loader = AgentManager()
+    agent_loader = AgentLoader()
     gpt = GPTModel()
     email_client = EmailClient(agent_loader, gpt)
 
