@@ -1,5 +1,9 @@
 # ATAT - Email Client for AI Agents 💪🦾
 
+<p align="center">
+    <a href="https://www.mirascope.io"><img src="[https://uploads-ssl.webflow.com/65a6fd6a1c3b2704d6217d3d/65b5674e9ceef563dc57eb11_Medium%20length%20hero%20headline%20goes%20here.svg](https://atat-dev-0-3.replit.app/static/atat.png)" alt="ATAT by Semantic Life"/></a>
+</p>
+
 **ATAT enables rapid setup of AI agents you can email -- with simple shortcodes that give the agents superpowers.**
 
 Just add credentials (see Setup Guide) and you've got dozens of agents deployed over safe, reliable, email. 
@@ -35,7 +39,7 @@ Source Code [https://github.com/semanticsean/ATAT](https://github.com/semanticse
 Roadmap: For those interested in contributing to the project, please refer to our [contribution guide](https://github.com/semanticsean/ATAT/blob/main/contribute.md) for detailed information on how you can get involved.
 
 
-**EXAMPLE: Email a team of three AI agents can be instructed to write a short story easily:**
+**EXAMPLE: Email a team of three AI agents who collaborate to write a short story:**
 
 > Subject: Write a Story About AI using @@
 > Body: 
@@ -49,7 +53,7 @@ Roadmap: For those interested in contributing to the project, please refer to ou
 > Thanks
 
 
-**Email one AI agent, instructed to write a story in three API calls:**
+**Email one AI agent, instructed to write a story in three acts (three API calls):**
 
 > Subject: Write a Story About AI using !detail!
 > Body:
@@ -58,15 +62,15 @@ Roadmap: For those interested in contributing to the project, please refer to ou
 > 
 > !detail_start!
 > 
-> First Act: The Emergence of sentient AI
+> Act 1: The Emergence of sentient AI
 > 
 > !split!
 > 
-> Second Act: The Role of AI in Peace and Abundance
+> Act 2: The Role of AI in Peace and Abundance
 > 
 > !split!
 > 
-> Third Act: The Role of Humans and AI in Exploring the Cosmos
+> Act 3: The Role of Humans and AI in Exploring the Cosmos
 > 
 > !detail_stop!
 >
@@ -82,25 +86,26 @@ To use locally or on Github, you'll have to change the calls to take env vars.
 ### **1. Packages & Secrets / Env Vars**
 - **Package Version:** Use `pip install openai==0.28.0` for compatibility.
 - **Secrets Configuration:** Enter your SMTP and OpenAI API credentials as secrets.
-- 
->{
+  
+>**{**
 >
->  "SMTP_SERVER": "",
+>  **"SMTP_SERVER": "",**
 > 
->  "IMAP_SERVER": "",
+>  **"IMAP_SERVER": "",**
 > 
->  "SMTP_PORT": "",
+>  **"SMTP_PORT": "",**
 > 
->  "SMTP_USERNAME": "",
+>  **"SMTP_USERNAME": "",**
 > 
->  "SMTP_PASSWORD": "",
+>  **"SMTP_PASSWORD": "",**
 > 
->  "OPENAI_API_KEY": "",
+>  **"OPENAI_API_KEY": "",**
 > 
->  "DOMAIN_NAME": "",
+>  **"DOMAIN_NAME": "",**
 > 
->  "COMPANY_NAME": ""
->}
+>  **"COMPANY_NAME": ""**
+> 
+>**}**
 
 For SMTP_PORT using Google Workspace, use Port 587.
 
