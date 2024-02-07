@@ -1,12 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="" />
+  <meta property="og:description" content="" />
+  <meta property="og:image" content="" />
+  <meta property="og:url" content="" />
+  <meta name="twitter:card" content="" />
+  <meta name="twitter:title" content="" />
+  <meta name="twitter:description" content="" />
+  <meta name="twitter:image" content="" />
+
+
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
 
-    <title>ATAT: AI Agents Over Email by Semantic Life</title>
+    <title>Loading...</title>
     <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      fetch('static/content.json') // Adjust the path to your headers.json file
+        .then(response => response.json())
+        .then(data => {
+          // Update Meta Tags
+          document.querySelector('meta[property="og:title"]').setAttribute("content", data.meta.ogTitle);
+          document.querySelector('meta[property="og:description"]').setAttribute("content", data.meta.ogDescription);
+          document.querySelector('meta[property="og:image"]').setAttribute("content", data.social_image_url);
+          document.querySelector('meta[property="og:url"]').setAttribute("content", data.meta.ogUrl);
+          document.querySelector('meta[name="twitter:card"]').setAttribute("content", data.meta.twitterCard);
+          document.querySelector('meta[name="twitter:title"]').setAttribute("content", data.meta.twitterTitle);
+          document.querySelector('meta[name="twitter:description"]').setAttribute("content", data.meta.twitterDescription);
+          document.querySelector('meta[name="twitter:image"]').setAttribute("content", data.social_image_url);
+
+          // Update Title, Headers, and Footer
+          document.title = data.title;
+          document.getElementById('header-logo').src = data.logo_url;
+          document.querySelector('.header h1').innerText = data.h1;
+          document.querySelector('.header h2').innerText = data.h2;
+          document.querySelector('.footer').innerText = data.footer;
+          document.getElementById('webCopyContainer').innerText = data.web_copy;
+          document.getElementById('socialImage').src = data.social_image_url;
+
+
+          // Optional: Update any additional elements as needed
+        })
+        .catch(error => console.error('Error loading header data:', error));
+    });
+  </script>
     <script>
       // Enhanced function to copy text to clipboard and modify button appearance
       function copyToClipboard(text, buttonId) {
@@ -23,22 +61,37 @@
         }).catch(function(error) {
           console.error('Error copying text: ', error);
         });
+
+          function loadWebCopy() {
+            fetch('{{ url_for('static', filename='content.json') }}') // Adjust the path as necessary
+              .then(response => response.json())
+              .then(data => {
+                const webCopy = data.web_copy;
+                document.getElementById('webCopyContainer').innerText = webCopy;
+              })
+              .catch(error => console.error('Error loading web copy:', error));
+          }
+
+          // Call loadWebCopy on page load
+          window.addEventListener('DOMContentLoaded', (event) => {
+            loadWebCopy();
+          });
+        
       }
     </script>
 </head>
 <body>
   <header class="header">
       <nav class="navbar">
-       
-          <img src="{{ url_for('static', filename='logo.png') }}" class="header-logo">
-          
+          <img src="" id="header-logo" class="header-logo">
       </nav>
+      <div class="title-container">
+        <img id="socialImage" src="" alt="Social Image"> 
+        <h1>Loading...</h1> 
+        <h2>Loading...</h2> 
+        <p id="webCopyContainer"></p>
+      </div>
   </header>
-                      <div class="title-container">
-                        <img src="{{ url_for('static', filename='atat.png') }}">
-                        <h1>ATAT: Your Team of AI Agents</h1>
-                        <h2>Boss mode: use @@ and other shortcodes. Learn more below.</h2>
-                      </div>
 
                       <main class="main">
                       {% if agents %}
@@ -144,7 +197,7 @@
                         
   </main>
     <footer class="footer">
-        @@ and ATAT are trademarks of Semantic Life. All Rights Reserved, 2024. Copyright Semantic Life 2024. 
+        
         <div class="footer-links">
           
         </div>

@@ -16,6 +16,16 @@ body {
   color: #333;
 }
 
+.title-container {
+  width: 70%;    
+  margin: 0 auto; 
+  height: auto;
+  object-fit: contain;
+}
+
+.social_image {
+ height: 200;
+}
 
 
 /* Paragraph styles */
