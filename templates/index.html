@@ -37,7 +37,7 @@
           document.querySelector('.header h2').innerText = data.h2;
           document.querySelector('.footer').innerText = data.footer;
           document.getElementById('webCopyContainer').innerText = data.web_copy;
-          document.getElementById('socialImage').src = data.social_image_url;
+          document.getElementById('social_image').src = data.social_image_url;
 
 
           // Optional: Update any additional elements as needed
@@ -86,10 +86,10 @@
           <img src="" id="header-logo" class="header-logo">
       </nav>
       <div class="title-container">
-        <img id="socialImage" src="" alt="Social Image"> 
+        <img id="social_image" class="social_image" src="" alt="Social Image"> 
         <h1>Loading...</h1> 
         <h2>Loading...</h2> 
-        <p id="webCopyContainer"></p>
+        <p id="webCopyContainer" class="webCopyContainer"></p>
       </div>
   </header>
 
