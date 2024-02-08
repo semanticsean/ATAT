@@ -1,44 +1,59 @@
 import os
 import subprocess
 import openai
-from tools import update_team  # Ensure this import path is correct based on your project structure
+import json
+import argparse
+
+
+from tools import update_team
 
 # Set OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def ask_user_for_input(prompt):
-    return input(prompt + "\n")
+def load_configuration(config_file='start-config.json'):
+    with open(config_file, 'r') as file:
+        return json.load(file)
 
 def run_update_team(directory, transformation_prompt, num_agents_additional):
-    # Directly call the updated 'update_team' function with all necessary arguments
     update_team.update_team(directory, transformation_prompt, num_agents_additional)
 
-def run_render_agents(fictionalize_option):
-    # Call render_agents.py with the fictionalize option
-    subprocess.call(['python', 'tools/render_agents.py', fictionalize_option])
+def run_render_agents(fictionalize_option, clear_json, clear_pics):
+    version_flag = '--version B' if fictionalize_option else '--version A'
+    clear_json_arg = '--clear-json' if clear_json else ''
+    clear_pics_arg = '--clear-pics' if clear_pics else ''
+    command = f'python tools/render_agents.py {version_flag} {clear_json_arg} {clear_pics_arg}'
+    subprocess.run(command, shell=True, check=True)
+
 
 def update_content():
-    # Call update_content.py script
-    subprocess.call(['python', 'tools/update_content.py'])
+  config = load_configuration()
+  social_image_url = config.get('social_image_url', 'default_social_image_url')
+  logo_url = config.get('logo_url', 'default_logo_url')
+  # Pass social_image_url and logo_url to update_content.py via command line arguments
+  command = f'python tools/update_content.py --social_image_url "{social_image_url}" --logo_url "{logo_url}"'
+  subprocess.run(command, shell=True, check=True)
+
 
 def main():
-    print("Starting the agent orchestration process...")
+    config = load_configuration()
 
-    # Asking user for inputs
-    directory = ask_user_for_input("Enter the directory of agent files (default '../agents/new_agent_files')") or "../agents/new_agent_files"
-    transformation_prompt = ask_user_for_input("Enter your transformation prompt (e.g., 'make all agents work at an ad agency in London')")
-    num_agents_additional = int(ask_user_for_input("How many additional agents to create?"))
+    print("Starting processes defined in start-config.json...")
 
-    # Update team based on user input
-    run_update_team(directory, transformation_prompt, num_agents_additional)
+    # Check whether to run specific operations
+    if config.get('run_update_team', False):
+        directory = config.get('directory', 'agents/new_agent_files')
+        transformation_prompt = config['transformation_prompt']
+        num_agents_additional = config['num_agents_additional']
+        run_update_team(directory, transformation_prompt, num_agents_additional)
 
-    # Ask if agents should be fictionalized and run render_agents with the option
-    fictionalize_option = ask_user_for_input("Do you want to fictionalize agents? (yes/no)") == "yes"
-    fictionalize_option_str = "fictionalize" if fictionalize_option else "nofictionalize"
-    run_render_agents(fictionalize_option_str)
+    if config.get('run_render_agents', False):
+        fictionalize_option = config['fictionalize_option'] == "yes"
+        clear_json_confirm = config['clear_json_confirm'] == "yes"
+        clear_pics_confirm = config['clear_pics_confirm'] == "yes"
+        run_render_agents(fictionalize_option, clear_json_confirm, clear_pics_confirm)
 
-    # Update website content and banners
-    update_content()
+    if config.get('run_update_content', False):
+        update_content()
 
     print("All processes completed successfully.")
 

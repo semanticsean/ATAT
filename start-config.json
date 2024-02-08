@@ -1,0 +1,14 @@
+{
+  "run_update_team": true,
+  "run_render_agents": true,
+  "run_update_content": true,
+  "directory": "agents/new_agent_files",
+  "transformation_prompt": "make all agents work at an ad agency for startups in los angeles focused on AI startups",
+  "num_agents_additional": 0,
+  "fictionalize_option": "no",
+  "clear_json_confirm": "yes",
+  "clear_pics_confirm": "yes",
+
+  "social_image_url": "https://semantic-life.com/static/atat-wide-trans.png",
+  "logo_url": "https://semantic-life.com/static/sl-trans-glyph.png"
+}

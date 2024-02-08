@@ -112,14 +112,15 @@
                                   {% endfor %}
                               </div> !--> 
                             <div class="card-actions">
-                              <!-- Copy Shortcode Button -->
-                              <button id="copyShortcode{{ agent.id }}" class="button" data-original-text="Copy Shortcode" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
 
                               
-                            <!-- Email Agent Button -->
-                            <button class="button" onclick="location.href='mailto:{{ agent.email }}'">Link to Email</button>
-  <!-- Copy Email Address Button -->
-                          <button id="copyEmail{{ agent.id }}" class="button" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email Address</button>
+                              <button class="button" onclick="location.href='mailto:{{ agent.email }}'">Email {{ agent.id }}</button>
+                              
+
+                              <button id="copyEmail{{ agent.id }}" class="button" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email Address</button>
+                              <button id="copyShortcode{{ agent.id }}" class="button" data-original-text="Copy Shortcode" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
+
+                          
 
                               
                           

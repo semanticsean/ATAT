@@ -10,10 +10,10 @@
     "twitterCard": "summary_large_image",
     "twitterTitle": "AI Agents Over Email by Semantic Life",
     "twitterDescription": "Explore the future of email with Semantic Life's AI agents.",
-    "ogImage": "https://semantic-life.com/static/atat.png",
-    "twitterImage": "https://semantic-life.com/static/atat.png"
+    "ogImage": "https://semantic-life.com/static/atat-board.jpg",
+    "twitterImage": "https://semantic-life.com/static/atat-board.jpg"
   },
-  "social_image_url": "https://semantic-life.com/static/atat-board-basic.png",
-  "logo_url": "https://semantic-life.com/static/logo.png",
+  "social_image_url": "https://semantic-life.com/static/atat-wide-trans.png",
+  "logo_url": "https://semantic-life.com/static/sl-trans-glyph.png",
   "web_copy": "At Semantic Life, we leverage artificial intelligence to create a suite of AI agents designed to enhance email communications, making them more efficient, personalized, and insightful."
 }

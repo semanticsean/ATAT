@@ -52,7 +52,7 @@ def process_files(directory, transformation_prompt, num_files=None):
     except Exception as e:
       print(f"Error processing {file_path}: {e}")  # Error handling
 
-  print("Completed processing all files.")
+  print("Completed processing all files with update_team.")
 
 
 def create_new_agent_files(directory, num_new_agents, transformation_prompt):
@@ -81,8 +81,8 @@ def update_team(directory, transformation_prompt, num_agents):
 
 if __name__ == "__main__":
   directory = input(
-      "Enter the directory of agent files (default '../agents/new_agent_files'): "
-  ) or "../agents/new_agent_files"
+      "Enter the directory of agent files (default 'agents/new_agent_files'): "
+  ) or "agents/new_agent_files"
   transformation_prompt = input(
       "Enter your transformation prompt (e.g., 'make it an ad agency'): ")
   num_agents = input(
