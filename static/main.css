@@ -259,8 +259,15 @@ td {
   font-size: 1.25rem;
   color: black;
   margin-bottom: 0.5rem;
-  
+  min-height: 3rem; /* Add a minimum height */
+  display: flex; /* Make it a flex container */
+  align-items: center; /* Vertically center the content */
+  justify-content: center; /* Horizontally center the content */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add an ellipsis for overflowed text */
+  white-space: nowrap; /* Prevent wrapping */
 }
+
 
 
 .card-summary {
