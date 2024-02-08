@@ -337,6 +337,15 @@ td {
     margin: 0 auto 10px;
   }
 
+  .responsive-card-container {
+    display: grid;
+    grid-template-columns: 1fr; 
+    gap: 1.5rem;
+    width: 100%; /* Ensure the container is full width */
+    max-width: 1200px; /* Optional, for setting a max container width */
+    margin: 0 auto; /* Center the container */
+  }
+
   .main {
     padding: 1rem;
   }
