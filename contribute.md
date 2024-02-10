@@ -30,6 +30,10 @@ We're on the lookout for collaborators, sponsors, and potentially a co-owner to 
 
 ## Bug Fixes and Project Enhancements
 
+Header image / social image broken 
+
+
+
 - **Data Consistency:** Address inconsistencies in relationship data formatting, PDF email quoting, and agent operation behaviors.
 - **Functionality Improvements:** Enhance shortcode detection, fix issues with agent rendering, and optimize performance for features like summarization and thread reconciliation.
 

@@ -9,6 +9,7 @@
   <meta name="twitter:title" content="" />
   <meta name="twitter:description" content="" />
   <meta name="twitter:image" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
@@ -37,7 +38,7 @@
           document.querySelector('.header h2').innerText = data.h2;
           document.querySelector('.footer').innerText = data.footer;
           document.getElementById('webCopyContainer').innerText = data.web_copy;
-          document.getElementById('socialImage').src = data.social_image_url;
+          document.getElementById('social_image').src = data.social_image_url;
 
 
           // Optional: Update any additional elements as needed
@@ -86,10 +87,10 @@
           <img src="" id="header-logo" class="header-logo">
       </nav>
       <div class="title-container">
-        <img id="socialImage" src="" alt="Social Image"> 
+        <img id="social_image" class="social_image" src="" alt="Social Image"> 
         <h1>Loading...</h1> 
         <h2>Loading...</h2> 
-        <p id="webCopyContainer"></p>
+        <p id="webCopyContainer" class="webCopyContainer"></p>
       </div>
   </header>
 
@@ -112,14 +113,15 @@
                                   {% endfor %}
                               </div> !--> 
                             <div class="card-actions">
-                              <!-- Copy Shortcode Button -->
-                              <button id="copyShortcode{{ agent.id }}" class="button" data-original-text="Copy Shortcode" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
 
                               
-                            <!-- Email Agent Button -->
-                            <button class="button" onclick="location.href='mailto:{{ agent.email }}'">Link to Email</button>
-  <!-- Copy Email Address Button -->
-                          <button id="copyEmail{{ agent.id }}" class="button" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email Address</button>
+                              <button class="button" onclick="location.href='mailto:{{ agent.email }}'">Email {{ agent.id }}</button>
+                              
+
+                              <button id="copyEmail{{ agent.id }}" class="button" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email Address</button>
+                              <button id="copyShortcode{{ agent.id }}" class="button" data-original-text="Copy Shortcode" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
+
+                          
 
                               
                           
