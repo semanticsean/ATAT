@@ -13,7 +13,7 @@
     "ogImage": "https://semantic-life.com/static/atat-board.jpg",
     "twitterImage": "https://semantic-life.com/static/atat-board.jpg"
   },
-  "social_image_url": "https://semantic-life.com/static/atat-wide-trans.png",
+  "social_image_url": "/agents/pics/cover_photo.png",
   "logo_url": "https://semantic-life.com/static/sl-trans-glyph.png",
   "web_copy": "At Semantic Life, we leverage artificial intelligence to create a suite of AI agents designed to enhance email communications, making them more efficient, personalized, and insightful."
 }
