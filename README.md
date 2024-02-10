@@ -50,7 +50,7 @@
 - [Contribution and Development](#contribution-and-development)
 
 
-#Introduction 
+# Introduction 
 
 **ATAT enables rapid setup of AI agents you can email -- with simple shortcodes that give the agents superpowers.**
 
