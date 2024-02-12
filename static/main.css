@@ -1,160 +1,358 @@
-  /* Tailwind CSS overrides for Agent Trading Cards */
+/* Tailwind CSS overrides for Agent Trading Cards */
 
-  /* Reset padding and margins for a clean slate */
-  *,
-  *:before,
-  *:after {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-  }
+/* Reset padding and margins for a clean slate */
+*,
+*:before,
+*:after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
 
-  /* Set the font and background for the entire page */
-  body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #F7FAFC;
-    color: #333;
-  }
+/* Set the font and background for the entire page */
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-color: #F7FAFC;
+  color: #333;
+}
 
-  .title-container {
-    width: 70%;    
-    margin: 0 auto; 
+.title-container {
+  width: 70%;    
+  margin: 0 auto; 
+  height: auto;
+  object-fit: contain;
+}
+
+.social_image {
+  max-width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  display: block; /* Add this to ensure it doesn't display as an inline element */
+  margin: 0 auto; /* This centers the image if it's smaller than the container */
+}
+
+
+/* Paragraph styles */
+p {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+/* Style the header and footer */
+.header, .footer {
+  background-color: #FFFFFF;
+  color: #333333;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+/* Navbar styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+
+
+.nav-section {
+  display: flex;
+  justify-content: center;
+}
+
+.header-logo {
+  flex: 0 1 auto;
+  max-width: 250px;
+  margin: 0 auto;
+  max-height:40px;
+}
+
+.nav-link {
+  color: #333333;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  margin: 0 10px;
+}
+
+.nav-link:hover {
+  color: #666666;
+}
+
+.title-container {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+h1, h2 {
+  color: #333333;
+  margin: 0.5rem 0;
+}
+
+/* Update main content layout to include padding from left for the sidebar */
+.main {
+  padding-left: 250px; /* Equal to the width of the sidebar */
+}
+
+
+
+/* Make table headers left justified */
+th {
+  text-align: left;
+}
+
+
+/* Make table data font size smaller */
+td {
+  font-size: 0.875rem; /* Smaller font size for table data elements */
+
+
+}
+
+
+.webCopyContainer {
+  max-width: 50vw;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+
+/* Card styles */
+.responsive-card-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 2.5rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card {
+  display: flex;
+  flex-direction: row; /* Align items in a row */
+  align-items: center; /* Center items vertically */
+  padding: 1rem;
+  gap: 1rem; /* Space between image and content */
+  min-height: 350px; /* Adjust as needed to make card heights consistent */
+  overflow: hidden;
+}
+
+.card-image-wrapper {
+  flex-shrink: 0; /* Prevent the image from shrinking */
+  width: 120px; /* Fixed width for the image */
+  height: 120px; /* Fixed height for the image */
+  border-radius: 50%; /* Circle shape */
+  overflow: hidden;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cover the entire area of the wrapper */
+}
+
+.card-content {
+  flex-grow: 1; /* Take up remaining space */
+  display: flex;
+  flex-direction: column; /* Stack content vertically */
+}
+
+
+.button {
+  width: auto; /* Auto width to content */
+  padding: 0.5rem; /* Smaller padding */
+  font-size: 0.875rem; /* Smaller font size */
+}
+
+.button:hover {
+  background-color: #2D3748; /* A slightly darker shade for hover effect */
+}
+
+/* Button container styles */
+.button-container {
+  display: flex;
+  justify-content: space-around; /* Evenly space buttons within the card */
+  padding: 1rem 0; /* Add some padding above and below the buttons */
+}
+
+/* Agent ID and Jobtitle styles with padding */
+.agent-id, .agent-jobtitle, .card-summary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Adjust button container styles */
+.card-actions {
+  /* existing styles */
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically */
+  align-items: center; /* Center buttons horizontally */
+  align-self: flex-start; 
+  flex-direction: row; /* Align buttons in a row */
+  gap: 0.5rem; /* Space between buttons */
+  margin: 5px 0; /* Add margin to top and bottom for spacing */
+
+}
+
+/* Apply changes to button first-child and last-child if needed */
+.card-actions button:first-child {
+  /* existing styles */
+}
+
+.card-actions button:last-child {
+  /* existing styles */
+}
+
+
+.card-content {
+  /* existing styles */
+  flex-grow: 1; /* new - allows this div to grow and fill the space */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* modified - this now works because of flex-grow */
+  padding: 16px;
+}
+
+
+
+/* Email link styles */
+.email-link {
+  background-color: grey; /* Change the color to grey */
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  display: block;
+  text-align: center;
+  font-weight: bold;
+  margin-top: auto; /* Push the email link to the bottom */
+  margin-bottom: 1rem; /* Add space below the email link */
+
+
+}
+
+.email-link:hover {
+  background-color: #1d41d3;
+}
+
+.agent-id {
+  font-size: 2.1rem;
+  color: black;
+  margin-top: 2px;
+  padding-top: 2px;
+}
+
+.agent-jobtitle {
+  font-size: 1.25rem;
+  color: black;
+  margin-bottom: 0.5rem;
+  min-height: 3rem; /* Add a minimum height */
+  display: flex; /* Make it a flex container */
+  align-items: center; /* Vertically center the content */
+  justify-content: center; /* Horizontally center the content */
+  overflow: wrap; /* Hide overflow */
+  text-overflow: ellipsis; /* Add an ellipsis for overflowed text */
+  white-space: nowrap; /* Prevent wrapping */
+}
+
+
+
+.card-summary {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color:black;
+}
+
+
+/*Shortcode Styles*/
+.shortcode-container {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 250px; /* Adjust width as necessary */
+  overflow-y: auto; /* Enable scrolling if content is too long */
+  background-color: #f7f7f7; /* Light background for the sidebar */
+  padding: 2rem 1rem;
+  border-right: 1px solid #eaeaea; /* Add separation line */
+}
+
+.shortcode {
+  border-bottom: 1px solid #eaeaea; /* Light line between each shortcode for separation */
+  padding-bottom: 1rem; /* Space at the bottom of each shortcode */
+  margin-bottom: 1rem; /* Space after the bottom border */
+}
+
+.shortcode:last-child {
+  border-bottom: none; /* No border for the last item */
+  padding-bottom: 0; /* No padding for the last item */
+  margin-bottom: 0; /* No margin for the last item */
+}
+
+
+
+
+
+/* Responsive adjustments for scfreens 768px wide or less */
+@media (max-width: 768px) {
+
+  .shortcode-container {
+    width: 100%;
     height: auto;
-    object-fit: contain;
-  }
-
-  .social_image {
-    max-width: 100%;
-    max-height: 400px;
-    object-fit: contain;
-    display: block; /* Add this to ensure it doesn't display as an inline element */
-    margin: 0 auto; /* This centers the image if it's smaller than the container */
-  }
-
-
-  /* Paragraph styles */
-  p {
-    font-size: 1rem;
-    line-height: 1.5;
+    position: relative;
+    padding: 1rem 0.5rem;
+    border-right: none;
     margin-bottom: 1rem;
   }
 
-  /* Style the header and footer */
-  .header, .footer {
-    background-color: #FFFFFF;
-    color: #333333;
-    text-align: center;
-    padding: 1rem 0;
+  .main {
+    padding-left: 0; 
   }
 
-  /* Navbar styles */
-  .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
+  .card {
+    flex-direction: column; /* Stack items vertically on smaller screens */
+    min-height: auto;
+  }
+
+  .card-actions {
+    flex-direction: column; /* Stack buttons vertically on smaller screens */
+  }
+
+  .webCopyContainer {
+    max-width: 100vw;
   }
 
 
-
-  .nav-section {
-    display: flex;
+  .navbar, .nav-section {
     justify-content: center;
+    flex-basis: 100%;
   }
 
   .header-logo {
-    flex: 0 1 auto;
-    max-width: 250px;
-    margin: 0 auto;
-    max-height:40px;
+    margin: 0 auto 10px;
   }
 
-  .nav-link {
-    color: #333333;
-    padding: 0.5rem 1rem;
-    text-decoration: none;
-    margin: 0 10px;
-  }
 
-  .nav-link:hover {
-    color: #666666;
-  }
 
-  .title-container {
-    text-align: center;
-    padding: 2rem 0;
-  }
-
-  h1, h2 {
-    color: #333333;
-    margin: 0.5rem 0;
-  }
-
-  /* Main content padding */
   .main {
-    padding: 2rem;
-  }
-
-
-
-  /* Make table headers left justified */
-  th {
-    text-align: left;
-  }
-
-
-  /* Make table data font size smaller */
-  td {
-    font-size: 0.875rem; /* Smaller font size for table data elements */
-
-
-  }
-
-
-  .webCopyContainer {
-    max-width: 50vw;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-
-
-  /* Card styles */
-  .responsive-card-container {
-    display: grid;
-    grid-template-columns: 1fr; 
-    gap: 2.5rem;
-    width: 100%;
-    margin: 0 auto;
-  }
-
-  .card:hover {
-    transform: translateY(-5px);
+    padding: 260px;
   }
 
   .card {
     /* existing styles */
     display: flex;
     flex-direction: column;
-    align-items: stretch; /* new */
+    align-items: stretch;
     background: white;
-    border-radius: 20px; /* Adjust as needed for rounded corners */
-    border: 3px solid #333; /* High contrast border */
-    overflow: hidden; /* Contains children within the border radius */
-  }
-
-  /* Image wrapper styles */
-  .card-image-wrapper {
-    border-top-left-radius: 20px; /* Match the parent's border-radius */
-    border-top-right-radius: 20px; /* Match the parent's border-radius */
-    overflow: hidden; /* Ensures the image doesn't break out of rounded corners */
-  }
-
-  .card-image {
-    width: 100%;
-    display: block;
-    object-fit: cover;
-    /* Remove aspect-ratio to allow image to fill the div while maintaining border-radius */
+    border-radius: 20px;
+    border: 3px solid #333;
+    overflow: hidden; /* This will contain the image within the border radius */
   }
 
   /* Card content styles with padding */
@@ -164,223 +362,29 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    border-radius: 20px;
     padding: 16px; /* Add padding to content */
-  }
-
-  /* Button styles with specific width and centered */
-  .button {
-    /* existing styles */
-    background-color: #0446b9;
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 80%; /* Set the width to 50% */
-    margin: 10px auto; /* Center the button with automatic margins */
-  }
-
-  .button:hover {
-    background-color: #2D3748; /* A slightly darker shade for hover effect */
-  }
-
-  /* Button container styles */
-  .button-container {
-    display: flex;
-    justify-content: space-around; /* Evenly space buttons within the card */
-    padding: 1rem 0; /* Add some padding above and below the buttons */
-  }
-
-  /* Agent ID and Jobtitle styles with padding */
-  .agent-id, .agent-jobtitle {
-    /* existing styles */
-    padding: 4px 0; /* Add padding to top and bottom */
-  }
-
-  /* Adjust button container styles */
-  .card-actions {
-    /* existing styles */
-    display: flex;
-    flex-direction: column; /* Stack buttons vertically */
-    align-items: center; /* Center buttons horizontally */
-  }
-
-  /* Apply changes to button first-child and last-child if needed */
-  .card-actions button:first-child {
-    /* existing styles */
-  }
-
-  .card-actions button:last-child {
-    /* existing styles */
-  }
-
-
-  .card-content {
-    /* existing styles */
-    flex-grow: 1; /* new - allows this div to grow and fill the space */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* modified - this now works because of flex-grow */
-    padding: 16px;
-  }
-
-
-
-  /* Email link styles */
-  .email-link {
-    background-color: grey; /* Change the color to grey */
-    color: white;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    display: block;
-    text-align: center;
-    font-weight: bold;
-    margin-top: auto; /* Push the email link to the bottom */
-    margin-bottom: 1rem; /* Add space below the email link */
-
-
-  }
-
-  .email-link:hover {
-    background-color: #1d41d3;
   }
 
   .agent-id {
     font-size: 2.1rem;
     color: black;
-    margin-top: 2px;
-    padding-top: 2px;
+    margin-top:12px;
+    padding-top: 8px;
   }
 
   .agent-jobtitle {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     color: black;
-    margin-bottom: 0.5rem;
-    min-height: 3rem; /* Add a minimum height */
-    display: flex; /* Make it a flex container */
-    align-items: center; /* Vertically center the content */
-    justify-content: center; /* Horizontally center the content */
-    overflow: hidden; /* Hide overflow */
-    text-overflow: ellipsis; /* Add an ellipsis for overflowed text */
-    white-space: nowrap; /* Prevent wrapping */
+    margin-top: 1px;
+    padding-top: 2px;
   }
-
-
 
   .card-summary {
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    color:black;
+    -webkit-line-clamp: 2;
   }
 
-
-  /*Shortcode Styles*/
-  .shortcode-container {
-    background-color: white; /* Adjust color as needed */
-    border-radius: 15px; /* Same border-radius as cards for consistency */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Same shadow as cards */
-    padding: 1rem; /* Padding for internal spacing */
-    margin: 2rem auto; /* For spacing around the container */
-    max-width: 800px; /* Max width of the container, adjust as needed */
+  .email-link {
+    margin-top: 0.75rem;
   }
-
-  .shortcode {
-    border-bottom: 1px solid #eaeaea; /* Light line between each shortcode for separation */
-    padding-bottom: 1rem; /* Space at the bottom of each shortcode */
-    margin-bottom: 1rem; /* Space after the bottom border */
-  }
-
-  .shortcode:last-child {
-    border-bottom: none; /* No border for the last item */
-    padding-bottom: 0; /* No padding for the last item */
-    margin-bottom: 0; /* No margin for the last item */
-  }
-
-  /* Responsive adjustments can be added if needed */
-  @media (min-width: 768px) {
-    .shortcode-container {
-      /* Styles for wider screens */
-    }
-  }
-
-  @media (max-width: 768px){
-  .webCopyContainer {
-    max-width: 100vw;
-  }
-    }
-
-
-  /* Responsive adjustments for screens wider than 768px */
-  @media (min-width: 768px) {
-  .responsive-card-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  /* Responsive adjustments for screens 768px wide or less */
-  @media (max-width: 768px) {
-    .navbar, .nav-section {
-      justify-content: center;
-      flex-basis: 100%;
-    }
-
-    .header-logo {
-      margin: 0 auto 10px;
-    }
-
-
-
-    .main {
-      padding: 1rem;
-    }
-
-    .card {
-      /* existing styles */
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      background: white;
-      border-radius: 20px;
-      border: 3px solid #333;
-      overflow: hidden; /* This will contain the image within the border radius */
-    }
-
-    /* Card content styles with padding */
-    .card-content {
-      /* existing styles */
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      border-radius: 20px;
-      padding: 16px; /* Add padding to content */
-    }
-
-    .agent-id {
-      font-size: 2.1rem;
-      color: black;
-      margin-top:12px;
-      padding-top: 8px;
-    }
-
-    .agent-jobtitle {
-      font-size: 1.1rem;
-      color: black;
-      margin-top: 1px;
-      padding-top: 2px;
-    }
-
-    .card-summary {
-      -webkit-line-clamp: 2;
-    }
-
-    .email-link {
-      margin-top: 0.75rem;
-    }
-  }
+}
