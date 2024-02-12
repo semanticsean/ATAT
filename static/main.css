@@ -14,21 +14,35 @@ body {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   background-color: #F7FAFC;
   color: #333;
+  margin-top: 0px; 
 }
 
 .title-container {
-  width: 70%;    
-  margin: 0 auto; 
+  width: calc(100% - 250px); /* Same width as .main taking sidebar into account */
+  margin-left: 250px; /* Same as .main to align with the content */
+  margin-right: auto; /* Keep it centered */
   height: auto;
   object-fit: contain;
+  text-align: center;
+  padding: 1rem 0;
+  box-sizing: border-box; /* Include padding in the width calculation */
 }
+
 
 .social_image {
   max-width: 100%;
   max-height: 400px;
   object-fit: contain;
   display: block; /* Add this to ensure it doesn't display as an inline element */
-  margin: 0 auto; /* This centers the image if it's smaller than the container */
+  margin-left: auto; /* This centers the image if it's smaller than the container */
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom:20px;
+  border-radius:20px;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+  border-width:4px;
+  border-color:black;
+  border-style: solid;
 }
 
 
@@ -65,8 +79,10 @@ p {
 .header-logo {
   flex: 0 1 auto;
   max-width: 250px;
-  margin: 0 auto;
+  margin-top: 20px;
+  margin-left:40px;
   max-height:40px;
+  position: fixed; 
 }
 
 .nav-link {
@@ -80,10 +96,6 @@ p {
   color: #666666;
 }
 
-.title-container {
-  text-align: center;
-  padding: 2rem 0;
-}
 
 h1, h2 {
   color: #333333;
@@ -92,10 +104,14 @@ h1, h2 {
 
 /* Update main content layout to include padding from left for the sidebar */
 .main {
-  padding-left: 250px; /* Equal to the width of the sidebar */
+  padding-left: 12px; /* Equal to the width of the sidebar */
+  margin-left: 250px; 
 }
 
 
+.agents-table{
+  width: max-content;
+}
 
 /* Make table headers left justified */
 th {
@@ -106,8 +122,7 @@ th {
 /* Make table data font size smaller */
 td {
   font-size: 0.875rem; /* Smaller font size for table data elements */
-
-
+  white-space: nowrap;
 }
 
 
@@ -140,6 +155,11 @@ td {
   gap: 1rem; /* Space between image and content */
   min-height: 350px; /* Adjust as needed to make card heights consistent */
   overflow: hidden;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 
 .card-image-wrapper {
@@ -167,6 +187,7 @@ td {
   width: auto; /* Auto width to content */
   padding: 0.5rem; /* Smaller padding */
   font-size: 0.875rem; /* Smaller font size */
+  border-radius: 12px;
 }
 
 .button:hover {
@@ -182,9 +203,9 @@ td {
 
 /* Agent ID and Jobtitle styles with padding */
 .agent-id, .agent-jobtitle, .card-summary {
-  overflow: hidden;
+  overflow: wrap;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: wrap;
 }
 
 /* Adjust button container styles */
@@ -254,8 +275,8 @@ td {
   margin-bottom: 0.5rem;
   min-height: 3rem; /* Add a minimum height */
   display: flex; /* Make it a flex container */
-  align-items: center; /* Vertically center the content */
-  justify-content: center; /* Horizontally center the content */
+  align-items: left; /* Vertically center the content */
+  justify-content: left; /* Horizontally center the content */
   overflow: wrap; /* Hide overflow */
   text-overflow: ellipsis; /* Add an ellipsis for overflowed text */
   white-space: nowrap; /* Prevent wrapping */
@@ -270,17 +291,21 @@ td {
 }
 
 
-/*Shortcode Styles*/
-.shortcode-container {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
+.sidebar {
   width: 250px; /* Adjust width as necessary */
-  overflow-y: auto; /* Enable scrolling if content is too long */
   background-color: #f7f7f7; /* Light background for the sidebar */
-  padding: 2rem 1rem;
+  padding: 1rem;
+  position: fixed;
+  top: 60px;
+  bottom: 0;
+  left: 0;
+  overflow-y: auto; /* Enable scrolling if content is too long */
   border-right: 1px solid #eaeaea; /* Add separation line */
+}
+
+
+.shortcode-container {
+  margin-bottom: 1rem; /* Space between shortcode containers */
 }
 
 .shortcode {
@@ -295,6 +320,7 @@ td {
   margin-bottom: 0; /* No margin for the last item */
 }
 
+  
 
 
 
@@ -302,17 +328,23 @@ td {
 /* Responsive adjustments for scfreens 768px wide or less */
 @media (max-width: 768px) {
 
-  .shortcode-container {
+  .sidebar {
+    position: static;
     width: 100%;
+  }
+
+  .shortcode-container {
     height: auto;
-    position: relative;
-    padding: 1rem 0.5rem;
     border-right: none;
     margin-bottom: 1rem;
+    position: static;
+    width: auto;
+    box-shadow: none;
+    padding: 0;
   }
 
   .main {
-    padding-left: 0; 
+    margin-left: 0;
   }
 
   .card {
@@ -352,7 +384,7 @@ td {
     background: white;
     border-radius: 20px;
     border: 3px solid #333;
-    overflow: hidden; /* This will contain the image within the border radius */
+    overflow: hidden; 
   }
 
   /* Card content styles with padding */
@@ -378,6 +410,7 @@ td {
     color: black;
     margin-top: 1px;
     padding-top: 2px;
+    
   }
 
   .card-summary {
