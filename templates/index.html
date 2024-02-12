@@ -22,14 +22,13 @@
         .then(response => response.json())
         .then(data => {
           // Update Meta Tags
-          document.querySelector('meta[property="og:title"]').setAttribute("content", data.meta.ogTitle);
-          document.querySelector('meta[property="og:description"]').setAttribute("content", data.meta.ogDescription);
-          document.querySelector('meta[property="og:image"]').setAttribute("content", data.social_image_url);
+          document.querySelector('meta[property="og:image"]').setAttribute("content", data.meta.ogImage);
           document.querySelector('meta[property="og:url"]').setAttribute("content", data.meta.ogUrl);
           document.querySelector('meta[name="twitter:card"]').setAttribute("content", data.meta.twitterCard);
           document.querySelector('meta[name="twitter:title"]').setAttribute("content", data.meta.twitterTitle);
           document.querySelector('meta[name="twitter:description"]').setAttribute("content", data.meta.twitterDescription);
-          document.querySelector('meta[name="twitter:image"]').setAttribute("content", data.social_image_url);
+          document.querySelector('meta[name="twitter:image"]').setAttribute("content", data.meta.twitterImage);
+
 
           // Update Title, Headers, and Footer
           document.title = data.title;
@@ -87,9 +86,10 @@
           <img src="" id="header-logo" class="header-logo">
       </nav>
       <div class="title-container">
+        
         <h1>Loading...</h1> 
         <h2>Loading...</h2> 
-        
+      
         
         
         <p id="webCopyContainer" class="webCopyContainer"></p>
@@ -145,7 +145,9 @@
                           <div class="shortcode-container">
 
                           <h2>How it works:</h2>
-                            <p>These AIs have email addresses. You can email them, just as you would anyone else. They also take shortcodes, which give them superpowers. Try it out!</p>
+                            <p>These Alpha AIs have email addresses. You can email them, just as you would anyone else. They also take shortcodes, which give them superpowers. Try it out! <br/> <a href="https://semantic-life.com/terms">Terms</a>
+                               | 
+                            <a href="https://semantic-life.com/privacy">Privacy</a></p>
                           </div>
                           <!-- All Agents Card -->
                           <div class="shortcode-container">
@@ -215,11 +217,12 @@
 
                           
   </main>
+  
     <footer class="footer">
         
-        <div class="footer-links">
-          
-        </div>
+        
     </footer>
+  
 </body>
+
 </html>  
