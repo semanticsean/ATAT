@@ -32,7 +32,7 @@ We're on the lookout for collaborators, sponsors, and potentially a co-owner to 
 
 Header image / social image broken 
 
-
+Using id to find agent makes it sensitive so it breaks if email address and agent id aren't the same. 
 
 - **Data Consistency:** Address inconsistencies in relationship data formatting, PDF email quoting, and agent operation behaviors.
 - **Functionality Improvements:** Enhance shortcode detection, fix issues with agent rendering, and optimize performance for features like summarization and thread reconciliation.
