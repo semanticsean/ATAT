@@ -38,8 +38,8 @@ body {
   margin-right: auto;
   margin-top: 20px;
   margin-bottom:20px;
-  border-radius:20px;
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   border-width:4px;
   border-color:black;
   border-style: solid;
@@ -49,7 +49,7 @@ body {
 /* Paragraph styles */
 p {
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: 1.2;
   margin-bottom: 1rem;
 }
 
@@ -176,11 +176,6 @@ td {
   object-fit: cover; /* Cover the entire area of the wrapper */
 }
 
-.card-content {
-  flex-grow: 1; /* Take up remaining space */
-  display: flex;
-  flex-direction: column; /* Stack content vertically */
-}
 
 
 .button {
@@ -233,10 +228,10 @@ td {
 
 .card-content {
   /* existing styles */
-  flex-grow: 1; /* new - allows this div to grow and fill the space */
+  flex-grow: 1; 
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* modified - this now works because of flex-grow */
+  justify-content: space-between; 
   padding: 16px;
 }
 
@@ -320,104 +315,94 @@ td {
   margin-bottom: 0; /* No margin for the last item */
 }
 
+
+
+/* MOBILE */
+@media (max-width: 768px) {
   
 
-
-
-
-/* Responsive adjustments for scfreens 768px wide or less */
-@media (max-width: 768px) {
-
-  .sidebar {
-    position: static;
-    width: 100%;
-  }
-
-  .shortcode-container {
-    height: auto;
-    border-right: none;
-    margin-bottom: 1rem;
-    position: static;
-    width: auto;
-    box-shadow: none;
-    padding: 0;
-  }
-
-  .main {
-    margin-left: 0;
-  }
-
-  .card {
-    flex-direction: column; /* Stack items vertically on smaller screens */
-    min-height: auto;
-  }
-
-  .card-actions {
-    flex-direction: column; /* Stack buttons vertically on smaller screens */
-  }
-
-  .webCopyContainer {
-    max-width: 100vw;
-  }
-
-
-  .navbar, .nav-section {
-    justify-content: center;
-    flex-basis: 100%;
+  .social_image {
+    max-height: 200px; /* reduce size for mobile */
   }
 
   .header-logo {
-    margin: 0 auto 10px;
+    position: static; /* stop fixing position on mobile */
+    margin: 0 auto; /* center it */
+    display: block; /* correct the display */
   }
 
-
-
   .main {
-    padding: 260px;
+    padding: 1rem; /* add some padding */
+    margin-left: 0; /* reset margin */
+  }
+
+  .responsive-card-container {
+    grid-template-columns: 1fr; /* stack cards in a single column */
+  }
+
+  .sidebar,
+  .shortcode-container {
+    position: static; /* let it flow naturally */
+    width: 100%; /* take full width */
+    padding: 1rem 0; /* adjust padding */
+    box-shadow: none; /* remove shadow */
+    border-right: none; /* remove border */
+  }
+
+  .agents-table {
+    width: 100%; /* full width for the table */
+  }
+
+  .webCopyContainer {
+    max-width: 90vw;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .card {
-    /* existing styles */
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    background: white;
-    border-radius: 20px;
-    border: 3px solid #333;
-    overflow: hidden; 
+    flex-direction: column; /* Stack the image and content vertically */
+    align-items: center; /* Center align the items */
   }
 
-  /* Card content styles with padding */
+  .card-image-wrapper {
+    width: 120px; /* Adjust image size for mobile */
+    height: 120px; /* Adjust image size for mobile */
+    margin-bottom: .2rem; /* Add some space below the image */
+  }
+
   .card-content {
-    /* existing styles */
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border-radius: 20px;
-    padding: 16px; /* Add padding to content */
-  }
-
-  .agent-id {
-    font-size: 2.1rem;
-    color: black;
-    margin-top:12px;
-    padding-top: 8px;
+    text-align: center; /* Center the text for mobile */
+    padding:4px;
   }
 
   .agent-jobtitle {
-    font-size: 1.1rem;
-    color: black;
-    margin-top: 1px;
-    padding-top: 2px;
+  
+    align-items: center; /* Vertically center the content */
+    justify-content: center; /* Horizontally center the content */
     
   }
 
   .card-summary {
-    -webkit-line-clamp: 2;
+    white-space: normal; /* Allow text to wrap */
+    overflow: visible; /* Show all text */
+    text-overflow: clip; /* Remove ellipsis */
+    -webkit-line-clamp: none; /* Show all lines of text */
   }
 
-  .email-link {
-    margin-top: 0.75rem;
+  .button {
+    width: 100%; /* Full width for buttons */
+    margin: 0.25rem 0; /* Add space between buttons */
+  }
+
+
+  .title-container {
+    width: 100%; /* full width */
+    margin: 0; /* reset margin */
+    padding: 1rem; /* maintain vertical padding */
+    /* Ensure title container contents are aligned with card contents */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }
+  
