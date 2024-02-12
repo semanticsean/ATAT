@@ -87,14 +87,17 @@
           <img src="" id="header-logo" class="header-logo">
       </nav>
       <div class="title-container">
-        <img id="social_image" class="social_image" src="" alt="Social Image"> 
         <h1>Loading...</h1> 
         <h2>Loading...</h2> 
+        
+        
+        
         <p id="webCopyContainer" class="webCopyContainer"></p>
       </div>
   </header>
 
                       <main class="main">
+                        <img id="social_image" class="social_image" src="" alt="Social Image"> 
                       {% if agents %}
                           <div class="responsive-card-container">
                               {% for agent in agents %}
@@ -133,70 +136,84 @@
                   {% endif %}
               {% endfor %}
           </div>
-                        <div class="shortcode-container">
-                            <h2>Shortcodes</h2>
-                            <div class="shortcode">
-                              <h3>Call Additional Agents by Name</h3>
-                              <p>@@(Agent Name)</p>
-                            </div>
-                            <div class="shortcode">
-                              <h3>Create a Temporary Agent</h3>
-                              <p>@@.creator(Embody an agent that...)</p>
-                            </div>
-                            <div class="shortcode">
-                              <h3>Chunk / Multi-pass API Calls / Assemble</h3>
-                              <p>!detail_start!<br>instruction or content<br>!split!<br>instruction or content<br>!detail_stop!</p>
-                            </div>
-                            <div class="shortcode">
-                              <h3>Summarize</h3>
-                              <p>!summarize_start!<br>content<br>!summarize_stop!</p>
-                            </div>
-                            <div class="shortcode">
-                              <h3>Summarize with Modifier e.g. JSON Return</h3>
-                              <p>!summarize.json_start!<br>content<br>!summarize.json_stop!</p>
-                            </div>
-                          </div>
 
-                          <div class="shortcode-container">
-                          <div class="shortcode">
-                          <h2>Code:</h2>
-                            <h3><a href="https://github.com/semanticsean/ATAT" target="_blank">Github / Readme</a></h3>
-                            <h3><a href="https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public" target="_blank">Setup on Replit in 5 Minutes</a> </h3>
-
-                          <h3>Follow Sean <a href="https://x.com/seanmcdonaldxyz" target="_blank">x.com/@seanmcdonaldxyz</a></h3>
-                            <h3>Follow Semantic Life <a href="https://x.com/semanticlife" target="_blank">x.com/@seanmcdonaldxyz</a></h3>
-                          </div>
-                        </div>
-
-                        <!-- All Agents Card -->
-                        <div class="shortcode-container">
-                          <div class="card-content">
-                            <h2>ALL AGENTS</h2>
-                            <table class="agents-table">
-                              <thead>
-                                <tr>
-                                  <th>Agent</th>
-                                  <th>Job</th>
-                                  <th>Email</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {% for agent in agents %}
-                                  <tr>
-                                    <td>{{ agent.id }}</td>
-                                    <td>{{ agent.jobtitle[:30] }}{{ '...' if agent.jobtitle|length > 30 else '' }}</td>
-                                    <td>{{ agent.email.split('@')[0] }}@</td>
-                                    
-                                  </tr>
-                                {% endfor %}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
+                        
                           
       {% endif %}
 
+                        <div class="sidebar">
+                          <div class="shortcode-container">
+
+                          <h2>How it works:</h2>
+                            <p>These AIs have email addresses. You can email them, just as you would anyone else. They also take shortcodes, which give them superpowers. Try it out!</p>
+                          </div>
+                          <!-- All Agents Card -->
+                          <div class="shortcode-container">
+                            
+                              <h2>Available AIs</h2>
+                              <table class="agents-table">
+                                <thead>
+                                  <tr>
+                                    <!--<th>Agent</th>-->
+                                    <th>By Job:</th>
+                                    <!--<th>Email</th> -->
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% for agent in agents %}
+                                    <tr>
+                                      <!--<td>{{ agent.id }}</td>-->
+                                      <td>{{ agent.jobtitle[:30] }}{{ '...' if agent.jobtitle|length > 30 else '' }}</td>
+                                      <!--<td>{{ agent.email.split('@')[0] }}@</td> -->
+
+                                    </tr>
+                                  {% endfor %}
+                                </tbody>
+                              </table>
+                            
+                          </div>
+                       
                         
+                          <div class="shortcode-container">
+                              <h2>Shortcodes</h2>
+                              <div class="shortcode">
+                            <h4>Call Agents from Email Body</h4>
+                            <p>@@(Agent Name)</p>
+                            </div>
+                            <div class="shortcode">
+                            <h4>Create a Temporary Agent</h4>
+                            <p>@@.creator(Embody an agent that...)</p>
+                            </div>
+                            <div class="shortcode">
+                            <h4>Long Responses (Multi-Chunk)</h4>
+                            <p>!detail_start!<br>instruction or content<br>!split!<br>instruction or content<br>!detail_stop!</p>
+                            </div>
+                            <div class="shortcode">
+                            <h4>Summarize</h4>
+                            <p>!summarize_start!<br>content<br>!summarize_stop!</p>
+                            </div>
+                            <div class="shortcode">
+                            <h4>Summarize with Modifier e.g. JSON Return</h4>
+                            <p>!summarize.json_start!<br>content<br>!summarize.json_stop!</p>
+                            </div>
+                            </div>
+
+                            <div class="shortcode-container">
+                            <div class="shortcode">
+                            <h3>Code:</h3>
+                              <p><a href="https://github.com/semanticsean/ATAT" target="_blank">Github / Readme</a>
+                                <br/>
+                                <a href="https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public" target="_blank">Setup on Replit in 5 Minutes</a>
+<br/>
+                             <a href="https://x.com/seanmcdonaldxyz" target="_blank">Follow Sean</a>
+                                <br/>
+                              <a href="https://x.com/semanticlife" target="_blank">Follow Semantic Life</a>
+                              </p>
+                            </div>
+                          </div>
+                           </div>
+
+                          
   </main>
     <footer class="footer">
         

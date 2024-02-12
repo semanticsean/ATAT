@@ -121,6 +121,8 @@ COMPANY_NAME should be as it appears in writing, like "ACME Corp."
 
 See /tools/testing_emails.md for emails to test with.
 
+IMPORTANT: You may need to whitelist the domain and / or email addresses. 
+
 ### **⚠️ Critical 🚨🚨**
 MAKE A NEW EMAIL TO USE WITH ATAT. DO NOT CONNECT EXISTING ACCOUNTS. ATAT is reactive and you may send unintended emails if you haven't indexed the history properly. Create a new account exclusively for ATAT use.
 
