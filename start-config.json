@@ -1,14 +1,14 @@
 {
-  "run_update_team": false,
+  "run_update_team": true,
   "run_render_agents": true,
-  "run_update_content": false,
+  "run_update_content": true,
   "directory": "agents/new_agent_files",
   "transformation_prompt": "A non-profit grantwriting consultancy specializes in assisting non-profit organizations to secure funding through grants. This type of consultancy is adept at navigating the complex landscape of grant opportunities, including government, corporate, and foundation grants. The consultancy works closely with non-profit clients to understand their mission, programs, and financial needs. With this understanding, consultants tailor grant proposals to match the specific criteria and priorities of funders, effectively communicating the non-profit's impact, needs, and the benefits of supporting their work.",
   "cover_photo_instructions": "A team shot of the whole team of a non-profit grantwriting consultancy specializes in assisting non-profit organizations to secure funding through grants. This type of consultancy is adept at navigating the complex landscape of grant opportunities, including government, corporate, and foundation grants. The consultancy works closely with non-profit clients to understand their mission, programs, and financial needs. With this understanding, consultants tailor grant proposals to match the specific criteria and priorities of funders, effectively communicating the non-profit's impact, needs, and the benefits of supporting their work.",
   "num_agents_additional": 0,
   "fictionalize_option": "no",
-  "clear_json_confirm": "no",
-  "clear_pics_confirm": "no",
+  "clear_json_confirm": "yes",
+  "clear_pics_confirm": "yes",
 
   "social_image_url": "/agents/pics/cover_photo.png",
   "logo_url": "https://semantic-life.com/static/sl-trans-glyph.png"

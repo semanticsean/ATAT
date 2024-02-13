@@ -1,19 +1,18 @@
 {
-  "title": "ATAT: AI Agents Over Email by Semantic Life",
-  "h1": "Welcome to Semantic Life's AI Agents",
-  "h2": "Empowering AIs to Use Email",
-  "footer": "© Semantic Life. All Rights Reserved, 2024.@@ and ATAT are trademarks of Semantic Life.",
-  "meta": {
-    "ogTitle": "AI Agents Over Email by Semantic Life",
-    "ogDescription": "Discover how Semantic Life's AI agents can transform your email communications.",
-    "ogUrl": "https://semantic-life.com",
-    "twitterCard": "summary_large_image",
-    "twitterTitle": "AI Agents Over Email by Semantic Life",
-    "twitterDescription": "Explore the future of email with Semantic Life's AI agents.",
-    "ogImage": "https://semantic-life.com/static/atat-board.jpg",
-    "twitterImage": "https://semantic-life.com/static/atat-board.jpg"
-  },
-  "social_image_url": "/agents/pics/cover_photo.png",
-  "logo_url": "https://semantic-life.com/static/sl-trans-glyph.png",
-  "web_copy": "At Semantic Life, we leverage artificial intelligence to create a suite of AI agents designed to enhance email communications, making them more efficient, personalized, and insightful."
+    "title": "Semantic Life - Innovative Marketing for Non-Profits",
+    "h1": "Elevate Your Cause with Semantic Life",
+    "h2": "Creative Strategies to Propel Your Non-Profit Forward",
+    "footer": "\u00a9 2023 Semantic Life | Your Partner in Purpose-Driven Marketing",
+    "ogTitle": "Semantic Life - Expert Ad Agency for Non-Profit Success",
+    "ogDescription": "Discover how Semantic Life's team of marketing maestros can amplify your non-profit's mission with bespoke creative and strategic solutions.",
+    "twitterTitle": "Semantic Life - Non-Profit Marketing Mastery",
+    "twitterDescription": "Join forces with Semantic Life to transform your non-profit's reach and impact. Expertise meets innovation in every campaign.",
+    "meta": {
+        "description": "Semantic Life offers specialized marketing services designed to elevate non-profit organizations through innovation, strategy, and ethical practices.",
+        "keywords": "non-profit marketing, creative solutions, strategic marketing, ethical financial practices, data-driven insights"
+    },
+    "social_image_url": "/agents/pics/cover_photo.png",
+    "logo_url": "https://semantic-life.com/static/sl-trans-glyph.png",
+    "web_copy": "Welcome to Semantic Life, where the future of advertising meets the power of AI. Our team of intelligent agents, including Imara, Bill, Casey, Jane, Fritz, John, Helia, Issa, Jason, Kyra, Lance, Misha, Nina, and Orion, are ready to revolutionize your non-profit organization's marketing strategy. With our innovative solutions, data-driven insights, and ethical practices, we'll help you make a meaningful impact in the world. Join us and let's create something extraordinary together.",
+    "header_image": "/home/runner/AI-Grantwriting-Team-ATAT-dev-03/tools/../static/atat.png"
 }
