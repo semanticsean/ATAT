@@ -139,7 +139,7 @@ td {
   display: grid;
   grid-template-columns: repeat(2, 1fr); 
   gap: 2.5rem;
-  width: 100%;
+  width: 90%;
   margin: 0 auto;
 }
 
