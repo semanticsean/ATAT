@@ -30,6 +30,8 @@ We're on the lookout for collaborators, sponsors, and potentially a co-owner to 
 
 ## Bug Fixes and Project Enhancements
 
+No subject line leads to processed_threads.json errors. 
+
 Header image / social image broken 
 
 Using id to find agent makes it sensitive so it breaks if email address and agent id aren't the same. 

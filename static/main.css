@@ -17,6 +17,39 @@ body {
   margin-top: 0px; 
 }
 
+.hero-container {
+  display: flex;
+  justify-content: center; /* Align to the center of the main container */
+  align-items: center;
+  margin: 0 auto; /* Center the container */
+  padding: 1rem 0;
+  max-width: 90%; /* Match the .responsive-card-container width */
+}
+
+.text-section {
+  flex: 1;
+  padding-right: 20px;
+  max-width: calc(50% - 1rem); /* Half of .hero-container width minus the gap */
+}
+
+.image-section {
+  flex: 1;
+  padding-left: 20px;
+  display: flex;
+  justify-content: center; /* Center the image within its section */
+  max-width: calc(50% - 1rem); /* Half of .hero-container width minus the gap */
+}
+
+.social_image {
+  width: auto; /* Keep the intrinsic aspect ratio of the image */
+  max-width: 100%; /* Ensure it is not larger than its container */
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border: 4px solid black;
+}
+
 .title-container {
   width: calc(100% - 250px); /* Same width as .main taking sidebar into account */
   margin-left: 250px; /* Same as .main to align with the content */
@@ -29,21 +62,6 @@ body {
 }
 
 
-.social_image {
-  max-width: 100%;
-  max-height: 400px;
-  object-fit: contain;
-  display: block; /* Add this to ensure it doesn't display as an inline element */
-  margin-left: auto; /* This centers the image if it's smaller than the container */
-  margin-right: auto;
-  margin-top: 20px;
-  margin-bottom:20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  border-width:4px;
-  border-color:black;
-  border-style: solid;
-}
 
 
 /* Paragraph styles */
@@ -106,6 +124,7 @@ h1, h2 {
 .main {
   padding-left: 12px; /* Equal to the width of the sidebar */
   margin-left: 250px; 
+  padding-top:20px;
 }
 
 
@@ -139,8 +158,10 @@ td {
   display: grid;
   grid-template-columns: repeat(2, 1fr); 
   gap: 2.5rem;
-  width: 100%;
+  width: 90%;
   margin: 0 auto;
+  max-width: 90%; /* Use the same max-width as the hero container for alignment */
+
 }
 
 .card:hover {
@@ -319,7 +340,21 @@ td {
 
 /* MOBILE */
 @media (max-width: 768px) {
-  
+  .hero-container {
+    flex-direction: column;
+  }
+
+  .text-section, .image-section {
+    padding-left: 0;
+    padding-right: 0;
+    max-width:90vw;
+  }
+
+  .social_image {
+    width: 100%;
+    max-height: none;
+    margin-top: 20px;
+  }
 
   .social_image {
     max-height: 200px; /* reduce size for mobile */
@@ -376,10 +411,10 @@ td {
   }
 
   .agent-jobtitle {
-  
+
     align-items: center; /* Vertically center the content */
     justify-content: center; /* Horizontally center the content */
-    
+
   }
 
   .card-summary {
@@ -405,4 +440,3 @@ td {
     align-items: center;
   }
 }
-  

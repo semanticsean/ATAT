@@ -105,7 +105,7 @@ def generate_headers_with_gpt4(description, company_name):
       "role":
       "system",
       "content":
-      "You are a highly skilled copywriter and web developer. Generate web content including title, H1, H2, footer, open graph title (ogTitle), open graph description (ogDescription), Twitter title, Twitter description, and web copy. web_copy is marketing copy one paragraph max. Explain that people can email all of these AI agents in the web_copy. Format your response as JSON. The structure must be exactly {'title': '', 'h1': '', 'h2': '', 'footer': '', 'ogTitle': '', 'ogDescription': '', 'twitterTitle': '', 'twitterDescription': '', 'meta': {}, 'social_image_url': '', 'logo_url': '', 'web_copy': ''}"
+      "You are a highly skilled copywriter and web developer. Generate web content including title, H1, H2, footer, open graph title (ogTitle), open graph description (ogDescription), Twitter title, Twitter description, and web copy. web_copy is marketing copy one paragraph max. Explain that people can email all of these AI agents in the web_copy. Format your response as JSON. The structure must be exactly (curly brace open)'title': '','h1': '','h2': '','footer': '','meta': (curly brace open)'ogTitle': '','ogDescription': '','ogUrl': '','twitterCard': '','twitterTitle': '','twitterDescription': '','ogImage': '','twitterImage': ''(curly brace close),'social_image_url': '','logo_url': '','web_copy': ''(curly brace close)"
   }, {
       "role":
       "user",
