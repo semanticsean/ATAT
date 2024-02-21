@@ -792,76 +792,40 @@ class EmailClient:
 
   # SEND EMAIL
 
-  def send_email(self,
-                 from_email,
-                 from_alias,
-                 to_emails,
-                 cc_emails,
-                 subject,
-                 msg,
-                 message_id=None,
-                 references=None,
-                 x_gm_thrid=None):
-    all_recipients = to_emails + cc_emails
-
-    # Remove the sending agent's email from the To and Cc fields
-    all_recipients = [
-        email for email in all_recipients
-        if email.lower() != from_email.lower()
-    ]
-
-    is_html_email = any(part.get_content_type() == 'text/html'
-                        for part in msg.get_payload())
-    msg['Content-Type'] = 'text/html; charset="utf-8"' if is_html_email else 'text/plain; charset="utf-8"'
-
-    if not all_recipients:
-      print("No valid recipients found. Will abort email send.")
-      return
-
-    msg['From'] = f'"{from_alias}" <{from_alias}>'
-    msg['Reply-To'] = f'"{from_alias}" <{from_alias}>'
-    msg['Sender'] = f'"{from_alias}" <{from_alias}>'
+  def send_email(self, from_email, from_alias, to_emails, cc_emails, subject, content, message_id=None, references=None):
+    msg = MIMEMultipart('mixed')
+    msg['From'] = f'"{from_alias}" <{from_email}>'
     msg['To'] = ', '.join(to_emails)
     if cc_emails:
-      msg['Cc'] = ', '.join(cc_emails)
-
+        msg['Cc'] = ', '.join(cc_emails)
     msg['Subject'] = subject
 
-    if x_gm_thrid:
-      msg["X-GM-THRID"] = x_gm_thrid
-
     if message_id:
-      msg["In-Reply-To"] = message_id
+        msg['In-Reply-To'] = message_id
     if references:
-      msg["References"] = references + ' ' + message_id
+        msg['References'] = references
 
-    # Clean the all_recipients list to remove the SMTP username
-    all_recipients = [
-        email for email in all_recipients
-        if email.lower() != self.smtp_username.lower()
-    ]
-
-
+    # Create the body of the message (a plain-text and an HTML version).
+    text = "This is the plain text part of the email."
+    html = """\
+    <html>
+      <head></head>
+      <body>
+        <p>This is the HTML part of the email.</p>
+      </body>
+    </html>
     """
-    LOGGING 
 
-    # Generate a unique filename for the log file
-    log_filename = f'logs/email_log_{datetime.now().strftime("%Y%m%d%H%M%S")}_{message_id}.txt'
+    # Record the MIME types of both parts - text/plain and text/html.
+    part1 = MIMEText(text, 'plain')
+    part2 = MIMEText(html, 'html')
 
+    # Attach parts into message container.
+    # According to RFC 2046, the last part of a multipart message, in this case
+    # the HTML message, is best and preferred.
+    msg.attach(part1)
+    msg.attach(part2)
 
-    # Log the email content
-    with open(log_filename, 'w') as log_file:
-        log_file.write(f"From: {from_alias} <{from_alias}>\n")
-        log_file.write(f"To: {', '.join(to_emails)}\n")
-        if cc_emails:
-            log_file.write(f"Cc: {', '.join(cc_emails)}\n")
-        log_file.write(f"Subject: {subject}\n")
-        log_file.write("Message Body:\n")
-        log_file.write(msg.as_string()) 
-
-    """
+    # Send the message via local SMTP server.
     with self.smtp_connection() as server:
-      server.sendmail(from_email, all_recipients, msg.as_string())
-      print(
-          f"Email sent with Thread ID: {x_gm_thrid}, Subject: {subject}, Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-      )
+        server.sendmail(from_email, to_emails + cc_emails, msg.as_string())
