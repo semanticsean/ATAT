@@ -3,6 +3,10 @@ import cards
 import json
 import os
 import subprocess
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 from email_client import EmailClient
 from gpt import GPTModel

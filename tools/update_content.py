@@ -3,8 +3,14 @@ import requests
 import json
 import os
 import openai
+openai.api_base = 'http://127.0.0.1:5000/v1'
 import re
 import argparse
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 company_name = os.environ['COMPANY_NAME']

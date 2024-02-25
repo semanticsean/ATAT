@@ -9,6 +9,7 @@ import sys
 import argparse
 import shutil
 import openai
+openai.api_base = 'http://127.0.0.1:5000/v1'
 import requests
 
 domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com')

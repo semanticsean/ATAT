@@ -1,0 +1,242 @@
+2024-02-23 20:57:39,656 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:39] "GET / HTTP/1.1" 200 -
+2024-02-23 20:57:39,799 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:39] "GET /static/main.css HTTP/1.1" 200 -
+2024-02-23 20:57:39,831 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:39] "GET /agents/pics/6b251dd9-b336-4ce4-8002-0c7e079f2bc6.png HTTP/1.1" 200 -
+2024-02-23 20:57:39,831 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:39] "GET /agents/pics/9ce541fa-6ccd-4938-93ad-e29405b520fc.png HTTP/1.1" 200 -
+2024-02-23 20:57:39,957 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:39] "GET /agents/pics/0bdb90f6-d2c8-408b-abdd-cb724d5ba6ba.png HTTP/1.1" 200 -
+2024-02-23 20:57:39,987 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:39] "GET /agents/pics/a6b2d3bf-0daf-4383-8984-ad990429c374.png HTTP/1.1" 200 -
+2024-02-23 20:57:39,989 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:39] "GET /agents/pics/977e7696-f898-4da3-b295-88936db01028.png HTTP/1.1" 200 -
+2024-02-23 20:57:39,989 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:39] "GET /static/content.json HTTP/1.1" 200 -
+2024-02-23 20:57:40,030 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:40] "GET /agents/pics/5a8b5285-68ff-419f-84dc-440774a58cf8.png HTTP/1.1" 200 -
+2024-02-23 20:57:40,112 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:40] "GET /agents/pics/243455ab-eb20-427a-9343-0a813cb3d759.png HTTP/1.1" 200 -
+2024-02-23 20:57:40,409 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:40] "GET /agents/pics/19a4d6db-9148-499e-848a-9c4bcd9b6b38.png HTTP/1.1" 200 -
+2024-02-23 20:57:40,867 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:40] "GET /agents/pics/451da327-6b04-4f98-8208-4f249ef11aaf.png HTTP/1.1" 200 -
+2024-02-23 20:57:40,977 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:40] "GET /agents/pics/cover_photo.png HTTP/1.1" 200 -
+2024-02-23 20:57:41,076 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:41] "GET /agents/pics/81770a8a-78fc-40da-a21d-8f49eccf7f35.png HTTP/1.1" 200 -
+2024-02-23 20:57:41,173 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:41] "GET /agents/pics/7b32abaa-e75b-4f22-bc67-082db025dece.png HTTP/1.1" 200 -
+2024-02-23 20:57:41,421 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:41] "GET /agents/pics/f9d75dff-f3ae-49c7-9d15-9f21acc5f9f4.png HTTP/1.1" 200 -
+2024-02-23 20:57:41,633 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:41] "GET /agents/pics/1acb636e-2ce8-4d70-8e1d-18609e8626bb.png HTTP/1.1" 200 -
+2024-02-23 20:57:41,747 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:41] "GET /agents/pics/3ce264f2-8d98-4b10-b65d-0f01ce8fc43e.png HTTP/1.1" 200 -
+2024-02-23 20:57:41,832 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:41] "GET /agents/pics/edd4c5d5-d993-4735-984c-f6ee4ad2f96b.png HTTP/1.1" 200 -
+2024-02-23 20:57:42,243 [INFO]: 192.168.3.122 - - [23/Feb/2024 20:57:42] "GET /static/favicon.ico HTTP/1.1" 200 -
+2024-02-23 21:18:14,065 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-23 21:18:14,065 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-23 21:20:23,232 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "GET / HTTP/1.1" 200 -
+2024-02-23 21:20:23,283 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/6b251dd9-b336-4ce4-8002-0c7e079f2bc6.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,285 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,287 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/9ce541fa-6ccd-4938-93ad-e29405b520fc.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,294 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/0bdb90f6-d2c8-408b-abdd-cb724d5ba6ba.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,297 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/a6b2d3bf-0daf-4383-8984-ad990429c374.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,311 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/19a4d6db-9148-499e-848a-9c4bcd9b6b38.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,313 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/243455ab-eb20-427a-9343-0a813cb3d759.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,314 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/5a8b5285-68ff-419f-84dc-440774a58cf8.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,316 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/977e7696-f898-4da3-b295-88936db01028.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,321 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/451da327-6b04-4f98-8208-4f249ef11aaf.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,322 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/81770a8a-78fc-40da-a21d-8f49eccf7f35.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,326 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/7b32abaa-e75b-4f22-bc67-082db025dece.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,332 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/1acb636e-2ce8-4d70-8e1d-18609e8626bb.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,333 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/f9d75dff-f3ae-49c7-9d15-9f21acc5f9f4.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,335 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/3ce264f2-8d98-4b10-b65d-0f01ce8fc43e.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,338 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/edd4c5d5-d993-4735-984c-f6ee4ad2f96b.png HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,351 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /static/content.json HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,461 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2024-02-23 21:20:23,462 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:20:23] "[36mGET /agents/pics/cover_photo.png HTTP/1.1[0m" 304 -
+2024-02-23 21:21:05,926 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:05] "GET / HTTP/1.1" 200 -
+2024-02-23 21:21:06,087 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:06] "GET /static/main.css HTTP/1.1" 200 -
+2024-02-23 21:21:06,088 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:06] "GET /agents/pics/9ce541fa-6ccd-4938-93ad-e29405b520fc.png HTTP/1.1" 200 -
+2024-02-23 21:21:06,089 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:06] "GET /agents/pics/6b251dd9-b336-4ce4-8002-0c7e079f2bc6.png HTTP/1.1" 200 -
+2024-02-23 21:21:06,238 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:06] "GET /agents/pics/0bdb90f6-d2c8-408b-abdd-cb724d5ba6ba.png HTTP/1.1" 200 -
+2024-02-23 21:21:06,317 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:06] "GET /static/content.json HTTP/1.1" 200 -
+2024-02-23 21:21:06,320 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:06] "GET /agents/pics/a6b2d3bf-0daf-4383-8984-ad990429c374.png HTTP/1.1" 200 -
+2024-02-23 21:21:06,321 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:06] "GET /agents/pics/977e7696-f898-4da3-b295-88936db01028.png HTTP/1.1" 200 -
+2024-02-23 21:21:06,336 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:06] "GET /agents/pics/5a8b5285-68ff-419f-84dc-440774a58cf8.png HTTP/1.1" 200 -
+2024-02-23 21:21:06,362 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:06] "GET /agents/pics/243455ab-eb20-427a-9343-0a813cb3d759.png HTTP/1.1" 200 -
+2024-02-23 21:21:06,369 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:06] "GET /agents/pics/19a4d6db-9148-499e-848a-9c4bcd9b6b38.png HTTP/1.1" 200 -
+2024-02-23 21:21:07,048 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:07] "GET /agents/pics/451da327-6b04-4f98-8208-4f249ef11aaf.png HTTP/1.1" 200 -
+2024-02-23 21:21:07,070 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:07] "GET /agents/pics/81770a8a-78fc-40da-a21d-8f49eccf7f35.png HTTP/1.1" 200 -
+2024-02-23 21:21:07,153 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:07] "GET /agents/pics/7b32abaa-e75b-4f22-bc67-082db025dece.png HTTP/1.1" 200 -
+2024-02-23 21:21:07,450 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:07] "GET /agents/pics/f9d75dff-f3ae-49c7-9d15-9f21acc5f9f4.png HTTP/1.1" 200 -
+2024-02-23 21:21:07,574 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:07] "GET /agents/pics/1acb636e-2ce8-4d70-8e1d-18609e8626bb.png HTTP/1.1" 200 -
+2024-02-23 21:21:07,901 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:07] "GET /agents/pics/3ce264f2-8d98-4b10-b65d-0f01ce8fc43e.png HTTP/1.1" 200 -
+2024-02-23 21:21:08,060 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:08] "GET /agents/pics/edd4c5d5-d993-4735-984c-f6ee4ad2f96b.png HTTP/1.1" 200 -
+2024-02-23 21:21:08,310 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:08] "GET /agents/pics/cover_photo.png HTTP/1.1" 200 -
+2024-02-23 21:21:09,123 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:21:09] "GET /static/favicon.ico HTTP/1.1" 200 -
+2024-02-23 21:38:29,859 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-23 21:38:29,859 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-23 21:44:10,021 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "GET / HTTP/1.1" 200 -
+2024-02-23 21:44:10,063 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,087 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/9ce541fa-6ccd-4938-93ad-e29405b520fc.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,088 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/6b251dd9-b336-4ce4-8002-0c7e079f2bc6.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,114 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/a6b2d3bf-0daf-4383-8984-ad990429c374.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,114 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/0bdb90f6-d2c8-408b-abdd-cb724d5ba6ba.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,115 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/5a8b5285-68ff-419f-84dc-440774a58cf8.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,117 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/977e7696-f898-4da3-b295-88936db01028.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,127 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/243455ab-eb20-427a-9343-0a813cb3d759.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,128 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/19a4d6db-9148-499e-848a-9c4bcd9b6b38.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,215 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/451da327-6b04-4f98-8208-4f249ef11aaf.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,217 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/81770a8a-78fc-40da-a21d-8f49eccf7f35.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,219 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/7b32abaa-e75b-4f22-bc67-082db025dece.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,222 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/f9d75dff-f3ae-49c7-9d15-9f21acc5f9f4.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,228 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/1acb636e-2ce8-4d70-8e1d-18609e8626bb.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,235 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/3ce264f2-8d98-4b10-b65d-0f01ce8fc43e.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,278 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/edd4c5d5-d993-4735-984c-f6ee4ad2f96b.png HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,626 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /static/content.json HTTP/1.1[0m" 304 -
+2024-02-23 21:44:10,647 [INFO]: 192.168.3.122 - - [23/Feb/2024 21:44:10] "[36mGET /agents/pics/cover_photo.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,897 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "GET / HTTP/1.1" 200 -
+2024-02-23 23:33:02,928 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,929 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/9ce541fa-6ccd-4938-93ad-e29405b520fc.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,931 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/6b251dd9-b336-4ce4-8002-0c7e079f2bc6.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,946 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/a6b2d3bf-0daf-4383-8984-ad990429c374.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,947 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/0bdb90f6-d2c8-408b-abdd-cb724d5ba6ba.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,963 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/243455ab-eb20-427a-9343-0a813cb3d759.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,966 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/977e7696-f898-4da3-b295-88936db01028.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,967 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/5a8b5285-68ff-419f-84dc-440774a58cf8.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,969 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/19a4d6db-9148-499e-848a-9c4bcd9b6b38.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,974 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /static/content.json HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,984 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/451da327-6b04-4f98-8208-4f249ef11aaf.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,990 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/81770a8a-78fc-40da-a21d-8f49eccf7f35.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,993 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/7b32abaa-e75b-4f22-bc67-082db025dece.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,994 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/f9d75dff-f3ae-49c7-9d15-9f21acc5f9f4.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:02,997 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:02] "[36mGET /agents/pics/3ce264f2-8d98-4b10-b65d-0f01ce8fc43e.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:03,001 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:03] "[36mGET /agents/pics/edd4c5d5-d993-4735-984c-f6ee4ad2f96b.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:03,002 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:03] "[36mGET /agents/pics/1acb636e-2ce8-4d70-8e1d-18609e8626bb.png HTTP/1.1[0m" 304 -
+2024-02-23 23:33:03,060 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:03] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2024-02-23 23:33:03,062 [INFO]: 192.168.3.122 - - [23/Feb/2024 23:33:03] "[36mGET /agents/pics/cover_photo.png HTTP/1.1[0m" 304 -
+2024-02-24 06:15:09,054 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 06:15:09,054 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 08:06:16,855 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:16] "GET / HTTP/1.1" 200 -
+2024-02-24 08:06:16,969 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:16] "[36mGET /agents/pics/6b251dd9-b336-4ce4-8002-0c7e079f2bc6.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:16,970 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:16] "[36mGET /agents/pics/9ce541fa-6ccd-4938-93ad-e29405b520fc.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:16,971 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:16] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+2024-02-24 08:06:16,998 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:16] "[36mGET /agents/pics/0bdb90f6-d2c8-408b-abdd-cb724d5ba6ba.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,000 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/a6b2d3bf-0daf-4383-8984-ad990429c374.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,004 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/977e7696-f898-4da3-b295-88936db01028.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,012 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/5a8b5285-68ff-419f-84dc-440774a58cf8.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,012 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/243455ab-eb20-427a-9343-0a813cb3d759.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,020 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/19a4d6db-9148-499e-848a-9c4bcd9b6b38.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,022 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/7b32abaa-e75b-4f22-bc67-082db025dece.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,023 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/451da327-6b04-4f98-8208-4f249ef11aaf.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,023 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/81770a8a-78fc-40da-a21d-8f49eccf7f35.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,028 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/1acb636e-2ce8-4d70-8e1d-18609e8626bb.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,028 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/f9d75dff-f3ae-49c7-9d15-9f21acc5f9f4.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,032 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/3ce264f2-8d98-4b10-b65d-0f01ce8fc43e.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,037 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/edd4c5d5-d993-4735-984c-f6ee4ad2f96b.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,080 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /static/content.json HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,236 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /agents/pics/cover_photo.png HTTP/1.1[0m" 304 -
+2024-02-24 08:06:17,237 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:06:17] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2024-02-24 08:07:16,669 [INFO]: 192.168.3.122 - - [24/Feb/2024 08:07:16] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2024-02-24 09:08:16,821 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 09:08:16,822 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 09:51:44,939 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 09:51:44,939 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 09:57:32,340 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 09:57:32,340 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 10:09:53,321 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 10:09:53,321 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 10:11:37,643 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 10:11:37,643 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 10:11:43,711 [WARNING]: No valid agent info found
+2024-02-24 10:12:07,604 [WARNING]: No valid agent info found
+2024-02-24 10:13:01,893 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 10:13:01,893 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 10:13:07,977 [WARNING]: No valid agent info found
+2024-02-24 10:15:49,614 [WARNING]: No valid agent info found
+2024-02-24 10:20:04,228 [WARNING]: No valid agent info found
+2024-02-24 10:22:52,308 [WARNING]: No valid agent info found
+2024-02-24 10:22:52,310 [WARNING]: No valid agent info found
+2024-02-24 10:26:39,794 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 10:26:39,795 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 10:26:45,868 [WARNING]: No valid agent info found
+2024-02-24 10:30:33,747 [WARNING]: No valid agent info found
+2024-02-24 10:31:58,107 [WARNING]: No valid agent info found
+2024-02-24 10:33:55,554 [ERROR]: Exception while handling incoming email: EmailClient.send_email() got an unexpected keyword argument 'msg'
+2024-02-24 10:35:15,042 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 10:35:15,042 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 10:36:08,004 [ERROR]: Exception while handling incoming email: EmailClient.send_email() got an unexpected keyword argument 'msg'
+2024-02-24 10:40:40,231 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 10:40:40,231 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 11:01:23,446 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 11:01:23,447 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 11:17:02,325 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 11:17:02,325 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 11:17:08,404 [WARNING]: No valid agent info found
+2024-02-24 11:17:54,885 [ERROR]: Exception while handling incoming email: EmailClient.send_email() got an unexpected keyword argument 'msg'
+2024-02-24 11:18:00,890 [WARNING]: No valid agent info found
+2024-02-24 11:19:42,010 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 11:19:42,010 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 11:20:40,897 [ERROR]: Exception while handling incoming email: EmailClient.send_email() got an unexpected keyword argument 'msg'
+2024-02-24 11:20:46,905 [WARNING]: No valid agent info found
+2024-02-24 11:35:17,001 [WARNING]: No valid agent info found
+2024-02-24 12:41:06,111 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 12:41:06,112 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 13:11:39,681 [ERROR]: Exception while handling incoming email: EmailClient.clean_html_content() takes 1 positional argument but 2 were given
+2024-02-24 13:24:17,576 [ERROR]: Exception while handling incoming email: EmailClient.send_email() got multiple values for argument 'from_email'
+2024-02-24 13:32:09,201 [ERROR]: Exception while handling incoming email: EmailClient.send_email() got multiple values for argument 'from_email'
+2024-02-24 13:35:18,352 [ERROR]: Exception while handling incoming email: EmailClient.send_email() got multiple values for argument 'from_email'
+2024-02-24 13:41:26,853 [ERROR]: Exception while handling incoming email: EmailClient.send_email() got multiple values for argument 'from_email'
+2024-02-24 13:42:51,193 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 13:42:51,193 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 13:47:51,037 [ERROR]: Exception while handling incoming email: EmailClient.send_email() got multiple values for argument 'from_alias'
+2024-02-24 13:50:33,501 [ERROR]: Exception while handling incoming email: name 'escaped_recipients' is not defined
+2024-02-24 13:54:29,776 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 13:54:29,777 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 14:34:03,426 [INFO]: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:81
+ * Running on http://192.168.3.18:81
+2024-02-24 14:34:03,426 [INFO]: [33mPress CTRL+C to quit[0m
+2024-02-24 14:35:21,392 [WARNING]: No valid agent info found
+2024-02-24 14:49:28,169 [WARNING]: No valid agent info found

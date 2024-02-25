@@ -1,9 +1,13 @@
 import os
 import subprocess
 import openai
+openai.api_base = 'http://127.0.0.1:5000/v1'
 import json
 import argparse
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 from tools import update_team
 

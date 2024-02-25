@@ -1,4 +1,5 @@
 import email
+from bs4 import BeautifulSoup
 import html
 import imaplib
 import json
@@ -8,8 +9,9 @@ import re
 import smtplib
 import quopri
 import tempfile
+import subprocess
 import shutil
- 
+import requests 
 from time import sleep
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
@@ -17,14 +19,20 @@ from email.mime.text import MIMEText
 from email.utils import getaddresses
 from contextlib import contextmanager
 
+import subprocess
+import shlex
+
 from pdf2text import extract_pdf_text
 from shortcode import handle_document_short_code
 from agent_operator import AgentSelector
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 
 class EmailClient:
-
-  # INIT & SETUP EMAIL ACCESS
 
   def __init__(self, agent_loader, gpt, testing=False):
     logging.basicConfig(filename='email_client.log',
@@ -39,10 +47,31 @@ class EmailClient:
     self.conversation_threads = {}
     self.openai_api_key = os.getenv('OPENAI_API_KEY')
 
+  def get_response_from_api(self, content):
+    print("api")
+    
+    """Get response from external API for the given content."""
+    url = "http://127.0.0.1:5000/v1/chat/completions"
+    headers = {"Content-Type": "application/json"}
+    data = {
+      "mode": "chat",
+      "character": "Example",
+      "messages": [{"role": "user", "content": content}]
+    }
+    response = requests.post(url, headers=headers, json=data, verify=False)
+    if response.status_code == 200:
+      api_response = response.json()
+      assistant_message = api_response['choices'][0]['message']['content']
+      return assistant_message
+    else:
+      print("Failed to get response from API")
+      return None
+
   def setup_email_client(self):
     self.smtp_server = os.getenv('SMTP_SERVER')
     self.smtp_port = os.getenv('SMTP_PORT')
     self.smtp_username = os.getenv('SMTP_USERNAME')
+    print('self.smtp_username',self.smtp_username)
     self.smtp_password = os.getenv('SMTP_PASSWORD')
     self.connect_to_imap_server()
 
@@ -59,11 +88,56 @@ class EmailClient:
     except:
       return False
 
+  def extract_content_from_multipart(self, msg):
+    """
+    Extracts and returns the plain text or HTML content from a MIMEMultipart email message.
+    
+    Parameters:
+      msg (MIMEMultipart): The multipart email message object.
+      
+    Returns:
+      str: The extracted content as a plain string.
+    """
+    text_content = ""
+    for part in msg.walk():
+      # Check if the part is plain text or HTML
+      if part.get_content_type() == "text/plain" or part.get_content_type() == "text/html":
+        text_content += part.get_payload(decode=True).decode()
+        # Optionally, break after finding the first text/plain or text/html part
+        break
+    return text_content
+  
+  def sanitize_email_address(self, email_address):
+      # Regular expression for validating an Email
+      regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+      if re.fullmatch(regex, email_address):
+          return email_address
+      else:
+          print("Invalid Email Address. Making adjustments.")
+          # Perform any necessary adjustments or fallback
+          # For demonstration, returning a default email if validation fails
+          return "default@localdomain.com"
+
   def start(self):
     print("Started email server")
     restart_counter = 0
     MAX_RESTARTS = 500
-    sleep_time = 620  # Sleep time in seconds
+    sleep_time = 6  # Sleep time in seconds
+
+    # Directly prepare and send a test email
+    if(False):
+      try:
+          self.send_email(
+              from_email="rocket@localdomain.com",  # Use an actual sender email address valid on your SMTP server
+              from_alias="Test Sender",  # Sender's name or alias
+              to_emails=["root@localdomain.com"],  # Replace with actual recipient email address
+              cc_emails=[],  # CC emails if any, otherwise leave empty
+              subject="Test Email from start method",
+              modified_content="This is a test email sent from the start method."  # Email body content
+          )
+          print("Test email sent successfully.")
+      except Exception as e:
+          print(f"Failed to send test email: {e}")
 
     while True:
       try:
@@ -96,9 +170,9 @@ class EmailClient:
 
       for i in range(
           sleep_time, 0,
-          -30):  # Decreasing sleep time by 10 seconds in each iteration
+          -3):  # Decreasing sleep time by 10 seconds in each iteration
         print(f"Sleeping... {i} seconds remaining.")
-        sleep(30)  # Sleep for 10 seconds
+        sleep(3)  # Sleep for 10 seconds
 
       timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
       print(f"[{timestamp}] Resuming processing.")
@@ -203,100 +277,63 @@ class EmailClient:
     return False
 
   def load_email(self, num):
+    """
+    Load and parse an email by its unique ID.
+    
+    Parameters:
+      num (str): The unique ID of the email to load.
+      
+    Returns:
+      tuple: A tuple containing parsed email components or None values on failure.
+    """
     try:
       # Standardize the num to string type
       num_str = num.decode('utf-8') if isinstance(num, bytes) else str(num)
-
+  
+      # Initialize the return values
+      from_, to_emails, cc_emails, subject, message_id, in_reply_to, references, content = (None,) * 8
+  
       # Fetch the email content by UID
-      result, data = self.imap_server.uid('fetch', num_str,
-                                          '(RFC822 X-GM-THRID)')
+      result, data = self.imap_server.uid('fetch', num_str, '(RFC822)')
       if result != 'OK':
         print(f"Error fetching email content for UID {num}: {result}")
         return None, None, None, None, None, None, None, None
-
-      # Initialize variables
-      x_gm_thrid = None
+  
       raw_email = None
       for response_part in data:
         if isinstance(response_part, tuple):
-          match = re.search(r'X-GM-THRID (\d+)',
-                            response_part[0].decode('utf-8'))
-          if match:
-            x_gm_thrid = match.group(1)
           raw_email = response_part[1].decode("utf-8")
-
-      email_message = email.message_from_string(raw_email)
-      if not email_message:
-        print(f"Error: email_message object is None for UID {num}")
+          break
+  
+      if not raw_email:
+        print(f"No email content found for UID {num}")
         return None, None, None, None, None, None, None, None
-
-      # Extract headers and content
+  
+      email_message = email.message_from_string(raw_email)
+  
+      # Extract headers
       from_ = email_message['From']
       to_emails = [addr[1] for addr in getaddresses([email_message['To']])]
-      cc_emails = [
-          addr[1] for addr in getaddresses([email_message.get('Cc', '')])
-      ]
+      cc_emails = [addr[1] for addr in getaddresses([email_message.get('Cc', '')])]
       subject = email_message['Subject']
       message_id = email_message['Message-ID']
       in_reply_to = email_message.get('In-Reply-To', '')
       references = email_message.get('References', '')
-
-      content = ""
-      pdf_attachments = []
-
-      # Extract body and PDF content
-      for part in email_message.walk():
-        if part.get_content_type() == 'text/html':
-          part.get_payload(decode=True).decode('utf-8')
-        elif part.get_content_type() == 'text/plain':
-          part.get_payload(decode=True).decode('utf-8')
-          content_encoding = part.get("Content-Transfer-Encoding")
-          payload = part.get_payload()
-          if content_encoding == 'base64':
-            content += base64.b64decode(payload).decode('utf-8')
-          else:
-            content += payload
-
-        elif part.get_content_type() == 'application/pdf':
-          pdf_data = part.get_payload(decode=True)
-          pdf_text = extract_pdf_text(pdf_data)
-          pdf_attachments.append({
-              'filename': part.get_filename(),
-              'text': pdf_text
-          })
-
-      # Append PDF contents to the content
+  
+      # Extract body and attachments
+      content, pdf_attachments = self.extract_email_content(email_message)
+      print("load_email")
+      print(content)
+      # Append PDF contents to the email content
       for pdf_attachment in pdf_attachments:
-        pdf_text = pdf_attachment.get('text', '')
-        if pdf_text:
-          pdf_label = f"PDF: {pdf_attachment['filename']}"
-          content += f"\n\n{pdf_label}\n{pdf_text}\n{pdf_label}\n"
-
-      MAX_LIMIT = 350000
-      if "!detail" in content or re.search(r"!summarize\.", content):
-        MAX_LIMIT = 2000000
-
-      # Check if the content is too long
-      if len(content) > MAX_LIMIT:
-        print(f"Content too long for UID {num}: {len(content)} characters.")
-        self.send_error_email(from_, subject, "Content too long")
-        self.mark_as_seen(num)
-        self.update_processed_threads(message_id, x_gm_thrid, num, subject,
-                                      in_reply_to, references, from_,
-                                      ','.join(to_emails + cc_emails))
-        return None, None, None, None, None, None, None, None
-
-      # Return the content which now includes both the email body and the PDF contents
-      return message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid
-
-    except Exception as e:
-      print(f"Exception while processing email with UID {num}: {e}")
-      import traceback
-      print(traceback.format_exc())
-      return None, None, None, None, None, None, None, None
+        pdf_label = f"PDF: {pdf_attachment['filename']}"
+        content += f"\n\n{pdf_label}\n{pdf_attachment['text']}\n{pdf_label}\n"
+    except:
+      print("load email except")
+    
+    return message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to
 
   def process_thread(self):
-    try:
       self.imap_server.select("INBOX")
       result, data = self.imap_server.uid('search', None, 'UNSEEN')
       if result != 'OK':
@@ -306,32 +343,29 @@ class EmailClient:
       unseen_emails = data[0].split()
       thread_to_unseen = {}
 
-      # Group unseen emails by thread
+      # Group unseen emails by subject and sender as a proxy for thread grouping
       for num in unseen_emails:
+        print(num)
         email_data = self.load_email(num)
-        if email_data is None or len(email_data) != 10:
+        if email_data is None or len(email_data) < 8:  # Adjusted for the updated return values from load_email
           continue
-        message_id, _, subject, _, from_, _, _, _, _, x_gm_thrid = email_data
-        if self.is_email_processed(x_gm_thrid, num):
-          continue
-
-        # Use x_gm_thrid if available, else use subject
-        if x_gm_thrid is None or x_gm_thrid == "":
-          raise ValueError("x_gm_thrid is unavailable.")
-
-        thread_key = x_gm_thrid
+        message_id, num_str, subject, content, from_, to_emails, cc_emails, references, in_reply_to = email_data
+        print("process_thread")
+        print(content)
+        # Use a combination of subject and sender for grouping
+        thread_key = f"{subject}:{from_}"
 
         if thread_key not in thread_to_unseen:
           thread_to_unseen[thread_key] = []
 
         thread_to_unseen[thread_key].append({
-            "message_id": message_id,
-            "num": num,
-            "subject": subject,
-            "from_": from_
+          "message_id": message_id,
+          "num": num,
+          "subject": subject,
+          "from_": from_
         })
 
-      # Process the most recent unseen email in each thread
+      # Process the most recent unseen email in each pseudo-thread
       for thread_key, unseen_list in thread_to_unseen.items():
         unseen_list.sort(key=lambda x: int(x['num']), reverse=True)
         most_recent_unseen = unseen_list[0]
@@ -342,28 +376,26 @@ class EmailClient:
         if not processed:
           print(f"Failed to process thread: {thread_key}")
         else:
-          # Mark all other unseen emails in the same thread as seen
+          # Mark all other unseen emails in the same pseudo-thread as seen
           for unseen_email in unseen_list[1:]:
             self.mark_as_seen(unseen_email['num'])
-            if not thread_key:
-              raise ValueError("thread_key is unavailable.")
-            x_gm_thrid = thread_key
-
+            # Update processed threads without x_gm_thrid, using message_id instead
             self.update_processed_threads(unseen_email['message_id'],
-                                          x_gm_thrid, unseen_email['num'],
-                                          unseen_email['subject'], "", "",
-                                          unseen_email['from_'], "")
-
-    except Exception as e:
-      print(f"Exception while processing emails: {e}")
-      import traceback
-      print(traceback.format_exc())
+                            "",  # Empty placeholder for x_gm_thrid
+                            unseen_email['num'],
+                            unseen_email['subject'], "", "",
+                            unseen_email['from_'], "")
 
   def process_single_thread(self, num):
     processed = False
     try:
-      message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid = self.load_email(
-          num)
+      message_id, num_str, subject, content, from_, to_emails, cc_emails, references, in_reply_to = self.load_email(num)
+      if not message_id:
+        return processed  # Skip if email couldn't be processed
+
+      print("process_single_thread")
+      print(content)
+
       if not message_id:
         return processed  # Skip if email couldn't be processed
 
@@ -441,6 +473,7 @@ class EmailClient:
       #print(f"Debug: Email content at start of handle_incoming_email:{thread_content[:50]}")
 
       new_content = thread_content
+      #print("new content",new_content)
       # Reset conversation history for a new email thread
       self.agent_operator.reset_for_new_thread()
       #print("Before human_threads initialization:", from_, to_emails,cc_emails, subject, message_id, references, num)
@@ -531,9 +564,10 @@ class EmailClient:
       previous_responses = []
 
       # Ensure proper unpacking for the load_email function
-
-      message_id, num, subject, content, from_, to_emails, cc_emails, references, in_reply_to, x_gm_thrid = self.load_email(
+      message_id, num_str, subject, content, from_, to_emails, cc_emails, references, in_reply_to = self.load_email(
           num)
+      print("handle_incoming_email")
+      print(content)
 
       missing_values = [
           var_name for var_name, value in locals().items()
@@ -630,7 +664,7 @@ class EmailClient:
           ]
 
           to_emails_without_agent = [
-              email for email in to_emails
+              self.sanitize_email_address(email) for email in to_emails
               if email.lower() != self.smtp_username.lower()
           ]
           cc_emails_without_agent = [
@@ -641,9 +675,9 @@ class EmailClient:
           if from_ not in to_emails_without_agent and from_ != self.smtp_username:
             to_emails_without_agent.append(from_)
 
-          if to_emails_without_agent or cc_emails_without_agent:
-            print(f"Sending email to: {to_emails_without_agent}")
-            print(f"CC: {cc_emails_without_agent}")
+          #if to_emails_without_agent or cc_emails_without_agent:
+            #print(f"Sending email to: {to_emails_without_agent}")
+            #print(f"CC: {cc_emails_without_agent}")
 
           if message_id in self.conversation_threads:
             self.conversation_threads[message_id].append(response)
@@ -679,8 +713,6 @@ class EmailClient:
               f"<html><body>{formatted_email_history_html}</body></html>",
               'html')
           
-          
-          
           alternative_response = MIMEMultipart('alternative')
           #alternative_response.attach(response_plain)
           
@@ -692,25 +724,24 @@ class EmailClient:
           
           #alternative_history.attach(history_html)
           
-
           # Creating 'mixed' MIME container for the entire email
           msg = MIMEMultipart('mixed')
           msg.attach(alternative_response)
           
           msg.attach(alternative_history)
           
-          
-          
-
+          modified_content = self.extract_content_from_multipart(msg)
           try:
-            self.send_email(from_email=self.smtp_username,
+            #print('self.smtp_username',self.smtp_username)
+            self.send_email(from_email='root@localdomain.com',
                             from_alias=agent["email"],
                             to_emails=to_emails_without_agent,
                             cc_emails=cc_emails_without_agent,
                             subject=f"Re: {subject}",
-                            msg=msg,
-                            message_id=message_id,
-                            references=references)
+                            modified_content=modified_content
+                            #message_id=message_id,
+                            #references=references
+                            )
             print("Email sent successfully.")
           except Exception as e:
             print(f"Exception while handling incoming email: {e}")
@@ -788,80 +819,67 @@ class EmailClient:
     plain_text_content = 'On {} {} wrote:\n{}\n'.format(date, from_email, '\n'.join(quoted_lines))
     return plain_text_content
 
-
-
-  # SEND EMAIL
-
-  def send_email(self,
-                 from_email,
-                 from_alias,
-                 to_emails,
-                 cc_emails,
-                 subject,
-                 msg,
-                 message_id=None,
-                 references=None,
-                 x_gm_thrid=None):
-    all_recipients = to_emails + cc_emails
-
-    # Remove the sending agent's email from the To and Cc fields
-    all_recipients = [
-        email for email in all_recipients
-        if email.lower() != from_email.lower()
-    ]
-
-    is_html_email = any(part.get_content_type() == 'text/html'
-                        for part in msg.get_payload())
-    msg['Content-Type'] = 'text/html; charset="utf-8"' if is_html_email else 'text/plain; charset="utf-8"'
-
-    if not all_recipients:
-      print("No valid recipients found. Will abort email send.")
-      return
-
-    msg['From'] = f'"{from_alias}" <{from_alias}>'
-    msg['Reply-To'] = f'"{from_alias}" <{from_alias}>'
-    msg['Sender'] = f'"{from_alias}" <{from_alias}>'
-    msg['To'] = ', '.join(to_emails)
-    if cc_emails:
-      msg['Cc'] = ', '.join(cc_emails)
-
-    msg['Subject'] = subject
-
-    if x_gm_thrid:
-      msg["X-GM-THRID"] = x_gm_thrid
-
-    if message_id:
-      msg["In-Reply-To"] = message_id
-    if references:
-      msg["References"] = references + ' ' + message_id
-
-    # Clean the all_recipients list to remove the SMTP username
-    all_recipients = [
-        email for email in all_recipients
-        if email.lower() != self.smtp_username.lower()
-    ]
-
-
+  def extract_email_content(self, email_message):
     """
-    LOGGING 
-
-    # Generate a unique filename for the log file
-    log_filename = f'logs/email_log_{datetime.now().strftime("%Y%m%d%H%M%S")}_{message_id}.txt'
-
-
-    # Log the email content
-    with open(log_filename, 'w') as log_file:
-        log_file.write(f"From: {from_alias} <{from_alias}>\n")
-        log_file.write(f"To: {', '.join(to_emails)}\n")
-        if cc_emails:
-            log_file.write(f"Cc: {', '.join(cc_emails)}\n")
-        log_file.write(f"Subject: {subject}\n")
-        log_file.write("Message Body:\n")
-        log_file.write(msg.as_string()) 
-
+    Extracts content and attachments from an email message.
+  
+    Parameters:
+      email_message (email.message.Message): The email message object.
+  
+    Returns:
+      str: The combined text content of the email.
+      list: A list of dictionaries for each PDF attachment found.
     """
-    with self.smtp_connection() as server:
-      server.sendmail(from_email, all_recipients, msg.as_string())
-      print(
-          f"Email sent with Thread ID: {x_gm_thrid}, Subject: {subject}, Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    content = ""
+    pdf_attachments = []
+    for part in email_message.walk():
+      content_type = part.get_content_type()
+      content_disposition = part.get("Content-Disposition", "")
+      if content_type == 'text/plain' and 'attachment' not in content_disposition:
+        payload = part.get_payload(decode=True)
+        charset = part.get_content_charset('utf-8')
+        content += payload.decode(charset, errors="replace")
+      elif content_type == 'application/pdf':
+        pdf_data = part.get_payload(decode=True)
+        pdf_text = extract_pdf_text(pdf_data)  # Assuming this function is defined elsewhere
+        pdf_attachments.append({'filename': part.get_filename(), 'text': pdf_text})
+  
+    return content, pdf_attachments
+
+  def clean_html_content(self, html_content):
+      """Removes HTML tags and returns plain text."""
+      soup = BeautifulSoup(html_content, "html.parser")
+      return soup.get_text(separator="\n")
+  
+  def send_email(self, from_email, from_alias, to_emails, cc_emails, subject, modified_content, message_id=None, references=None, x_gm_thrid=None):
+      """Sends an email using the 'mail' command, handling special characters."""
+      recipients = ','.join(to_emails)  # Combine all recipients into a single string
+      cleaned_content = self.clean_html_content(modified_content)  # Clean the HTML content
+     
+     
+      recipients = 'root@localdomain.com'
+
+      # Prepare the email content, including headers
+      email_content = (
+          f"From: {from_alias} <{from_email}>\n"
+          f"To: {recipients}\n"
+          f"Subject: {subject}\n\n"
+          f"{cleaned_content}"
       )
+      
+      # Use a temporary file to store the email content
+      with tempfile.NamedTemporaryFile(delete=False, mode='w+') as temp_file:
+          temp_file.write(email_content)
+          temp_file_path = temp_file.name
+      
+      # Send the email by reading from the temporary file
+      command = f'cat {temp_file_path} | mail -s "{subject}" {recipients}'
+      print('command',command)
+      try:
+          subprocess.run(command, shell=True, check=True, executable='/bin/bash')
+          print("Email sent successfully using the 'mail' command.")
+      except subprocess.CalledProcessError as e:
+          print(f"Failed to send email using 'mail' command: {e}")
+      
+      # Clean up the temporary file
+      #os.remove(temp_file_path)

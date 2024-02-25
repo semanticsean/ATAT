@@ -1,8 +1,12 @@
 import os
 import openai
+openai.api_base = 'http://127.0.0.1:5000/v1'
 import glob
 import time
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 # Load environment variables
 openai.api_key = os.getenv("OPENAI_API_KEY")
 company_name = os.getenv("COMPANY_NAME", "Your Default Company Name")

@@ -5,6 +5,11 @@ import email
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 print("Script started.")
 
 # Fetch IMAP server details from environment variables

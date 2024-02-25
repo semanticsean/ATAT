@@ -1,6 +1,8 @@
 import os
 import time
 import openai
+openai.api_base = 'http://127.0.0.1:5000/v1'
+#https://api.openai.com/v1
 import tiktoken
 import re
 import pickle
