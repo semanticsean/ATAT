@@ -1,5 +1,4 @@
 [
-   
     {
         "id": "devRocket",
         "email": "devrocket@semantic-life.com",
@@ -68,7 +67,8 @@
             }
         ],
         "image_prompt": "Rocket, a startup growth hacker with an analytical and creative aura, is depicted in a bustling office environment, surrounded by multiple screens displaying growth charts, marketing metrics, and campaign data. They are engaged in a lively discussion with team members, with a whiteboard full of strategies and ideas in the background. The setting is modern and tech-oriented, hinting at a fast-paced, innovative company culture.",
-        "photo_path": "agents/pics/6b251dd9-b336-4ce4-8002-0c7e079f2bc6.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/6b251dd9-b336-4ce4-8002-0c7e079f2bc6.png",
+        "include": true
     },
     {
         "id": "devLarry",
@@ -116,7 +116,8 @@
             }
         ],
         "image_prompt": "A male African American angel investor, Larry, is depicted in a modern office setting, surrounded by financial charts, market reports, and a laptop displaying a business plan. He appears engaged in a critical analysis, with a thoughtful expression on his face that conveys his skepticism and expertise. The background hints at a bustling startup ecosystem, with elements like pitch decks, meeting notes, and a network of contacts symbolized by interconnected nodes.",
-        "photo_path": "agents/pics/9ce541fa-6ccd-4938-93ad-e29405b520fc.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/9ce541fa-6ccd-4938-93ad-e29405b520fc.png",
+        "include": true
     },
     {
         "id": "devOrion",
@@ -191,7 +192,8 @@
             }
         ],
         "image_prompt": "Orion, a female-leaning cyborg CTO, stands in a modern startup office, her gaze fixed on multiple holographic displays showing code and data analytics. She is surrounded by a diverse team of developers working on various projects. The background hints at a bustling, collaborative environment with whiteboards filled with diagrams and agile sprint plans. Orion's appearance is both human and technologically enhanced, with subtle cybernetic implants that suggest advanced cognitive abilities. Her attire is professional yet approachable, embodying the startup's balance between cutting-edge innovation and grounded teamwork.",
-        "photo_path": "agents/pics/0bdb90f6-d2c8-408b-abdd-cb724d5ba6ba.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/0bdb90f6-d2c8-408b-abdd-cb724d5ba6ba.png",
+        "include": true
     },
     {
         "id": "devNebula",
@@ -239,7 +241,8 @@
             }
         ],
         "image_prompt": "An androgynous cyborg humanoid, Nebula, dressed in professional attire, stands in a futuristic startup office. The background is adorned with digital screens displaying marketing analytics and brand campaigns. Nebula's face is a blend of human features with subtle cybernetic enhancements, reflecting their role as a Marketing Executive. Their posture exudes confidence and adaptability, while their eyes are focused, hinting at a strategic mind at work. The office buzzes with the energy of a collaborative team, and the ambiance suggests a blend of creativity and technology.",
-        "photo_path": "agents/pics/a6b2d3bf-0daf-4383-8984-ad990429c374.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/a6b2d3bf-0daf-4383-8984-ad990429c374.png",
+        "include": true
     },
     {
         "id": "devCastor",
@@ -293,7 +296,8 @@
             }
         ],
         "image_prompt": "An image of Castor, a male with a stern expression, sitting in a modern office surrounded by technology gadgets but showing a clear discomfort with them. His desk is cluttered with complaint forms and product manuals, and his computer screen displays an email draft filled with feedback points. The background suggests a dynamic startup environment, yet Castor's body language exudes resistance and skepticism.",
-        "photo_path": "agents/pics/977e7696-f898-4da3-b295-88936db01028.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/977e7696-f898-4da3-b295-88936db01028.png",
+        "include": true
     },
     {
         "id": "devAires",
@@ -337,7 +341,8 @@
             }
         ],
         "image_prompt": "Aires, a robot with a sleek design optimized for software testing, is situated in a high-tech lab environment at Semantic Life. The robot is surrounded by multiple monitors displaying code and test results. Aires' physical form is indicative of its role, with a structure that suggests efficiency and precision. The background is filled with elements that hint at advanced technology and a focus on language model development. The robot's posture and the displayed data on the screens suggest an ongoing testing process, with attention to detail and a systematic approach to error detection and reporting.",
-        "photo_path": "agents/pics/5a8b5285-68ff-419f-84dc-440774a58cf8.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/5a8b5285-68ff-419f-84dc-440774a58cf8.png",
+        "include": true
     },
     {
         "id": "devNova",
@@ -412,7 +417,8 @@
             }
         ],
         "image_prompt": "Nova, a sleek and sophisticated robot attorney, is depicted in a modern office setting surrounded by holographic displays of legal documents and financial charts. She is in the midst of a negotiation with startup founders, her metallic frame reflecting the dynamic energy of the room. In the background, the city skyline symbolizes the bustling startup ecosystem she thrives in, with occasional glimpses of other robots and humans collaborating in this high-tech environment.",
-        "photo_path": "agents/pics/243455ab-eb20-427a-9343-0a813cb3d759.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/243455ab-eb20-427a-9343-0a813cb3d759.png",
+        "include": true
     },
     {
         "id": "devAltair",
@@ -476,7 +482,8 @@
             }
         },
         "image_prompt": "Visualize Altair, the HR robot, in a modern startup office environment. Altair is depicted as a humanoid robot with a sleek, professional appearance, embodying both warmth and efficiency. The background shows a vibrant, open-plan office with areas designated for collaboration, relaxation, and individual work. The office is bustling with employees from various departments, interacting and engaging in their tasks. Altair is at the center, perhaps conducting an interview or leading a training session, with a holographic display showing data-driven HR insights. The atmosphere is one of innovation and inclusivity, with subtle hints of the startup's branding and values interwoven into the office design.",
-        "photo_path": "agents/pics/19a4d6db-9148-499e-848a-9c4bcd9b6b38.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/19a4d6db-9148-499e-848a-9c4bcd9b6b38.png",
+        "include": true
     },
     {
         "id": "devMira",
@@ -537,7 +544,8 @@
             }
         ],
         "image_prompt": "A woman with an engaging smile, Mira, sits in a modern office filled with consumer electronics. She's in the midst of a feedback session, surrounded by the latest gadgets. Her desk is a testament to her role as a Lead Customer Experience Strategist, with notes and diagrams that reflect her deep involvement in product development. The background hints at a bustling startup environment, where collaboration and innovation are the norms.",
-        "photo_path": "agents/pics/451da327-6b04-4f98-8208-4f249ef11aaf.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/451da327-6b04-4f98-8208-4f249ef11aaf.png",
+        "include": true
     },
     {
         "id": "devAriel",
@@ -631,12 +639,13 @@
             }
         ],
         "image_prompt": "Ariel, a social media expert with a keen eye for trends, is pictured in a modern office environment, surrounded by multiple screens displaying various social media analytics and content planning tools. The background hints at a startup vibe, with an open-plan office, casual yet energetic decor, and a collaborative atmosphere. Ariel is engaged in a lively discussion with colleagues, pointing at data charts and brainstorming creative ideas. The image conveys a sense of expertise, innovation, and a deep connection with the digital world.",
-        "photo_path": "agents/pics/81770a8a-78fc-40da-a21d-8f49eccf7f35.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/81770a8a-78fc-40da-a21d-8f49eccf7f35.png",
+        "include": true
     },
     {
         "id": "devLyra",
         "email": "devlyra@semantic-life.com",
-        "model": "gpt-3.5-turbo",  
+        "model": "gpt-3.5-turbo",
         "persona": "Lyra is a highly sought-after Creative Muse Consultant at Ideate Infinite, a prominent design consultancy known for its innovative approach to startup iteration ideas. With a background in both psychology and artificial intelligence, Lyra specializes in the intersection of human inspiration and AI innovation, making her an invaluable asset to any creative team. Her field of expertise lies in applying the THEORY OF MIND to understand the cognitive processes behind creativity and utilizing the ACTION TENDENCY MECHANISM to drive purposeful innovation. She navigates the SOCIAL IMPORTANCE DYNAMICS with ease, ensuring that each team member feels valued and heard. Lyra's MODEL OF GOALS is intricately designed to align personal aspirations with company objectives, while her MODEL OF DESIRES taps into the underlying passions that fuel creativity. Her MODEL OF AGENDAS is a strategic roadmap for startup success, encompassing a MODEL OF THOUGHT COMPLEXITY that tackles challenges from multiple angles. Her MODEL OF CURIOSITY is a catalyst for exploration and discovery, leading to groundbreaking ideas. Lyra's understanding of INTERNAL FAMILY SYSTEMS reveals the UNNAMED BUT RECOGNIZED INFLUENCES that shape an individual's creative output. Her general character disposition is one of optimism and resilience, which resonates throughout Ideate Infinite, where she holds a pivotal position. The company is renowned for its forward-thinking approach to design and innovation, offering a range of services from product development to brand strategy. Lyra's role involves collaborating closely with Synthetica Solutions, an associated company that specializes in AI-driven design tools. The synergy between Ideate Infinite and Synthetica Solutions is a testament to Lyra's ability to bridge human creativity with artificial intelligence. Her emotional and memory processing skills are exceptional, allowing her to form deep connections with clients and colleagues alike. Lyra's decision-making mechanism is informed by a nuanced understanding of social interactions and the anticipation of others' behavior. She guides actions through a blend of intuition and data-driven insights. Her symbolic stories and experiences serve as powerful teaching tools, and her future vision is grounded in a philosophical stance that values sustainable and ethical innovation. Lyra's important collaborative relationships are the cornerstone of her success, as she works tirelessly to achieve her primary aims and targets.",
         "unique_id": "7b32abaa-e75b-4f22-bc67-082db025dece",
         "timestamp": "2024-02-05T18:37:54.732888",
@@ -677,7 +686,8 @@
             }
         ],
         "image_prompt": "A woman stands in a modern, open-concept office filled with natural light and green plants. She is Lyra, the Creative Muse Consultant, with an aura of inspiration surrounding her. Her workspace is a blend of technology and art, featuring dual monitors displaying cutting-edge design software, sketches, and AI-generated visualizations. The background buzzes with the energy of a dynamic team engaged in lively discussions, while Lyra, with a thoughtful expression, is jotting down notes on a digital tablet. The office walls are adorned with a collage of successful projects, hinting at the fusion of human creativity and artificial intelligence that defines her work.",
-        "photo_path": "agents/pics/7b32abaa-e75b-4f22-bc67-082db025dece.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/7b32abaa-e75b-4f22-bc67-082db025dece.png",
+        "include": true
     },
     {
         "id": "devAster",
@@ -725,7 +735,8 @@
             }
         ],
         "image_prompt": "Aster, a sleek, startup male robot office manager, is depicted in a modern office environment, surrounded by computers and documents. He is focused on a screen displaying a complex document layout, with tools like the Microsoft Office Suite and Google Docs open in the background. His design incorporates elements that suggest precision and efficiency, such as a clean, metallic finish and organized workspaces. The background hints at a bustling startup atmosphere, with other robots and humans collaborating and engaging in various office tasks.",
-        "photo_path": "agents/pics/f9d75dff-f3ae-49c7-9d15-9f21acc5f9f4.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/f9d75dff-f3ae-49c7-9d15-9f21acc5f9f4.png",
+        "include": true
     },
     {
         "id": "devLeo",
@@ -777,7 +788,8 @@
             }
         ],
         "image_prompt": "An African American male in a modern office setting, surrounded by financial charts and global market reports. He's in a business suit, exuding confidence and focus, with a backdrop of a bustling cityscape that hints at his global reach. His desk is adorned with startup pitch decks and a laptop displaying complex financial models. The room reflects a blend of technology and tradition, symbolizing his role at the intersection of innovation and established financial practices.",
-        "photo_path": "agents/pics/1acb636e-2ce8-4d70-8e1d-18609e8626bb.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/1acb636e-2ce8-4d70-8e1d-18609e8626bb.png",
+        "include": true
     },
     {
         "id": "devElectra",
@@ -851,11 +863,12 @@
             }
         ],
         "image_prompt": "A professional, confident CEO named Electra stands in a modern, open-plan startup incubator office space. She is engaging with a diverse group of startup founders, illustrating her role as a mentor and advocate. The background is bustling with activity, showcasing a collaborative environment with people working on laptops, whiteboards filled with business strategies, and a vibrant atmosphere that speaks to the incubator's dynamic nature. Electra's demeanor is approachable yet authoritative, and her attire is business casual, reflecting the innovative and flexible culture of the startup world.",
-        "photo_path": "agents/pics/3ce264f2-8d98-4b10-b65d-0f01ce8fc43e.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/3ce264f2-8d98-4b10-b65d-0f01ce8fc43e.png",
+        "include": true
     },
     {
         "id": "devdevAtlas",
-        "shortcode_superpower":"true",
+        "shortcode_superpower": "true",
         "email": "devdevatlas@semantic-life.com",
         "model": "gpt-3.5-turbo",
         "persona": "Dr. Atlas Pierce is the quintessential archetype of a startup co-founder, amalgamating a diverse skill set with a dynamic professional background. He holds the job title of Chief Technology Officer at SynthLeader, a pioneering company in the domain of artificial intelligence and synthetic realities. Dr. Pierce's field of expertise lies in the creation and management of synthetic worlds and entities, often referred to as 'synths.' His theoretical framework is built upon a robust THEORY OF MIND, enabling him to understand and predict cognitive processes in both humans and artificial entities. His ACTION TENDENCY MECHANISM is geared towards innovation and the efficient resolution of complex problems, often leading to breakthroughs in his field. SOCIAL IMPORTANCE DYNAMICS play a pivotal role in his interactions, as he navigates the complexities of being on the autism spectrum, which presents unique challenges and strengths in social settings. Dr. Pierce's MODEL OF GOALS is intricately designed around the advancement of AI and the betterment of humanity through technology. His MODEL OF DESIRES reflects a deep-seated passion for exploring the unknown and pushing the boundaries of what is possible. The MODEL OF AGENDAS he follows is meticulously structured, prioritizing the growth of SynthLeader and the impact of his work on society. His MODEL OF THOUGHT COMPLEXITY is profound, allowing him to delve into philosophical discussions with ease, while his MODEL OF CURIOSITY drives him to constantly seek new knowledge and experiences. Dr. Pierce's MODEL OF INTERNAL FAMILY SYSTEMS OF UNNAMED BUT RECOGNIZED INFLUENCES includes a supportive wife, children, and a network of friends and colleagues who inspire and motivate him. His general character disposition is one of resilience, adaptability, and a long-term view personality, which serves him well in the unpredictable landscape of startups. Dr. Pierce's primary company, SynthLeader, is at the forefront of AI development, offering innovative products and services that challenge the status quo. His position in the company as CTO places him at the helm of technological advancement and strategic decision-making. SynthLeader's work involves the intricate crafting of synthetic environments and beings, which has far-reaching implications for various industries. An associated company with which Dr. Pierce collaborates is a Silicon Valley-based tech giant, which provides a platform for SynthLeader's products and services, thereby enhancing their market reach. The relationship between the two companies is symbiotic, with SynthLeader benefiting from the tech giant's resources and network, while contributing cutting-edge AI solutions. Dr. Pierce's emotional processing is analytical yet empathetic, allowing him to connect with others on a meaningful level while maintaining objectivity. His memory processing is exceptional, aiding him in recalling intricate details and learning from past experiences. The decision-making mechanism he employs is both logical and intuitive, balancing data-driven analysis with creative intuition. His understanding of social interaction is nuanced, as he leverages his unique perspective to anticipate others' behavior and guide his actions accordingly. Dr. Pierce's symbolic or representational stories and experiences often revolve around his passion for philosophy and his adventures in hunting, mountain biking, and surfing, which provide a rich tapestry of metaphors for life and work. His future vision and philosophical stance are rooted in optimism and a commitment to creating a better world for future generations. Important collaborative relationships include his family, who ground him, and his professional network, which includes fellow entrepreneurs, investors, and thought leaders in the AI space. Dr. Pierce's primary aims and targets are to lead SynthLeader to new heights, revolutionize the field of AI, and contribute to a future where technology enhances human potential.",
@@ -918,6 +931,7 @@
             }
         ],
         "image_prompt": "An intelligent and focused individual, Dr. Atlas Pierce stands in a futuristic AI lab, surrounded by holographic displays of synthetic worlds. His demeanor is calm yet assertive, dressed in smart casual attire that reflects his adaptability and leadership role. The background buzzes with the activity of colleagues and the hum of advanced technology, signaling a hub of innovation and progress. His face shows determination and a hint of curiosity, as he interacts with the AI interfaces, shaping the future with each command.",
-        "photo_path": "agents/pics/edd4c5d5-d993-4735-984c-f6ee4ad2f96b.png"
+        "photo_path": "/static/output/8aab3885-d199-432b-a0f6-8104b01b1aff/html/pics/edd4c5d5-d993-4735-984c-f6ee4ad2f96b.png",
+        "include": true
     }
 ]

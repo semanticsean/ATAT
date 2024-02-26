@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poll Setup</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="static/abe.css">
+  <style>
+  .selected-agent {
+      border: 3px solid black;
+      background-color: darkgrey;
+  }
+
+  .hidden {
+      display: none;
+  }
+  </style>
+
+</head>
+<body class="bg-blue-50">
+  <div id="loadingPlaceholder" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; display:flex; justify-content:center; align-items:center;">
+      <img id="loading" src="static/loading.gif" style="max-width:60px;" alt="Loading" />
+  </div>
+
+  </div>
+    <div class="text-center mb-4">
+        <a href="/">
+            <img src="static/logo.png" alt="Company Logo" class="mx-auto w-32 sm:w-32 lg:w-32 xl:w-32">
+        </a>
+    </div>
+    <div class="container mx-auto my-8 text-center">
+        <h1 class="text-xl font-bold mb-2 text-2xl">Select Agents and Write Questions</h1>
+      <div class="flex justify-center space-x-2 mb-4">
+       <button type="button" id="selectAll" class="bg-green-200 hover:bg-green-700 text-white text-sm py-1 px-1 rounded mb-2 text-xl" >Select All</button> 
+        <button type="button" id="clearAll" class="bg-red-200 hover:bg-red-700 text-white text-sm py-1 px-1 rounded mb-2 text-xl" >Clear All</button>
+      </div>
+        <form id="pollForm" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+          <h3 class="text-xl font-bold col-span-1 sm:col-span-4">Agents:</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4" id="agentCards">
+
+
+              {% for agent in agents %}
+              <div class="mb-2 agent-info rounded-lg">
+
+                <button type="button" id="agentBtn{{ loop.index }}" class="agent-btn bg-gray-200 hover:bg-blue-100 text-black text-2xl font-bold py-2 px-4 rounded m-2" data-selected="false" data-agent-id="{{ agent.id }}">
+
+
+                  <img src="{{ unique_folder_path }}/{{ agent.photo_path.split('/')[-1] }}" alt="Agent Photo" class="agent-photo ">
+                  {{ agent.id }} <br> {{ agent.jobtitle }}
+                </button>
+
+
+              </div>
+
+              {% endfor %}
+
+          </div>
+
+
+
+          <div class="mb-4">
+            <h3 class="text-xl font-bold mb-2 text-2xl">Questions</h3>
+            {% for question in questions.questions %}
+            <div class="mb-2">
+              <label for="question_{{ loop.index }}" class="block text-gray-700 text-sm font-bold mb-2">{{ question.label }}</label>
+              <textarea id="question_{{ loop.index }}" name="question_{{ loop.index }}" class="auto-height shadow appearance-none bg-blue-200 border rounded w-full lg:w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-xl" style="resize:vertical; overflow:auto; height:auto; min-height:6rem;">{{ question.text }}</textarea>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="mb-4">
+            <h3 class="text-xl font-bold mb-2 text-2xl">Add Custom Questions</h3>
+            <p>Note: Each new paragraph is a separate question. 3 questions max.</p>
+            <textarea name="custom_questions" class="auto-height shadow appearance-none border rounded w-full lg:w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-xl" style="resize:vertical; overflow:auto; height:auto; min-height:6rem;"></textarea>
+          </div>
+
+          <div class="mb-4">
+            <h3 class="text-xl font-bold mb-2 text-2xl">Custom Instructions</h3>
+
+            <textarea name="instructions" class="auto-height shadow appearance-none border rounded w-full lg:w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-xl" style="resize:vertical; overflow:auto; height:auto; min-height:6rem;">{{ instructions }}</textarea>
+          </div>
+
+          <div class="flex flex-col items-center justify-center my-4">
+            <button id="startPoll" type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline text-xl">Start Poll</button>
+
+            <span id="pollMessage" class="text-red-500 mt-2 hidden"></span> <!-- Message placeholder -->
+            <img id="loadingImage" src="static/loading.gif" class="hidden mt-2" alt="Loading" style="max-width:60px;" /> <!-- Moved below the button -->
+          </div>
+
+
+            </div>
+        </form>
+        <div class="flex items-center justify-center">
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    window.onload = function() {
+
+        // Function to adjust textarea height based on content
+        function adjustTextAreaHeight(textarea) {
+          textarea.style.height = 'auto'; // Reset height to auto to get the scroll height correctly
+          textarea.style.height = (textarea.scrollHeight + 10) + 'px'; // Add extra padding
+        }
+
+        // Apply the height adjustment on page load and on input for each textarea
+        window.onload = function() {
+          const textAreas = document.querySelectorAll('.auto-height');
+          textAreas.forEach(textarea => {
+            adjustTextAreaHeight(textarea);
+            textarea.addEventListener('input', function() {
+              adjustTextAreaHeight(textarea);
+            });
+          });
+        };
+
+        $('#loadingPlaceholder').fadeOut('slow', function() {
+
+            $(this).hide();
+        });
+    };
+
+
+        $(document).ready(function() {
+
+          function updateAgentInclusion(agentIds, include) {
+              $.ajax({
+                  url: '/update_agent_inclusion',
+                  type: 'POST',
+                  contentType: 'application/json',
+                  data: JSON.stringify({ agent_ids: agentIds, include: include }),
+                  success: function(response) {
+                      console.log(response.message);
+                  },
+                  error: function(xhr, status, error) {
+                      console.error("Error updating agent inclusion: ", error);
+                  }
+              });
+          }
+
+          $('.agent-btn').click(function() {
+              var isSelected = $(this).attr('data-selected') === 'true';
+              var agentId = $(this).data('agent-id');
+              $(this).attr('data-selected', !isSelected);
+              $(this).toggleClass('selected-agent', !isSelected);
+              updateAgentInclusion([agentId.toString()], !isSelected);
+          });
+
+          $('#selectAll').click(function() {
+              // Iterate over each agent button and trigger the click event programmatically
+              $('.agent-btn').each(function() {
+                  // Check if the agent is already selected to avoid double toggling
+                  if ($(this).attr('data-selected') === 'false') {
+                      $(this).click(); // Trigger the click event for each agent button
+                  }
+              });
+          });
+
+
+          $('#clearAll').click(function() {
+              var allAgentIds = $('.agent-btn').map(function() {
+                  return $(this).data('agent-id').toString();
+              }).get();
+              $('.agent-btn').attr('data-selected', false).removeClass('selected-agent');
+              updateAgentInclusion(allAgentIds, false);
+          });
+
+
+
+
+
+      $('#startPoll').click(function() {
+        event.preventDefault();
+
+        // Collect selected agent IDs
+        var selectedAgentIds = $('.agent-btn[data-selected="true"]').map(function() { return $(this).data('agent-id'); }).get();
+
+        // Check if no agents are selected and display a message
+        if (selectedAgentIds.length === 0) {
+          $('#pollMessage').text('Please select at least one agent to start the poll.').removeClass('hidden');
+          return; // Exit the function if no agents are selected
+        } else {
+          $('#pollMessage').addClass('hidden'); // Hide the message if agents are selected
+        }
+
+        // Collect predefined questions from textarea elements
+        var questions = $('textarea[name^="question_"]').map(function() { return $(this).val().trim(); }).get();
+
+        // Collect and append custom questions, splitting by newlines and trimming each entry
+        var customQuestionsText = $('textarea[name="custom_questions"]').val().trim();
+        if (customQuestionsText !== "") {
+            var customQuestions = customQuestionsText.split('\n').map(function(item) { return item.trim(); });
+            questions = questions.concat(customQuestions);
+        }
+
+        // Collect custom instructions
+        var instructionsElement = $('textarea[name="instructions"]');
+        var instructions = instructionsElement.val().trim();
+        if (!instructions.includes('{question}')) {
+          instructions += '\n\nQUESTION: {question}\n\nYOU ARE ROLEPLAYING AS: {agent_json}';
+          instructionsElement.val(instructions); 
+
+        }
+
+        $('#loadingImage').removeClass('hidden');
+        $(this).prop('disabled', true);
+
+        // Submit the data including both predefined and custom questions
+        $.ajax({
+            url: '/start',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                selectedAgents: selectedAgentIds,
+                questions: questions,
+                instructions: instructions
+            }),
+            success: function(response) {
+                console.log("Polling for status...");
+                var statusInterval = setInterval(function() {
+                    checkStatus(statusInterval);
+                }, 2000); // Poll every 2 seconds
+            },
+            error: function(xhr, status, error) {
+                $('#loadingImage').addClass('hidden');
+                $('#startPoll').prop('disabled', false);
+                console.error("Error starting poll: ", xhr.responseText);
+                alert("An error occurred while starting the poll.");
+            }
+        });
+      });
+
+
+      function checkStatus(intervalId) {
+          $.getJSON('/status', function(data) {
+              if (data.redirect && data.final_html_path) {
+                  clearInterval(intervalId);
+                  window.location.href = data.final_html_path;
+              } else if (!data.is_processing) {
+                  clearInterval(intervalId);
+                  alert("Poll processing complete, but no redirection occurred.");
+              }
+          }).fail(function() {
+              clearInterval(intervalId);
+              console.error("Error checking poll status.");
+              alert("Error checking poll status.");
+          });
+      }
+
+
+
+    });
+    </script>
+
+
+
+
+</body>
+</html>
