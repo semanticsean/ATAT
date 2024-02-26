@@ -579,11 +579,6 @@ class EmailClient:
               self.agent_loader, self.gpt, agent_name, order, agents,
               thread_content)
 
-        # Prepare HTML formatted response
-        response_with_breaks = response.replace('\n', '<br/>')
-        response_html = MIMEText(f"<html><body>{response_with_breaks}</body></html>", 'html', 'utf-8')
-
-
         if not response:  # Skip empty responses
           all_responses_successful = False
           continue
@@ -666,21 +661,23 @@ class EmailClient:
               email_history, from_,
               datetime.now().strftime('%a, %b %d, %Y at %I:%M %p'))
 
+          # Formatting response and history in both plain text and HTML
+          response_plain = MIMEText(response, 'plain', 'utf-8')     
+          response_plain.add_header('Content-Transfer-Encoding',
+                                    'quoted-printable')
 
-          response_plain = MIMEText(response, 'plain', 'utf-8')
+          response_with_breaks = response.replace('\n', '<br/>')
 
+          response_html = MIMEText(
+              f"<html><body>{response_with_breaks}</body></html>", 'html',
+              'utf-8')
+          response_html.add_header('Content-Transfer-Encoding',
+                                   'quoted-printable')
 
-          response_html = MIMEText(f"<html><body>{response_with_breaks}</body></html>", 'html', 'utf-8')
-
-
-          history_plain = MIMEText(formatted_email_history_plain, 'plain', 'utf-8')
-
-          email.encoders.encode_quopri(history_plain)
-
-          history_html = MIMEText(f"<html><body>{formatted_email_history_html}</body></html>", 'html', 'utf-8')
-
-          email.encoders.encode_quopri(history_html)
-
+          history_plain = MIMEText(formatted_email_history_plain, 'plain')
+          history_html = MIMEText(
+              f"<html><body>{formatted_email_history_html}</body></html>",
+              'html')
 
 
 
@@ -758,11 +755,22 @@ class EmailClient:
   # FORMAT EMAIL HISTORY
 
   def format_email_history_html(self, history, from_email, date):
-    # Decoding is moved to the point just before usage to ensure correct handling
-    lines = history.split('\n')
-    formatted_lines = ['<blockquote>{}</blockquote>'.format(line) for line in lines if line.strip()]
-    combined_history = '\n'.join(formatted_lines)
-    html_content = '<div class="gmail_quote">On {} {} wrote:<br>{}<br></div>'.format(date, from_email, combined_history)
+
+    try:
+        decoded_history = quopri.decodestring(history.encode()).decode('utf-8')
+    except UnicodeDecodeError:
+        # If utf-8 decoding fails, fall back to 'latin1' encoding
+        decoded_history = quopri.decodestring(history.encode()).decode('latin1')
+
+    # Detect if history is already wrapped in 'gmail_quote' and avoid re-wrapping
+    if '<div class="gmail_quote">' not in decoded_history:
+        lines = decoded_history.split('\n')
+        formatted_lines = ['<blockquote>{}</blockquote>'.format(line) for line in lines if line.strip()]
+        combined_history = '\n'.join(formatted_lines)
+        html_content = '<div class="gmail_quote">On {} {} wrote:<br>{}<br></div>'.format(date, from_email, combined_history)
+    else:
+        html_content = decoded_history  # Use as-is if already wrapped
+
     return html_content
 
 
@@ -784,35 +792,76 @@ class EmailClient:
 
   # SEND EMAIL
 
-  def send_email(self, from_email, from_alias, to_emails, cc_emails, subject, msg, message_id=None, references=None, x_gm_thrid=None, email_history=None, date=None):
-    mime_msg = MIMEMultipart('mixed')
-    mime_msg['From'] = f'"{from_alias}" <{from_email}>'
-    mime_msg['To'] = ', '.join(to_emails)
+  def send_email(self,
+                 from_email,
+                 from_alias,
+                 to_emails,
+                 cc_emails,
+                 subject,
+                 msg,
+                 message_id=None,
+                 references=None,
+                 x_gm_thrid=None):
+    all_recipients = to_emails + cc_emails
+
+    # Remove the sending agent's email from the To and Cc fields
+    all_recipients = [
+        email for email in all_recipients
+        if email.lower() != from_email.lower()
+    ]
+
+    is_html_email = any(part.get_content_type() == 'text/html'
+                        for part in msg.get_payload())
+    msg['Content-Type'] = 'text/html; charset="utf-8"' if is_html_email else 'text/plain; charset="utf-8"'
+
+    if not all_recipients:
+      print("No valid recipients found. Will abort email send.")
+      return
+
+    msg['From'] = f'"{from_alias}" <{from_alias}>'
+    msg['Reply-To'] = f'"{from_alias}" <{from_alias}>'
+    msg['Sender'] = f'"{from_alias}" <{from_alias}>'
+    msg['To'] = ', '.join(to_emails)
     if cc_emails:
-        mime_msg['Cc'] = ', '.join(cc_emails)
-    mime_msg['Subject'] = subject
+      msg['Cc'] = ', '.join(cc_emails)
+
+    msg['Subject'] = subject
+
+    if x_gm_thrid:
+      msg["X-GM-THRID"] = x_gm_thrid
 
     if message_id:
-        mime_msg["In-Reply-To"] = message_id
+      msg["In-Reply-To"] = message_id
     if references:
-        mime_msg["References"] = f"{references} {message_id}" if message_id else references
+      msg["References"] = references + ' ' + message_id
 
-    all_recipients = list(set(to_emails + cc_emails))  # Ensure unique recipients
+    # Clean the all_recipients list to remove the SMTP username
+    all_recipients = [
+        email for email in all_recipients
+        if email.lower() != self.smtp_username.lower()
+    ]
 
-    # Attach the main email content
-    if isinstance(msg, MIMEMultipart):
-        for part in msg.get_payload():
-            mime_msg.attach(part)
-    else:
-        text_part = MIMEText(msg, 'plain', 'utf-8')
-        mime_msg.attach(text_part)
 
-    # Attach the formatted email history if provided
-    if email_history and date:
-        history_html = self.format_email_history_html(email_history, from_email, date)
-        history_part = MIMEText(history_html, 'html', 'utf-8')
-        mime_msg.attach(history_part)
+    """
+    LOGGING 
 
+    # Generate a unique filename for the log file
+    log_filename = f'logs/email_log_{datetime.now().strftime("%Y%m%d%H%M%S")}_{message_id}.txt'
+
+
+    # Log the email content
+    with open(log_filename, 'w') as log_file:
+        log_file.write(f"From: {from_alias} <{from_alias}>\n")
+        log_file.write(f"To: {', '.join(to_emails)}\n")
+        if cc_emails:
+            log_file.write(f"Cc: {', '.join(cc_emails)}\n")
+        log_file.write(f"Subject: {subject}\n")
+        log_file.write("Message Body:\n")
+        log_file.write(msg.as_string()) 
+
+    """
     with self.smtp_connection() as server:
-        server.sendmail(from_email, all_recipients, mime_msg.as_string())
-
+      server.sendmail(from_email, all_recipients, msg.as_string())
+      print(
+          f"Email sent with Thread ID: {x_gm_thrid}, Subject: {subject}, Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+      )
