@@ -15,7 +15,7 @@ def rewrite_file_content(original_text,
   additional_instructions = f" Ensure the new content aligns with the identity and services of {company_name}, an ad agency. Keep the format but change character names and details to fit the new context. Place the agent's name on the first line followed by two line breaks. Only the name should be on the first line, without labels or additional text.THE NAME MUST BE THE FIRST LINE. Follow the name with two line breaks before proceeding with the content.YOU ARE MAKING A ROLEPLAYING AI AGENT. YOU ARE NOT MAKING A COMPANY. THE NEW AGENT WORKS FOR OR WITH THE COMPANY."
   messages = [{
       "role": "system",
-      "content": "You are a highly creative assistant. "
+      "content": "You create roleplaying AI agents. "
   }, {
       "role":
       "user",
