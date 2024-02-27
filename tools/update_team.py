@@ -1,10 +1,11 @@
 import os
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 import glob
 import time
 
 # Load environment variables
-openai.api_key = os.getenv("OPENAI_API_KEY")
 company_name = os.getenv("COMPANY_NAME", "Your Default Company Name")
 
 
@@ -23,7 +24,7 @@ def rewrite_file_content(original_text,
       f"{transformation_prompt} Original text: {original_text} {additional_instructions}"
   }]
 
-  response = openai.ChatCompletion.create(model="gpt-3.5-turbo",
+  response = client.chat.completions.create(model="gpt-3.5-turbo",
                                           messages=messages,
                                           max_tokens=max_tokens,
                                           temperature=0.7,
@@ -32,7 +33,7 @@ def rewrite_file_content(original_text,
                                           presence_penalty=0)
 
   time.sleep(10)
-  return response.choices[-1].message['content'].strip()
+  return response.choices[-1].message.content.strip()
 
 
 def process_files(directory, transformation_prompt, num_files=None):

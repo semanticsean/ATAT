@@ -1,6 +1,8 @@
 import os
 import time
-import openai
+from openai import OpenAI
+
+
 import tiktoken
 import re
 import pickle
@@ -10,12 +12,11 @@ from random import uniform
 openai_api_key = os.environ['OPENAI_API_KEY']
 domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com')  
 
-
+client = OpenAI(api_key=openai_api_key)
 
 class GPTModel:
 
   def __init__(self):
-    openai.api_key = openai_api_key
     self.load_state()  # Load state variables
     self.encoding = tiktoken.get_encoding("cl100k_base")
     self.api_calls_in_current_window = 0
@@ -191,7 +192,7 @@ class GPTModel:
         #print("\n--- API Request Payload ---")
         # print((json.dumps(request_payload, indent=4)))
 
-        response = openai.ChatCompletion.create(**request_payload)
+        response = client.chat.completions.create(**request_payload)
 
         #print("\n--- API Response ---")
         # print(json.dumps(response, indent=4)[:142])
@@ -211,7 +212,7 @@ class GPTModel:
 
     self.last_api_call_time = time.time()
 
-    return response['choices'][0]['message']['content']
+    return response.choices[0].message.content
 
 
   def generate_agent_profile(self, description):
