@@ -1,0 +1,4 @@
+{
+  "instructions": "Please provide an email draft based on the following input. Ensure the email includes a subject, recipient's email address, a brief body message, and optionally, a list of CC'd recipients. The information provided below should be used to tailor the email content appropriately.",
+  "context": "This email is intended to address an inquiry related to our services. Use a professional and courteous tone throughout."
+}
