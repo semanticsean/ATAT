@@ -36,21 +36,24 @@
 
 
           // Update Title, Headers, and Footer
-          document.title = data.title;
+         document.title = data.title;
           document.getElementById('header-logo').src = data.logo_url;
-          document.querySelector('.h1').innerText = data.h1;
-          document.querySelector('.h2').innerText = data.h2;
+  
+          // Since h1 and h2 are direct children of a div with class `container`, you can use the :nth-of-type selector to target them
+          let containerDiv = document.querySelector('.container');
+          let h1 = containerDiv.querySelector('h1'); // This assumes h1 is the first h1 element inside .container
+          let h2 = containerDiv.querySelector('h2'); // This assumes h2 is the first h2 element inside .container
+  
+          if (h1) h1.innerText = data.h1;
+          if (h2) h2.innerText = data.h2;
+  
           document.querySelector('.footer').innerText = data.footer;
           document.getElementById('webCopyContainer').innerText = data.web_copy;
           document.getElementById('social_image').src = data.social_image_url;
-
-
-          // Optional: Update any additional elements as needed
         })
         .catch(error => console.error('Error loading header data:', error));
     });
-  </script>
-    <script>
+    
       // Enhanced function to copy text to clipboard and modify button appearance
       function copyToClipboard(text, buttonId) {
         navigator.clipboard.writeText(text).then(function() {
@@ -87,26 +90,29 @@
 </head>
 <body>
   
-  <div class="text-center mb-4 pt-6">
+  <div class="text-center md:absolute md:top-6 md:left-4 mx-auto">
+
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo" class="mx-auto w-32">
   </div>
+  
 
-  <div class="container mx-auto my-8">
-    
-        
-        <h1>Loading...</h1> 
-        <h2>Loading...</h2>   
-        
-    
-    <div class="text-xl font-bold mb-4 text-center text-2xl">DASHBOARD</div>
+  <div class="container mx-auto mt-4 mb-8">
+  
+    <div class="font-bold mb-4 text-center text-3xl">DASHBOARD</div>
     <section id="webCopySection" class="text-center p-4 bg-gray-100">
         <div class="container mx-auto">
-            <p id="webCopyContainer" class="webCopyContainer"></p>
+          <h1 class="font-bold mb-4 text-center text-xl">Loading...</h1> 
+          <h2 class="mb-4 text-center">Loading...</h2>  
+            <div id="webCopyContainer" class="webCopyContainer"></div>
         </div>
     </section>
-    <div class="md:absolute md:top-0 md:right-0 md:w-full">
-        <button onclick="window.location.href='/abe'" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 ml-4 rounded transition duration-300 ease-in-out">Go to ABE</button>
+    
+    <div class="text-center md:absolute md:top-4 md:right-6 mx-auto">
+        <button onclick="window.location.href='/abe'" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">Go to ABE</button>
     </div>
+    
+
+
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 ml-auto mr-auto mb-4 mt-4">
 
       {% for agent in agents %}
@@ -117,7 +123,7 @@
             <h4 class="text-lg font-bold">{{ agent.jobtitle }}</h4>
             
             <!-- Add a min-height class to the paragraph for consistent height -->
-            <p class="min-h-4em">{{ agent.summary }}</p> 
+            <p >{{ agent.summary }}</p> 
             <div class="mt-4 flex justify-left gap-2">
               <a href="mailto:{{ agent.email }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Email</a>
               <button id="copyEmail{{ agent.id }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm rounded py-1 px-2" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email</button>
@@ -129,32 +135,36 @@
       {% endfor %}
     </div>
     <!-- Instructions Section -->
+    <div class="image-section">
+      <img id="social_image" class="social_image mx-auto justify-center" src="" alt="Social Image"> 
+
+    </div>
     <div class="bg-white rounded-lg shadow px-6 py-4 mx-auto max-w-4xl">
         <h2 class="text-xl font-bold text-gray-800">Shortcodes</h2>
 
         <div class="mt-4">
             <h4 class="font-semibold text-lg text-blue-600">Call Agents from Email Body</h4>
-            <p class="text-gray-600">@@(Agent Name)</p>
+            <div> class="text-gray-600">@@(Agent Name)</div>
         </div>
 
         <div class="mt-4">
             <h4 class="font-semibold text-lg text-blue-600">Create a Temporary Agent</h4>
-            <p class="text-gray-600">@@.creator(Embody an agent that...)</p>
+            <div class="text-gray-600">@@.creator(Embody an agent that...)</div>
         </div>
 
         <div class="mt-4">
             <h4 class="font-semibold text-lg text-blue-600">Long Responses (Multi-Chunk)</h4>
-            <p class="text-gray-600">!detail_start!<br>instruction or content<br>!split!<br>instruction or content<br>!detail_stop!</p>
+            <div class="text-gray-600">!detail_start!<br>instruction or content<br>!split!<br>instruction or content<br>!detail_stop!</div>
         </div>
 
         <div class="mt-4">
             <h4 class="font-semibold text-lg text-blue-600">Summarize</h4>
-            <p class="text-gray-600">!summarize_start!<br>content<br>!summarize_stop!</p>
+            <div class="text-gray-600">!summarize_start!<br>content<br>!summarize_stop!</div>
         </div>
 
         <div class="mt-4">
             <h4 class="font-semibold text-lg text-blue-600">Summarize with Modifier e.g. JSON Return</h4>
-            <p class="text-gray-600">!summarize.json_start!<br>content<br>!summarize.json_stop!</p>
+            <div class="text-gray-600">!summarize.json_start!<br>content<br>!summarize.json_stop!</div>
         </div>
 
         <!-- Code Links Section -->
@@ -173,16 +183,14 @@
     
   </div>
 
-  <div class="image-section">
-    <img id="social_image" class="social_image mx-auto justify-center" src="" alt="Social Image"> 
-    <img src="" id="header-logo" class="header-logo">
-  </div>
+  
 
   <footer class="footer bg-white shadow-lg p-4 text-center bottom-0 inset-x-0">
     © 2024 Semantic Life - All rights reserved. @@™. The terms "Synthetic Time Travel", "ATAT", "@@" are all property of Semantic Life. 
     <a href="https://semantic-life.com/terms" class="text-blue-600 hover:underline">Terms of Service</a> and 
     <a href="https://semantic-life.com/privacy" class="text-blue-600 hover:underline">Privacy Policy</a>
   </footer>
+  <img src="" id="header-logo" class="header-logo mt-4 mb-4">
   
 </body>
 
