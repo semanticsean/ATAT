@@ -22,7 +22,7 @@
         <h2 class="text-lg sm:text-xl font-bold mb-2 text-center">Email the agent to discuss further.</h2>
 
       <div class="download-links">
-        <a href="{{ csv_download_path }}" class="mx-auto justify-center text-lg btn btn-primary">Download CSV</a>
+        <a href="/static/output/unique_20240227-060757/agent_responses.csv" class="mx-auto justify-center text-lg btn btn-primary">Download CSV</a>
 
         <div id="response_counts" class="max-w-custom w-full-custom mb-4">
             <!-- Response counts will be inserted here -->
@@ -40,7 +40,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
       <script>
       $(document).ready(function() {
-          $.getJSON("{{ web_accessible_json_path }}", function(data) {
+          $.getJSON("/static/output/unique_20240227-060757/responses.json", function(data) {
               // Initialize response counters
               var responseCounters = {};
 
@@ -108,7 +108,7 @@
 
       <script>
       $(document).ready(function() {
-          $.getJSON("{{ web_accessible_json_path }}", function(data) {
+          $.getJSON("/static/output/unique_20240227-060757/responses.json", function(data) {
               $('#agents_container').empty();
               data.forEach(function(agent) {
                   var photoPath = agent.photo_path ? agent.photo_path : '/static/default-photo.png';
@@ -137,11 +137,10 @@
                           <div class="p-4 flex flex-col justify-between leading-normal ml-6">
                               <div>
                                   <div class="uppercase tracking-wide text-sm sm:text-xl text-indigo-500 font-semibold">${agent.id}</div>
-                                  
-                                  <div class="uppercase tracking-wide text-xs text-indigo-500 font-semibold">${agent.jobtitle}</div>
-                                  <button class="bg-blue-300 hover:bg-blue-700 text-black py-1 px-2 text-xs rounded text-center">
+                                  <button class="bg-blue-300 hover:bg-blue-700 text-black text-xl py-1 px-2 text-xs rounded text-center">
                                     <a href="mailto:${agent.email}" class="block mt-1 leading-tight">${agent.email}</a>
                                   </button>
+                                  <div class="uppercase tracking-wide text-xs text-indigo-500 font-semibold">${agent.jobtitle}</div>
                                   <p class="mt-2 text-gray-500 text-xs sm:text-sm">${personaSnippet}</p>
                                   ${keywordsHtml}
                               </div>
