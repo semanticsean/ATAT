@@ -2,11 +2,12 @@ import requests
 
 import json
 import os
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 import re
 import argparse
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
 company_name = os.environ['COMPANY_NAME']
 
 current_script_directory = os.path.dirname(os.path.realpath(__file__))
@@ -27,46 +28,43 @@ def generate_company_description():
   prompts = [agent["image_prompt"] for agent in agents]
   combined_prompts = " ".join(prompts)
 
-  response = openai.ChatCompletion.create(
-      model="gpt-3.5-turbo",
-      messages=[{
-          "role": "system",
-          "content": "You are a knowledgeable assistant."
-      }, {
-          "role":
-          "user",
-          "content":
-          f"Provide a one-paragraph description of the company and industry based on the following agent descriptions: {combined_prompts}"
-      }],
-      temperature=0.7,
-      max_tokens=1024)
-  return response.choices[-1].message['content'].strip()
+  response = client.chat.completions.create(model="gpt-3.5-turbo",
+  messages=[{
+      "role": "system",
+      "content": "You are a knowledgeable assistant."
+  }, {
+      "role":
+      "user",
+      "content":
+      f"Provide a one-paragraph description of the company and industry based on the following agent descriptions: {combined_prompts}"
+  }],
+  temperature=0.7,
+  max_tokens=1024)
+  return response.choices[-1].message.content.strip()
 
 
 def generate_web_copy(company_info):
-  response = openai.ChatCompletion.create(
-      model="gpt-3.5-turbo",
-      messages=[{
-          "role": "system",
-          "content": "You are a knowledgeable assistant."
-      }, {
-          "role":
-          "user",
-          "content":
-          f"Write an introduction for a website representing a team of AI agents working in {company_info}. THREE SENTENCES MAX. CONVINCE THE USER TO ENGAGE THE AGENTS BASED ON THE VALUE PROPOSITIONS. IT'S WEB COPY."
-      }],
-      temperature=0.7,
-      max_tokens=512)
-  return response.choices[-1].message['content'].strip()
+  response = client.chat.completions.create(model="gpt-3.5-turbo",
+  messages=[{
+      "role": "system",
+      "content": "You are a knowledgeable assistant."
+  }, {
+      "role":
+      "user",
+      "content":
+      f"Write an introduction for a website representing a team of AI agents working in {company_info}. THREE SENTENCES MAX. CONVINCE THE USER TO ENGAGE THE AGENTS BASED ON THE VALUE PROPOSITIONS. IT'S WEB COPY."
+  }],
+  temperature=0.7,
+  max_tokens=512)
+  return response.choices[-1].message.content.strip()
 
 
 def generate_new_header_image(description):
-  response = openai.Image.create(
-      model="dall-e-3",
-      prompt=f"Create a header image for a website about {description}.",
-      n=1,
-      size="1024x1024")
-  image_data = response.data[0]["url"]
+  response = client.images.generate(model="dall-e-3",
+  prompt=f"Create a header image for a website about {description}.",
+  n=1,
+  size="1024x1024")
+  image_data = response.data[0].url
 
   image_path = image_static_path
   download_and_save_image(image_data, image_path)
@@ -113,7 +111,7 @@ def generate_headers_with_gpt4(description, company_name):
       f"Create web content for {company_name}, a company that specializes in {description}."
   }]
 
-  response = openai.ChatCompletion.create(model="gpt-4-1106-preview",
+  response = client.chat.completions.create(model="gpt-4-1106-preview",
                                           messages=messages,
                                           temperature=0.7,
                                           max_tokens=1000,
@@ -123,7 +121,7 @@ def generate_headers_with_gpt4(description, company_name):
 
   try:
 
-    match = re.search(r'\{.*\}', response.choices[-1].message['content'],
+    match = re.search(r'\{.*\}', response.choices[-1].message.content,
                       re.DOTALL)
     if match:
       json_str = match.group(0)
