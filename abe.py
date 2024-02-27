@@ -1,4 +1,4 @@
-#server.py
+#abe.py
 import time
 import threading
 import os
@@ -23,6 +23,8 @@ from flask import current_app as app
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 AGENTS_JSON_PATH = os.path.join('agents', 'agents.json')
 IMAGES_BASE_PATH = os.path.join('agents', 'pics')
+
+app = Flask(__name__)
 
 # Define and apply a custom logging filter to exclude /status endpoint logs
 class NoStatusFilter(logging.Filter):
@@ -672,7 +674,6 @@ def generate_single_html(app, output_folder, json_file_name, csv_file_path):
           f.write(html_content)
 
       return '/static/' + os.path.relpath(html_file_path, 'static').replace('\\', '/')
-
 
 
 if __name__ == "__main__":
