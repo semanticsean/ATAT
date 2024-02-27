@@ -38,7 +38,7 @@
                 $(this).prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
                 $('#loading').removeClass('hidden');
                 $.post('/start_session', function() {
-                    window.location.href = '/index';
+                    window.location.href = '/abedashboard';
                 }).fail(function() {
                     alert("An error occurred. Please try again.");
                     $('#startSession').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');

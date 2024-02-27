@@ -21,7 +21,8 @@ from flask import Flask, render_template, request, jsonify, send_from_directory,
 from flask import current_app as app
 
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
-
+AGENTS_JSON_PATH = os.path.join('agents', 'agents.json')
+IMAGES_BASE_PATH = os.path.join('agents', 'pics')
 
 # Define and apply a custom logging filter to exclude /status endpoint logs
 class NoStatusFilter(logging.Filter):
@@ -118,25 +119,58 @@ def load_json_data(filepath):
 
 
 @app.route('/')
+def index():
+  try:
+      with open(AGENTS_JSON_PATH, 'r') as file:
+          agents = json.load(file)
+  except Exception as e:
+      print(f"Failed to load or parse JSON file: {e}")
+  for agent in agents:
+    agent['photo_path'] = get_image_path(agent)
+    if 'keywords' in agent and isinstance(agent['keywords'], list):
+      agent['keywords'] = random.sample(agent['keywords'],
+                                        min(len(agent['keywords']), 3))
+    else:
+      agent['keywords'] = []
+  return render_template('index.html', agents=agents)
+
+
+
+@app.route('/readme.html')
+def readme():
+    return render_template('readme.html')
+
+
+
+def get_image_path(agent):
+  # Retrieve the relative photo path from agent's data
+  # The photo path is assumed to be in the format "pics/filename.png"
+  return agent.get('photo_path', 'default.png')
+
+
+@app.route('/agents/pics/<filename>')
+def agent_pics(filename):
+  return send_from_directory(IMAGES_BASE_PATH, filename)
+
+
+@app.route('/abe')
 def home():
   return render_template('abe-landing.html')
 
 
 @app.route('/start_session', methods=['POST'])
 def start_session():
-  session_id = str(uuid.uuid4())
-  session['session_id'] = session_id
-  unique_folder = os.path.join('static', 'output', session_id,
-                               'html')  # Adjust path as needed
-  os.makedirs(unique_folder, exist_ok=True)
-  initialize_session(
-      os.path.join('static', 'output', session_id)
-  )  # Pass the parent folder to include 'html' subfolder handling in the function
-  return redirect(url_for('index'))
+    session_id = str(uuid.uuid4())
+    session['session_id'] = session_id
+    unique_folder = os.path.join('static', 'output', session_id, 'html')
+    os.makedirs(unique_folder, exist_ok=True)
+    initialize_session(os.path.join('static', 'output', session_id))
+    return redirect(url_for('abedashboard'))  # Redirect to the ABE dashboard
 
 
-@app.route('/index')
-def index():
+
+@app.route('/abedashboard')
+def abedashboard():
   session_id = session.get('session_id')
   if not session_id:
     return redirect(url_for('home'))
@@ -640,6 +674,7 @@ def generate_single_html(app, output_folder, json_file_name, csv_file_path):
       return '/static/' + os.path.relpath(html_file_path, 'static').replace('\\', '/')
 
 
+
 if __name__ == "__main__":
   logging.basicConfig(level=logging.INFO)
-  app.run(host='0.0.0.0', port=8080)
+  app.run(host='0.0.0.0', port=81)

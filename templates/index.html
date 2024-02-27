@@ -17,6 +17,7 @@
     <title>Loading...</title>
     <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
   
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       fetch('static/content.json') // Adjust the path to your headers.json file
@@ -151,6 +152,8 @@
       {% endif %}
 
                         <div class="sidebar">
+                          <div>
+                            <button onclick="window.location.href='/abe'" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">Go to ABE</button> </div>
                           <div class="shortcode-container">
 
                           <h2>How it works:</h2>
