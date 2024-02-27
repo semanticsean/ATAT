@@ -19,12 +19,26 @@ from flask import request
 from mirascope import Prompt, OpenAIChat
 from flask import Flask, render_template, request, jsonify, send_from_directory, session, redirect, url_for, after_this_request
 from flask import current_app as app
+from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Mail, Message
+
+
+app = Flask(__name__, static_url_path='/static')
+app.secret_key = 'your_very_secret_key'
+
+
+app.config['MAIL_SERVER'] = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.environ.get('SMTP_PORT', 587))
+app.config['MAIL_USE_TLS'] = True  
+app.config['MAIL_USERNAME'] = os.environ.get('SMTP_USERNAME', 'devagent@semantic-life.com')
+app.config['MAIL_PASSWORD'] = os.environ.get('SMTP_PASSWORD', '')
+mail = Mail(app)
 
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 AGENTS_JSON_PATH = os.path.join('agents', 'agents.json')
 IMAGES_BASE_PATH = os.path.join('agents', 'pics')
 
-app = Flask(__name__)
+
 
 # Define and apply a custom logging filter to exclude /status endpoint logs
 class NoStatusFilter(logging.Filter):
@@ -49,9 +63,7 @@ logger.addFilter(NoStatusFilter())
 
 setup_logging()
 
-# Initialize Flask application
-app = Flask(__name__, static_url_path='/static')
-app.secret_key = 'your_very_secret_key'
+
 
 # Global variables to manage process state and results
 responses_data = {}
@@ -96,6 +108,8 @@ def initialize_session(unique_folder):
     json.dump(agents, file, indent=4)
 
 
+
+
 def load_session_data(unique_folder):
   # Assuming JSON filenames are known and fixed
   agents_file_path = os.path.join(unique_folder, 'agents', 'agents.json')
@@ -119,6 +133,13 @@ def load_json_data(filepath):
 
 #FLASK
 
+def send_auth_email(email_address):
+  serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+  token = serializer.dumps(email_address, salt='email-confirm-salt')
+  confirm_url = url_for('confirm_email', token=token, _external=True)
+  html = render_template('auth_email.html', confirm_url=confirm_url)
+  msg = Message('Email Authentication', recipients=[email_address], html=html)
+  mail.send(msg)
 
 @app.route('/')
 def index():
@@ -136,6 +157,25 @@ def index():
       agent['keywords'] = []
   return render_template('index.html', agents=agents)
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email_address = request.form['email']
+        send_auth_email(email_address)
+        return 'Check your email for an authentication link.'
+    return render_template('login.html')
+
+@app.route('/confirm/<token>')
+def confirm_email(token):
+    try:
+        serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        email_address = serializer.loads(token, salt='email-confirm-salt', max_age=3600)
+        # Here, authenticate the user based on email_address
+        # For this example, you might set a session variable
+        session['authenticated'] = True
+        return redirect(url_for('index'))
+    except:
+        return 'The confirmation link is invalid or has expired.'
 
 
 @app.route('/readme.html')

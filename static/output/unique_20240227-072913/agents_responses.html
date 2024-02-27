@@ -21,12 +21,8 @@
         <h1 class="text-2xl sm:text-3xl font-bold mb-2 text-center">Survey / Poll Results </h1>
         <h2 class="text-lg sm:text-xl font-bold mb-2 text-center">Email the agent to discuss further.</h2>
 
-
-      
-      <div class="text-center md:absolute md:top-4 md:right-6 mx-auto">
-        <a href="{{ csv_download_path }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">Download CSV</a>
-      </div>
-          
+      <div class="download-links">
+        <a href="/static/output/unique_20240227-072913/agent_responses.csv" class="mx-auto justify-center text-lg btn btn-primary">Download CSV</a>
 
         <div id="response_counts" class="max-w-custom w-full-custom mb-4">
             <!-- Response counts will be inserted here -->
@@ -44,7 +40,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
       <script>
       $(document).ready(function() {
-          $.getJSON("{{ web_accessible_json_path }}", function(data) {
+          $.getJSON("/static/output/unique_20240227-072913/responses.json", function(data) {
               // Initialize response counters
               var responseCounters = {};
 
@@ -112,7 +108,7 @@
 
       <script>
       $(document).ready(function() {
-          $.getJSON("{{ web_accessible_json_path }}", function(data) {
+          $.getJSON("/static/output/unique_20240227-072913/responses.json", function(data) {
               $('#agents_container').empty();
               data.forEach(function(agent) {
                   var photoPath = agent.photo_path ? agent.photo_path : '/static/default-photo.png';
