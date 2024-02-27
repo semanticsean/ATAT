@@ -8,7 +8,6 @@ import argparse
 from tools import update_team
 
 # Set OpenAI API key
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def load_configuration(config_file='start-config.json'):
     with open(config_file, 'r') as file:
