@@ -8,7 +8,9 @@ import uuid
 import sys
 import argparse
 import shutil
-import openai
+from openai import OpenAI
+
+client = OpenAI()
 import requests
 
 domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com')
@@ -87,7 +89,7 @@ def generate_image_with_dalle(prompt):
   full_prompt = f"{prompt}. {instructions}"
 
   # Call the DALL-E API with the combined prompt
-  response = openai.Image.create(model="dall-e-3",
+  response = client.images.generate(model="dall-e-3",
                                  prompt=full_prompt,
                                  n=1,
                                  size="1024x1024",
@@ -134,15 +136,14 @@ def generate_persona(agent_name,
 
   narrative_prompt = {"role": "user", "content": description}
 
-  response = openai.ChatCompletion.create(
-      model="gpt-4-1106-preview",
-      messages=[prompt_message, narrative_prompt],
-      max_tokens=max_tokens,
-      temperature=temperature,
-      top_p=top_p,
-      response_format={"type": "json_object"})
+  response = client.chat.completions.create(model="gpt-4-1106-preview",
+  messages=[prompt_message, narrative_prompt],
+  max_tokens=max_tokens,
+  temperature=temperature,
+  top_p=top_p,
+  response_format={"type": "json_object"})
 
-  return response['choices'][0]['message']['content'].strip()
+  return response.choices[0].message.content.strip()
 
 
 def add_new_agent(agent_name, description, version="A"):
