@@ -1,0 +1,57 @@
+/* Existing styles */
+
+.selected-agent {
+    border: 1px solid grey;
+    background-color: darkgrey;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Mobile specific styles */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .agent-btn {
+        font-size: 1rem; /* Smaller font size for mobile */
+        padding: 0.5rem; /* Reduced padding */
+    }
+
+    .agent-photo {
+        width: 50px; /* Smaller agent photos on mobile */
+        height: auto;
+        margin: 0 auto; /* Center align the photo */
+    }
+
+    #agentCards {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns on smaller screens */
+    }
+
+    .agent-info {
+        display: flex;
+        flex-direction: column; /* Stack image and text vertically */
+    }
+
+    #pollForm {
+        padding: 1rem; /* Smaller padding on mobile */
+    }
+
+    .auto-height {
+        height: auto; /* Adjust textarea height */
+        min-height: 100px; /* Minimum height for textareas */
+    }
+
+    #startPoll {
+        width: 100%; /* Full width button */
+        margin-bottom: 1rem; /* Space below the button */
+    }
+
+    #loadingPlaceholder {
+        padding: 1rem; /* Padding inside loading placeholder */
+    }
+}
+
+/* You may need to adjust the max-width based on your design needs */

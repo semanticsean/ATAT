@@ -1,7 +1,7 @@
 import json
 
 
-class AgentManager:
+class AgentLoader:
 
   def __init__(self):
     self.agents = self.load_agents()

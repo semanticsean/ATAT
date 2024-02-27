@@ -11,14 +11,15 @@
   <meta name="twitter:image" content="" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
 
     <title>Loading...</title>
     <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
+  
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      fetch('static/content.json') // Adjust the path to your headers.json file
+      fetch('static/content.json')
         .then(response => response.json())
         .then(data => {
           // Update Meta Tags
@@ -35,21 +36,24 @@
 
 
           // Update Title, Headers, and Footer
-          document.title = data.title;
+         document.title = data.title;
           document.getElementById('header-logo').src = data.logo_url;
-          document.querySelector('.header h1').innerText = data.h1;
-          document.querySelector('.header h2').innerText = data.h2;
+  
+          // Since h1 and h2 are direct children of a div with class `container`, you can use the :nth-of-type selector to target them
+          let containerDiv = document.querySelector('.container');
+          let h1 = containerDiv.querySelector('h1'); // This assumes h1 is the first h1 element inside .container
+          let h2 = containerDiv.querySelector('h2'); // This assumes h2 is the first h2 element inside .container
+  
+          if (h1) h1.innerText = data.h1;
+          if (h2) h2.innerText = data.h2;
+  
           document.querySelector('.footer').innerText = data.footer;
           document.getElementById('webCopyContainer').innerText = data.web_copy;
           document.getElementById('social_image').src = data.social_image_url;
-
-
-          // Optional: Update any additional elements as needed
         })
         .catch(error => console.error('Error loading header data:', error));
     });
-  </script>
-    <script>
+    
       // Enhanced function to copy text to clipboard and modify button appearance
       function copyToClipboard(text, buttonId) {
         navigator.clipboard.writeText(text).then(function() {
@@ -85,152 +89,126 @@
     </script>
 </head>
 <body>
-  <header class="header">
-      <nav class="navbar">
-          <img src="" id="header-logo" class="header-logo">
-      </nav>
-      <div class="title-container">
-        <div class="hero-container">
-          <div class="text-section">
-        <h1>Loading...</h1> 
-        <h2>Loading...</h2>   
-            
-        <p id="webCopyContainer" class="webCopyContainer"></p>
-            </div>
-            <div class="image-section">
-              <img id="social_image" class="social_image" src="" alt="Social Image"> 
-            </div>
-      </div>
+  <div id="loadingPlaceholder" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; display:flex; justify-content:center; align-items:center;">
+      <img id="loading" src="static/loading.gif" style="max-width:60px;" alt="Loading" />
+  </div>
+  
+  <div class="text-center md:absolute md:top-6 md:left-4 mx-auto">
     
-  </header>
 
-                      <main class="main">
-                        
-                      {% if agents %}
-                          <div class="responsive-card-container">
-                              {% for agent in agents %}
-                                  {% if agent.id and agent.summary and agent.photo_path and agent.jobtitle %}
-                                      <div class="card">
-                          <div class="card-image-wrapper">
-                              <img src="/agents/pics/{{ agent.photo_path.split('/')[-1] }}" class="card-image">
-                          </div>
-                          <div class="card-content">
-                              <h2 class="agent-id">{{ agent.id }}</h2>
-                              <h3 class="agent-jobtitle">{{ agent.jobtitle }}</h3>
-                              <p class="card-summary">{{ agent.summary }}</p>
-                            <!-- <div class="card-keywords">
-                                  {% for keyword in agent.keywords %}
-                                      <span class="keyword">{{ keyword }}</span>
-                                  {% endfor %}
-                              </div> !--> 
-                            <div class="card-actions">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo" class="mx-auto w-32">
+  </div>
+  
 
-                              
-                              <button class="button" onclick="location.href='mailto:{{ agent.email }}'">Email {{ agent.id }}</button>
-                              
+  <div class="container mx-auto mt-4 mb-8">
+  
+    <div class="font-bold mb-4 text-center text-3xl">DASHBOARD</div>
+    <section id="webCopySection" class="text-center p-4 bg-gray-100">
+        <div class="container mx-auto">
+          <h1 class="font-bold mb-4 text-center text-xl">Loading...</h1> 
+          <h2 class="mb-4 text-center">Loading...</h2>  
+            <div id="webCopyContainer" class="webCopyContainer"></div>
+        </div>
+    </section>
+    
+    <div class="text-center md:absolute md:top-4 md:right-6 mx-auto">
+        <button onclick="window.location.href='/abe'" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">Go to ABE</button>
+    </div>
+    
 
-                              <button id="copyEmail{{ agent.id }}" class="button" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email Address</button>
-                              <button id="copyShortcode{{ agent.id }}" class="button" data-original-text="Copy Shortcode" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
 
-                          
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 ml-auto mr-auto mb-4 mt-4">
 
-                              
-                          
-                            </div>
-                      </div>
-                                        
-                                      </div>
-                                        
-                  {% endif %}
-              {% endfor %}
+      {% for agent in agents %}
+        <div class="bg-white border rounded-lg shadow overflow-hidden">
+          <img src="/agents/pics/{{ agent.photo_path.split('/')[-1] }}" alt="Agent Photo" class="w-full h-48 object-cover">
+          <div class="p-4">
+            <h3 class="text-lg font-bold">{{ agent.id }}</h3>
+            <h4 class="text-lg font-bold">{{ agent.jobtitle }}</h4>
+            
+            <!-- Add a min-height class to the paragraph for consistent height -->
+            <p >{{ agent.summary }}</p> 
+            <div class="mt-4 flex justify-left gap-2">
+              <a href="mailto:{{ agent.email }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Email</a>
+              <button id="copyEmail{{ agent.id }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm rounded py-1 px-2" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email</button>
+              <button id="copyShortcode{{ agent.id }}" class="bg-gray-200 hover:bg-gray-400 text-black text-sm py-1 px-2 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
+
+            </div>
           </div>
+        </div>
+      {% endfor %}
+    </div>
+    <!-- Instructions Section -->
+    <div class="image-section">
+      <img id="social_image" class="social_image mx-auto justify-center" src="" alt="Social Image"> 
 
-                        
-                          
-      {% endif %}
+    </div>
+    <div class="bg-white rounded-lg shadow px-6 py-4 mx-auto max-w-4xl">
+        <h2 class="text-xl font-bold text-gray-800">Shortcodes</h2>
 
-                        <div class="sidebar">
-                          <div class="shortcode-container">
+        <div class="mt-4">
+            <h4 class="font-semibold text-lg text-blue-600">Call Agents from Email Body</h4>
+            <div> class="text-gray-600">@@(Agent Name)</div>
+        </div>
 
-                          <h2>How it works:</h2>
-                            <p>These Alpha AIs have email addresses. You can email them, just as you would anyone else.  These are just demos. Contact atlas@semantic-life.com to find out about our customization services.<br/> <a href="https://semantic-life.com/terms">Terms</a>
-                               | 
-                            <a href="https://semantic-life.com/privacy">Privacy</a><br/>DEMO PURPOSES ONLY.</p>
-                          </div>
-                          <!-- All Agents Card -->
-                          <div class="shortcode-container">
-                            
-                              <h2>Available AIs</h2>
-                              <table class="agents-table">
-                                <thead>
-                                  <tr>
-                                    <!--<th>Agent</th>-->
-                                    <th>By Job:</th>
-                                    <!--<th>Email</th> -->
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {% for agent in agents %}
-                                    <tr>
-                                      <!--<td>{{ agent.id }}</td>-->
-                                      <td>{{ agent.jobtitle[:30] }}{{ '...' if agent.jobtitle|length > 30 else '' }}</td>
-                                      <!--<td>{{ agent.email.split('@')[0] }}@</td> -->
+        <div class="mt-4">
+            <h4 class="font-semibold text-lg text-blue-600">Create a Temporary Agent</h4>
+            <div class="text-gray-600">@@.creator(Embody an agent that...)</div>
+        </div>
 
-                                    </tr>
-                                  {% endfor %}
-                                </tbody>
-                              </table>
-                            
-                          </div>
-                       
-                        
-                          <div class="shortcode-container">
-                              <h2>Shortcodes</h2>
-                              <div class="shortcode">
-                            <h4>Call Agents from Email Body</h4>
-                            <p>@@(Agent Name)</p>
-                            </div>
-                            <div class="shortcode">
-                            <h4>Create a Temporary Agent</h4>
-                            <p>@@.creator(Embody an agent that...)</p>
-                            </div>
-                            <div class="shortcode">
-                            <h4>Long Responses (Multi-Chunk)</h4>
-                            <p>!detail_start!<br>instruction or content<br>!split!<br>instruction or content<br>!detail_stop!</p>
-                            </div>
-                            <div class="shortcode">
-                            <h4>Summarize</h4>
-                            <p>!summarize_start!<br>content<br>!summarize_stop!</p>
-                            </div>
-                            <div class="shortcode">
-                            <h4>Summarize with Modifier e.g. JSON Return</h4>
-                            <p>!summarize.json_start!<br>content<br>!summarize.json_stop!</p>
-                            </div>
-                            </div>
+        <div class="mt-4">
+            <h4 class="font-semibold text-lg text-blue-600">Long Responses (Multi-Chunk)</h4>
+            <div class="text-gray-600">!detail_start!<br>instruction or content<br>!split!<br>instruction or content<br>!detail_stop!</div>
+        </div>
 
-                            <div class="shortcode-container">
-                            <div class="shortcode">
-                            <h3>Code:</h3>
-                              <p><a href="https://github.com/semanticsean/ATAT" target="_blank">Github / Readme</a>
-                                <br/>
-                                <a href="https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public" target="_blank">Setup on Replit in 5 Minutes</a>
-<br/>
-                             <a href="https://x.com/seanmcdonaldxyz" target="_blank">Follow Sean</a>
-                                <br/>
-                              <a href="https://x.com/semanticlife" target="_blank">Follow Semantic Life</a>
-                              </p>
-                            </div>
-                          </div>
-                           </div>
+        <div class="mt-4">
+            <h4 class="font-semibold text-lg text-blue-600">Summarize</h4>
+            <div class="text-gray-600">!summarize_start!<br>content<br>!summarize_stop!</div>
+        </div>
 
-                          
-  </main>
+        <div class="mt-4">
+            <h4 class="font-semibold text-lg text-blue-600">Summarize with Modifier e.g. JSON Return</h4>
+            <div class="text-gray-600">!summarize.json_start!<br>content<br>!summarize.json_stop!</div>
+        </div>
+
+        <!-- Code Links Section -->
+        <div class="pb-12 mt-6 mb-12">
+            <h3 class="text-lg font-bold text-gray-800">Code:</h3>
+            <p class="text-blue-600 hover:text-blue-800 visited:text-purple-600">
+                <a href="https://github.com/semanticsean/ATAT" target="_blank">Github / Readme</a><br>
+                <a href="https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public" target="_blank">Setup on Replit in 5 Minutes</a><br>
+                <a href="https://x.com/seanmcdonaldxyz" target="_blank">Follow Sean</a><br>
+                <a href="https://x.com/semanticlife" target="_blank">Follow Semantic Life</a>
+            </p>
+        </div>
+    </div>
+    <!-- End of Instructions Section -->
+
+    
+  </div>
+
   
-    <footer class="footer">
-        
-        
-    </footer>
-  
+
+  <footer class="footer bg-white shadow-lg p-4 text-center bottom-0 inset-x-0">
+    © 2024 Semantic Life - All rights reserved. @@™. The terms "Synthetic Time Travel", "ATAT", "@@" are all property of Semantic Life. 
+    <a href="https://semantic-life.com/terms" class="text-blue-600 hover:underline">Terms of Service</a> and 
+    <a href="https://semantic-life.com/privacy" class="text-blue-600 hover:underline">Privacy Policy</a>
+  </footer>
+  <img src="" id="header-logo" class="header-logo mt-4 mb-4">
+  <script>
+  window.onload = function() {
+    // Your existing code here for adjustments and loading data
+
+    // Vanilla JavaScript to hide the loading placeholder
+    var loadingPlaceholder = document.getElementById('loadingPlaceholder');
+    if (loadingPlaceholder) {
+      loadingPlaceholder.style.opacity = '0';
+      setTimeout(function() {
+        loadingPlaceholder.style.display = 'none';
+      }, 600); // Adjust the timeout to match the fadeOut speed you desire
+    }
+  };
+  </script>
 </body>
 
 </html>  

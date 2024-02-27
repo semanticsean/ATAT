@@ -33,11 +33,7 @@ body {
 }
 
 .image-section {
-  flex: 1;
-  padding-left: 20px;
-  display: flex;
-  justify-content: center; /* Center the image within its section */
-  max-width: calc(50% - 1rem); /* Half of .hero-container width minus the gap */
+
 }
 
 .social_image {
@@ -69,7 +65,9 @@ p {
   font-size: 1rem;
   line-height: 1.2;
   margin-bottom: 1rem;
+  min-height: 10em;
 }
+
 
 /* Style the header and footer */
 .header, .footer {
@@ -344,21 +342,6 @@ td {
     flex-direction: column;
   }
 
-  .text-section, .image-section {
-    padding-left: 0;
-    padding-right: 0;
-    max-width:90vw;
-  }
-
-  .social_image {
-    width: 100%;
-    max-height: none;
-    margin-top: 20px;
-  }
-
-  .social_image {
-    max-height: 200px; /* reduce size for mobile */
-  }
 
   .header-logo {
     position: static; /* stop fixing position on mobile */
