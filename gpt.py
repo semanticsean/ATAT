@@ -2,7 +2,7 @@ import os
 import time
 from openai import OpenAI
 
-client = OpenAI(api_key=openai_api_key)
+
 import tiktoken
 import re
 import pickle
@@ -12,7 +12,7 @@ from random import uniform
 openai_api_key = os.environ['OPENAI_API_KEY']
 domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com')  
 
-
+client = OpenAI(api_key=openai_api_key)
 
 class GPTModel:
 

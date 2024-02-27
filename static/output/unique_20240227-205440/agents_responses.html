@@ -24,7 +24,7 @@
 
       
       <div class="text-center md:absolute md:top-4 md:right-6 mx-auto">
-        <a href="{{ csv_download_path }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">Download CSV</a>
+        <a href="/static/output/unique_20240227-205440/agent_responses.csv" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">Download CSV</a>
       </div>
           
 
@@ -36,7 +36,7 @@
             <!-- Agent cards will be dynamically inserted here -->
         </div>
       <div class="flex justify-center mt-8">
-          <a href="/abe" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          <a href="/index" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
               Restart
           </a>
       </div>
@@ -44,7 +44,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
       <script>
       $(document).ready(function() {
-          $.getJSON("{{ web_accessible_json_path }}", function(data) {
+          $.getJSON("/static/output/unique_20240227-205440/responses.json", function(data) {
               // Initialize response counters
               var responseCounters = {};
 
@@ -112,7 +112,7 @@
 
       <script>
       $(document).ready(function() {
-          $.getJSON("{{ web_accessible_json_path }}", function(data) {
+          $.getJSON("/static/output/unique_20240227-205440/responses.json", function(data) {
               $('#agents_container').empty();
               data.forEach(function(agent) {
                   var photoPath = agent.photo_path ? agent.photo_path : '/static/default-photo.png';
@@ -145,8 +145,6 @@
                                   <div class="uppercase tracking-wide text-xs text-indigo-500 font-semibold">${agent.jobtitle}</div>
                                   <button class="bg-blue-300 hover:bg-blue-700 text-black py-1 px-2 text-xs rounded text-center">
                                     <a href="mailto:${agent.email}" class="block mt-1 leading-tight">${agent.email}</a>
-                                    
-
                                   </button>
                                   <p class="mt-2 text-gray-500 text-xs sm:text-sm">${personaSnippet}</p>
                                   ${keywordsHtml}
