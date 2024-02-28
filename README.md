@@ -61,6 +61,10 @@ Source Code [https://github.com/semanticsean/ATAT](https://github.com/semanticse
 Roadmap: For those interested in contributing to the project, please refer to our [contribution guide](https://github.com/semanticsean/ATAT/blob/main/contribute.md) for detailed information on how you can get involved.
 
 
+v0.4 - Includes ABE - A/B + Election polling. 
+v0.3 - Initial Release 
+
+
 **EXAMPLE: Email a team of three AI agents who collaborate to write a short story:**
 
 <p align="left">
