@@ -13,6 +13,8 @@ import datetime
 import uuid
 import random
 import csv
+import subprocess
+
 
 from typing import ClassVar
 from flask import request
@@ -202,13 +204,25 @@ def home():
 
 @app.route('/start_session', methods=['POST'])
 def start_session():
+    # Generate a unique session ID
     session_id = str(uuid.uuid4())
     session['session_id'] = session_id
-    unique_folder = os.path.join('static', 'output', session_id, 'html')
-    os.makedirs(unique_folder, exist_ok=True)
-    initialize_session(os.path.join('static', 'output', session_id))
-    return redirect(url_for('abedashboard'))  # Redirect to the ABE dashboard
+    unique_folder = os.path.join('static', 'output', session_id)
 
+    # Create the session-specific directories
+    html_folder = os.path.join(unique_folder, 'html')
+    os.makedirs(html_folder, exist_ok=True)
+
+    # Copy the original agents.json to a session-specific location
+    src = AGENTS_JSON_PATH
+    dst = os.path.join(html_folder, 'agents.json')
+    shutil.copy(src, dst)
+
+    # Initialize the session with the potentially modified agents.json
+    initialize_session(unique_folder)
+
+    # Redirect to the ABE dashboard or another relevant page
+    return redirect(url_for('abedashboard'))
 
 
 @app.route('/abedashboard')
