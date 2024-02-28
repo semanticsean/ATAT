@@ -24,6 +24,10 @@
           // Update Meta Tags
           document.querySelector('meta[property="og:image"]').setAttribute("content", data.meta.ogImage);
           document.querySelector('meta[property="og:url"]').setAttribute("content", data.meta.ogUrl);
+
+          document.querySelector('meta[property="og:title"]').setAttribute("content", data.meta.ogTitle);
+
+          document.querySelector('meta[property="og:description"]').setAttribute("content", data.meta.ogDescription);
           document.querySelector('meta[name="twitter:card"]').setAttribute("content", data.meta.twitterCard);
           document.querySelector('meta[name="twitter:title"]').setAttribute("content", data.meta.twitterTitle);
           document.querySelector('meta[name="twitter:description"]').setAttribute("content", data.meta.twitterDescription);
@@ -86,18 +90,22 @@
           <img src="" id="header-logo" class="header-logo">
       </nav>
       <div class="title-container">
-        
+        <div class="hero-container">
+          <div class="text-section">
         <h1>Loading...</h1> 
-        <h2>Loading...</h2> 
-      
-        
-        
+        <h2>Loading...</h2>   
+            
         <p id="webCopyContainer" class="webCopyContainer"></p>
+            </div>
+            <div class="image-section">
+              <img id="social_image" class="social_image" src="" alt="Social Image"> 
+            </div>
       </div>
+    
   </header>
 
                       <main class="main">
-                        <img id="social_image" class="social_image" src="" alt="Social Image"> 
+                        
                       {% if agents %}
                           <div class="responsive-card-container">
                               {% for agent in agents %}
@@ -147,7 +155,7 @@
                           <h2>How it works:</h2>
                             <p>These Alpha AIs have email addresses. You can email them, just as you would anyone else.  These are just demos. Contact atlas@semantic-life.com to find out about our customization services.<br/> <a href="https://semantic-life.com/terms">Terms</a>
                                | 
-                            <a href="https://semantic-life.com/privacy">Privacy</a></p>
+                            <a href="https://semantic-life.com/privacy">Privacy</a><br/>DEMO PURPOSES ONLY.</p>
                           </div>
                           <!-- All Agents Card -->
                           <div class="shortcode-container">
