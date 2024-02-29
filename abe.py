@@ -12,6 +12,7 @@ import datetime
 import uuid
 import random
 import csv
+import openai
 
 from typing import ClassVar
 from flask import request
@@ -113,28 +114,62 @@ def load_json_data(filepath):
   with open(filepath, 'r') as file:
     return json.load(file)
 
-def modify_agents_json(file_path):
-  try:
-      with open(file_path, 'r', encoding='utf-8') as file:
-          agents = json.load(file)
+def modify_agents_json(session_agents_path, modify_agents_json_instructions, custom_instructions):
+    logging.info("Starting modification of agents.json with OpenAI API")
+  
+    # Ensure OpenAI API key is set
+    openai.api_key = OPENAI_API_KEY
+  
+    try:
+        with open('abe/abe-instructions.json', 'r') as file:
+            instructions_data = json.load(file)
+        # Corrected the key to match the JSON file
+        modify_instructions = instructions_data['modify_agents_json_instructions']
+        logging.info("Modification instructions loaded successfully.")
+    except Exception as e:
+        logging.error(f"Error loading modification instructions: {e}")
+        return
 
-      modified = False
-      for agent in agents:
-          for key, value in agent.items():
-              if isinstance(value, str) and "testtest" in value:
-                  agent[key] = value.replace("testtest", "test")
-                  modified = True
+    full_instructions = f"{modify_instructions} {custom_instructions}"
 
-      if modified:
-          with open(file_path, 'w', encoding='utf-8') as file:
-              json.dump(agents, file, indent=4)
-          logging.info("Agents JSON modified: TRUE")
-      else:
-          logging.info("Agents JSON modified: FALSE")
+    try:
+        with open(session_agents_path, 'r+', encoding='utf-8') as file:
+            agents = json.load(file)
+            modified = False
 
-  except Exception as e:
-      logging.error(f"Failed to modify agents.json: {e}")
+            for agent in agents:
+                if agent.get('include', True):  # Process only included agents
+                    logging.info(f"Preparing to modify agent: {agent.get('id')}")
 
+                    prompt = full_instructions + f"\n\n{json.dumps(agent)}"
+                    logging.info(f"Sending prompt to OpenAI API for agent modification: {prompt[:100]}...")  # Log first 100 characters
+
+                    try:
+                        response = openai.ChatCompletion.create(
+                            model="gpt-4",
+                            messages=[
+                                {"role": "system", "content": prompt},
+                                {"role": "user", "content": "Please modify the following agent data."},
+                            ],
+                            response_format={"type": "json_object"}
+                        )
+
+                        modified_agent_data = json.loads(response.choices[0].message['content'])
+                        agent.update(modified_agent_data)
+                        modified = True
+                        logging.info(f"Agent {agent.get('id')} modified successfully.")
+                    except Exception as e:
+                        logging.error(f"OpenAI API call failed for agent {agent.get('id')}: {e}")
+
+            if modified:
+                file.seek(0)
+                json.dump(agents, file, indent=4)
+                file.truncate()
+                logging.info("agents.json successfully modified and updated.")
+            else:
+                logging.info("No agents were modified.")
+    except Exception as e:
+        logging.error(f"Failed to modify agents.json: {e}")
 
 #FLASK
 def send_auth_email(email_address):
@@ -249,32 +284,41 @@ def start_process():
     if is_processing:
         return jsonify({"error": "Process is already running"}), 400
 
-    data = request.get_json()  # Correctly obtain the JSON data
+    # Parse the incoming JSON payload
+    data = request.get_json()
 
-    # Extract necessary data
+    # Extract necessary data from the request
     selected_agent_ids = data.get('selectedAgents', [])
     questions = data.get('questions', [])
     custom_instructions = data.get('instructions', '')
     modify_agents_json_flag = data.get('modify_agents_json', False)
 
-    # Log for debugging
-    logging.info(f"Modify Agents JSON Flag: {modify_agents_json_flag}")
+    # Load modify_agents_json_instructions from the abe/abe-instructions.json file
+    try:
+        with open('abe/abe-instructions.json', 'r') as file:
+            instructions_data = json.load(file)
+        modify_agents_json_instructions = instructions_data['modify_agents_json_instructions']
+    except Exception as e:
+        # Handle the case where the instructions can't be loaded
+        logging.error(f"Failed to load modify_agents_json_instructions: {e}")
+        return jsonify({"error": "Failed to load modification instructions."}), 500
 
-    # Ensure session ID exists
+    if not selected_agent_ids:
+        return jsonify({"error": "No agents selected."}), 400
+
     session_id = session.get('session_id')
     if session_id is None:
         return jsonify({"error": "Session ID not found. Please restart the session."}), 400
 
-    # Process agents based on flag
     if not is_processing:
+        # Start a new thread, passing all the required arguments including modify_agents_json_instructions
         thread = threading.Thread(target=lambda: run_agent_process(
-            session_id, selected_agent_ids, questions, custom_instructions, modify_agents_json_flag))
+            session_id, selected_agent_ids, questions, custom_instructions, modify_agents_json_flag, modify_agents_json_instructions))
         thread.start()
         is_processing = True
         return jsonify({"message": "Processing started"}), 202
     else:
         return jsonify({"error": "Processing was attempted to start again before completion."}), 400
-
 
 @app.route('/status')
 def status():
@@ -575,20 +619,25 @@ def process_agents(session_id, selected_agent_ids, modified_questions, custom_in
   is_processing = False
   return final_html_path
 
-def run_agent_process(session_id, selected_agent_ids, questions, custom_instructions, modify_agents_json_flag):
+def run_agent_process(session_id, selected_agent_ids, modified_questions, custom_instructions, modify_agents_json_flag, modify_agents_json_instructions):
   global is_processing, final_html_path
   try:
-      logging.info(f"Modify Agents JSON Flag within run_agent_process: {modify_agents_json_flag}")
-      if modify_agents_json_flag:
-          # Assuming this is the corrected path where you want to modify the JSON
-          agents_json_path = os.path.join('static', 'output', session_id, 'html', 'agents.json')
-          modify_agents_json(agents_json_path)
+      agents_json_path = os.path.join('static', 'output', session_id, 'html', 'agents.json')
 
-      # Proceed with the rest of the processing
+      # Check if we should modify the agents.json file
+      if modify_agents_json_flag:
+          logging.info(f"Modifying agents.json as requested. Status: {modify_agents_json_flag}")
+          # Pass all required arguments to the modify_agents_json function
+          modify_agents_json(agents_json_path, modify_agents_json_instructions, custom_instructions)
+      else:
+          logging.info(f"Modification of agents.json was not requested. Status: {modify_agents_json_flag}")
+
+      # Proceed with the rest of the processing...
       final_html_path = process_agents(session_id, selected_agent_ids, modified_questions, custom_instructions)
       logging.info(f"Final HTML path set to: {final_html_path}")
   finally:
       is_processing = False
+
 
 
 
