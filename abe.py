@@ -2,7 +2,6 @@
 import time
 import threading
 import os
-import main
 import datetime
 import logging
 import uuid
@@ -17,16 +16,13 @@ import csv
 from typing import ClassVar
 from flask import request
 from mirascope import Prompt, OpenAIChat
-from flask import Flask, render_template, request, jsonify, send_from_directory, session, redirect, url_for, after_this_request
+from flask import Flask, render_template, request, jsonify, send_from_directory, session, redirect, url_for
 from flask import current_app as app
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Mail, Message
 
-
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = 'your_very_secret_key'
-
-
 app.config['MAIL_SERVER'] = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('SMTP_PORT', 587))
 app.config['MAIL_USE_TLS'] = True  
@@ -38,14 +34,10 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 AGENTS_JSON_PATH = os.path.join('agents', 'agents.json')
 IMAGES_BASE_PATH = os.path.join('agents', 'pics')
 
-
-
-# Define and apply a custom logging filter to exclude /status endpoint logs
 class NoStatusFilter(logging.Filter):
 
   def filter(self, record):
     return '/status' not in record.getMessage()
-
 
 def setup_logging():
   timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -57,19 +49,14 @@ def setup_logging():
                       format='%(asctime)s %(levelname)s: %(message)s',
                       datefmt='%Y-%m-%d %H:%M:%S')
 
-
 logger = logging.getLogger('werkzeug')
 logger.addFilter(NoStatusFilter())
 
 setup_logging()
 
-
-
-# Global variables to manage process state and results
 responses_data = {}
 is_processing = False
 final_html_path = ""
-
 
 def initialize_session(unique_folder):
   # Directories for JSON files and agent photos
@@ -107,9 +94,6 @@ def initialize_session(unique_folder):
   with open(updated_agents_file_path, 'w') as file:
     json.dump(agents, file, indent=4)
 
-
-
-
 def load_session_data(unique_folder):
   # Assuming JSON filenames are known and fixed
   agents_file_path = os.path.join(unique_folder, 'agents', 'agents.json')
@@ -124,7 +108,6 @@ def load_session_data(unique_folder):
   instructions = load_json_data(instructions_file_path)['instructions']
 
   return agents, questions, instructions
-
 
 def load_json_data(filepath):
   with open(filepath, 'r') as file:
@@ -153,9 +136,7 @@ def modify_agents_json(file_path):
       logging.error(f"Failed to modify agents.json: {e}")
 
 
-
 #FLASK
-
 def send_auth_email(email_address):
   serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
   token = serializer.dumps(email_address, salt='email-confirm-salt')
@@ -248,7 +229,6 @@ def start_session():
     initialize_session(os.path.join('static', 'output', session_id))
     return redirect(url_for('abedashboard')) 
 
-
 @app.route('/abedashboard')
 def abedashboard():
   session_id = session.get('session_id')
@@ -263,29 +243,29 @@ def abedashboard():
                          instructions=instructions,
                          unique_folder_path=unique_folder_path)
 
-
 @app.route('/start', methods=['POST'])
 def start_process():
     global is_processing
     if is_processing:
         return jsonify({"error": "Process is already running"}), 400
 
-    data = request.get_json()  # Properly get JSON data sent from the client
+    data = request.get_json()  # Correctly obtain the JSON data
 
+    # Extract necessary data
     selected_agent_ids = data.get('selectedAgents', [])
     questions = data.get('questions', [])
     custom_instructions = data.get('instructions', '')
     modify_agents_json_flag = data.get('modify_agents_json', False)
 
-    if not selected_agent_ids:
-        return jsonify({"error": "No agents selected."}), 400
+    # Log for debugging
+    logging.info(f"Modify Agents JSON Flag: {modify_agents_json_flag}")
 
+    # Ensure session ID exists
     session_id = session.get('session_id')
     if session_id is None:
         return jsonify({"error": "Session ID not found. Please restart the session."}), 400
 
-    # Your existing logic to process the agents
-    # Make sure to correct the method signature of `run_agent_process` if it needs `modify_agents_json_flag`
+    # Process agents based on flag
     if not is_processing:
         thread = threading.Thread(target=lambda: run_agent_process(
             session_id, selected_agent_ids, questions, custom_instructions, modify_agents_json_flag))
@@ -429,7 +409,6 @@ def copy_agent_photos_to_session(agents_data, destination_folder):
             f"Photo path does not exist for agent {agent['id']}: {source_photo_path}"
         )
 
-
 class CustomAgentPrompt(Prompt):
   agent_json: str
   question: str
@@ -439,7 +418,6 @@ class CustomAgentPrompt(Prompt):
   def __str__(self):
     return self.template.format(agent_json=self.agent_json,
                                 question=self.question)
-
 
 def ask_agents_questions(agents, questions):
   logging.info('Starting to ask agents questions...')
@@ -488,7 +466,6 @@ def ask_agents_questions(agents, questions):
   logging.info('Finished asking agents questions.')
   return data
 
-
 def update_instructions_json(instructions, filepath):
   # Extract the directory from the filepath and ensure it exists
   directory = os.path.dirname(filepath)
@@ -500,7 +477,6 @@ def update_instructions_json(instructions, filepath):
   # Write the structured data to the specified filepath
   with open(filepath, 'w') as f:
     json.dump(instructions_json, f, indent=4)
-
 
 def update_questions_json(questions, filepath):
   # Extract the directory from the filepath and ensure it exists
@@ -531,7 +507,6 @@ def update_questions_json(questions, filepath):
   # Write the structured data to the specified filepath
   with open(filepath, 'w') as f:
     json.dump(questions_json, f, indent=4)
-
 
 def process_agents(session_id, selected_agent_ids, modified_questions, custom_instructions):
   global is_processing, final_html_path
@@ -600,16 +575,13 @@ def process_agents(session_id, selected_agent_ids, modified_questions, custom_in
   is_processing = False
   return final_html_path
 
-
-
-def run_agent_process(session_id, selected_agent_ids, modified_questions, custom_instructions, modify_agents_json_flag):
+def run_agent_process(session_id, selected_agent_ids, questions, custom_instructions, modify_agents_json_flag):
   global is_processing, final_html_path
   try:
-      # Define the session-specific agents.json path
-      agents_json_path = os.path.join('static', 'output', session_id, 'html', 'agents.json')
-
-      # Call the function to modify agents.json only if modify_agents_json_flag is True
+      logging.info(f"Modify Agents JSON Flag within run_agent_process: {modify_agents_json_flag}")
       if modify_agents_json_flag:
+          # Assuming this is the corrected path where you want to modify the JSON
+          agents_json_path = os.path.join('static', 'output', session_id, 'html', 'agents.json')
           modify_agents_json(agents_json_path)
 
       # Proceed with the rest of the processing
@@ -658,7 +630,6 @@ def save_to_csv(data, csv_file_path):
                   'unique_id': response['unique_id']
               })
 
-
 def truncate_data(data):
   for agent in data:
       for key, value in agent.items():
@@ -686,7 +657,6 @@ def copy_and_truncate_json_files(source_folder, destination_folder):
 
       except json.decoder.JSONDecodeError as e:
           logging.error(f"JSONDecodeError encountered in file {file_name}: {e}")
-
 
 def copy_agent_photo_to_static(agent, unique_output_folder):
   """
@@ -740,7 +710,6 @@ def save_responses_to_json(data, file_path):
       data_list = list(data.values()) if not isinstance(data, list) else data
       json.dump(data_list, jsonfile, indent=4)
       logging.info(f"Updated agent data saved to {file_path}")
-
 
 def generate_single_html(app, output_folder, json_file_name, csv_file_path):
   with app.app_context():
