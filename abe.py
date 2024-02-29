@@ -13,8 +13,6 @@ import datetime
 import uuid
 import random
 import csv
-import subprocess
-
 
 from typing import ClassVar
 from flask import request
@@ -201,28 +199,31 @@ def agent_pics(filename):
 def home():
   return render_template('abe-landing.html')
 
+def create_session_specific_agents_json(session_id):
+  session_agents_dir = os.path.join('agents', 'session_agents', session_id)
+  os.makedirs(session_agents_dir, exist_ok=True)
+  session_agents_path = os.path.join(session_agents_dir, 'agents.json')
+
+  # Copy the original agents.json to the session-specific path
+  shutil.copy(os.path.join('agents', 'agents.json'), session_agents_path)
+
+  # Update the global path or return it for local use
+  global AGENTS_JSON_PATH
+  AGENTS_JSON_PATH = session_agents_path
+  # Alternatively, return session_agents_path and use it locally where needed
+
+  return session_agents_path
+
 
 @app.route('/start_session', methods=['POST'])
 def start_session():
-    # Generate a unique session ID
     session_id = str(uuid.uuid4())
     session['session_id'] = session_id
-    unique_folder = os.path.join('static', 'output', session_id)
-
-    # Create the session-specific directories
-    html_folder = os.path.join(unique_folder, 'html')
-    os.makedirs(html_folder, exist_ok=True)
-
-    # Copy the original agents.json to a session-specific location
-    src = AGENTS_JSON_PATH
-    dst = os.path.join(html_folder, 'agents.json')
-    shutil.copy(src, dst)
-
-    # Initialize the session with the potentially modified agents.json
-    initialize_session(unique_folder)
-
-    # Redirect to the ABE dashboard or another relevant page
-    return redirect(url_for('abedashboard'))
+    create_session_specific_agents_json(session_id)
+    unique_folder = os.path.join('static', 'output', session_id, 'html')
+    os.makedirs(unique_folder, exist_ok=True)
+    initialize_session(os.path.join('static', 'output', session_id))
+    return redirect(url_for('abedashboard')) 
 
 
 @app.route('/abedashboard')
