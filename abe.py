@@ -72,46 +72,41 @@ def initialize_session(unique_folder):
   copy_and_truncate_json_files('.', html_folder)
 
   # Load agents JSON to get photo paths
-  agents_file_path = os.path.join('agents', 'agents.json')
+  agents_file_path = AGENTS_JSON_PATH  # Corrected to use the global AGENTS_JSON_PATH
   with open(agents_file_path, 'r') as file:
-    agents = json.load(file)
+      agents = json.load(file)  # Agents are now correctly loaded before the loop
 
-  for agent in agents:
-    # Ensure each agent has "include": true by default
-    agent.setdefault("include", True)
-    original_photo_path = agent.get('photo_path')
-
-  # Copy each agent's photo to the pics directory and update their photo_path
-  for agent in agents:
-    original_photo_path = agent.get('photo_path')
-    if original_photo_path:
-      photo_filename = os.path.basename(original_photo_path)
-      new_photo_path = os.path.join(pics_folder, photo_filename)
-      shutil.copy(original_photo_path, new_photo_path)
-      # Update agent's photo_path to reflect new location
-      agent['photo_path'] = os.path.join('/static/output',
-                                         os.path.basename(unique_folder),
-                                         'html', 'pics', photo_filename)
+      # Ensure each agent has "include": true by default and process photo paths
+      for agent in agents:
+          agent.setdefault("include", True)
+          original_photo_path = agent.get('photo_path')
+          if original_photo_path:
+              photo_filename = os.path.basename(original_photo_path)
+              new_photo_path = os.path.join(pics_folder, photo_filename)
+              shutil.copy(original_photo_path, new_photo_path)
+              # Update agent's photo_path to reflect new location
+              agent['photo_path'] = os.path.join('/static/output',
+                                                 os.path.basename(unique_folder),
+                                                 'html', 'pics', photo_filename)
 
   # Save the updated agents JSON to the new location
-  updated_agents_file_path = os.path.join(html_folder, 'agents.json')
+  updated_agents_file_path = os.path.join(html_folder, 'agents.json')  # Ensure this path is correctly defined
   with open(updated_agents_file_path, 'w') as file:
-    json.dump(agents, file, indent=4)
+      json.dump(agents, file, indent=4)
+
 
 def load_session_data(unique_folder):
-  # Assuming JSON filenames are known and fixed
-  agents_file_path = os.path.join(unique_folder, 'agents', 'agents.json')
-  questions_file_path = os.path.join(unique_folder, 'abe',
-                                     'abe-questions.json')
-  instructions_file_path = os.path.join(unique_folder, 'abe',
-                                        'abe-instructions.json')
+  # Use the global AGENTS_JSON_PATH to ensure we're accessing the correct agents.json
+  agents_file_path = AGENTS_JSON_PATH  # Adjusted to use the global variable
+  questions_file_path = os.path.join(unique_folder, 'abe', 'abe-questions.json')
+  instructions_file_path = os.path.join(unique_folder, 'abe', 'abe-instructions.json')
 
-  # Load data from each file
   agents = load_json_data(agents_file_path)
   questions = load_json_data(questions_file_path)
   instructions = load_json_data(instructions_file_path)['instructions']
 
   return agents, questions, instructions
+
 
 def load_json_data(filepath):
   with open(filepath, 'r') as file:
@@ -255,7 +250,6 @@ def create_session_specific_agents_json(session_id):
 
   return session_agents_path
 
-
 @app.route('/start_session', methods=['POST'])
 def start_session():
     session_id = str(uuid.uuid4())
@@ -264,10 +258,10 @@ def start_session():
     unique_folder = os.path.join('static', 'output', session_id, 'html')
     os.makedirs(unique_folder, exist_ok=True)
     initialize_session(os.path.join('static', 'output', session_id))
-    return redirect(url_for('abedashboard')) 
+    return redirect(url_for('abe')) 
 
-@app.route('/abedashboard')
-def abedashboard():
+@app.route('/abe')
+def abe():
   session_id = session.get('session_id')
   if not session_id:
     return redirect(url_for('home'))
@@ -360,10 +354,7 @@ def update_agent_inclusion():
 
       # Determine whether the session-specific agents.json or the default one should be used
       session_id = session.get('session_id', None)
-      agents_file_path = os.path.join(
-          'static', 'output', session_id, 'html',
-          'agents.json') if session_id else os.path.join(
-              'agents', 'agents.json')
+      agents_file_path = AGENTS_JSON_PATH
       logging.info(f"Using agents file path: {agents_file_path}")
 
       # Update agents' inclusion status
@@ -575,7 +566,7 @@ def process_agents(session_id, selected_agent_ids, modified_questions, custom_in
   updated_instructions = load_json_data(instructions_file_path)['instructions']
 
   # Load all agents and filter based on selected_agent_ids
-  agents_file_path = os.path.join('agents', 'agents.json')
+  agents_file_path = AGENTS_JSON_PATH
   with open(agents_file_path, 'r') as file:
       all_agents = json.load(file)
   agents = [agent for agent in all_agents if str(agent.get("id")) in selected_agent_ids]

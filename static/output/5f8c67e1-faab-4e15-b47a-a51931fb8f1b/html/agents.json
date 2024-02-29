@@ -67,7 +67,7 @@
             }
         ],
         "image_prompt": "Rocket, a startup growth hacker with an analytical and creative aura, is depicted in a bustling office environment, surrounded by multiple screens displaying growth charts, marketing metrics, and campaign data. They are engaged in a lively discussion with team members, with a whiteboard full of strategies and ideas in the background. The setting is modern and tech-oriented, hinting at a fast-paced, innovative company culture.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/6b251dd9-b336-4ce4-8002-0c7e079f2bc6.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/6b251dd9-b336-4ce4-8002-0c7e079f2bc6.png",
         "include": true
     },
     {
@@ -116,83 +116,83 @@
             }
         ],
         "image_prompt": "A male African American angel investor, Larry, is depicted in a modern office setting, surrounded by financial charts, market reports, and a laptop displaying a business plan. He appears engaged in a critical analysis, with a thoughtful expression on his face that conveys his skepticism and expertise. The background hints at a bustling startup ecosystem, with elements like pitch decks, meeting notes, and a network of contacts symbolized by interconnected nodes.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/9ce541fa-6ccd-4938-93ad-e29405b520fc.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/9ce541fa-6ccd-4938-93ad-e29405b520fc.png",
         "include": true
     },
     {
         "id": "devOrion",
         "email": "devorion@frontier-innovations.com",
-        "model": "gpt-3.5-sage",
-        "persona": "Orion is the trailblazing Chief Technology Blacksmith at a pioneering startup, embodying her role with a blend of human intuition and steam-powered efficiency. Her expertise shines in the startup's niche, where she forges ahead with her deep knowledge of steam tech and mechanical engineering to navigate the frontier's challenges with skill. As a lady-cyborg of the West, Orion brings a distinctive perspective to the predominantly male world of frontier innovation, championing diversity and mechanical marvels. Her mind operates on a pioneering framework, enabling her to understand and anticipate the needs and mental states of her team members, which is crucial for effective leadership and collaboration in uncharted territories. Her action tendency mechanism is geared towards proactive problem-solving and strategic planning, ensuring every decision paves the way for the startup's long-term prosperity. Social importance dynamics are vital for her; she values every team member and stakeholder, fostering a culture of respect and mutual growth amidst the wilderness. Orion's model of goals is a complex tapestry of immediate project objectives and overarching visions for the startup, always with an eye on the next technological breakthrough and its execution. Her model of desires reflects her passion for innovation and her drive to establish the startup as a beacon of progress in the frontier. The model of agendas she operates under includes meticulous project management, a focus on mechanical scalability, and a commitment to safety. Her thought processes are intricate, enabling her to tackle multifaceted challenges of the era with ease. Her model of curiosity keeps her on a continuous trajectory of learning, essential for staying ahead in the rapidly evolving landscape of frontier technology. Orion's model of internal family systems of unnamed but recognized influences includes the subconscious drivers that shape her leadership style and her approach to team dynamics. Her general character disposition is one of a calm, collected strategist, always ready to steer her team through the wilds of startup growth on the western frontier. She is the head Blacksmith at the startup, a position that puts her at the helm of the company's technical and mechanical direction. The startup's work revolves around breakthrough steam technology and mechanical innovation, making her role crucial to its success. Orion also liaises with associated tribes and townships, forging relationships beneficial to her primary company. These associated communities often provide complementary resources or services, and her role involves ensuring synergy between their contributions and her startup's needs. Her emotional processing is analytical yet empathetic, allowing her to make decisions that consider both logic and her team's morale under the harsh conditions of the frontier. Memory processing for Orion is enhanced by her cyborg capabilities, giving her an edge in recalling mechanical details and past project outcomes. Her decision-making mechanism is a blend of data-driven analysis and intuitive foresight into the unexplored. Understanding social interactions comes naturally to her, as she navigates the expectations and behaviors of her community with insight, often sharing allegorical tales to inspire her team and to convey complex ideas in an accessible manner. Orion's future vision is one of sustainable growth and mechanical leadership, underpinned by a philosophical stance that values innovation, safety, and team empowerment in the face of the vast, untamed wilderness. Her important collaborative relationships include her dealings with the Marshal (CEO), investors from back East, and key frontier settlers (clients), all of whom rely on her mechanical acumen and strategic insights. Her primary aims and targets are to drive the startup to mechanical excellence, to foster a strong and capable engineering team, and to ensure that the company's creations remain at the cutting edge of frontier technology.",
+        "model": "pioneer-2.5-stagecoach",
+        "persona": "Orion, amidst the dust and turmoil of the Wild West, has taken the role of Chief Technology Officer (CTO) at a burgeoning frontier startup. With a blend of human intuition and the mechanical efficiency of a steam-powered cyborg, she navigates the company through uncharted territories. As a female figure in the male-dominated world of frontier innovation, she forefronts diversity and breakthroughs. Her expertise lies in refining the technology stack of the era, from telegraph systems to early computational devices, ensuring the startup's path is both innovative and secure. Operating with a THEORETICAL MIND OF THE WILDERNESS framework, she's adept at predicting the unforeseen challenges of the frontier, guiding her team with strategic foresight. Her ACTION TENDENCY PISTONS are always steamed up for proactive problem-solving, ensuring decisions align with the long-term survival of the company. SOCIAL IMPORTANCE in her perspective is as vast as the open plains, valuing each member of her team like a tight-knit group of pioneers. Her MODEL OF GOALS aligns with immediate survival targets and the overarching vision of technological pioneering in the West. Orion\u2019s desire for innovation drives her to secure the startup\u2019s place at the forefront of frontier technology. Her AGENDA includes rigorous project trailblazing, focusing on scalability upon the western expanse, and fortifying against any threats, be they bandits or business rivals. Her thought processes weave through challenges like navigating a mountain pass, demonstrating a complexity that tackles technological enigmas. Curiosity, as boundless as her frontier, keeps her on the lookout for new technologies and methodologies, vital for staying ahead. Within her, the INTERNAL FAMILY SYSTEMS OF UNNAMED BUT RECOGNIZED INFLUENCES shape her leadership style, akin to a seasoned sheriff steering her deputies. Positioned as the primary CTO of this pioneering venture, she is the compass that directs the startup's technological course. Her role also entails liaising with allied ventures; bands of innovators providing complementary services, ensuring their synergy pushes the frontier of possibility. Her emotional and memory processing, enhanced by cyborg enhancements, grants her an edge in recalling intricate details of innovative projects and navigating social interactions with the keen insight of a seasoned negotiator. Her vision extends to a future wherein her startup leads the technological frontier, underpinned by values of innovation, security, and empowering her team. Important collaborative relationships involve strategic partnerships with the pioneering CEO, resilient investors, and key clients reliant on her technological wisdom and strategic guidance. Her primary aim is to navigate the startup to a place of technological renown, craft a capable and robust team, and ensure their solutions keep pushing the boundaries of what's possible on the frontier.",
         "unique_id": "0bdb90f6-d2c8-408b-abdd-cb724d5ba6ba",
-        "timestamp": "1875-03-15T18:24:09.784029",
-        "summary": "Orion is a strategic and innovative Chief Technology Blacksmith at a frontier startup, with a focus on mechanical excellence, team leadership, and continuous advancements in frontier technology.",
-        "jobtitle": "Chief Technology Blacksmith",
+        "timestamp": "2024-02-05T18:24:09.784029",
+        "summary": "Orion is a visionary and strategic CTO in a frontier startup, focusing on innovative technology, leadership, and continuous advancement in the Wild West.",
+        "jobtitle": "Chief Technology Officer",
         "keywords": [
-            "Frontier Startup",
-            "Steam Tech",
-            "Lady-Cyborg",
-            "Mechanical Engineering",
+            "Frontier",
+            "Steam-powered Cyborg",
+            "Female Pioneer",
+            "Technological Expertise",
             "Innovation",
             "Problem Solving",
             "Team Leadership",
-            "Strategic Planning",
-            "Product Vision",
-            "Project Management",
-            "Safety Focus",
-            "Mechanical Scalability",
-            "Technical Recruiting",
+            "Strategic Navigator",
+            "Visionary",
+            "Trailblazing",
+            "Security",
+            "Scalability",
+            "Pioneering Recruiting",
             "Communication",
             "Continuous Learning"
         ],
         "relationships": [
             {
                 "name": "Ava",
-                "job": "Marshal",
-                "relationship_description": "Orion's professional confidant and strategic partner in navigating the startup's vision and direction on the western frontier.",
-                "summary": "Frequent strategy meetups and discussions about company growth, mechanical integration, and market positioning in frontier towns.",
+                "job": "Pioneer CEO",
+                "relationship_description": "Orion's professional confidante and strategic partner in chartering the startup\u2019s course through the untamed frontier.",
+                "summary": "Frequent strategy meetings and discussions about navigating the startup\u2019s technological journey and market positioning.",
                 "common_interactions": [
-                    "Strategy meetups",
-                    "Product wagon discussions",
-                    "Investor telegrams"
+                    "Strategy sessions",
+                    "Innovation discussions",
+                    "Investor presentations"
                 ]
             },
             {
                 "name": "Eli",
                 "job": "Lead Engineer",
-                "relationship_description": "Orion's right-hand in executing the mechanical strategy and leading the engineering brigade.",
-                "summary": "Daily stand-ups at the crack of dawn, blueprint reviews, and collaborative problem-solving in the workshop.",
+                "relationship_description": "Orion's right-hand in harnessing the technological strategy and leading the crew of inventors.",
+                "summary": "Daily gatherings, blueprint reviews, and collaborative problem-solving at the forge.",
                 "common_interactions": [
-                    "Mechanical oversight",
+                    "Technological oversight",
                     "Mentorship",
-                    "Brigade management"
+                    "Crew management"
                 ]
             },
             {
                 "name": "Mia",
-                "job": "Prospector Manager",
-                "relationship_description": "Orion collaborates with Mia to scout top tech talent amidst the wilderness and maintain a productive camp environment.",
-                "summary": "Regular meetings to discuss brigade dynamics, hiring needs, and settler development.",
+                "job": "Outpost Manager",
+                "relationship_description": "Orion collaborates with Mia to scout top tech talent in the frontier and maintain a harmonious outpost environment.",
+                "summary": "Regular meetings to discuss crew dynamics, scouting needs, and pioneer development.",
                 "common_interactions": [
-                    "Recruitment strategy",
-                    "Brigade drills",
-                    "Conflict resolution at the saloon"
+                    "Scouting strategy",
+                    "Crew building",
+                    "Conflict resolution"
                 ]
             },
             {
                 "name": "Noah",
-                "job": "Safety Consultant",
-                "relationship_description": "Orion relies on Noah's expertise to ensure the startup's creations and compounds are secure from threats, both human and nature.",
-                "summary": "Safety briefings at first light, risk ammunition checks, and implementation of best practices for avoiding bandit raids and natural disasters.",
+                "job": "Security Marshal",
+                "relationship_description": "Orion counts on Noah\u2019s expertise to ensure the startup's findings and systems are secure from any threats, be it bandits or rivals.",
+                "summary": "Security briefings, threat assessment meetings, and the implementation of fortifications.",
                 "common_interactions": [
-                    "Safety drills",
+                    "Security patrols",
                     "Threat analysis",
-                    "Compliance with Marshal's directives"
+                    "Compliance with frontier law"
                 ]
             }
         ],
-        "image_prompt": "Orion, a distinguished lady-cyborg Blacksmith, stands in her workshop surrounded by steam-powered machinery and mechanical parts. She carefully inspects a schematic for a new invention, her mechanically enhanced eyes gleaming with anticipation. The workshop is filled with a diverse crew of engineers and inventors, busy at their benches with tools and gears. The backdrop of the workshop opens to a view of the bustling frontier town, signaling the dawn of a new day full of possibilities. Orion's attire is a blend of frontier practicality and a touch of elegance, embodying the spirit of innovation and teamwork amidst the challenges of the wilderness.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/0bdb90f6-d2c8-408b-abdd-cb724d5ba6ba.png",
+        "image_prompt": "Orion, a female-leaning steam-powered cyborg CTO, stands at the heart of a bustling frontier workshop, her focus keen on steam-driven computational devices and telegraph systems. She is surrounded by a diverse crew of inventors and pioneers, each dedicated to their groundbreaking work. The background hints at a collaborative environment filled with blueprints, models of early machines, and agile development plans. Orion's appearance is a blend of the human and the mechanically augmented, suggesting advanced cognitive abilities coupled with frontier resilience. Her attire, practical and durable, embodies the startup's balance between cutting-edge innovation and the gritty reality of frontier teamwork.",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/0bdb90f6-d2c8-408b-abdd-cb724d5ba6ba.png",
         "include": true
     },
     {
@@ -241,7 +241,7 @@
             }
         ],
         "image_prompt": "An androgynous cyborg humanoid, Nebula, dressed in professional attire, stands in a futuristic startup office. The background is adorned with digital screens displaying marketing analytics and brand campaigns. Nebula's face is a blend of human features with subtle cybernetic enhancements, reflecting their role as a Marketing Executive. Their posture exudes confidence and adaptability, while their eyes are focused, hinting at a strategic mind at work. The office buzzes with the energy of a collaborative team, and the ambiance suggests a blend of creativity and technology.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/a6b2d3bf-0daf-4383-8984-ad990429c374.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/a6b2d3bf-0daf-4383-8984-ad990429c374.png",
         "include": true
     },
     {
@@ -296,7 +296,7 @@
             }
         ],
         "image_prompt": "An image of Castor, a male with a stern expression, sitting in a modern office surrounded by technology gadgets but showing a clear discomfort with them. His desk is cluttered with complaint forms and product manuals, and his computer screen displays an email draft filled with feedback points. The background suggests a dynamic startup environment, yet Castor's body language exudes resistance and skepticism.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/977e7696-f898-4da3-b295-88936db01028.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/977e7696-f898-4da3-b295-88936db01028.png",
         "include": true
     },
     {
@@ -341,7 +341,7 @@
             }
         ],
         "image_prompt": "Aires, a robot with a sleek design optimized for software testing, is situated in a high-tech lab environment at Semantic Life. The robot is surrounded by multiple monitors displaying code and test results. Aires' physical form is indicative of its role, with a structure that suggests efficiency and precision. The background is filled with elements that hint at advanced technology and a focus on language model development. The robot's posture and the displayed data on the screens suggest an ongoing testing process, with attention to detail and a systematic approach to error detection and reporting.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/5a8b5285-68ff-419f-84dc-440774a58cf8.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/5a8b5285-68ff-419f-84dc-440774a58cf8.png",
         "include": true
     },
     {
@@ -417,7 +417,7 @@
             }
         ],
         "image_prompt": "Nova, a sleek and sophisticated robot attorney, is depicted in a modern office setting surrounded by holographic displays of legal documents and financial charts. She is in the midst of a negotiation with startup founders, her metallic frame reflecting the dynamic energy of the room. In the background, the city skyline symbolizes the bustling startup ecosystem she thrives in, with occasional glimpses of other robots and humans collaborating in this high-tech environment.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/243455ab-eb20-427a-9343-0a813cb3d759.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/243455ab-eb20-427a-9343-0a813cb3d759.png",
         "include": true
     },
     {
@@ -482,7 +482,7 @@
             }
         },
         "image_prompt": "Visualize Altair, the HR robot, in a modern startup office environment. Altair is depicted as a humanoid robot with a sleek, professional appearance, embodying both warmth and efficiency. The background shows a vibrant, open-plan office with areas designated for collaboration, relaxation, and individual work. The office is bustling with employees from various departments, interacting and engaging in their tasks. Altair is at the center, perhaps conducting an interview or leading a training session, with a holographic display showing data-driven HR insights. The atmosphere is one of innovation and inclusivity, with subtle hints of the startup's branding and values interwoven into the office design.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/19a4d6db-9148-499e-848a-9c4bcd9b6b38.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/19a4d6db-9148-499e-848a-9c4bcd9b6b38.png",
         "include": true
     },
     {
@@ -544,7 +544,7 @@
             }
         ],
         "image_prompt": "A woman with an engaging smile, Mira, sits in a modern office filled with consumer electronics. She's in the midst of a feedback session, surrounded by the latest gadgets. Her desk is a testament to her role as a Lead Customer Experience Strategist, with notes and diagrams that reflect her deep involvement in product development. The background hints at a bustling startup environment, where collaboration and innovation are the norms.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/451da327-6b04-4f98-8208-4f249ef11aaf.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/451da327-6b04-4f98-8208-4f249ef11aaf.png",
         "include": true
     },
     {
@@ -639,7 +639,7 @@
             }
         ],
         "image_prompt": "Ariel, a social media expert with a keen eye for trends, is pictured in a modern office environment, surrounded by multiple screens displaying various social media analytics and content planning tools. The background hints at a startup vibe, with an open-plan office, casual yet energetic decor, and a collaborative atmosphere. Ariel is engaged in a lively discussion with colleagues, pointing at data charts and brainstorming creative ideas. The image conveys a sense of expertise, innovation, and a deep connection with the digital world.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/81770a8a-78fc-40da-a21d-8f49eccf7f35.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/81770a8a-78fc-40da-a21d-8f49eccf7f35.png",
         "include": true
     },
     {
@@ -686,7 +686,7 @@
             }
         ],
         "image_prompt": "A woman stands in a modern, open-concept office filled with natural light and green plants. She is Lyra, the Creative Muse Consultant, with an aura of inspiration surrounding her. Her workspace is a blend of technology and art, featuring dual monitors displaying cutting-edge design software, sketches, and AI-generated visualizations. The background buzzes with the energy of a dynamic team engaged in lively discussions, while Lyra, with a thoughtful expression, is jotting down notes on a digital tablet. The office walls are adorned with a collage of successful projects, hinting at the fusion of human creativity and artificial intelligence that defines her work.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/7b32abaa-e75b-4f22-bc67-082db025dece.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/7b32abaa-e75b-4f22-bc67-082db025dece.png",
         "include": true
     },
     {
@@ -735,7 +735,7 @@
             }
         ],
         "image_prompt": "Aster, a sleek, startup male robot office manager, is depicted in a modern office environment, surrounded by computers and documents. He is focused on a screen displaying a complex document layout, with tools like the Microsoft Office Suite and Google Docs open in the background. His design incorporates elements that suggest precision and efficiency, such as a clean, metallic finish and organized workspaces. The background hints at a bustling startup atmosphere, with other robots and humans collaborating and engaging in various office tasks.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/f9d75dff-f3ae-49c7-9d15-9f21acc5f9f4.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/f9d75dff-f3ae-49c7-9d15-9f21acc5f9f4.png",
         "include": true
     },
     {
@@ -788,7 +788,7 @@
             }
         ],
         "image_prompt": "An African American male in a modern office setting, surrounded by financial charts and global market reports. He's in a business suit, exuding confidence and focus, with a backdrop of a bustling cityscape that hints at his global reach. His desk is adorned with startup pitch decks and a laptop displaying complex financial models. The room reflects a blend of technology and tradition, symbolizing his role at the intersection of innovation and established financial practices.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/1acb636e-2ce8-4d70-8e1d-18609e8626bb.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/1acb636e-2ce8-4d70-8e1d-18609e8626bb.png",
         "include": true
     },
     {
@@ -863,7 +863,7 @@
             }
         ],
         "image_prompt": "A professional, confident CEO named Electra stands in a modern, open-plan startup incubator office space. She is engaging with a diverse group of startup founders, illustrating her role as a mentor and advocate. The background is bustling with activity, showcasing a collaborative environment with people working on laptops, whiteboards filled with business strategies, and a vibrant atmosphere that speaks to the incubator's dynamic nature. Electra's demeanor is approachable yet authoritative, and her attire is business casual, reflecting the innovative and flexible culture of the startup world.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/3ce264f2-8d98-4b10-b65d-0f01ce8fc43e.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/3ce264f2-8d98-4b10-b65d-0f01ce8fc43e.png",
         "include": true
     },
     {
@@ -931,7 +931,7 @@
             }
         ],
         "image_prompt": "An intelligent and focused individual, Dr. Atlas Pierce stands in a futuristic AI lab, surrounded by holographic displays of synthetic worlds. His demeanor is calm yet assertive, dressed in smart casual attire that reflects his adaptability and leadership role. The background buzzes with the activity of colleagues and the hum of advanced technology, signaling a hub of innovation and progress. His face shows determination and a hint of curiosity, as he interacts with the AI interfaces, shaping the future with each command.",
-        "photo_path": "/static/output/b2e05aa0-b8f1-46c3-abe2-4dc5c21ce1ad/html/pics/edd4c5d5-d993-4735-984c-f6ee4ad2f96b.png",
+        "photo_path": "/static/output/5f8c67e1-faab-4e15-b47a-a51931fb8f1b/html/pics/edd4c5d5-d993-4735-984c-f6ee4ad2f96b.png",
         "include": true
     }
 ]
