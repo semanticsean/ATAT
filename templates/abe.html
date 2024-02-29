@@ -80,7 +80,16 @@
 
             <textarea name="instructions" class="auto-height shadow appearance-none border rounded w-full lg:w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-xl" style="resize:vertical; overflow:auto; height:auto; min-height:6rem;">{{ instructions }}</textarea>
           </div>
-          <input type="checkbox" name="modify_agents_json" value="true"> Modify Agents JSON<br>
+      
+          <div class="mb-4">
+            <input type="checkbox" name="modify_agents_json" value="true"> Modify Agents JSON<br>
+            <div id="customModifyInstructionsContainer" style="display: none;"> <!-- Initially hidden -->
+              <h3 class="text-xl font-bold mb-2">Custom Modification Instructions</h3>
+              <textarea name="custom_modify_instructions" placeholder="Enter instructions to guide the modification of agents.json" class="auto-height shadow appearance-none border rounded w-full lg:w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-xl" style="resize:vertical; overflow:auto; height:auto; min-height:6rem;"></textarea>
+            </div>
+          </div>
+    
+
           
 
 
@@ -127,6 +136,13 @@
 
 
         $(document).ready(function() {
+          $('input[name="modify_agents_json"]').change(function() {
+            if ($(this).is(':checked')) {
+              $('#customModifyInstructionsContainer').show();
+            } else {
+              $('#customModifyInstructionsContainer').hide();
+            }
+          });
 
           function updateAgentInclusion(agentIds, include) {
               $.ajax({
@@ -203,6 +219,14 @@
 
               // Collect the state of the "modify_agents_json" checkbox
               var modifyAgentsJsonFlag = $('input[name="modify_agents_json"]').is(':checked');
+              // Make sure this value is included in the AJAX request payload
+              data: JSON.stringify({
+                  selectedAgents: selectedAgentIds,
+                  questions: questions,
+                  instructions: instructions,
+                  modify_agents_json: modifyAgentsJsonFlag
+              }),
+  
 
           $('#loadingImage').removeClass('hidden');
               $(this).prop('disabled', true);
