@@ -130,6 +130,29 @@ def load_json_data(filepath):
   with open(filepath, 'r') as file:
     return json.load(file)
 
+def modify_agents_json(file_path):
+  try:
+      with open(file_path, 'r', encoding='utf-8') as file:
+          agents = json.load(file)
+
+      modified = False
+      for agent in agents:
+          for key, value in agent.items():
+              if isinstance(value, str) and "testtest" in value:
+                  agent[key] = value.replace("testtest", "test")
+                  modified = True
+
+      if modified:
+          with open(file_path, 'w', encoding='utf-8') as file:
+              json.dump(agents, file, indent=4)
+          logging.info("Agents JSON modified: TRUE")
+      else:
+          logging.info("Agents JSON modified: FALSE")
+
+  except Exception as e:
+      logging.error(f"Failed to modify agents.json: {e}")
+
+
 
 #FLASK
 
@@ -580,16 +603,21 @@ def process_agents(session_id, selected_agent_ids, modified_questions, custom_in
 
 
 
-def run_agent_process(session_id, selected_agent_ids, modified_questions,
-                      custom_instructions):
-
+def run_agent_process(session_id, selected_agent_ids, modified_questions, custom_instructions):
   global is_processing, final_html_path
   try:
-    final_html_path = process_agents(session_id, selected_agent_ids,
-                                     modified_questions, custom_instructions)
-    logging.info(f"Final HTML path set to: {final_html_path}")
+      # Define the session-specific agents.json path
+      agents_json_path = os.path.join('static', 'output', session_id, 'html', 'agents.json')
+
+      # Call the function to modify agents.json
+      modify_agents_json(agents_json_path)
+
+      # Proceed with the rest of the processing
+      final_html_path = process_agents(session_id, selected_agent_ids, modified_questions, custom_instructions)
+      logging.info(f"Final HTML path set to: {final_html_path}")
   finally:
-    is_processing = False
+      is_processing = False
+
 
 
 def save_to_json(data, file_path):
