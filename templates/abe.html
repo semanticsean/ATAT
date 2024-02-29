@@ -83,7 +83,7 @@
       
           <div class="mb-4">
             <input type="checkbox" name="modify_agents_json" value="true"> Modify Agents JSON<br>
-            <div id="customModifyInstructionsContainer" style="display: none;"> <!-- Initially hidden -->
+            <div id="customModifyInstructionsContainer" style="display: none;"> 
               <h3 class="text-xl font-bold mb-2">Custom Modification Instructions</h3>
               <textarea name="custom_modify_instructions" placeholder="Enter instructions to guide the modification of agents.json" class="auto-height shadow appearance-none border rounded w-full lg:w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-xl" style="resize:vertical; overflow:auto; height:auto; min-height:6rem;"></textarea>
             </div>
@@ -219,12 +219,15 @@
 
               // Collect the state of the "modify_agents_json" checkbox
               var modifyAgentsJsonFlag = $('input[name="modify_agents_json"]').is(':checked');
-              // Make sure this value is included in the AJAX request payload
+              var customModifyInstructions = $('textarea[name="custom_modify_instructions"]').val().trim();
+  
+              // Include custom_modify_instructions in the AJAX call data
               data: JSON.stringify({
                   selectedAgents: selectedAgentIds,
                   questions: questions,
                   instructions: instructions,
-                  modify_agents_json: modifyAgentsJsonFlag
+                  modify_agents_json: modifyAgentsJsonFlag,
+                  custom_modify_instructions: customModifyInstructions // Add this line
               }),
   
 
@@ -233,15 +236,16 @@
 
               // Submit the data including both predefined and custom questions, and the checkbox state
               $.ajax({
-                  url: '/start',
-                  type: 'POST',
-                  contentType: 'application/json',
-                  data: JSON.stringify({
-                      selectedAgents: selectedAgentIds,
-                      questions: questions,
-                      instructions: instructions,
-                      modify_agents_json: modifyAgentsJsonFlag
-                  }),
+              url: '/start',
+              type: 'POST',
+              contentType: 'application/json',
+              data: JSON.stringify({
+                  selectedAgents: selectedAgentIds,
+                  questions: questions,
+                  instructions: instructions,
+                  modify_agents_json: modifyAgentsJsonFlag,
+                  custom_modify_instructions: customModifyInstructions 
+              }),
                   success: function(response) {
                       console.log("Polling for status...");
                       var statusInterval = setInterval(function() {

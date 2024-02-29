@@ -1,213 +1,56 @@
+<!-- home.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta property="og:title" content="" />
-  <meta property="og:description" content="" />
-  <meta property="og:image" content="" />
-  <meta property="og:url" content="" />
-  <meta name="twitter:card" content="" />
-  <meta name="twitter:title" content="" />
-  <meta name="twitter:description" content="" />
-  <meta name="twitter:image" content="" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
-
-    <title>Loading...</title>
-    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet">
-  
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      fetch('static/content.json')
-        .then(response => response.json())
-        .then(data => {
-          // Update Meta Tags
-          document.querySelector('meta[property="og:image"]').setAttribute("content", data.meta.ogImage);
-          document.querySelector('meta[property="og:url"]').setAttribute("content", data.meta.ogUrl);
-
-          document.querySelector('meta[property="og:title"]').setAttribute("content", data.meta.ogTitle);
-
-          document.querySelector('meta[property="og:description"]').setAttribute("content", data.meta.ogDescription);
-          document.querySelector('meta[name="twitter:card"]').setAttribute("content", data.meta.twitterCard);
-          document.querySelector('meta[name="twitter:title"]').setAttribute("content", data.meta.twitterTitle);
-          document.querySelector('meta[name="twitter:description"]').setAttribute("content", data.meta.twitterDescription);
-          document.querySelector('meta[name="twitter:image"]').setAttribute("content", data.meta.twitterImage);
-
-
-          // Update Title, Headers, and Footer
-         document.title = data.title;
-          document.getElementById('header-logo').src = data.logo_url;
-  
-          // Since h1 and h2 are direct children of a div with class `container`, you can use the :nth-of-type selector to target them
-          let containerDiv = document.querySelector('.container');
-          let h1 = containerDiv.querySelector('h1'); // This assumes h1 is the first h1 element inside .container
-          let h2 = containerDiv.querySelector('h2'); // This assumes h2 is the first h2 element inside .container
-  
-          if (h1) h1.innerText = data.h1;
-          if (h2) h2.innerText = data.h2;
-  
-          document.querySelector('.footer').innerText = data.footer;
-          document.getElementById('webCopyContainer').innerText = data.web_copy;
-          document.getElementById('social_image').src = data.social_image_url;
-        })
-        .catch(error => console.error('Error loading header data:', error));
-    });
-    
-      // Enhanced function to copy text to clipboard and modify button appearance
-      function copyToClipboard(text, buttonId) {
-        navigator.clipboard.writeText(text).then(function() {
-          // Success: Change button appearance and text
-          var button = document.getElementById(buttonId);
-          button.style.backgroundColor = "#4CAF50"; // Green color
-          button.innerText = "Copied"; // Update button text
-          // Optionally, reset button after a delay
-          setTimeout(function() {
-            button.style.backgroundColor = ""; // Reset background color
-            button.innerText = button.getAttribute("data-original-text"); // Reset button text
-          }, 2000); // Adjust delay as needed
-        }).catch(function(error) {
-          console.error('Error copying text: ', error);
-        });
-
-          function loadWebCopy() {
-            fetch('{{ url_for('static', filename='content.json') }}') // Adjust the path as necessary
-              .then(response => response.json())
-              .then(data => {
-                const webCopy = data.web_copy;
-                document.getElementById('webCopyContainer').innerText = webCopy;
-              })
-              .catch(error => console.error('Error loading web copy:', error));
-          }
-
-          // Call loadWebCopy on page load
-          window.addEventListener('DOMContentLoaded', (event) => {
-            loadWebCopy();
-          });
-        
-      }
-    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Polling Session</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+    <link rel="stylesheet" href="static/abe.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body>
-  <div id="loadingPlaceholder" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; display:flex; justify-content:center; align-items:center;">
-      <img id="loading" src="static/loading.gif" style="max-width:60px;" alt="Loading" />
-  </div>
-  
-  <div class="text-center md:absolute md:top-6 md:left-4 mx-auto">
-    
-
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo" class="mx-auto w-32">
-  </div>
-  
-
-  <div class="container mx-auto mt-4 mb-8">
-  
-    <div class="font-bold mb-4 text-center text-3xl">DASHBOARD</div>
-    <section id="webCopySection" class="text-center p-4 bg-gray-100">
-        <div class="container mx-auto">
-          <h1 class="font-bold mb-4 text-center text-xl">Loading...</h1> 
-          <h2 class="mb-4 text-center">Loading...</h2>  
-            <div id="webCopyContainer" class="webCopyContainer"></div>
-        </div>
-    </section>
-    
-    <div class="text-center md:absolute md:top-4 md:right-6 mx-auto">
-        <button onclick="window.location.href='/abe'" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">Go to ABE</button>
-    </div>
-  
-
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 ml-auto mr-auto mb-4 mt-4">
-
-      {% for agent in agents %}
-        <div class="bg-white border rounded-lg shadow overflow-hidden">
-          <img src="/agents/pics/{{ agent.photo_path.split('/')[-1] }}" alt="Agent Photo" class="w-full h-64 object-cover">
-          <div class="p-4">
-            <h3 class="text-lg font-bold">{{ agent.id }}</h3>
-            <h4 class="text-lg font-bold">{{ agent.jobtitle }}</h4>
-            
-            <!-- Add a min-height class to the paragraph for consistent height -->
-            <p >{{ agent.summary }}</p> 
-            <div class="mt-4 flex justify-left gap-2">
-              <a href="mailto:{{ agent.email }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Email</a>
-              <button id="copyEmail{{ agent.id }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm rounded py-1 px-2" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email</button>
-              <button id="copyShortcode{{ agent.id }}" class="bg-gray-200 hover:bg-gray-400 text-black text-sm py-1 px-2 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
-
+<body class="bg-blue-50">
+    <div class="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div class="bg-white shadow-md rounded px-4 sm:px-6 lg:px-8 pt-6 pb-8 mb-4 w-full max-w-lg mx-auto">
+            <div class="text-center mb-4">
+                <img src="static/logo.png" alt="Company Logo" class="mx-auto w-32 sm:w-32 lg:w-32 xl:w-32">
             </div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-    <!-- Instructions Section -->
-    <div class="image-section">
-      <img id="social_image" class="social_image mx-auto justify-center" src="" alt="Social Image"> 
-
-    </div>
-    <div class="bg-white rounded-lg shadow px-6 py-4 mx-auto max-w-4xl">
-        <h2 class="text-xl font-bold text-gray-800">Shortcodes</h2>
-
-        <div class="mt-4">
-            <h4 class="font-semibold text-lg text-blue-600">Call Agents from Email Body</h4>
-            <div> class="text-gray-600">@@(Agent Name)</div>
-        </div>
-
-        <div class="mt-4">
-            <h4 class="font-semibold text-lg text-blue-600">Create a Temporary Agent</h4>
-            <div class="text-gray-600">@@.creator(Embody an agent that...)</div>
-        </div>
-
-        <div class="mt-4">
-            <h4 class="font-semibold text-lg text-blue-600">Long Responses (Multi-Chunk)</h4>
-            <div class="text-gray-600">!detail_start!<br>instruction or content<br>!split!<br>instruction or content<br>!detail_stop!</div>
-        </div>
-
-        <div class="mt-4">
-            <h4 class="font-semibold text-lg text-blue-600">Summarize</h4>
-            <div class="text-gray-600">!summarize_start!<br>content<br>!summarize_stop!</div>
-        </div>
-
-        <div class="mt-4">
-            <h4 class="font-semibold text-lg text-blue-600">Summarize with Modifier e.g. JSON Return</h4>
-            <div class="text-gray-600">!summarize.json_start!<br>content<br>!summarize.json_stop!</div>
-        </div>
-
-        <!-- Code Links Section -->
-        <div class="pb-12 mt-6 mb-12">
-            <h3 class="text-lg font-bold text-gray-800">Code:</h3>
-            <p class="text-blue-600 hover:text-blue-800 visited:text-purple-600">
-                <a href="https://github.com/semanticsean/ATAT" target="_blank">Github / Readme</a><br>
-                <a href="https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public" target="_blank">Setup on Replit in 5 Minutes</a><br>
-                <a href="https://x.com/seanmcdonaldxyz" target="_blank">Follow Sean</a><br>
-                <a href="https://x.com/semanticlife" target="_blank">Follow Semantic Life</a>
+            <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 text-center">Engage Lifelike AIs for Surveys and Polling</h1>
+            <p class="text-gray-700 text-sm sm:text-base mb-4">
+                Get started quickly and easily. You'll be able to email the poll participants once you get the results.
             </p>
+          <a href="/dashboard"><button  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 my-3">
+              Agent Dashboard
+          </button></a>
+          
+            <button id="startSession" class="my-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
+                Start Polling Session
+            </button>
+          
+            <div class="mt-6 text-center text-xs sm:text-sm text-gray-500">
+                By starting a session, you agree to our 
+                <a href="https://semantic-life.com/terms" class="text-blue-600 hover:underline">Terms of Service</a> and 
+                <a href="https://semantic-life.com/privacy" class="text-blue-600 hover:underline">Privacy Policy</a>.
+            </div>
         </div>
     </div>
-    <!-- End of Instructions Section -->
-
-    
-  </div>
-
-  
-
-  <footer class="footer bg-white shadow-lg p-4 text-center bottom-0 inset-x-0">
-    © 2024 Semantic Life - All rights reserved. @@™. The terms "Synthetic Time Travel", "ATAT", "@@" are all property of Semantic Life. 
-    <a href="https://semantic-life.com/terms" class="text-blue-600 hover:underline">Terms of Service</a> and 
-    <a href="https://semantic-life.com/privacy" class="text-blue-600 hover:underline">Privacy Policy</a>
-  </footer>
-  <img src="" id="header-logo" class="header-logo mt-4 mb-4">
-  <script>
-  window.onload = function() {
-    // Your existing code here for adjustments and loading data
-
-    // Vanilla JavaScript to hide the loading placeholder
-    var loadingPlaceholder = document.getElementById('loadingPlaceholder');
-    if (loadingPlaceholder) {
-      loadingPlaceholder.style.opacity = '0';
-      setTimeout(function() {
-        loadingPlaceholder.style.display = 'none';
-      }, 600); // Adjust the timeout to match the fadeOut speed you desire
-    }
-  };
-  </script>
+    <div id="loading" class="fixed top-0 left-0 right-0 bottom-0 w-full h-full bg-opacity-50 bg-gray-800 flex items-center justify-center z-50 hidden">
+        <!-- Loading Indicator Here -->
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('#startSession').click(function() {
+                $(this).prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+                $('#loading').removeClass('hidden');
+                $.post('/start_session', function() {
+                    window.location.href = '/abedashboard';
+                }).fail(function() {
+                    alert("An error occurred. Please try again.");
+                    $('#startSession').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
+                    $('#loading').addClass('hidden');
+                });
+            });
+        });
+    </script>
 </body>
-
-</html>  
+</html>

@@ -1,0 +1,3 @@
+{
+    "instructions": "ROLE PLAY AND ANSWER: What is your opinion on '{question}'?\n\n\n Respond as the persona would, based on their experiences, knowledge, and characteristics. Do not repeat the question in your response. Respond as the persona would, based on their experiences, knowledge, and characteristics. YOU ARE ROLEPLAYING AS: '{agent_json}'"
+}
