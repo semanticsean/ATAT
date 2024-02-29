@@ -181,7 +181,7 @@ def add_new_agent(agent_name, description, version="A"):
       )
       image_response = generate_image_with_dalle(image_prompt)
       if image_response:
-        image_url = image_response['data'][0]['url']
+        image_url = image_response.data[0].url 
         image_path = os.path.join('agents', 'pics',
                                   f"{new_agent['unique_id']}.png")
 
@@ -274,7 +274,7 @@ def generate_cover_photo(transformation_prompt):
 
   image_response = generate_image_with_dalle(full_prompt)
   if image_response:
-    image_url = image_response['data'][0]['url']
+    image_url = image_response.data[0].url 
     image_path = os.path.join('agents', 'pics', 'cover_photo.png')
 
     print(f"Downloading cover photo from URL: {image_url}")
