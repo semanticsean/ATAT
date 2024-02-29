@@ -12,7 +12,9 @@ import datetime
 import uuid
 import random
 import csv
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 from typing import ClassVar
 from flask import request
@@ -118,7 +120,6 @@ def modify_agents_json(session_agents_path, modify_agents_json_instructions, cus
     logging.info("Starting modification of agents.json with OpenAI API")
   
     # Ensure OpenAI API key is set
-    openai.api_key = OPENAI_API_KEY
   
     try:
         with open('abe/abe-instructions.json', 'r') as file:
@@ -145,16 +146,14 @@ def modify_agents_json(session_agents_path, modify_agents_json_instructions, cus
                     logging.info(f"Sending prompt to OpenAI API for agent modification: {prompt[:100]}...")  # Log first 100 characters
 
                     try:
-                        response = openai.ChatCompletion.create(
-                            model="gpt-4",
-                            messages=[
-                                {"role": "system", "content": prompt},
-                                {"role": "user", "content": "Please modify the following agent data."},
-                            ],
-                            response_format={"type": "json_object"}
-                        )
+                        response = client.chat.completions.create(model="gpt-4",
+                        messages=[
+                            {"role": "system", "content": prompt},
+                            {"role": "user", "content": "Please modify the following agent data."},
+                        ],
+                        response_format={"type": "json_object"})
 
-                        modified_agent_data = json.loads(response.choices[0].message['content'])
+                        modified_agent_data = json.loads(response.choices[0].message.content)
                         agent.update(modified_agent_data)
                         modified = True
                         logging.info(f"Agent {agent.get('id')} modified successfully.")
@@ -673,10 +672,10 @@ def save_to_csv(data, csv_file_path):
               writer.writerow({
                   'id': agent_data['id'],
                   'email': agent_data['email'],
-                  'question': response['question'],
-                  'answer': response['answer'],
-                  'timestamp': response['timestamp'],
-                  'unique_id': response['unique_id']
+                  'question': response.question,
+                  'answer': response.answer,
+                  'timestamp': response.timestamp,
+                  'unique_id': response.unique_id
               })
 
 def truncate_data(data):
