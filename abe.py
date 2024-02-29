@@ -266,35 +266,34 @@ def abedashboard():
 
 @app.route('/start', methods=['POST'])
 def start_process():
-  global is_processing
-  if is_processing:
-    return jsonify({"error": "Process is already running"}), 400
+    global is_processing
+    if is_processing:
+        return jsonify({"error": "Process is already running"}), 400
 
-  data = request.get_json()
-  selected_agent_ids = data.get('selectedAgents', [])
-  questions = data.get('questions',
-                       [])  # This will now include custom questions
-  custom_instructions = data.get('instructions', '')
+    data = request.get_json()  # Properly get JSON data sent from the client
 
-  if not selected_agent_ids:
-    return jsonify({"error": "No agents selected."}), 400
+    selected_agent_ids = data.get('selectedAgents', [])
+    questions = data.get('questions', [])
+    custom_instructions = data.get('instructions', '')
+    modify_agents_json_flag = data.get('modify_agents_json', False)
 
-  session_id = session.get('session_id')
-  if session_id is None:
-    return jsonify(
-        {"error": "Session ID not found. Please restart the session."}), 400
+    if not selected_agent_ids:
+        return jsonify({"error": "No agents selected."}), 400
 
-  if not is_processing:  # Double-check to prevent race conditions
-    thread = threading.Thread(target=lambda: run_agent_process(
-        session_id, selected_agent_ids, questions, custom_instructions))
-    thread.start()
-    is_processing = True
-    return jsonify({"message": "Processing started"}), 202
-  else:
-    return jsonify({
-        "error":
-        "Processing was attempted to start again before completion."
-    }), 400
+    session_id = session.get('session_id')
+    if session_id is None:
+        return jsonify({"error": "Session ID not found. Please restart the session."}), 400
+
+    # Your existing logic to process the agents
+    # Make sure to correct the method signature of `run_agent_process` if it needs `modify_agents_json_flag`
+    if not is_processing:
+        thread = threading.Thread(target=lambda: run_agent_process(
+            session_id, selected_agent_ids, questions, custom_instructions, modify_agents_json_flag))
+        thread.start()
+        is_processing = True
+        return jsonify({"message": "Processing started"}), 202
+    else:
+        return jsonify({"error": "Processing was attempted to start again before completion."}), 400
 
 
 @app.route('/status')
@@ -603,14 +602,15 @@ def process_agents(session_id, selected_agent_ids, modified_questions, custom_in
 
 
 
-def run_agent_process(session_id, selected_agent_ids, modified_questions, custom_instructions):
+def run_agent_process(session_id, selected_agent_ids, modified_questions, custom_instructions, modify_agents_json_flag):
   global is_processing, final_html_path
   try:
       # Define the session-specific agents.json path
       agents_json_path = os.path.join('static', 'output', session_id, 'html', 'agents.json')
 
-      # Call the function to modify agents.json
-      modify_agents_json(agents_json_path)
+      # Call the function to modify agents.json only if modify_agents_json_flag is True
+      if modify_agents_json_flag:
+          modify_agents_json(agents_json_path)
 
       # Proceed with the rest of the processing
       final_html_path = process_agents(session_id, selected_agent_ids, modified_questions, custom_instructions)

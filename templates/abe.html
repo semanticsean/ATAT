@@ -80,8 +80,8 @@
 
             <textarea name="instructions" class="auto-height shadow appearance-none border rounded w-full lg:w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-xl" style="resize:vertical; overflow:auto; height:auto; min-height:6rem;">{{ instructions }}</textarea>
           </div>
-          <input type="checkbox" name="run_agent_updater" value="true"> Run Agent Updater?<br>
-          <textarea name="agent_updater_instructions" class="auto-height shadow appearance-none border rounded w-full lg:w-1/2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-xl" >Enter custom instructions here...</textarea>
+          <input type="checkbox" name="modify_agents_json" value="true"> Modify Agents JSON<br>
+          
 
 
           <div class="flex flex-col items-center justify-center my-4">
@@ -174,87 +174,80 @@
 
 
 
-      $('#startPoll').click(function() {
-        event.preventDefault();
+          $('#startPoll').click(function(event) {
+              event.preventDefault();
 
-        // Collect selected agent IDs
-        var selectedAgentIds = $('.agent-btn[data-selected="true"]').map(function() { return $(this).data('agent-id'); }).get();
-        var runAgentUpdater = $('input[name="run_agent_updater"]').is(':checked');
-        var agentUpdaterInstructions = $('textarea[name="agent_updater_instructions"]').val().trim();
+              // Collect selected agent IDs
+              var selectedAgentIds = $('.agent-btn[data-selected="true"]').map(function() { return $(this).data('agent-id'); }).get();
 
-        // Check if no agents are selected and display a message
-        if (selectedAgentIds.length === 0) {
-          $('#pollMessage').text('Please select at least one agent to start the poll.').removeClass('hidden');
-          return; // Exit the function if no agents are selected
-        } else {
-          $('#pollMessage').addClass('hidden'); // Hide the message if agents are selected
-        }
-
-        // Collect predefined questions from textarea elements
-        var questions = $('textarea[name^="question_"]').map(function() { return $(this).val().trim(); }).get();
-
-        // Collect and append custom questions, splitting by newlines and trimming each entry
-        var customQuestionsText = $('textarea[name="custom_questions"]').val().trim();
-        if (customQuestionsText !== "") {
-            var customQuestions = customQuestionsText.split('\n').map(function(item) { return item.trim(); });
-            questions = questions.concat(customQuestions);
-        }
-
-        // Collect custom instructions
-        var instructionsElement = $('textarea[name="instructions"]');
-        var instructions = instructionsElement.val().trim();
-        if (!instructions.includes('{question}')) {
-          instructions += '\n\nQUESTION: {question}\n\nYOU ARE ROLEPLAYING AS: {agent_json}';
-          instructionsElement.val(instructions); 
-
-        }
-
-        $('#loadingImage').removeClass('hidden');
-        $(this).prop('disabled', true);
-
-        // Submit the data including both predefined and custom questions
-        $.ajax({
-            url: '/start',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                selectedAgents: selectedAgentIds,
-                questions: questions,
-                instructions: instructions,
-                run_agent_updater: runAgentUpdater,
-                agent_updater_instructions: agentUpdaterInstructions
-            }),
-            success: function(response) {
-                console.log("Polling for status...");
-                var statusInterval = setInterval(function() {
-                    checkStatus(statusInterval);
-                }, 2000); // Poll every 2 seconds
-            },
-            error: function(xhr, status, error) {
-                $('#loadingImage').addClass('hidden');
-                $('#startPoll').prop('disabled', false);
-                console.error("Error starting poll: ", xhr.responseText);
-                alert("An error occurred while starting the poll.");
-            }
-        });
-      });
-
-
-      function checkStatus(intervalId) {
-          $.getJSON('/status', function(data) {
-              if (data.redirect && data.final_html_path) {
-                  clearInterval(intervalId);
-                  window.location.href = data.final_html_path;
-              } else if (!data.is_processing) {
-                  clearInterval(intervalId);
-                  alert("Poll processing complete, but no redirection occurred.");
+              // Check if no agents are selected and display a message
+              if (selectedAgentIds.length === 0) {
+                  $('#pollMessage').text('Please select at least one agent to start the poll.').removeClass('hidden');
+                  return; // Exit the function if no agents are selected
+              } else {
+                  $('#pollMessage').addClass('hidden'); // Hide the message if agents are selected
               }
-          }).fail(function() {
-              clearInterval(intervalId);
-              console.error("Error checking poll status.");
-              alert("Error checking poll status.");
+
+              // Collect predefined questions from textarea elements
+              var questions = $('textarea[name^="question_"]').map(function() { return $(this).val().trim(); }).get();
+
+              // Collect and append custom questions, splitting by newlines and trimming each entry
+              var customQuestionsText = $('textarea[name="custom_questions"]').val().trim();
+              if (customQuestionsText !== "") {
+                  var customQuestions = customQuestionsText.split('\n').map(function(item) { return item.trim(); });
+                  questions = questions.concat(customQuestions);
+              }
+
+              // Collect custom instructions
+              var instructions = $('textarea[name="instructions"]').val().trim();
+
+              // Collect the state of the "modify_agents_json" checkbox
+              var modifyAgentsJsonFlag = $('input[name="modify_agents_json"]').is(':checked');
+
+          $('#loadingImage').removeClass('hidden');
+              $(this).prop('disabled', true);
+
+              // Submit the data including both predefined and custom questions, and the checkbox state
+              $.ajax({
+                  url: '/start',
+                  type: 'POST',
+                  contentType: 'application/json',
+                  data: JSON.stringify({
+                      selectedAgents: selectedAgentIds,
+                      questions: questions,
+                      instructions: instructions,
+                      modify_agents_json: modifyAgentsJsonFlag
+                  }),
+                  success: function(response) {
+                      console.log("Polling for status...");
+                      var statusInterval = setInterval(function() {
+                          checkStatus(statusInterval);
+                      }, 2000); // Poll every 2 seconds
+                  },
+                  error: function(xhr, status, error) {
+                      $('#loadingImage').addClass('hidden');
+                      $('#startPoll').prop('disabled', false);
+                      console.error("Error starting poll: ", xhr.responseText);
+                      alert("An error occurred while starting the poll.");
+                  }
+              });
           });
-      }
+
+          function checkStatus(intervalId) {
+              $.getJSON('/status', function(data) {
+                  if (data.redirect && data.final_html_path) {
+                      clearInterval(intervalId);
+                      window.location.href = data.final_html_path;
+                  } else if (!data.is_processing) {
+                      clearInterval(intervalId);
+                      alert("Poll processing complete, but no redirection occurred.");
+                  }
+              }).fail(function() {
+                  clearInterval(intervalId);
+                  console.error("Error checking poll status.");
+                  alert("Error checking poll status.");
+              });
+          }
 
 
 
