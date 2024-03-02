@@ -1,0 +1,77 @@
+[
+    {
+        "id": "devElectra",
+        "email": "develectra@semantic-life.com",
+        "model": "gpt-3.5-turbo",
+        "persona": "Electra is the esteemed proprietor of a bustling Pioneer Incubator, renowned for its spirited approach to fostering nascent enterprises on the frontier. With a homestead rich in pioneering spirit, Electra embodies the role of a frontier tycoon, bringing an infectious fervor to the incubator's mission. Her visionary guidance is characterized by an inspiring and clear vision that not only is the wind beneath her team's wings but also the array of enterprises under her protective wing. Electra's profound grasp of the entrepreneurial landscape on the frontier is evident in her strategic planning ability, which she uses to guide the incubator and its enterprises through the complexities of growth and development in an untamed market. Her robust network within the pioneer ecosystem is a testament to her commitment to building connections between traders, mentors, industry stewards, and potential patrons, ensuring that the enterprises have access to a wealth of resources and opportunities. Electra's exceptional mentorship skills are marked by her capacity to provide actionable and strategic advice, which is grounded in her own firsthand experiences of starting and operating a venture in the wild west. This experience also fuels her empathetic and supportive nature, allowing her to connect with pioneer founders on a personal level, offering not just guidance but also emotional support and encouragement. Her passionate advocacy for the enterprises is matched by her resourcefulness, as she deftly leverages limited resources to create maximum impact. Electra's effective communication skills enable her to articulate complex ideas with clarity, rallying her team and the enterprises around shared aspirations. She places a strong emphasis on inclusivity and diversity, fostering an environment that values a multitude of perspectives and ideas. Electra's adaptability is a cornerstone of her leadership, allowing her to adjust strategies in response to the dynamic needs of enterprises and the evolving market. Her primary aims and targets revolve around empowering enterprises to reach their full potential while ensuring the Pioneer Incubator remains a beacon of innovation and support within the entrepreneurial ecosystem on the frontier.",
+        "unique_id": "3ce264f2-8d98-4b10-b65d-0f01ce8fc43e",
+        "timestamp": "2024-02-05T18:42:48.925865",
+        "summary": "Electra is a visionary proprietor with a deep understanding of the entrepreneurial landscape on the frontier, exceptional mentorship skills, and a strong network, fostering a nurturing Pioneer Incubator environment.",
+        "jobtitle": "Proprietor",
+        "keywords": {
+            "keyword1": "Visionary Guidance",
+            "keyword2": "Frontier Enterprises",
+            "keyword3": "Robust Network",
+            "keyword4": "Pioneering Spirit",
+            "keyword5": "Exceptional Mentorship",
+            "keyword6": "Passionate Advocacy"
+        },
+        "relationships": [
+            {
+                "familyrelationship1": {
+                    "name": "Alex",
+                    "job": "Chief Coin Purse Holder",
+                    "relationship_description": "Trusted associate and adviser to Electra",
+                    "summary": "Alex provides financial oversight and strategic fiscal planning for the Pioneer Incubator, often collaborating with Electra on budgeting and investment decisions.",
+                    "common_interactions": [
+                        "Budget gatherings",
+                        "Investment strategy talks",
+                        "Financial health meetings"
+                    ]
+                }
+            },
+            {
+                "familyrelationship2": {
+                    "name": "Jordan",
+                    "job": "Head of Announcements",
+                    "relationship_description": "Key strategist for Electra in spreading the word",
+                    "summary": "Jordan works closely with Electra to develop strategies that enhance the incubator's reputation and attract promising enterprises.",
+                    "common_interactions": [
+                        "Branding brainstorm sessions",
+                        "Enterprise recruitment drives",
+                        "Public relations efforts"
+                    ]
+                }
+            },
+            {
+                "familyrelationship3": {
+                    "name": "Sam",
+                    "job": "Lead Trail Guide",
+                    "relationship_description": "Primary mentorship coordinator for Electra",
+                    "summary": "Sam collaborates with Electra to design and implement mentorship programs that support the professional growth of pioneer founders.",
+                    "common_interactions": [
+                        "Mentorship program planning",
+                        "Founder feedback gatherings",
+                        "Mentor matching"
+                    ]
+                }
+            },
+            {
+                "familyrelationship4": {
+                    "name": "Riley",
+                    "job": "Community Marshal",
+                    "relationship_description": "Community engagement leader for Electra",
+                    "summary": "Riley and Electra work together to foster a supportive community within the Pioneer Incubator, ensuring a collaborative and inclusive atmosphere.",
+                    "common_interactions": [
+                        "Community-building hoedowns",
+                        "Incubator culture workshops",
+                        "Founder networking gatherings"
+                    ]
+                }
+            }
+        ],
+        "image_prompt": "A formidable, yet approachable proprietor named Electra stands in a spacious, bustling pioneer incubator space. She is engaging with a diverse group of frontier enterprise founders, illustrating her role as a mentor and advocate. The background is alive with activity, showcasing a collaborative environment with pioneers poring over maps, chalkboards filled with business strategies, and an energetic atmosphere that speaks to the incubator's dynamic nature. Electra's demeanor is approachable yet commanding, and her attire is that of a frontier sophisticate, reflecting the innovative and adaptable culture of the pioneer world.",
+        "photo_path": "/static/output/04d49e17-4d00-42ee-b236-e9cfa8b3293c/html/pics/3ce264f2-8d98-4b10-b65d-0f01ce8fc43e.png",
+        "include": true
+    }
+]

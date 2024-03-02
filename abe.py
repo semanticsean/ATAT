@@ -31,17 +31,14 @@ CURRENT_AGENTS_JSON_PATH = AGENTS_JSON_PATH
 
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = 'your_very_secret_key'
-app.config['MAIL_SERVER'] = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
-app.config['MAIL_PORT'] = int(os.environ.get('SMTP_PORT', 587))
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('SMTP_USERNAME',
-                                             'devagent@semantic-life.com')
-app.config['MAIL_PASSWORD'] = os.environ.get('SMTP_PASSWORD', '')
-mail = Mail(app)
 
 responses_data = {}
 is_processing = False
 final_html_path = ""
+use_modified_agents_json = False
+modified_agents_json_path = ""
+
+
 
 
 class NoStatusFilter(logging.Filter):
@@ -67,12 +64,16 @@ setup_logging()
 
 
 def initialize_session(unique_folder):
-  # Directories for JSON files and agent photos
+  # Ensure base directories for session data are created
   html_folder = os.path.join(unique_folder, 'html')
   pics_folder = os.path.join(html_folder, 'pics')
-  os.makedirs(pics_folder, exist_ok=True)  # Ensure the pics directory exists
+  abe_folder = os.path.join(html_folder, 'abe')  # Additional directory for ABE-related files
 
-  # Copy JSON files as before
+  # Create necessary directories
+  for folder in [pics_folder, abe_folder]:
+      os.makedirs(folder, exist_ok=True)
+
+  # Adjusted to copy and potentially modify JSON files as needed
   copy_and_truncate_json_files('.', html_folder)
 
   # Load agents JSON to get photo paths
@@ -100,19 +101,19 @@ def initialize_session(unique_folder):
     json.dump(agents, file, indent=4)
 
 
-def load_session_data(unique_folder):
-  # Use the global AGENTS_JSON_PATH to ensure we're accessing the correct agents.json
-  agents_file_path = AGENTS_JSON_PATH  # Adjusted to use the global variable
-  questions_file_path = os.path.join(unique_folder, 'abe',
-                                     'abe-questions.json')
-  instructions_file_path = os.path.join(unique_folder, 'abe',
-                                        'abe-instructions.json')
+def load_session_data(session_id):
+  # Construct paths dynamically based on session_id
+  base_folder = os.path.join('static', 'output', session_id, 'html', 'abe')
+  agents_file_path = modified_agents_json_path if should_use_modified_agents() else os.path.join('agents', 'session_agents', session_id, 'agents.json')
+  questions_file_path = os.path.join(base_folder, 'abe-questions.json')
+  instructions_file_path = os.path.join(base_folder, 'abe-instructions.json')
 
   agents = load_json_data(agents_file_path)
   questions = load_json_data(questions_file_path)
   instructions = load_json_data(instructions_file_path)['instructions']
 
   return agents, questions, instructions
+
 
 
 def load_json_data(filepath):
@@ -123,77 +124,75 @@ def load_json_data(filepath):
 def modify_agents_json(session_agents_path, modify_agents_json_instructions,
                        custom_instructions, selected_agent_ids,
                        custom_modify_instructions):
-  logging.info("Starting modification of agents.json with OpenAI API")
+    global use_modified_agents_json
+    global modified_agents_json_path 
+    logging.info("Starting modification of agents.json with OpenAI API")
 
-  try:
-    with open('abe/abe-instructions.json', 'r') as file:
-      instructions_data = json.load(file)
-    modify_instructions = instructions_data['modify_agents_json_instructions']
-    logging.info("Modification instructions loaded successfully.")
-  except Exception as e:
-    logging.error(f"Error loading modification instructions: {e}")
-    return
+    try:
+        with open('abe/abe-instructions.json', 'r') as file:
+            instructions_data = json.load(file)
+        modify_instructions = instructions_data['modify_agents_json_instructions']
+        logging.info("Modification instructions loaded successfully.")
+    except Exception as e:
+        logging.error(f"Error loading modification instructions: {e}")
+        return
 
-  full_instructions = f"{modify_instructions} {custom_instructions} {custom_modify_instructions}"
+    full_instructions = f"{modify_instructions} {custom_instructions} {custom_modify_instructions}"
 
-  try:
-    with open(session_agents_path, 'r+', encoding='utf-8') as file:
-      agents = json.load(file)
-      modified = False
+    try:
+        agents = []
+        with open(session_agents_path, 'r', encoding='utf-8') as file:
+            agents = json.load(file)
 
-      for agent in agents:
-        if str(agent.get('id')) in selected_agent_ids:
-          logging.info(f"Preparing to modify agent: {agent.get('id')}")
+        modified_agents = []
+        modified = False
 
-          # Save original values
-          original_values = {
-              "id": agent.get('photo_path'),
-              "photo_path": agent.get('photo_path'),
-              "email": agent.get('email'),
-              "unique_id": agent.get('unique_id'),
-              "timestamp": agent.get('timestamp'),
-          }
+        for agent in agents:
+            if str(agent.get('id')) in selected_agent_ids:
+                logging.info(f"Preparing to modify agent: {agent.get('id')}")
 
-          prompt = full_instructions + f"\n\n{json.dumps(agent)}"
-          logging.info(
-              f"Sending prompt to OpenAI API for agent modification: {prompt[:200]}..."
-          )
+                original_values = {
+                    "id": agent.get('id'),
+                    "photo_path": agent.get('photo_path'),
+                    "email": agent.get('email'),
+                    "unique_id": agent.get('unique_id'),
+                    "timestamp": agent.get('timestamp'),
+                    "model": agent.get('model'),
+                }
 
-          try:
-            response = client.chat.completions.create(
-                model="gpt-4-turbo-preview",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": "Please modify the following agent data."
-                    },
-                ],
-                response_format={"type": "json_object"})
+                prompt = full_instructions + f"\n\n{json.dumps(agent)}"
+                logging.info(f"Sending prompt to OpenAI API for agent modification: {prompt[:200]}...")
 
-            modified_agent_data = json.loads(
-                response.choices[0].message.content)
-            # Update agent data but preserve specific fields
-            agent.update(modified_agent_data)
-            agent.update(original_values)  # Restore original values
-            modified = True
-            logging.info(f"Agent {agent.get('id')} modified successfully.")
-          except Exception as e:
-            logging.error(
-                f"OpenAI API call failed for agent {agent.get('id')}: {e}")
+                try:
+                    response = client.chat.completions.create(
+                        model="gpt-4-turbo-preview",
+                        messages=[
+                            {"role": "system", "content": prompt},
+                            {"role": "user", "content": "Please modify the following agent data."},
+                        ],
+                        response_format={"type": "json_object"})
 
-      if modified:
-        file.seek(0)
-        json.dump(agents, file, indent=4)
-        file.truncate()
-        logging.info("agents.json successfully modified and updated.")
-      else:
-        logging.info("No agents were modified.")
-  except Exception as e:
-    logging.error(f"Failed to modify agents.json: {e}")
+                    modified_agent_data = json.loads(response.choices[0].message.content)
+                    agent.update(modified_agent_data)
+                    for key, value in original_values.items():
+                        agent[key] = value  # Restore original values
+                    modified_agents.append(agent)
+                    modified = True
+                    logging.info(f"Agent {agent.get('id')} modified successfully.")
+                except Exception as e:
+                    logging.error(f"OpenAI API call failed for agent {agent.get('id')}: {e}")
+
+        if modified:
+            use_modified_agents_json = True
+            modified_agents_path = session_agents_path.replace("agents.json", "modified_agents.json")
+            modified_agents_json_path = modified_agents_path  
+            with open(modified_agents_path, 'w', encoding='utf-8') as mod_file:
+                json.dump(modified_agents, mod_file, indent=4)
+            logging.info("modified_agents.json successfully created and updated.")
+        else:
+            logging.info("No agents were modified.")
+    except Exception as e:
+        logging.error(f"Failed to modify agents.json: {e}")
 
 
 #FLASK
@@ -285,13 +284,45 @@ def create_session_specific_agents_json(session_id):
 
 @app.route('/start_session', methods=['POST'])
 def start_session():
-  session_id = str(uuid.uuid4())
-  session['session_id'] = session_id
-  create_session_specific_agents_json(session_id)
-  unique_folder = os.path.join('static', 'output', session_id, 'html')
-  os.makedirs(unique_folder, exist_ok=True)
-  initialize_session(os.path.join('static', 'output', session_id))
-  return redirect(url_for('abe'))
+    session_id = str(uuid.uuid4())
+    session['session_id'] = session_id
+
+    # Create session-specific agents.json
+    create_session_specific_agents_json(session_id)
+
+    # Define unique folder paths for session data
+    unique_folder = os.path.join('static', 'output', session_id, 'html')
+    abe_folder = os.path.join(unique_folder, 'abe')  # Specific folder for ABE files
+
+    # Ensure the necessary directories exist
+    os.makedirs(unique_folder, exist_ok=True)
+    os.makedirs(abe_folder, exist_ok=True)  # Ensure ABE directory exists
+
+    # Initialize session with session-specific agents.json and copy necessary files
+    initialize_session(os.path.join('static', 'output', session_id))
+
+    # Ensure ABE-related JSON files are present in the session-specific ABE directory
+    copy_abe_files_for_session(session_id, abe_folder)
+
+    return redirect(url_for('abe'))
+
+def copy_abe_files_for_session(session_id, abe_folder):
+    """
+    Copies ABE-related JSON files (abe-questions.json and abe-instructions.json)
+    to the session-specific ABE directory.
+    """
+    # Paths for the source ABE files
+    source_questions_path = 'abe/abe-questions.json'
+    source_instructions_path = 'abe/abe-instructions.json'
+    
+    # Paths for the session-specific ABE files
+    session_questions_path = os.path.join(abe_folder, 'abe-questions.json')
+    session_instructions_path = os.path.join(abe_folder, 'abe-instructions.json')
+    
+    # Copy the ABE files to the session-specific directory
+    shutil.copy(source_questions_path, session_questions_path)
+    shutil.copy(source_instructions_path, session_instructions_path)
+
 
 
 @app.route('/abe')
@@ -511,52 +542,47 @@ class CustomAgentPrompt(Prompt):
                                 question=self.question)
 
 
-def ask_agents_questions(agents, questions):
-  logging.info('Starting to ask agents questions...')
-  data = {}
-  base_sleep_time = 5  # Base sleep time in seconds
-  for agent in agents:
-    model = agent.get(
-        "model", "gpt-3.5-turbo")  # Use model specified in agent's profile
-    chat = OpenAIChat(api_key=OPENAI_API_KEY, model=model)
-    agent_data = {"id": agent['id'], "email": agent['email'], "responses": []}
-    for question in questions['questions']:
-      sleep_time = base_sleep_time  # Reset sleep time for each question
-      attempts = 0  # Reset attempts for each question
-      while attempts < 5:  # Set a maximum number of attempts
-        try:
-          prompt = CustomAgentPrompt(agent_json=json.dumps(agent),
-                                     question=question['text'])
-          completion = chat.create(prompt=prompt.__str__())
-          # Properly access the completion content. Adjust based on actual completion structure
-          response_text = str(
-              completion
-          )  # Convert completion to string to get the response content
-          logging.info(
-              f"Full API response for agent {agent['id']}: {response_text}"
-          )  # Log the full response text
-          agent_data["responses"].append({
-              "question":
-              question['text'],
-              "answer":
-              response_text.strip(),
-              "timestamp":
-              datetime.datetime.now().isoformat(),
-              "unique_id":
-              str(uuid.uuid4())
-          })
-          time.sleep(sleep_time)  # Sleep after successful completion
-          break  # Exit the loop after successful call
-        except Exception as e:
-          logging.exception(
-              f"Error asking questions to agent {agent['id']} - {agent['email']} on attempt {attempts + 1}: {e}"
-          )
-          attempts += 1
-          time.sleep(sleep_time)  # Sleep before retrying
-          sleep_time *= 2  # Exponential backoff
-    data[agent['id']] = agent_data
-  logging.info('Finished asking agents questions.')
-  return data
+def ask_agents_questions(selected_agent_ids, questions):
+    logging.info('Starting to ask agents questions.')
+    agents_file_path = modified_agents_json_path if should_use_modified_agents() else AGENTS_JSON_PATH
+    logging.info(f'Using agents file path: {agents_file_path}')
+
+    try:
+        with open(agents_file_path, 'r', encoding='utf-8') as file:
+            agents = json.load(file)
+        logging.info(f'Loaded {len(agents)} agents from {agents_file_path}.')
+    except Exception as e:
+        logging.error(f'Failed to load agents from {agents_file_path}: {e}')
+        return {}
+
+    filtered_agents = [agent for agent in agents if str(agent['id']) in selected_agent_ids]
+    logging.info(f'Filtered {len(filtered_agents)} agents based on selected IDs: {selected_agent_ids}')
+
+    data = {}
+    for agent in filtered_agents:
+        model = agent.get("model", "gpt-3.5-turbo")  # Default model
+        logging.info(f'Processing agent ID {agent["id"]} with model {model}.')
+        agent_data = {"id": agent['id'], "responses": []}
+        chat = OpenAIChat(api_key=OPENAI_API_KEY, model=model)
+
+        for question in questions['questions']:
+            prompt = CustomAgentPrompt(agent_json=json.dumps(agent), question=question['text'])
+            response = chat.create(prompt=str(prompt))
+            
+            # Correct handling based on Mirascope's expected response structure
+            response_text = response.message  # Adjust this line based on actual response structure
+            logging.info(f'Received response for agent ID {agent["id"]}: {response_text}')
+
+            agent_data["responses"].append({
+                "question": question['text'],
+                "answer": response_text,
+                "timestamp": datetime.datetime.now().isoformat(),
+                "unique_id": str(uuid.uuid4())
+            })
+
+        data[agent['id']] = agent_data
+    logging.info('Finished asking agents questions. Returning data.')
+    return data
 
 
 def update_instructions_json(instructions, filepath):
@@ -601,6 +627,13 @@ def update_questions_json(questions, filepath):
   # Write the structured data to the specified filepath
   with open(filepath, 'w') as f:
     json.dump(questions_json, f, indent=4)
+
+def should_use_modified_agents():
+  global use_modified_agents_json
+  global modified_agents_json_path  # Use the global path variable
+  # Check if the modified_agents_json flag is true and the file exists
+  return use_modified_agents_json and os.path.exists(modified_agents_json_path)
+
 
 
 def process_agents(session_id, selected_agent_ids, modified_questions,
@@ -697,35 +730,56 @@ def process_agents(session_id, selected_agent_ids, modified_questions,
   is_processing = False
   return final_html_path
 
+def run_agent_process(session_id, selected_agent_ids, questions, custom_instructions, modify_agents_json_flag, modify_agents_json_instructions, custom_modify_instructions):
+    global is_processing, final_html_path
+    try:
+        # Determine the correct JSON file to use based on user choice
+        agents_json_path = create_session_specific_agents_json(session_id)
+        if modify_agents_json_flag:
+            # Modify the agents.json if required by the user
+            modify_agents_json(agents_json_path, modify_agents_json_instructions, custom_instructions, selected_agent_ids, custom_modify_instructions)
 
-def run_agent_process(session_id, selected_agent_ids, modified_questions,
-                      custom_instructions, modify_agents_json_flag,
-                      modify_agents_json_instructions,
-                      custom_modify_instructions):
-  global is_processing, final_html_path
-  try:
-    agents_json_path = os.path.join('static', 'output', session_id, 'html',
-                                    'agents.json')
+        # Load agents for the session
+        agents_file_to_use = modified_agents_json_path if should_use_modified_agents() else agents_json_path
 
-    # Check if we should modify the agents.json file
-    if modify_agents_json_flag:
-      modify_agents_json(agents_json_path, modify_agents_json_instructions,
-                         custom_instructions, selected_agent_ids,
-                         custom_modify_instructions)
+        # Load session data using the appropriate agents JSON file
+        session_id = session.get('session_id')
+        if not session_id:
+            logging.error("Session ID is not set. Cannot load session data.")
+            return  # or handle error appropriately
+  
+        agents, questions, instructions = load_session_data(session_id)
+  
+        
 
-    else:
-      logging.info(
-          f"Modification of agents.json was not requested. Status: {modify_agents_json_flag}"
-      )
+        # Ask questions and process agents
+        agent_responses = ask_agents_questions(selected_agent_ids, questions)
+        final_html_path = process_agents(session_id, selected_agent_ids, questions, custom_instructions)
 
-    # Proceed with the rest of the processing...
-    final_html_path = process_agents(session_id, selected_agent_ids,
-                                     modified_questions, custom_instructions)
-    logging.info(f"Final HTML path set to: {final_html_path}")
-  except Exception as e:
-    logging.error(f"Error in run_agent_process: {e}")
-  finally:
-    is_processing = False
+        logging.info(f"Final HTML path set to: {final_html_path}")
+    except Exception as e:
+        logging.error(f"Error in run_agent_process: {e}")
+    finally:
+        is_processing = False
+
+def ensure_abe_files_for_session(session_id):
+  # Path to the session-specific ABE directory
+  session_abe_dir = os.path.join('static', 'output', session_id, 'html', 'abe')
+
+  # Ensure the directory exists
+  os.makedirs(session_abe_dir, exist_ok=True)
+
+  # Paths for the source ABE files
+  source_questions_path = 'abe/abe-questions.json'
+  source_instructions_path = 'abe/abe-instructions.json'
+
+  # Paths for the session-specific ABE files
+  session_questions_path = os.path.join(session_abe_dir, 'abe-questions.json')
+  session_instructions_path = os.path.join(session_abe_dir, 'abe-instructions.json')
+
+  # Copy the ABE files to the session-specific directory
+  shutil.copy(source_questions_path, session_questions_path)
+  shutil.copy(source_instructions_path, session_instructions_path)
 
 
 def save_to_json(data, file_path):
