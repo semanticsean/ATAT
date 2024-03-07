@@ -20,12 +20,18 @@
                       </p>
 
                       {% if current_user.is_authenticated %}
-                          <h3 class="text-lg font-semibold mb-2">Agents Files Copies</h3>
-                          <ul class="list-disc pl-6 mb-4">
-                              {% for copy in agent_copies %}
-                                  <li><a href="{{ url_for('user_file', filename=copy) }}" target="_blank" class="text-blue-600 hover:underline">{{ copy }}</a></li>
-                              {% endfor %}
-                          </ul>
+                    <h3 class="text-lg font-semibold mb-2">Agents Files Copies</h3>
+                    {% if agent_copies %}
+                    <ul class="list-disc pl-6 mb-4">
+                        {% for copy in agent_copies %}
+                            {% if copy.endswith('.json') %}
+                                <li><a href="{{ url_for('user_file', filename=copy) }}" target="_blank" class="text-blue-600 hover:underline">{{ copy }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                        <p>No agents.json copies available.</p>
+                    {% endif %}
 
                           {% if agents_content %}
                               <div class="agents-content mt-4 mb-6">
@@ -34,16 +40,23 @@
                               </div>
 
                     <h3 class="text-lg font-semibold mb-2">Survey Results</h3>
-                    <ul class="list-disc pl-6 mb-4">
-                        {% for folder, file in survey_results %}
-                            <li>
-                                <a href="{{ url_for('survey_blueprint.results', folder=folder, filename=file) }}" target="_blank" class="text-blue-600 hover:underline">
-                                    {{ folder }} / {{ file }}
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                          {% endif %}
+                    {% if survey_results %}
+                        <ul class="list-disc pl-6 mb-4">
+                            {% for folder, file in survey_results %}
+                                {% if file.endswith('.json') and file != 'selected_agents.json' %}
+                                    <li>
+                                        <a href="{{ url_for('survey_blueprint.results', folder=folder, filename=file) }}" target="_blank" class="text-blue-600 hover:underline">
+                                            {{ folder }} / {{ file }}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No survey results available.</p>
+                    {% endif %}
+
+                    {% endif %}
 
                           <a href="{{ url_for('auth_blueprint.new_agent_copy') }}" class="block mb-4">
                               <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
