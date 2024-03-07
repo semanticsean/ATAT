@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 from datetime import datetime
 from extensions import db, login_manager
 from models import User, Survey
-from routes import auth_blueprint, survey_blueprint
+from routes import auth_blueprint, survey_blueprint,  dashboard_blueprint
 from werkzeug.utils import secure_filename
 
 def configure_logging():
@@ -59,8 +59,17 @@ file_handler.setFormatter(formatter)
 app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.DEBUG)
 
+
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(survey_blueprint)
+app.register_blueprint(dashboard_blueprint)
+
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 
 @app.route('/user_files/<filename>')
 @login_required
@@ -119,9 +128,22 @@ def home():
                            survey_results=survey_results)
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+@app.route('/agents/pics/<filename>')
+@login_required
+def serve_agent_image(filename):
+    # Ensure the filename is safe and ends with .png
+    if ".." in filename or filename.startswith("/") or not filename.endswith(".png"):
+        return abort(404)
+
+    user_dir = current_user.folder_path
+    image_path = os.path.join(user_dir, 'agents', 'pics', filename)
+
+    if os.path.exists(image_path):
+        return send_from_directory(os.path.join(user_dir, 'agents', 'pics'), filename)
+    else:
+        return abort(404)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
