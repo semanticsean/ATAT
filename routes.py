@@ -103,7 +103,7 @@ def serve_image(copy_num, filename):
 @login_required
 def create_agent_copy():
     filename = request.form['filename']
-    sanitized_filename = sanitize_filename(filename)
+    sanitized_filename = sanitize_filename(filename)  
     user_dir = current_user.folder_path
     agents_dir = os.path.join(user_dir, 'agents')
     copies_dir = os.path.join(agents_dir, 'copies')

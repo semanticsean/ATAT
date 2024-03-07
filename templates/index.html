@@ -63,12 +63,12 @@
             href="/dashboard"
             class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
           >
-            Open Dashboard
+            See All AIs
           </a>
         </div>
 
         <div class="bg-white rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-bold mb-4">Discussions</h2>
+          <h2 class="text-2xl font-bold mb-4">Time Travel</h2>
           <a
             href="{{ url_for('survey_blueprint.create_survey') }}"
             class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition duration-300 mb-4"
@@ -93,25 +93,6 @@
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
-        <h2 class="text-2xl font-bold mb-4">Moments</h2>
-        <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {% for copy in agent_copies %} {% if copy.endswith('.json') %}
-          <li>
-            <a
-              href="{{ url_for('dashboard_blueprint.dashboard', agents_file='agents/copies/' + copy) }}"
-              class="block bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300"
-            >
-              {{ copy[:-5] }}
-            </a>
-          </li>
-          {% endif %} {% endfor %}
-        </ul>
-        {% if not agent_copies and not survey_results %}
-        <p class="text-gray-600">No agents.json copies available.</p>
-        {% endif %}
-      </div>
-
       <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
         <h2 class="text-2xl font-bold mb-4">Past Discussions</h2>
         <ul class="space-y-4">
@@ -131,6 +112,27 @@
         <p class="text-gray-600">No discussion results available.</p>
         {% endif %}
       </div>
+
+      <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+        <h2 class="text-2xl font-bold mb-4">Moments</h2>
+        <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {% for copy in agent_copies %} {% if copy.endswith('.json') %}
+          <li>
+            <a
+              href="{{ url_for('dashboard_blueprint.dashboard', agents_file='agents/copies/' + copy) }}"
+              class="block bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300"
+            >
+              {{ copy[:-6] }}
+            </a>
+          </li>
+          {% endif %} {% endfor %}
+        </ul>
+        {% if not agent_copies and not survey_results %}
+        <p class="text-gray-600">No agents.json copies available.</p>
+        {% endif %}
+      </div>
+
+      
 
       <div class="mt-8">
         <button
