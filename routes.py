@@ -7,7 +7,14 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from survey_handler import generate_random_answers, process_survey_responses, extract_questions_from_form
+from logging.handlers import RotatingFileHandler
 
+logging.basicConfig(level=logging.INFO,
+format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+handlers=[
+    logging.StreamHandler(),  # Console output
+    RotatingFileHandler('app.log', maxBytes=10000, backupCount=3)  # File output
+])
 
 
 auth_blueprint = Blueprint('auth_blueprint', __name__, template_folder='templates')
@@ -148,24 +155,37 @@ def create_agent_copy():
     return redirect('/')
 
 
-
 @survey_blueprint.route('/survey/create', methods=['GET', 'POST'])
 @login_required
 def create_survey():
+    logger = logging.getLogger(__name__)
+    user_id = current_user.id  # Capture the current user's ID for logging
     user_dir = current_user.folder_path
+
+    logger.info(f"User {user_id} started creating a survey. User directory: {user_dir}")
+
     agents_dir = os.path.join(user_dir, 'agents')
     copies_dir = os.path.join(agents_dir, 'copies')
 
     if request.method == 'POST':
         selected_file = request.form.get('selected_file')
         survey_name = request.form.get('survey_name')
+        logger.info(f"User {user_id} is creating survey '{survey_name}' with file '{selected_file}'.")
+
         file_path = os.path.join(copies_dir if selected_file != 'agents.json' else agents_dir, selected_file)
 
-        with open(file_path, 'r') as f:
-            agents = json.load(f)
+        try:
+            with open(file_path, 'r') as f:
+                agents = json.load(f)
+            logger.info(f"Loaded agents from '{file_path}'. Total agents loaded: {len(agents)}")
+        except Exception as e:
+            logger.error(f"Failed to load agents for user {user_id} from '{file_path}': {e}")
+            flash('There was an error loading the selected agent file. Please try again.')
+            return redirect(url_for('survey_blueprint.create_survey'))
 
         selected_agents = request.form.getlist('selected_agents')
         survey_agents = [agent for agent in agents if str(agent['id']) in selected_agents]
+        logger.info(f"Selected {len(survey_agents)} agents for survey '{survey_name}'.")
 
         # Create survey folder and selected_agents.json
         survey_folder = os.path.join(user_dir, 'surveys', f"{survey_name}_{random.randint(100000, 999999)}")
@@ -173,29 +193,39 @@ def create_survey():
         selected_agents_file = os.path.join(survey_folder, 'selected_agents.json')
         with open(selected_agents_file, 'w') as f:
             json.dump(survey_agents, f)
+        logger.info(f"Created survey folder '{survey_folder}' and saved selected agents.")
 
         # Copy photos to a new subfolder within the survey folder
         photos_subfolder = os.path.join(survey_folder, 'pics')
         os.makedirs(photos_subfolder, exist_ok=True)
+        logger.info(f"Created photos subfolder at '{photos_subfolder}'.")
 
         for agent in survey_agents:
-            old_photo_path = agent['photo_path']
-            photo_filename = os.path.basename(old_photo_path)
-            new_photo_path = os.path.join('surveys', os.path.basename(survey_folder), 'pics', photo_filename)
-            # Ensure the file is copied correctly to the `photos_subfolder`
-            shutil.copy(os.path.join(user_dir, old_photo_path), os.path.join(photos_subfolder, photo_filename))
-            # IMPORTANT: Ensure the agent['photo_path'] is correctly updated to point to the web-accessible path
-            agent['photo_path'] = url_for('survey_blueprint.serve_survey_file', filename=os.path.join(os.path.basename(survey_folder), 'pics', photo_filename))
+            try:
+                old_photo_path = agent['photo_path']
+                photo_filename = os.path.basename(old_photo_path)
+                new_photo_path = os.path.join('surveys', os.path.basename(survey_folder), 'pics', photo_filename)
+                shutil.copy(os.path.join(user_dir, old_photo_path), os.path.join(photos_subfolder, photo_filename))
+                survey_id = os.path.basename(survey_folder)
+                agent['photo_path'] = url_for('survey_blueprint.serve_survey_image', survey_id=survey_id, filename=photo_filename)
+  
+                logger.info(f"Copied photo '{photo_filename}' for agent '{agent['id']}' to '{new_photo_path}'.")
+            except Exception as e:
+                logger.error(f"Failed to copy photo for agent '{agent['id']}': {e}")
 
         # Save the updated paths back to selected_agents.json
         with open(selected_agents_file, 'w') as f:
             json.dump(survey_agents, f)
+        logger.info("Updated agent photo paths in 'selected_agents.json'.")
 
         new_survey = Survey(name=survey_name, user_id=current_user.id, agents_file=selected_agents_file)
         db.session.add(new_survey)
         db.session.commit()
+        logger.info(f"Successfully created survey '{survey_name}' with ID {new_survey.id} for user {user_id}.")
 
         return redirect(url_for('survey_blueprint.survey_form', survey_id=new_survey.id))
+    else:
+        logger.info(f"User {user_id} accessed the survey creation page.")
 
     agent_files = ['agents.json'] + [f for f in os.listdir(copies_dir) if os.path.isfile(os.path.join(copies_dir, f))]
     return render_template('survey1.html', agent_files=agent_files)
@@ -212,7 +242,6 @@ def serve_survey_image(survey_id, filename):
         abort(404)
 
 
-
 @survey_blueprint.route('/survey/<int:survey_id>', methods=['GET', 'POST'])
 @login_required
 def survey_form(survey_id):
@@ -225,12 +254,19 @@ def survey_form(survey_id):
 
     if request.method == 'POST':
         questions = extract_questions_from_form(request.form)
+        selected_agent_ids = request.form.getlist('selected_agents')
+        
+        if selected_agent_ids:
+            selected_agents = [agent for agent in agents if str(agent['id']) in selected_agent_ids]
+        else:
+            selected_agents = agents
+
         responses = process_survey_responses(questions)
 
         results_data = []
-        for i, agent in enumerate(agents):
-            agent_data = agent.copy()  # Create a copy of the agent dictionary
-            agent_data['responses'] = responses[i]
+        for i, agent in enumerate(selected_agents):
+            agent_data = agent.copy()
+            agent_data['responses'] = responses[i % len(responses)]
             agent_data['questions'] = questions
             results_data.append(agent_data)
 
