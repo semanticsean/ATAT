@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survey Results</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+  <style>
+      canvas {
+          width: 100% !important;
+          height: auto !important;
+          max-height: 400px; /* You can adjust this value */
+      }
+  </style>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
@@ -22,13 +30,15 @@
                               var agentHtml = `
                                   <div class="bg-white shadow-md rounded-lg mb-6">
                                       <div class="px-6 py-4 flex items-center">
-                                          <img src="${agent.photo_path}" alt="Agent Profile" class="w-12 h-12 rounded-full mr-4">
+                                          <img src="${agent.photo_path}" alt="Agent Profile" class="w-32 h-32 rounded-full mr-4">
+                                          
                                           <div>
                                               <h3 class="text-lg font-bold">Agent: ${agent.id || 'Unknown'}</h3>
-                                              <p class="text-gray-700">Email: ${agent.email}</p>
+                                              <a href="mailto:${agent.email}" class="text-gray-700">${agent.email}</p>
+                                              <p class="text-gray-700">Email: ${agent.summary}</p>
                                           </div>
                                       </div>
-                                      <div class="px-6 py-4">
+                                      <div class="px-6 py-4 ml-4 md:ml-36">
                                           ${agent.responses ? Object.entries(agent.responses).map(function([questionId, answer]) {
                                               var questionText = agent.questions && agent.questions[questionId] ? agent.questions[questionId].text : 'Unknown';
                                               return `
@@ -185,29 +195,39 @@ function createChart(data) {
           </a>
           <div class="flex">
               <a href="/" class="mr-4">
-                  <button class="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded">Home</button>
+                  <button class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded">Home</button>
               </a>
               <a href="{{ url_for('auth_blueprint.logout') }}">
-                  <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
+                  <button class="bg-gray-700 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
               </a>
           </div>
       </div>
 
   <div class="container mx-auto px-4 py-8 mt-12">
     
-      <h1 class="text-3xl font-bold mb-4">Survey Results</h1>
+    
+      <h1 class="text-3xl font-bold mb-4">Discussion Results</h1>
       <div class="mb-8">
-          <h2 class="text-xl font-bold mb-2">Survey Name</h2>
-          <p class="text-gray-700">Total Responses: {{ results|length }}</p>
+          <h2 class="text-xl font-bold mb-2">Discussion Name: {{ survey.filename }}</h2>
+          <p class="text-gray-700">Synths Responding: {{ results|length }}</p>
       </div>
-      <div id="results-container" class="mb-8"></div>
+    <div class="bg-white shadow-md rounded-lg mb-6">
+        
 
-      <div class="mb-4">
-          <label for="question-dropdown" class="block text-sm font-medium text-gray-700">Select Question:</label>
-          <select id="question-dropdown" name="question-dropdown" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-          </select>
+            <div id="results-container" class="w-full mb-8"></div>
+      <div class="px-6 py-4 flex flex-col items-left">
+      <label for="question-dropdown" class="block text-sm font-medium text-gray-700">Select Question:</label>
+      <select id="question-dropdown" name="question-dropdown" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+      </select>
+
+      <div class="w-full flex justify-center">
+          <canvas id="chart" class="mb-8 max-w-full"></canvas>
       </div>
-      <canvas id="chart" width="400" height="200" class="mb-8"></canvas>
+        </div>
+    </div>
+3
+  
+      
 
       <button id="download-csv" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Download CSV</button>
   </div>
