@@ -88,72 +88,82 @@
         }
 
         // Function to create a chart
-        function createChart(data) {
-            var questionCounts = {};
-            data.forEach(function(agent) {
-                Object.entries(agent.responses).forEach(function([questionId, answer]) {
-                    if (!questionCounts[questionId]) {
-                        questionCounts[questionId] = {};
-                    }
-                    if (!questionCounts[questionId][answer]) {
-                        questionCounts[questionId][answer] = 0;
-                    }
-                    questionCounts[questionId][answer]++;
-                });
-            });
+        // Function to create a chart
+function createChart(data) {
+    var questionCounts = {};
+    data.forEach(function(agent) {
+        Object.entries(agent.responses).forEach(function([questionId, answer]) {
+            if (!questionCounts[questionId]) {
+                questionCounts[questionId] = {};
+            }
+            if (!questionCounts[questionId][answer]) {
+                questionCounts[questionId][answer] = 0;
+            }
+            questionCounts[questionId][answer]++;
+        });
+    });
 
-            var ctx = document.getElementById('chart').getContext('2d');
+    var ctx = document.getElementById('chart').getContext('2d');
 
-            var myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Response Count',
-                        data: [],
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    plugins: {
-                        datalabels: {
-                            align: 'end',
-                            anchor: 'end'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
-                        }
+    // Define an array of colors
+    var colors = ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)'];
+
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Response Count',
+                data: [],
+                backgroundColor: [], // Dynamic colors
+                borderColor: [], // Dynamic border colors
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                datalabels: {
+                    align: 'end',
+                    anchor: 'end'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
                     }
                 }
-            });
-
-            var questionDropdown = $('#question-dropdown');
-            questionDropdown.empty();
-            Object.keys(questionCounts).forEach(function(questionId) {
-                questionDropdown.append($('<option>', {
-                    value: questionId,
-                    text: 'Question ' + questionId
-                }));
-            });
-
-            function updateChart() {
-                var selectedQuestion = questionDropdown.val();
-                var answerCounts = questionCounts[selectedQuestion];
-                myChart.data.labels = Object.keys(answerCounts);
-                myChart.data.datasets[0].data = Object.values(answerCounts);
-                myChart.update();
             }
-
-            questionDropdown.on('change', updateChart);
-            updateChart();
         }
+    });
+
+    var questionDropdown = $('#question-dropdown');
+    questionDropdown.empty();
+    Object.keys(questionCounts).forEach(function(questionId) {
+        questionDropdown.append($('<option>', {
+            value: questionId,
+            text: 'Question ' + questionId
+        }));
+    });
+
+    function updateChart() {
+        var selectedQuestion = questionDropdown.val();
+        var answerCounts = questionCounts[selectedQuestion];
+        myChart.data.labels = Object.keys(answerCounts);
+        myChart.data.datasets[0].data = Object.values(answerCounts);
+
+        // Assign a color to each answer
+        myChart.data.datasets[0].backgroundColor = Object.keys(answerCounts).map((_, index) => colors[index % colors.length]);
+        myChart.data.datasets[0].borderColor = Object.keys(answerCounts).map((_, index) => colors[index % colors.length].replace('0.2', '1')); // Make border color slightly darker
+
+        myChart.update();
+    }
+
+    questionDropdown.on('change', updateChart);
+    updateChart();
+}
+
 
         $(document).ready(function() {
             loadResults();
