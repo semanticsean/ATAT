@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from survey_handler import generate_random_answers, process_survey_responses, extract_questions_from_form
 from logging.handlers import RotatingFileHandler
 
+
 logging.basicConfig(level=logging.INFO,
 format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 handlers=[
@@ -16,10 +17,14 @@ handlers=[
     RotatingFileHandler('app.log', maxBytes=10000, backupCount=3)  # File output
 ])
 
+AGENTS_JSON_PATH = os.path.join('agents', 'agents.json')
+IMAGES_BASE_PATH = os.path.join('agents', 'pics')
+
 
 auth_blueprint = Blueprint('auth_blueprint', __name__, template_folder='templates')
 survey_blueprint = Blueprint('survey_blueprint', __name__, template_folder='templates')
 
+dashboard_blueprint = Blueprint('dashboard_blueprint', __name__, template_folder='templates')
 
 
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
@@ -322,6 +327,29 @@ def results(folder, filename):
     survey = Survey.query.filter_by(agents_file=os.path.join(survey_folder, 'selected_agents.json')).first()
 
     return render_template('results.html', results=survey_data, survey=survey)
+
+@dashboard_blueprint.route('/dashboard')
+@login_required
+def dashboard():
+    agents = []  # Initialize agents as an empty list to handle exceptions
+    try:
+        # Use AGENTS_JSON_PATH to maintain compatibility
+        with open(AGENTS_JSON_PATH, 'r') as file:
+            agents = json.load(file)
+        # Process each agent for additional data
+        for agent in agents:
+            # Assuming get_image_path is a function that updates the agent's photo path
+            agent['photo_path'] = get_image_path(agent)
+            # Handle keywords, if present
+            if 'keywords' in agent and isinstance(agent['keywords'], list):
+                agent['keywords'] = random.sample(agent['keywords'], min(len(agent['keywords']), 3))
+            else:
+                agent['keywords'] = []
+    except Exception as e:
+        print(f"Failed to load or parse JSON file: {e}")
+
+    return render_template('dashboard.html', agents=agents)
+  
 
 @auth_blueprint.route('/logout')
 @login_required
