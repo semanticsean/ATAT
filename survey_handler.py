@@ -2,8 +2,6 @@ import random
 import time
 import logging 
 
-logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
-
 
 
 def generate_random_answers(questions):
