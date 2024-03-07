@@ -178,10 +178,23 @@ function createChart(data) {
     </style>
 </head>
   <body class="bg-blue-50">
-  <div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between md:justify-end items-center w-full max-w-[90%] sm:w-90 sm:mx-auto">
-      <a href="/" class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 my-4 w-full text-center md:w-auto md:my-0 md:text-left">Return to Home</a>
-    </div>
+    <div id="header">
+      <div class="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 px-4 flex justify-between items-center">
+          <a href="/">
+              <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-32">
+          </a>
+          <div class="flex">
+              <a href="/" class="mr-4">
+                  <button class="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded">Home</button>
+              </a>
+              <a href="{{ url_for('auth_blueprint.logout') }}">
+                  <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
+              </a>
+          </div>
+      </div>
+
+  <div class="container mx-auto px-4 py-8 mt-12">
+    
       <h1 class="text-3xl font-bold mb-4">Survey Results</h1>
       <div class="mb-8">
           <h2 class="text-xl font-bold mb-2">Survey Name</h2>
@@ -198,6 +211,8 @@ function createChart(data) {
 
       <button id="download-csv" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Download CSV</button>
   </div>
+      </div>
+    </div>
     <script>
         document.getElementById('download-csv').addEventListener('click', function() {
             var csvContent = 'data:text/csv;charset=utf-8,';
