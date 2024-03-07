@@ -19,7 +19,8 @@ handlers=[
 
 AGENTS_JSON_PATH = os.path.join('agents', 'agents.json')
 IMAGES_BASE_PATH = os.path.join('agents', 'pics')
-
+AGENTS_BASE_PATH = 'agents'
+SURVEYS_BASE_PATH = 'surveys'
 
 auth_blueprint = Blueprint('auth_blueprint', __name__, template_folder='templates')
 survey_blueprint = Blueprint('survey_blueprint', __name__, template_folder='templates')
@@ -232,7 +233,7 @@ def create_survey():
     else:
         logger.info(f"User {user_id} accessed the survey creation page.")
 
-    agent_files = ['agents.json'] + [f for f in os.listdir(copies_dir) if os.path.isfile(os.path.join(copies_dir, f))]
+    agent_files = [f for f in os.listdir(copies_dir) if os.path.isfile(os.path.join(copies_dir, f))]
     return render_template('survey1.html', agent_files=agent_files)
 
   
@@ -332,9 +333,18 @@ def results(folder, filename):
 @login_required
 def dashboard():
     agents = []  # Initialize agents as an empty list to handle exceptions
+    agents_file = request.args.get('agents_file', 'agents.json')
+
     try:
-        # Use AGENTS_JSON_PATH to maintain compatibility
-        with open(AGENTS_JSON_PATH, 'r') as file:
+        # Determine the correct file path based on the selected agents file
+        if agents_file.startswith('agents/copies/'):
+            agents_file_path = os.path.join(current_user.folder_path, agents_file)
+        elif agents_file.startswith('surveys/'):
+            agents_file_path = os.path.join(current_user.folder_path, agents_file)
+        else:
+            agents_file_path = os.path.join(AGENTS_BASE_PATH, agents_file)
+
+        with open(agents_file_path, 'r') as file:
             agents = json.load(file)
         # Process each agent for additional data
         for agent in agents:
@@ -348,8 +358,12 @@ def dashboard():
     except Exception as e:
         print(f"Failed to load or parse JSON file: {e}")
 
-    return render_template('dashboard.html', agents=agents)
-  
+    agent_copies = [f for f in os.listdir(os.path.join(current_user.folder_path, 'agents', 'copies')) if f.endswith('.json')]
+    survey_results = [(folder, file) for folder in os.listdir(os.path.join(current_user.folder_path, SURVEYS_BASE_PATH))
+                      for file in os.listdir(os.path.join(current_user.folder_path, SURVEYS_BASE_PATH, folder))
+                      if file.endswith('.json') and file != 'selected_agents.json']
+
+    return render_template('dashboard.html', agents=agents, agent_copies=agent_copies, survey_results=survey_results)
 
 @auth_blueprint.route('/logout')
 @login_required
