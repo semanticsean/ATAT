@@ -8,10 +8,23 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-blue-50">
-  <div class="text-center md:absolute md:top-4 md:right-6 mx-auto">
-      <button onclick="window.location.href='/'" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">HOME</button>
-  </div>
-    <div class="container mx-auto px-4 py-8">
+  <div id="header">
+    <div class="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 px-4 flex justify-between items-center">
+        <a href="/">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-32">
+        </a>
+        <div class="flex">
+            <a href="/" class="mr-4">
+                <button class="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded">Home</button>
+            </a>
+            <a href="{{ url_for('auth_blueprint.logout') }}">
+                <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
+            </a>
+        </div>
+    </div>
+
+  
+    <div class="container mx-auto px-4 py-8 mt-12">
       
         <h1 class="text-3xl font-bold mb-4">Select an Agents File for the Survey</h1>
         <form action="{{ url_for('survey_blueprint.create_survey') }}" method="post" class="mb-8">
@@ -42,6 +55,8 @@
             <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Proceed to Survey</button>
         </form>
     </div>
+    </div>
+  </div>
 
     <script>
         $(document).ready(function() {

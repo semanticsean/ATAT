@@ -1,7 +1,7 @@
 {
   "title": "ATAT: AI Agents Over Email by Semantic Life",
-  "h1": "Welcome to Semantic Life's AI Agents",
-  "h2": "Empowering AIs to Use Email",
+  "h1": "Your Team Ready to Work",
+  "h2": "NOTE: Emails only work for the base agents, not survey panels.",
   "footer": "© Semantic Life. All Rights Reserved, 2024.@@ and ATAT are trademarks of Semantic Life.",
   "meta": {
     "ogTitle": "AI Agents Over Email by Semantic Life",
@@ -15,5 +15,5 @@
   },
   "social_image_url": "/agents/pics/cover_photo.png",
   "logo_url": "https://semantic-life.com/static/sl-trans-glyph.png",
-  "web_copy": "At Semantic Life, we leverage artificial intelligence to create a suite of AI agents designed to enhance email communications, making them more efficient, personalized, and insightful."
+  "web_copy": " "
 }

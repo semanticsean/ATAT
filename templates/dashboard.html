@@ -89,9 +89,33 @@
     </script>
 </head>
 <body>
+  <div id="header">
+    <div class="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 px-4 flex justify-between items-center">
+        <a href="/">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-32">
+        </a>
+        <div class="flex">
+            <a href="/" class="mr-4">
+                <button class="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded">Home</button>
+            </a>
+            <a href="{{ url_for('auth_blueprint.logout') }}">
+                <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
+            </a>
+        </div>
+    </div>
+
+
+          <button id="close-banner" class="text-white hover:text-gray-200 focus:outline-none">
+              <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
+                  <path d="M18.364 5.636l-3.536 3.536L18.364 5.636zM5.636 18.364l3.536-3.536L5.636 18.364z"></path>
+                  <path d="M18.364 18.364l-3.536-3.536 3.536 3.536zM5.636 5.636l3.536 3.536L5.636 5.636z"></path>
+              </svg>
+          </button>
+      </div>
   <div id="loadingPlaceholder" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; display:flex; justify-content:center; align-items:center;">
       <img id="loading" src="static/loading.gif" style="max-width:60px;" alt="Loading" />
   </div>
+  
   
   <div class="text-center md:absolute md:top-6 md:left-4 mx-auto">
     
@@ -102,7 +126,7 @@
 
   <div class="container mx-auto mt-4 mb-8">
   
-    <div class="font-bold mb-4 text-center text-3xl">DASHBOARD</div>
+    <div class="font-bold mb-4 text-center text-3xl mt-12">DASHBOARD</div>
     <section id="webCopySection" class="text-center p-4 bg-gray-100">
         <div class="container mx-auto">
           <h1 class="font-bold mb-4 text-center text-xl">Loading...</h1> 
@@ -110,10 +134,11 @@
             <div id="webCopyContainer" class="webCopyContainer"></div>
         </div>
     </section>
-    
+
+    <!-- NOT USING 
     <div class="text-center md:absolute md:top-4 md:right-6 mx-auto">
         <button onclick="window.location.href='/'" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">HOME</button>
-    </div>
+    </div> -->
 
     <!-- NOT WORKING 
     <form id="agents-file-form" method="get" action="{{ url_for('dashboard_blueprint.dashboard') }}">
@@ -201,6 +226,8 @@
     
   </div>
 
+  </div>
+</div>
   
 
   <footer class="footer bg-white shadow-lg p-4 text-center bottom-0 inset-x-0">
@@ -223,6 +250,7 @@
     }
   };
   </script>
+    
 </body>
 
 </html>  

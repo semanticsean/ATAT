@@ -8,15 +8,21 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-gray-100">
+  <div id="header">
     <div class="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 px-4 flex justify-between items-center">
         <a href="/">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="mx-6 w-32 sm:w-32 lg:w-32 xl:w-32">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-32">
         </a>
-      <div class="absolute top-0 right-0 mr-4 mt-2">
-          <a href="{{ url_for('auth_blueprint.logout') }}" class="block">
-              <button class="bg-white-400 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
-          </a>
-      </div>
+        <div class="flex">
+            <a href="/" class="mr-4">
+                <button class="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded">Home</button>
+            </a>
+            <a href="{{ url_for('auth_blueprint.logout') }}">
+                <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
+            </a>
+        </div>
+    </div>
+
       
         <button id="close-banner" class="text-white hover:text-gray-200 focus:outline-none">
             <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
@@ -25,6 +31,8 @@
             </svg>
         </button>
     </div>
+
+  
 
     <div class="container mx-auto px-4 mt-16">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
