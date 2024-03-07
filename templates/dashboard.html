@@ -96,10 +96,10 @@
         </a>
         <div class="flex">
             <a href="/" class="mr-4">
-                <button class="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded">Home</button>
+                <button class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded">Home</button>
             </a>
             <a href="{{ url_for('auth_blueprint.logout') }}">
-                <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
+                <button class="bg-gray-700 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
             </a>
         </div>
     </div>
@@ -160,7 +160,7 @@
 
       {% for agent in agents %}
         <div class="bg-white border rounded-lg shadow overflow-hidden">
-          <img src="/agents/pics/{{ agent.photo_path.split('/')[-1] }}" alt="Agent Photo" class="w-full h-64 object-cover">
+          <img src="/agents/pics/{{ agent.photo_path.split('/')[-1] }}" alt="Agent Photo" class="w-full h-64 object-cover rounded-full">
           <div class="p-4">
             <h3 class="text-lg font-bold">{{ agent.id }}</h3>
             <h4 class="text-lg font-bold">{{ agent.jobtitle }}</h4>
@@ -178,7 +178,7 @@
       {% endfor %}
     </div>
     <!-- Instructions Section -->
-    <div class="image-section">
+    <div class="image-section" style="display: none;">
       <img id="social_image" class="social_image mx-auto justify-center" src="" alt="Social Image"> 
 
     </div>
@@ -191,8 +191,8 @@
         </div>
 
         <div class="mt-4">
-            <h4 class="font-semibold text-lg text-blue-600">Create a Temporary Agent</h4>
-            <div class="text-gray-600">@@.creator(Embody an agent that...)</div>
+            <h4 class="font-semibold text-lg text-blue-600">Create a Temporary Synth</h4>
+            <div class="text-gray-600">@@.creator(Embody a synth that...)</div>
         </div>
 
         <div class="mt-4">

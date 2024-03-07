@@ -20,19 +20,19 @@
                   </a>
                   <div class="flex">
                       <a href="/" class="mr-4">
-                          <button class="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded">Home</button>
+                          <button class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded">Home</button>
                       </a>
                       <a href="{{ url_for('auth_blueprint.logout') }}">
-                          <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
+                          <button class="bg-gray-700 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
                       </a>
                   </div>
               </div>
 
           <div class="container mx-auto px-4 py-8 mt-12">
-            <h1 class="text-3xl font-bold mb-4">Survey Questions</h1>
+            <h1 class="text-3xl font-bold mb-4">Discussion Questions</h1>
             <form id="surveyForm" action="{{ url_for('survey_blueprint.survey_form', survey_id=survey.id) }}" method="post">
             <div class="mb-8">
-                <h2 class="text-xl font-bold mb-2">Selected Agents</h2>
+                <h2 class="text-xl font-bold mb-2">Selected Synths</h2>
                 <ul class="list-disc pl-6">
                     {% for agent in agents %}
                         <li class="mb-2">

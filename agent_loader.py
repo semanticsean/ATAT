@@ -26,7 +26,7 @@ class AgentLoader:
         if name.lower() == id.lower():
           agent = agent
           break
-    #print(f"Debug: AgentManager.get_agent('{id}') returned: {agent}")
+    #print(f"Debug: AgentLoader.get_agent('{id}') returned: {agent}")
     return agent
 
   def is_agent_email(self, email):
@@ -37,10 +37,10 @@ class AgentLoader:
     agent = self.get_agent(id, case_sensitive)
     if agent:
       persona = agent.get("persona", None)
-      # print(f"Debug: AgentManager.get_agent_persona('{id}') returned: {persona}")
+      # print(f"Debug: AgentLoader.get_agent_persona('{id}') returned: {persona}")
       return persona
     else:
-      print(f"Debug: AgentManager.get_agent_persona('{id}') found no agent.")
+      print(f"Debug: AgentLoader.get_agent_persona('{id}') found no agent.")
       return None
 
   def get_agent_by_email(self, email):
