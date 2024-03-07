@@ -365,6 +365,13 @@ def dashboard():
 
     return render_template('dashboard.html', agents=agents, agent_copies=agent_copies, survey_results=survey_results)
 
+@survey_blueprint.route('/survey/results/<int:survey_id>')
+@login_required
+def show_survey_results(survey_id):
+    survey = Survey.query.get_or_404(survey_id)  # Retrieve the survey instance by its ID
+    # Pass the survey instance to the template
+    return render_template('results.html', survey=survey)
+
 @auth_blueprint.route('/logout')
 @login_required
 def logout():

@@ -1,126 +1,180 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Semantic Life - AI Agent Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css"
+    />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body class="bg-gray-100">
-  <div id="header">
-    <div class="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 px-4 flex justify-between items-center">
+  </head>
+  <body class="bg-gray-100">
+    <div id="header">
+      <div
+        class="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 px-4 flex justify-between items-center"
+      >
         <a href="/">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-32">
+          <img
+            src="{{ url_for('static', filename='logo.png') }}"
+            alt="Semantic Life"
+            class="w-32"
+          />
         </a>
         <div class="flex">
-            <a href="/" class="mr-4">
-                <button class="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded">Home</button>
-            </a>
-            <a href="{{ url_for('auth_blueprint.logout') }}">
-                <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
-            </a>
+          <a href="/" class="mr-4">
+            <button
+              class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded"
+            >
+              Home
+            </button>
+          </a>
+          <a href="{{ url_for('auth_blueprint.logout') }}">
+            <button
+              class="bg-gray-700 hover:bg-red-700 text-white py-2 px-4 rounded"
+            >
+              Logout
+            </button>
+          </a>
         </div>
-    </div>
+      </div>
 
-      
-        <button id="close-banner" class="text-white hover:text-gray-200 focus:outline-none">
-            <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
-                <path d="M18.364 5.636l-3.536 3.536L18.364 5.636zM5.636 18.364l3.536-3.536L5.636 18.364z"></path>
-                <path d="M18.364 18.364l-3.536-3.536 3.536 3.536zM5.636 5.636l3.536 3.536L5.636 5.636z"></path>
-            </svg>
-        </button>
+      <button
+        id="close-banner"
+        class="text-white hover:text-gray-200 focus:outline-none"
+      >
+        <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
+          <path
+            d="M18.364 5.636l-3.536 3.536L18.364 5.636zM5.636 18.364l3.536-3.536L5.636 18.364z"
+          ></path>
+          <path
+            d="M18.364 18.364l-3.536-3.536 3.536 3.536zM5.636 5.636l3.536 3.536L5.636 5.636z"
+          ></path>
+        </svg>
+      </button>
     </div>
-
-  
 
     <div class="container mx-auto px-4 mt-16">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-bold mb-4">All Agents</h2>
-                <a href="/dashboard" class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300">
-                    Open Dashboard
-                </a>
-            </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <h2 class="text-2xl font-bold mb-4">All Synths</h2>
+          <a
+            href="/dashboard"
+            class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+          >
+            Open Dashboard
+          </a>
+        </div>
 
-            <div class="bg-white rounded-lg shadow-lg p-6">
-              <h2 class="text-2xl font-bold mb-4">Actions</h2>
-                  <a href="{{ url_for('survey_blueprint.create_survey') }}" class="block bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition duration-300 mb-4">
-                      Start Survey
-                  </a>
-                  <a href="{{ url_for('auth_blueprint.new_agent_copy') }}" class="block bg-yellow-500 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition duration-300">
-                      Change Context
-                  </a>
-              </div>
-          
-            </div>
-              
-            <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
-              <h2 class="text-2xl font-bold mb-4">Survey Panels</h2>
-                  <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {% for copy in agent_copies %}
-                          {% if copy.endswith('.json') %}
-                              <li>
-                                  <a href="{{ url_for('dashboard_blueprint.dashboard', agents_file='agents/copies/' + copy) }}" class="block bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300">
-                                      {{ copy[:-5] }}
-                                  </a>
-                              </li>
-                          {% endif %}
-                      {% endfor %}
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <h2 class="text-2xl font-bold mb-4">Discussions</h2>
+          <a
+            href="{{ url_for('survey_blueprint.create_survey') }}"
+            class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition duration-300 mb-4"
+          >
+            New Discussion
+          </a>
+          <a
+            href="{{ url_for('auth_blueprint.new_agent_copy') }}"
+            class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition duration-300"
+          >
+            New Moment
+          </a>
+        </div>
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <h2 class="text-2xl font-bold mb-4">Status</h2>
 
-                  </ul>
-                  {% if not agent_copies and not survey_results %}
-                      <p class="text-gray-600">No agents.json copies available.</p>
-                  {% endif %}
-              </div>
+          ✅ Synthetic Agents (AIs) Ready 
+          <br/>✅ ATAT Email Server Status: Running
+          <br/>✅ ABE Question / Answer Server Status: Running
+          <br/><br/>
+          <small>(Static check on load.)</small>
+        </div>
+      </div>
 
-        <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
-          <h2 class="text-2xl font-bold mb-4">Survey Results</h2>
-          <ul class="space-y-4">
-              {% for folder, file in survey_results %}
-                  {% if file.split('/')[0].endswith('.json') and file.split('/')[0] != 'selected_agents.json' and file.split('/')[0][-30:] %}
-                      <li>
-                          <a href="{{ url_for('survey_blueprint.results', folder=folder, filename=file) }}" class="block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300">
-                              {{ folder }} / {{ file }}
-                          </a>
-                      </li>
-                  {% endif %}
-              {% endfor %}
+      <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+        <h2 class="text-2xl font-bold mb-4">Moments</h2>
+        <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {% for copy in agent_copies %} {% if copy.endswith('.json') %}
+          <li>
+            <a
+              href="{{ url_for('dashboard_blueprint.dashboard', agents_file='agents/copies/' + copy) }}"
+              class="block bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300"
+            >
+              {{ copy[:-5] }}
+            </a>
+          </li>
+          {% endif %} {% endfor %}
+        </ul>
+        {% if not agent_copies and not survey_results %}
+        <p class="text-gray-600">No agents.json copies available.</p>
+        {% endif %}
+      </div>
+
+      <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+        <h2 class="text-2xl font-bold mb-4">Past Discussions</h2>
+        <ul class="space-y-4">
+          {% for folder, file in survey_results %} {% if file.endswith('.json')
+          and file != 'selected_agents.json' %}
+          <li>
+            <a
+              href="{{ url_for('survey_blueprint.results', folder=folder, filename=file) }}"
+              class="block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300"
+            >
+              {{ folder }}
+            </a>
+          </li>
+          {% endif %} {% endfor %}
+        </ul>
+        {% if not survey_results %}
+        <p class="text-gray-600">No discussion results available.</p>
+        {% endif %}
+      </div>
+
+      <div class="mt-8">
+        <button
+          id="help-toggle"
+          class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300 focus:outline-none"
+        >
+          Help
+        </button>
+        <div
+          id="help-content"
+          class="bg-white rounded-lg shadow-lg p-6 mt-4 hidden"
+        >
+          <h3 class="text-xl font-bold mb-2">Instructions</h3>
+          <ul class="list-disc list-inside space-y-2">
+            <li>
+              Click on "Open Dashboard" to view and manage your AI agents.
+            </li>
+            <li>Click on a discussion result to view the detailed results.</li>
+            <li>
+              Click on "Start Discussion" to create a new discussion with your
+              selected agents.
+            </li>
+            <li>
+              Click on "Change Context" to modify the context of your AI agents.
+            </li>
+            <li>
+              The "Agents Files Copies" section lists the available copies of
+              your agents.json file.
+            </li>
           </ul>
-          {% if not survey_results %}
-              <p class="text-gray-600">No survey results available.</p>
-          {% endif %}
-          
-            
         </div>
-
-        <div class="mt-8">
-            <button id="help-toggle" class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300 focus:outline-none">
-                Help
-            </button>
-            <div id="help-content" class="bg-white rounded-lg shadow-lg p-6 mt-4 hidden">
-                <h3 class="text-xl font-bold mb-2">Instructions</h3>
-                <ul class="list-disc list-inside space-y-2">
-                    <li>Click on "Open Dashboard" to view and manage your AI agents.</li>
-                    <li>Click on a survey result to view the detailed results.</li>
-                    <li>Click on "Start Survey" to create a new survey with your selected agents.</li>
-                    <li>Click on "Change Context" to modify the context of your AI agents.</li>
-                    <li>The "Agents Files Copies" section lists the available copies of your agents.json file.</li>
-                </ul>
-            </div>
-        </div>
+      </div>
     </div>
 
     <script>
-        $(document).ready(function() {
-            $('#close-banner').click(function() {
-                $(this).closest('div').fadeOut();
-            });
-
-            $('#help-toggle').click(function() {
-                $('#help-content').toggleClass('hidden');
-            });
+      $(document).ready(function () {
+        $("#close-banner").click(function () {
+          $(this).closest("div").fadeOut();
         });
+
+        $("#help-toggle").click(function () {
+          $("#help-content").toggleClass("hidden");
+        });
+      });
     </script>
-</body>
+  </body>
 </html>

@@ -47,3 +47,8 @@ def extract_questions_from_form(form_data):
                 questions[question_id]['min'] = min_value
                 questions[question_id]['max'] = max_value
     return questions
+
+@property
+def filename(self):
+    # Example of deriving a filename from other attributes
+    return f"{self.name}_{self.id}.json"
