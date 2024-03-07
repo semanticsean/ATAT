@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Survey</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-blue-50">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-4">Select an Agents File for the Survey</h1>
+        <form action="{{ url_for('survey_blueprint.create_survey') }}" method="post" class="mb-8">
+            <div class="mb-4">
+                <label for="survey_name" class="block text-gray-700 font-bold mb-2">Survey Name:</label>
+                <input type="text" id="survey_name" name="survey_name" value="defaultname" required class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-xl font-bold mb-2">Select Agents File:</h2>
+                {% for file in agent_files %}
+                    <div class="flex items-center mb-2">
+                        <input type="radio" id="{{ file }}" name="selected_file" value="{{ file }}" required class="mr-2">
+                        <label for="{{ file }}" class="text-gray-700">{{ file }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-xl font-bold mb-2">Select Agents</h2>
+                <div class="mb-2">
+                    <button type="button" id="select-all" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Select All</button>
+                    <button type="button" id="clear-all" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Clear All</button>
+                </div>
+                <div id="agent-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+            </div>
+
+            <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Proceed to Survey</button>
+        </form>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('input[name="selected_file"]').change(function() {
+                var selectedFile = $(this).val();
+                loadAgents(selectedFile);
+            });
+
+            $('#select-all').click(function() {
+                $('input[name="selected_agents"]').prop('checked', true);
+            });
+
+            $('#clear-all').click(function() {
+                $('input[name="selected_agents"]').prop('checked', false);
+            });
+
+          function loadAgents(file) {
+              $.getJSON(`/user_files/${file}`, function(data) {
+                  var agentList = $('#agent-list');
+                  agentList.empty();
+                  data.forEach(function(agent) {
+                      // Assume the photo is stored in a static directory accessible via a '/static/' prefix
+                      // This will depend on how you're serving static files in Flask
+                      // Adjust the path below according to your actual static files serving setup
+                      var photoPath = `/${agent.photo_path.replace('survey/', '')}`; // Adjust the path replacement as needed
+
+                      var agentItem = `
+                          <div class="flex flex-col items-start mb-4">
+                              <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="mb-2">
+                              <label for="agent-${agent.id}" class="text-gray-700">
+                                  <img src="${photoPath}" alt="Agent Profile" class="w-8 h-8 rounded-full mr-2">
+                                  <span class="font-bold">${agent.id}</span> - ${agent.email}<br>
+                                  ${agent.summary}
+                              </label>
+                              <span class="text-sm text-gray-500">Photo Path: ${photoPath}</span>
+                          </div>
+                      `;
+                      agentList.append(agentItem);
+                  });
+              });
+          }
+
+        });
+    </script>
+</body>
+</html>

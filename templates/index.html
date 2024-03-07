@@ -1,56 +1,110 @@
-<!-- home.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Start Polling Session</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
-    <link rel="stylesheet" href="static/abe.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body class="bg-blue-50">
-    <div class="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div class="bg-white shadow-md rounded px-4 sm:px-6 lg:px-8 pt-6 pb-8 mb-4 w-full max-w-lg mx-auto">
-            <div class="text-center mb-4">
-                <img src="static/logo.png" alt="Company Logo" class="mx-auto w-32 sm:w-32 lg:w-32 xl:w-32">
-            </div>
-            <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 text-center">Engage Lifelike AIs for Surveys and Polling</h1>
-            <p class="text-gray-700 text-sm sm:text-base mb-4">
-                Get started quickly and easily. You'll be able to email the poll participants once you get the results.
-            </p>
-          <a href="/dashboard"><button  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 my-3">
-              Agent Dashboard
-          </button></a>
-          
-            <button id="startSession" class="my-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
-                Start Polling Session
-            </button>
-          
-            <div class="mt-6 text-center text-xs sm:text-sm text-gray-500">
-                By starting a session, you agree to our 
-                <a href="https://semantic-life.com/terms" class="text-blue-600 hover:underline">Terms of Service</a> and 
-                <a href="https://semantic-life.com/privacy" class="text-blue-600 hover:underline">Privacy Policy</a>.
-            </div>
-        </div>
-    </div>
-    <div id="loading" class="fixed top-0 left-0 right-0 bottom-0 w-full h-full bg-opacity-50 bg-gray-800 flex items-center justify-center z-50 hidden">
-        <!-- Loading Indicator Here -->
-    </div>
-    <script>
-        $(document).ready(function() {
-            $('#startSession').click(function() {
-                $(this).prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
-                $('#loading').removeClass('hidden');
-                $.post('/start_session', function() {
-                    window.location.href = '/abe';
-                }).fail(function() {
-                    alert("An error occurred. Please try again.");
-                    $('#startSession').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
-                    $('#loading').addClass('hidden');
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Start Polling Session</title>
+              <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+              <link rel="stylesheet" href="{{ url_for('static', filename='abe.css') }}">
+              <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+          </head>
+          <body class="bg-blue-50">
+              <div class="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+                  <div class="bg-white shadow-md rounded px-4 sm:px-6 lg:px-8 pt-6 pb-8 mb-4 w-full max-w-lg mx-auto">
+                      <div class="text-center mb-4">
+                          <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo" class="mx-auto w-32 sm:w-32 lg:w-32 xl:w-32">
+                      </div>
+                      <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 text-center">Engage Lifelike AIs for Surveys and Polling</h1>
+                      <p class="text-gray-700 text-sm sm:text-base mb-4">
+                          Get started quickly and easily. You'll be able to email the poll participants once you get the results.
+                      </p>
+
+                      {% if current_user.is_authenticated %}
+                          <h3 class="text-lg font-semibold mb-2">Agents Files Copies</h3>
+                          <ul class="list-disc pl-6 mb-4">
+                              {% for copy in agent_copies %}
+                                  <li><a href="{{ url_for('user_file', filename=copy) }}" target="_blank" class="text-blue-600 hover:underline">{{ copy }}</a></li>
+                              {% endfor %}
+                          </ul>
+
+                          {% if agents_content %}
+                              <div class="agents-content mt-4 mb-6">
+                                  <h3 class="text-lg font-semibold mb-2">Snippet of first agents.json copy file</h3>
+                                  <pre class="bg-gray-100 p-4 rounded">{{ agents_content[:140]|replace('{', '')|replace('}', '')|replace('[', '')|replace(']', '')|replace('\t', '') }}...</pre>
+                              </div>
+
+                    <h3 class="text-lg font-semibold mb-2">Survey Results</h3>
+                    <ul class="list-disc pl-6 mb-4">
+                        {% for folder, file in survey_results %}
+                            <li>
+                                <a href="{{ url_for('survey_blueprint.results', folder=folder, filename=file) }}" target="_blank" class="text-blue-600 hover:underline">
+                                    {{ folder }} / {{ file }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                          {% endif %}
+
+                          <a href="{{ url_for('auth_blueprint.new_agent_copy') }}" class="block mb-4">
+                              <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
+                                  New Agents.json Copy
+                              </button>
+                          </a>
+
+                          <a href="{{ url_for('survey_blueprint.create_survey') }}" class="block mb-4">
+                              <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
+                                  Create Survey using one of the agents.json copies or original
+                              </button>
+                          </a>
+
+                          <a href="/dashboard" class="block mb-4">
+                              <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
+                                  Agent Dashboard
+                              </button>
+                          </a>
+
+                          <button id="startSession" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 mb-4">
+                              Start Polling Session
+                          </button>
+
+                          <a href="{{ url_for('auth_blueprint.logout') }}" class="block text-center">
+                              <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Logout</button>
+                          </a>
+                      {% else %}
+                          <a href="{{ url_for('auth_blueprint.login') }}" class="block mb-4">
+                              <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">Login</button>
+                          </a>
+                          <a href="{{ url_for('auth_blueprint.register') }}" class="block">
+                              <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">Register</button>
+                          </a>
+                      {% endif %}
+
+                      <div class="mt-6 text-center text-xs sm:text-sm text-gray-500">
+                          By starting a session, you agree to our 
+                          <a href="https://semantic-life.com/terms" class="text-blue-600 hover:underline">Terms of Service</a> and 
+                          <a href="https://semantic-life.com/privacy" class="text-blue-600 hover:underline">Privacy Policy</a>.
+                      </div>
+                  </div>
+              </div>
+
+              <div id="loading" class="fixed top-0 left-0 right-0 bottom-0 w-full h-full bg-opacity-50 bg-gray-800 flex items-center justify-center z-50 hidden">
+                  <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-white"></div>
+              </div>
+
+              <script>
+                  $(document).ready(function() {
+                      $('#startSession').click(function() {
+                          $(this).prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+                          $('#loading').removeClass('hidden');
+                          $.post('/start_session', function() {
+                              window.location.href = '/abe';
+                          }).fail(function() {
+                              alert("An error occurred. Please try again.");
+                              $('#startSession').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
+                              $('#loading').addClass('hidden');
+                          });
+                      });
+                  });
+              </script>
+          </body>
+          </html>
