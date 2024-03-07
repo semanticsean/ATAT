@@ -112,10 +112,25 @@
     </section>
     
     <div class="text-center md:absolute md:top-4 md:right-6 mx-auto">
-        <button onclick="window.location.href='/abe'" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">Go to ABE</button>
+        <button onclick="window.location.href='/'" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">HOME</button>
     </div>
-  
 
+    <!-- NOT WORKING 
+    <form id="agents-file-form" method="get" action="{{ url_for('dashboard_blueprint.dashboard') }}">
+        <label for="agents-file">Select Agents File:</label>
+        <select id="agents-file" name="agents_file">
+            <option value="agents/agents.json">agents/agents.json</option>
+            {% for copy in agent_copies %}
+                {% if copy.endswith('.json') %}
+                    <option value="{{ copy }}">{{ copy }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <button type="submit">Load Agents</button>
+    </form> 
+    -->
+
+    
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 ml-auto mr-auto mb-4 mt-4">
 
       {% for agent in agents %}
