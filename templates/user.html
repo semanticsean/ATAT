@@ -1,0 +1,19 @@
+<!-- user.html -->
+
+{% block content %}
+<div class="container">
+    <h2>User Profile</h2>
+    <form action="{{ url_for('auth_blueprint.update_profile') }}" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="{{ current_user.username }}" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="{{ current_user.email or '' }}">
+
+        <label for="password">New Password:</label>
+        <input type="password" id="password" name="password">
+
+        <button type="submit">Update Profile</button>
+    </form>
+</div>
+{% endblock %}

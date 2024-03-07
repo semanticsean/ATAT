@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Questions</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+          <script>
+            function submitSurvey() {
+                document.getElementById('surveyForm').submit();
+            }
+
+            window.onload = function() {
+                setTimeout(submitSurvey, 3000); // Auto-submit the form after 3 seconds
+            };
+          </script>
+          </head>
+          <body class="bg-blue-50">
+          <div class="container mx-auto px-4 py-8">
+            <h1 class="text-3xl font-bold mb-4">Survey Questions</h1>
+            <form id="surveyForm" action="{{ url_for('survey_blueprint.survey_form', survey_id=survey.id) }}" method="post">
+            <div class="mb-8">
+                <h2 class="text-xl font-bold mb-2">Selected Agents</h2>
+                <ul class="list-disc pl-6">
+                    {% for agent in agents %}
+                        <li class="mb-2">
+                            <span class="font-bold">{{ agent.id }}</span> - {{ agent.email }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="mb-8">
+                <label for="question_1" class="block text-gray-700 font-bold mb-2">Multiple Choice Question:</label>
+                <input type="text" id="question_1" name="question_1" value="test multiple choice" required class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none mb-2">
+                <label for="question_1_options" class="block text-gray-700 font-bold mb-2">Options (comma-separated):</label>
+                <input type="text" id="question_1_options" name="question_1_options" value="a,s,d,f" required class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
+                <input type="hidden" name="question_1_type" value="multiple_choice">
+            </div>
+
+            <div class="mb-8">
+                <label for="question_2" class="block text-gray-700 font-bold mb-2">Text Area Question:</label>
+                <input type="text" id="question_2" name="question_2" required value="test text area" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
+                <input type="hidden" name="question_2_type" value="text_area">
+            </div>
+
+            <div class="mb-8">
+                <label for="question_3" class="block text-gray-700 font-bold mb-2">Checkbox Question:</label>
+                <input type="text" id="question_3" name="question_3" value="test checkbox" required class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
+                <input type="hidden" name="question_3_type" value="checkbox">
+            </div>
+
+            <div class="mb-8">
+                <label for="question_4" class="block text-gray-700 font-bold mb-2">Number Scale Question:</label>
+                <input type="text" value="test number scale" id="question_4" name="question_4" required class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none mb-2">
+                <div class="flex items-center">
+                    <label for="question_4_min" class="text-gray-700 font-bold mr-2">Min:</label>
+                    <input type="number" id="question_4_min" name="question_4_min" value="1" required class="w-20 px-3 py-2 text-gray-700 border rounded-lg focus:outline-none mr-4">
+                    <label for="question_4_max" class="text-gray-700 font-bold mr-2">Max:</label>
+                    <input type="number" id="question_4_max" name="question_4_max" value="100" required class="w-20 px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
+                </div>
+                <input type="hidden" name="question_4_type" value="scale">
+            </div>
+
+            <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Submit Survey</button>
+          </form>
+    </div>
+</body>
+</html>
