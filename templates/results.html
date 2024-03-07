@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Results</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
+    <script>
+                  function loadResults() {
+                  console.log("Loading results...");
+                  $.get("{{ url_for('survey_blueprint.get_results', survey_id=survey.id) }}", function(data) {
+                      console.log("Received data:", data);
+                      if (data.length > 0) {
+                          var resultsContainer = $('#results-container');
+                          resultsContainer.empty();
+
+                          data.forEach(function(agent) {
+                              var agentHtml = `
+                                  <div class="bg-white shadow-md rounded-lg mb-6">
+                                      <div class="px-6 py-4 flex items-center">
+                                          <img src="${agent.photo_path}" alt="Agent Profile" class="w-12 h-12 rounded-full mr-4">
+                                          <p>${agent.photo_path}</p>
+                                          <div>
+                                              <h3 class="text-lg font-bold">Agent: ${agent.id || 'Unknown'}</h3>
+                                              <p class="text-gray-700">Email: ${agent.email}</p>
+                                          </div>
+                                      </div>
+                                      <div class="px-6 py-4">
+                                          ${agent.responses ? Object.entries(agent.responses).map(function([questionId, answer]) {
+                                              var questionText = agent.questions && agent.questions[questionId] ? agent.questions[questionId].text : 'Unknown';
+                                              return `
+                                                  <div class="mb-4">
+                                                      <h4 class="text-base font-bold">Question ${questionId}</h4>
+                                                      <p class="text-gray-700">${questionText}</p>
+                                                      <p class="text-gray-700">${answer}</p>
+                                                  </div>
+                                              `;
+                                          }).join('') : '<p class="text-gray-700">No responses available</p>'}
+                                      </div>
+                                  </div>
+                              `;
+                              resultsContainer.append(agentHtml);
+                          });
+
+                    // Add table header
+                    var tableHtml = `
+                        <table class="table-auto w-full sortable">
+                            <thead>
+                                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                                    <th class="py-3 px-6 text-left cursor-pointer">Agent ID</th>
+                                    <th class="py-3 px-6 text-left cursor-pointer">Agent Email</th>
+                                    <th class="py-3 px-6 text-left cursor-pointer">Question ID</th>
+                                    <th class="py-3 px-6 text-left cursor-pointer">Question Text</th>
+                                    <th class="py-3 px-6 text-left cursor-pointer">Answer</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-600 text-sm font-light">
+                    `;
+
+                    data.forEach(function(agent) {
+                        Object.entries(agent.responses).forEach(function([questionId, answer]) {
+                            var questionText = agent.questions && agent.questions[questionId] ? agent.questions[questionId].text : 'Unknown';
+                            // Add row to table
+                            tableHtml += `
+                                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                                    <td class="py-3 px-6 text-left whitespace-nowrap">${agent.id}</td>
+                                    <td class="py-3 px-6 text-left">${agent.email}</td>
+                                    <td class="py-3 px-6 text-left">${questionId}</td>
+                                    <td class="py-3 px-6 text-left">${questionText}</td>
+                                    <td class="py-3 px-6 text-left">${answer}</td>
+                                </tr>
+                            `;
+                        });
+                    });
+
+                    // Close table tag
+                    tableHtml += '</tbody></table>';
+                    // Append table to results container
+                    resultsContainer.append(tableHtml);
+
+                    // Call function to create chart
+                    createChart(data);
+                }
+            });
+        }
+
+        // Function to create a chart
+        function createChart(data) {
+            var questionCounts = {};
+            data.forEach(function(agent) {
+                Object.entries(agent.responses).forEach(function([questionId, answer]) {
+                    if (!questionCounts[questionId]) {
+                        questionCounts[questionId] = {};
+                    }
+                    if (!questionCounts[questionId][answer]) {
+                        questionCounts[questionId][answer] = 0;
+                    }
+                    questionCounts[questionId][answer]++;
+                });
+            });
+
+            var ctx = document.getElementById('chart').getContext('2d');
+
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Response Count',
+                        data: [],
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    plugins: {
+                        datalabels: {
+                            align: 'end',
+                            anchor: 'end'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            var questionDropdown = $('#question-dropdown');
+            questionDropdown.empty();
+            Object.keys(questionCounts).forEach(function(questionId) {
+                questionDropdown.append($('<option>', {
+                    value: questionId,
+                    text: 'Question ' + questionId
+                }));
+            });
+
+            function updateChart() {
+                var selectedQuestion = questionDropdown.val();
+                var answerCounts = questionCounts[selectedQuestion];
+                myChart.data.labels = Object.keys(answerCounts);
+                myChart.data.datasets[0].data = Object.values(answerCounts);
+                myChart.update();
+            }
+
+            questionDropdown.on('change', updateChart);
+            updateChart();
+        }
+
+        $(document).ready(function() {
+            loadResults();
+            $(".sortable").tablesorter();
+        });
+    </script>
+    <style>
+        .sortable th {
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+  <body class="bg-blue-50">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between md:justify-end items-center w-full max-w-[90%] sm:w-90 sm:mx-auto">
+      <a href="/" class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 my-4 w-full text-center md:w-auto md:my-0 md:text-left">Return to Home</a>
+    </div>
+      <h1 class="text-3xl font-bold mb-4">Survey Results</h1>
+      <div class="mb-8">
+          <h2 class="text-xl font-bold mb-2">Survey Name</h2>
+          <p class="text-gray-700">Total Responses: {{ results|length }}</p>
+      </div>
+      <div id="results-container" class="mb-8"></div>
+
+      <div class="mb-4">
+          <label for="question-dropdown" class="block text-sm font-medium text-gray-700">Select Question:</label>
+          <select id="question-dropdown" name="question-dropdown" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </select>
+      </div>
+      <canvas id="chart" width="400" height="200" class="mb-8"></canvas>
+
+      <button id="download-csv" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Download CSV</button>
+  </div>
+    <script>
+        document.getElementById('download-csv').addEventListener('click', function() {
+            var csvContent = 'data:text/csv;charset=utf-8,';
+            csvContent += 'Agent ID,Agent Email,Question ID,Question Text,Answer\n';
+
+            var results = {{ results|tojson }};
+            results.forEach(function(agent) {
+                if (agent.responses) {
+                    Object.entries(agent.responses).forEach(function([questionId, answer]) {
+                        var questionText = agent.questions && agent.questions[questionId] ? agent.questions[questionId].text : 'Unknown';
+                        csvContent += agent.id + ',' + agent.email + ',' + questionId + ',' + questionText.replace(/,/g, ';') + ',' + answer.toString().replace(/,/g, ';') + '\n';
+                    });
+                }
+            });
+
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'survey_results.csv');
+            document.body.appendChild(link);
+            link.click();
+        });
+    </script>
+</body>
+</html>
