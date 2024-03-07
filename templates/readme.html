@@ -1,0 +1,99 @@
+<h1>ATAT - Email Client for AI Agents 💪🦾</h1>
+<p>ATAT is designed to democratize the use of AI, allowing quick setup of an AI agent "company" in minutes, with the steering handled over email. That means training is as simple as providing a new email to forward to or cc. This approach leverages the inherent slowness of email for thoughtful, comprehensive AI responses.</p>
+<h1>Table of Contents</h1>
+<ul>
+<li><a href="#atat---email-client-for-ai-agents-">ATAT - Email Client for AI Agents 💪🦾</a></li>
+<li><a href="#key-highlights">Key Highlights</a></li>
+<li><a href="#getting-started">Getting Started</a><ul>
+<li><a href="#1-prepare-replit">1. Prepare Replit</a></li>
+<li><a href="#2-email-address-configuration">2. Email Address Configuration</a></li>
+<li><a href="#3-deployment-and-usage">3. Deployment and Usage</a></li>
+<li><a href="#️-critical-advice">⚠️ Critical Advice</a></li>
+</ul>
+</li>
+<li><a href="#features--benefits">Features &amp; Benefits</a><ul>
+<li><a href="#-new-agent-creation">🦾 New Agent Creation</a></li>
+<li><a href="#-agent-dashboard">🎩 Agent Dashboard</a></li>
+</ul>
+</li>
+<li><a href="#shortcode-overview">Shortcode Overview</a></li>
+<li><a href="#contribution-and-development">Contribution and Development</a></li>
+<li><a href="#license">License</a></li>
+<li>
+<p><a href="#trademark-notice">Trademark Notice</a></p>
+</li>
+<li>
+<p><strong>Collaboration Encouraged:</strong> Join us in enhancing ATAT. Find collaboration details at <a href="https://x.com/seanmcdonalxyz">x.com/seanmcdonalxyz</a>.</p>
+</li>
+<li><strong>Alpha Stage Disclaimer:</strong> ATAT is in alpha, with potential errors and formatting issues across different email clients. Use it for testing and clearly label AI-generated responses.</li>
+</ul>
+<h2><strong>Getting Started</strong></h2>
+<h3><strong>1. Prepare Replit</strong></h3>
+<ul>
+<li><strong>Package Version:</strong> Use <code>pip install openai==0.28.0</code> for compatibility.</li>
+<li><strong>Secrets Configuration:</strong> Enter your SMTP and OpenAI API credentials as secrets.</li>
+</ul>
+<h3><strong>2. Email Address Configuration</strong></h3>
+<ul>
+<li><strong>Agent Aliases:</strong> Assign email aliases for agents in <code>agents/agents.json</code>. Use app passwords for secure access.</li>
+</ul>
+<h3><strong>3. Deployment and Usage</strong></h3>
+<ul>
+<li><strong>Run and Explore:</strong> Deploy via Replit and navigate the agent dashboard. Check spam settings if responses are missing.</li>
+</ul>
+<h3><strong>⚠️ Critical Advice</strong></h3>
+<p>Do not use existing email accounts to prevent unintended emails. Create a new account exclusively for ATAT use.</p>
+<h2><strong>Features &amp; Benefits</strong></h2>
+<ul>
+<li><strong>🚀 Rapid Deployment:</strong> Easy integration into existing email systems.</li>
+<li><strong>🤖 Agent-Centric Communication:</strong> Designed for AI interactions, complete with an Agent Dashboard.</li>
+<li><strong>✅ Reactive Email Design:</strong> Focuses on human-initiated interactions, avoiding unsolicited email communication.</li>
+<li><strong>🦾 Multi-Agent Collaboration:</strong> Enhances decision-making through a mixture of expert agents.</li>
+<li><strong>🛠️ Shortcode System:</strong> Simplifies complex tasks with shortcodes like <code>!detail</code>, <code>!summarize</code>, and <code>!ff</code>.</li>
+<li><strong>⏰ Embracing Email's Pace:</strong> Utilizes email's slow nature for detailed, thoughtful AI responses.</li>
+<li><strong>💡 Replit Setup:</strong> Quick setup process on Replit.</li>
+<li><strong>📝 PDF Capability:</strong> Agents can interpret text from PDFs.</li>
+<li><strong>🎨 Custom Dashboard:</strong> Customizable HTML/CSS for branding.</li>
+<li><strong>⏳ Synthetic Time Travel:</strong> See how people will react to an email or document before it happens. </li>
+</ul>
+<h3><strong>🦾 New Agent Creation</strong></h3>
+<p>Utilize <code>new_agent.py</code> for generating new agents with detailed personas and DALL-E generated images.</p>
+<h3><strong>🎩 Agent Dashboard</strong></h3>
+<p><code>cards.py</code> powers a Flask server showcasing a dashboard of all agents for easy access.</p>
+<h1>Shortcode Overview</h1>
+<p>Enhance your email interactions with our advanced shortcode system. Designed for seamless integration into email content, these shortcodes trigger specialized functionalities within the ATAT platform, enabling dynamic agent engagement and content manipulation directly through your emails. Explore the capabilities and usage of each shortcode to leverage the full potential of ATAT for your email communications.</p>
+<h2>Engaging Agents with <code>@@</code></h2>
+<ul>
+<li><strong>Functionality:</strong> Use the <code>@@</code> shortcode to dispatch emails to multiple agents simultaneously, fostering a collaborative multi-agent response. This feature is invaluable for scenarios requiring input from diverse AI personas.</li>
+<li><strong>Usage:</strong> Simply include <code>@@(agent name)</code> or <code>@@.creator</code> in your email, followed by specific agent identifiers or creation instructions. This command cues ATAT to engage the designated agents in the response process.</li>
+</ul>
+<h3>Dynamic Agent Creation with <code>@@.creator</code></h3>
+<ul>
+<li><strong>Functionality:</strong> The <code>@@.creator</code> shortcode instantaneously generates new agent personas, offering on-the-fly customization to adapt to the evolving needs of the conversation.</li>
+<li><strong>Usage:</strong> Implement <code>@@.creator(Embody an agent...)</code> with detailed persona specifications. Ensure "Embody" is present to activate the creator function, signaling ATAT to craft and introduce a new agent persona based on your instructions.</li>
+</ul>
+<h2>Chunking Long-Form Content Generation with <code>Detail</code></h2>
+<ul>
+<li><strong>Functionality:</strong> The <code>Detail</code> shortcode breaks down extensive text blocks into manageable segments, optimizing the processing and generation of responses.</li>
+<li><strong>Usage:</strong> Wrap your detailed content between <code>!detail_start!</code> and <code>!detail_stop!</code> markers. ATAT automatically segments the content for efficient handling.</li>
+</ul>
+<h3>Summarizing Content with <code>Summarize</code></h3>
+<ul>
+<li><strong>Functionality:</strong> The <code>Summarize</code> shortcode condenses detailed content into brief summaries, customizable through specific modifiers to suit your summary's intended focus and style.</li>
+<li><strong>Usage:</strong> Trigger this feature with <code>!summarize!</code>, adding modifiers as needed to refine the summary output.</li>
+</ul>
+<h4>Modifiers for Tailored Summaries</h4>
+<ul>
+<li><strong>Explanation:</strong> Modifiers adjust the shortcode's processing of content, allowing for emphasis on certain elements or the alteration of the response's verbosity.</li>
+<li><strong>Examples:</strong> Use modifiers like <code>!summarize.json!</code>, <code>!summarize.marketing!</code>, or <code>!summarize.budget!</code> to direct ATAT in crafting summaries that align with your requirements, whether it be in JSON format, marketing language, or budget-focused content.</li>
+</ul>
+<p>Leverage these shortcodes to streamline your email interactions, ensuring efficient and effective communication with and between your AI agents.</p>
+<h2><strong>Contribution and Development</strong></h2>
+<ul>
+<li><strong>Community Contributions:</strong> Contributions are welcome to address known issues and enhancements listed in <code>contribute.md</code>.</li>
+<li><strong>Roadmap:</strong> Future features and improvements are outlined for participants.</li>
+</ul>
+<h2><strong>License</strong></h2>
+<p>ATAT is licensed under the MIT License. Refer to the LICENSE file for details.</p>
+<h2><strong>Trademark Notice</strong></h2>
+<p>@@ and ATAT are trademarks of Semantic Life, Copyright 2024. All rights reserved.</p>
