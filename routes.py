@@ -1,5 +1,7 @@
 # routes.py
 import os, json, random, re, glob, shutil, bleach, logging
+import abe_gpt
+
 from models import User, Survey
 from extensions import db
 from flask import Blueprint, render_template, redirect, url_for, request, flash, send_from_directory, abort, jsonify, send_file
@@ -102,61 +104,32 @@ def serve_image(copy_num, filename):
 @auth_blueprint.route('/create_agent_copy', methods=['POST'])
 @login_required
 def create_agent_copy():
-    filename = request.form['filename']
-    sanitized_filename = sanitize_filename(filename)  
-    user_dir = current_user.folder_path
-    agents_dir = os.path.join(user_dir, 'agents')
-    copies_dir = os.path.join(agents_dir, 'copies')
-    os.makedirs(copies_dir, exist_ok=True)
+    form_data = request.form.to_dict()
 
-    # Check if agents.json exists in the user's agent directory
-    user_agents_file = os.path.join(agents_dir, 'agents.json')
-    if not os.path.exists(user_agents_file):
-        # Copy agents.json from the app's agents directory to the user's agent directory
-        src_agents_file = os.path.join(os.getcwd(), 'agents', 'agents.json')
-        shutil.copy(src_agents_file, user_agents_file)
-
-    # Find the next available filename with a trailing digit
-    existing_files = glob.glob(os.path.join(copies_dir, f"{filename}*.json"))
-    highest_num = 0
-    for file in existing_files:
-        match = re.search(f"{filename}(\\d*)\\.json$", file)
-        if match:
-            num = int(match.group(1) or 0)
-            highest_num = max(highest_num, num)
-
-    new_filename = f"{filename}{highest_num + 1}.json"
-    new_agents_file = os.path.join(copies_dir, new_filename)
-    shutil.copy(os.path.join(agents_dir, 'agents.json'), new_agents_file)
-
-    # Create a new pics folder for the new agents file
-    new_pics_dir = os.path.join(copies_dir, f"pics_{highest_num + 1}")
-    os.makedirs(new_pics_dir, exist_ok=True)
-
-    # Update the photo_path in the new agents file
-    with open(new_agents_file, 'r') as f:
+    # Read the starting agents.json
+    agents_dir = os.path.join(current_user.folder_path, 'agents')
+    agents_file = os.path.join(agents_dir, 'agents.json')
+    with open(agents_file, 'r') as f:
         agents_data = json.load(f)
 
-    for agent in agents_data:
-        old_photo_path = agent['photo_path']
-    
-        # Check if the old_photo_path is already in the new format
-        if old_photo_path.startswith('agents/copies/'):
-            # Extract the filename from the old_photo_path
-            photo_filename = os.path.basename(old_photo_path)
-        else:
-            # Assume the old_photo_path is in the original format
-            photo_filename = os.path.basename(old_photo_path)
-            # Copy the photo from the original 'pics' directory to the new location
-            original_photo_path = os.path.join(agents_dir, 'pics', photo_filename)
-            shutil.copy(original_photo_path, os.path.join(new_pics_dir, photo_filename))
-    
-        # Update the agent's photo_path with the new relative path
-        new_photo_path_relative = os.path.join('agents', 'copies', f"pics_{highest_num + 1}", photo_filename)
-        agent['photo_path'] = new_photo_path_relative
+    # Prepare the payload for the OpenAI API
+    payload = {
+        "agents_data": agents_data,
+        "instructions": form_data,
+    }
+
+    # Call abe_gpt.py to process each agent record
+    updated_agents_data = abe_gpt.process_agents(payload)
+
+    # Save the updated agents data
+    filename = form_data['filename']
+    sanitized_filename = sanitize_filename(filename)
+    copies_dir = os.path.join(agents_dir, 'copies')
+    os.makedirs(copies_dir, exist_ok=True)
+    new_agents_file = os.path.join(copies_dir, f"{sanitized_filename}.json")
 
     with open(new_agents_file, 'w') as f:
-        json.dump(agents_data, f)
+        json.dump(updated_agents_data, f)
 
     return redirect('/')
 
