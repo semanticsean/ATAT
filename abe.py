@@ -25,7 +25,7 @@ def configure_logging():
   
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY', 'default_secret_key')
 
 
 configure_logging() 
