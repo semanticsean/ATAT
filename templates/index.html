@@ -58,7 +58,7 @@
     <div class="container mx-auto px-4 mt-16">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="bg-white rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-bold mb-4">All Synths</h2>
+          <h2 class="text-2xl font-bold mb-4">Synthetics</h2>
           <a
             href="/dashboard"
             class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
@@ -68,7 +68,7 @@
         </div>
 
         <div class="bg-white rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-bold mb-4">Time Travel</h2>
+          <h2 class="text-2xl font-bold mb-4">Times</h2>
           <a
             href="{{ url_for('survey_blueprint.create_survey') }}"
             class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition duration-300 mb-4"
@@ -94,7 +94,7 @@
       </div>
 
       <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
-        <h2 class="text-2xl font-bold mb-4">Past Discussions</h2>
+        <h2 class="text-2xl font-bold mb-4">Discussions</h2>
         <ul class="space-y-4">
           {% for folder, file in survey_results %} {% if file.endswith('.json')
           and file != 'selected_agents.json' %}
