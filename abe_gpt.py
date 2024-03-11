@@ -126,46 +126,46 @@ def process_agents(payload, current_user):
 
 
 def conduct_survey(payload, current_user):
-  agents_data = payload["agents_data"]
-  questions = payload["questions"]
-  llm_instructions = payload.get("llm_instructions", "")
-  request_type = payload["request_type"]
-  
-  survey_responses = []
-  
-  for agent in agents_data:
-      agent_response = {}
-      agent_response["id"] = agent["id"]
-      agent_response["email"] = agent["email"]
-      agent_response["questions"] = questions
-  
-      if request_type == "iterative":
-          responses = {}
-          for question_id, question_data in questions.items():
-              question_text = question_data["text"]
-              agent_payload = {
-                  "model": "gpt-3.5-turbo-0125",
-                  "response_format": {"type": "json_object"},
-                  "messages": [
-                      {"role": "system", "content": json.load(open("abe-instructions.json"))["question_instructions"]},
-                      {"role": "user", "content": f"Question: {question_text}\n{llm_instructions}"},
-                  ],
-              }
-              response = openai.ChatCompletion.create(**agent_payload)
-              responses[question_id] = response.choices[0].message.content.strip()
-      else:
-          questions_text = "\n".join([f"Question {question_id}: {question_data['text']}" for question_id, question_data in questions.items()])
-          agent_payload = {
-              "model": "gpt-3.5-turbo-0125",
-              "messages": [
-                  {"role": "system", "content": json.load(open("abe-instructions.json"))["question_instructions"]},
-                  {"role": "user", "content": f"Please answer the following questions:\n{questions_text}\n{llm_instructions}\nProvide your responses in JSON format with the question ID as the key and your answer as the value."},
-              ],
-          }
-          response = openai.ChatCompletion.create(**agent_payload)
-          responses = json.loads(response.choices[0].message.content.strip())
-  
-      agent_response["responses"] = responses
-      survey_responses.append(agent_response)
-  
-  return survey_responses
+    agents_data = payload["agents_data"]
+    questions = payload["questions"]
+    llm_instructions = payload.get("llm_instructions", "")
+    request_type = payload["request_type"]
+
+    survey_responses = []
+
+    for agent in agents_data:
+        agent_response = {}
+        agent_response["id"] = agent["id"]
+        agent_response["email"] = agent["email"]
+        agent_response["questions"] = questions
+
+        if request_type == "iterative":
+            responses = {}
+            for question_id, question_data in questions.items():
+                question_text = question_data["text"]
+                agent_payload = {
+                    "model": "gpt-3.5-turbo",
+                    "response_format": {"type": "json_object"},
+                    "messages": [
+                        {"role": "system", "content": json.load(open("abe/abe-instructions.json"))["question_instructions"]},
+                        {"role": "user", "content": f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nQuestion: {question_text}\n{llm_instructions}\nPlease respond in JSON format."},
+                    ],
+                }
+                response = client.chat.completions.create(**agent_payload)
+                responses[question_id] = response.choices[0].message.content.strip()
+        else:
+            questions_text = "\n".join([f"Question {question_id}: {question_data['text']}" for question_id, question_data in questions.items()])
+            agent_payload = {
+                "model": "gpt-3.5-turbo",
+                "messages": [
+                    {"role": "system", "content": json.load(open("abe/abe-instructions.json"))["question_instructions"]},
+                    {"role": "user", "content": f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nPlease answer the following questions:\n{questions_text}\n{llm_instructions}\nProvide your responses in JSON format."},
+                ],
+            }
+            response = openai.ChatCompletion.create(**agent_payload)
+            responses = json.loads(response.choices[0].message.content.strip())
+
+        agent_response["responses"] = responses
+        survey_responses.append(agent_response)
+
+    return survey_responses
