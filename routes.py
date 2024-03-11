@@ -349,8 +349,14 @@ def dashboard():
 @survey_blueprint.route('/survey/results/<int:survey_id>')
 @login_required
 def show_survey_results(survey_id):
-    survey = Survey.query.get_or_404(survey_id)  # Retrieve the survey instance by its ID
-    # Pass the survey instance to the template
+    survey = Survey.query.get_or_404(survey_id)
+    # Debugging: Print or log the survey object to ensure it has a filename attribute
+    print("Survey filename:", survey.filename)  # Adjust according to your actual data structure
+    if not hasattr(survey, 'filename'):
+        # If the survey object doesn't have a filename attribute, handle the case appropriately
+        print("Survey object does not have a filename attribute.")
+        # Set a default filename or adjust your handling as needed
+        survey.filename = 'default_filename'
     return render_template('results.html', survey=survey)
 
 @auth_blueprint.route('/agents/copies/<path:filename>')
@@ -362,6 +368,7 @@ def serve_agent_copy_file(filename):
         return send_file(file_path)
     else:
         abort(404)
+
 @auth_blueprint.route('/logout')
 @login_required
 def logout():
