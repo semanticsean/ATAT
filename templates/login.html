@@ -24,8 +24,9 @@
       <h2 class="text-2xl font-semibold mb-6 text-center">Login</h2>
       <form action="{{ url_for('auth_blueprint.login') }}" method="post">
         <div class="mb-4">
-          <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Username</label>
-          <input type="text" id="username" name="username" placeholder="Username" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          <label for="username_or_email" class="block text-gray-700 text-sm font-bold mb-2">Username or Email</label>
+          <input type="text" id="username_or_email" name="username_or_email" placeholder="Username or Email" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+
         </div>
         <div class="mb-6">
           <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
