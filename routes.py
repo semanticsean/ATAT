@@ -33,23 +33,36 @@ dashboard_blueprint = Blueprint('dashboard_blueprint', __name__, template_folder
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        user = User.query.filter_by(username=request.form['username']).first()
-        if user is None or not user.check_password(request.form['password']):
-            flash('Invalid username or password')
-            return redirect(url_for('auth_blueprint.login'))  
+        identifier = request.form['username_or_email']
+        password = request.form['password']
+
+        # Determine if the identifier is an email or username
+        user = User.query.filter((User.username == identifier) | (User.email == identifier)).first()
+
+        if user is None or not user.check_password(password):
+            flash('Invalid username/email or password')
+            return redirect(url_for('auth_blueprint.login'))
+
         login_user(user)
-        return redirect(url_for('home'))  
+        return redirect(url_for('home'))
+
     return render_template('login.html')
+
 
 @auth_blueprint.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        email = request.form.get('email')
+        email = request.form.get('email')  # Retrieve email from form data
         user = User.query.filter_by(username=username).first()
         if user:
             flash('Username already exists')
+            return redirect(url_for('auth_blueprint.register'))
+        # Check if email already exists
+        email_exists = User.query.filter_by(email=email).first()
+        if email_exists:
+            flash('Email already registered')
             return redirect(url_for('auth_blueprint.register'))
         new_user = User(username=username, email=email)
         new_user.set_password(password)
@@ -58,6 +71,7 @@ def register():
         db.session.commit()
         return redirect(url_for('auth_blueprint.login'))
     return render_template('register.html')
+
 
 @auth_blueprint.route('/user', methods=['GET', 'POST'])
 @login_required
@@ -307,6 +321,14 @@ def results(folder, filename):
     # Retrieve the survey object based on the folder and filename
     survey_folder = os.path.join(user_dir, 'surveys', folder)
     survey = Survey.query.filter_by(agents_file=os.path.join(survey_folder, 'selected_agents.json')).first()
+
+    if survey:
+        # Set the filename attribute on the survey object
+        survey.filename = filename
+    else:
+        # Handle the case when the survey object is not found
+        flash('Survey not found.')
+        return redirect(url_for('home'))
 
     return render_template('results.html', results=survey_data, survey=survey)
 

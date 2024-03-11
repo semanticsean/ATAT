@@ -20,6 +20,10 @@ def process_agents(payload, current_user):
     # Create a new pics folder for the updated agents
     agents_dir = os.path.join(current_user.folder_path, 'agents')
     copies_dir = os.path.join(agents_dir, 'copies')
+    
+    # Create the copies_dir if it doesn't exist
+    os.makedirs(copies_dir, exist_ok=True)
+    
     new_pics_dir = os.path.join(copies_dir, f"pics_{len(os.listdir(copies_dir)) + 1}")
     os.makedirs(new_pics_dir, exist_ok=True)
 
