@@ -1,13 +1,9 @@
 import os
 import subprocess
-import openai
 import json
 import argparse
 
-
 from tools import update_team
-
-# Set OpenAI API key
 
 def load_configuration(config_file='start-config.json'):
     with open(config_file, 'r') as file:
