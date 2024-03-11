@@ -1,12 +1,15 @@
+#abe_gpt.py 
 import json
 from openai import OpenAI
 import os
 import shutil
+import base64
+import requests
+import logging
 
 client = OpenAI()
 
 openai_api_key = os.environ['OPENAI_API_KEY']
-
 
 def process_agents(payload, current_user):
     agents_data = payload["agents_data"]
@@ -56,27 +59,70 @@ def process_agents(payload, current_user):
             if field in agent:
                 updated_agent_data[field] = agent[field]
 
-        # Create the modified_id field
-        if 'id' in updated_agent_data:
-            updated_agent_data['modified_id'] = updated_agent_data['id']
-
-        # Update the photo_path and copy the pic
+        # Vision API - Get detailed description of profile picture
         old_photo_path = updated_agent_data['photo_path']
-
         if old_photo_path.startswith('agents/copies/'):
             photo_filename = os.path.basename(old_photo_path)
         else:
             photo_filename = os.path.basename(old_photo_path)
-            original_photo_path = os.path.join(agents_dir, 'pics', photo_filename)
-            shutil.copy(original_photo_path, os.path.join(new_pics_dir, photo_filename))
 
-        new_photo_path_relative = os.path.join('agents', 'copies', os.path.basename(new_pics_dir), photo_filename)
-        updated_agent_data['photo_path'] = new_photo_path_relative
+        original_photo_path = os.path.join(agents_dir, 'pics', photo_filename)
+        logging.info(f"Original photo path: {original_photo_path}")
+
+        with open(original_photo_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+
+        vision_payload = {
+            "model": "gpt-4-vision-preview",
+            "messages": [
+                {"role": "user", "content": [
+                    {"type": "text", "text": "Provide a very detailed description of this image with explicit instructions for how to re-create it:"},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encoded_string}"}}
+                ]},
+            ],
+        }
+        vision_response = client.chat.completions.create(**vision_payload)
+        vision_description = vision_response.choices[0].message.content.strip()
+        logging.info(f"Vision API response: {vision_description}")
+
+        # Store vision description in agent JSON
+        updated_agent_data["vision_description_image_prompt"] = vision_description
+
+        # DALL-E - Generate new profile picture
+        image_prompt = updated_agent_data.get('image_prompt', '')  
+        dalle_prompt = f"{' '.join(instructions.values())} {json.load(open('abe/abe-instructions.json'))['dalle_modify_agents_instructions']} {image_prompt} {vision_description}"
+        updated_agent_data[f"{agent['id']}_image_instructions"] = dalle_prompt
+        logging.info(f"DALL-E prompt: {dalle_prompt}")
+
+        dalle_response = client.images.generate(
+            model="dall-e-3",
+            prompt=dalle_prompt,
+            quality="standard",
+            size="1024x1024",
+            n=1,
+        )
+
+        image_url = dalle_response.data[0].url
+        logging.info(f"Generated image URL: {image_url}")
+
+        new_photo_filename = f"{agent['id']}_iteration_{len(os.listdir(new_pics_dir))+1}.png"
+        new_photo_path = os.path.join(new_pics_dir, new_photo_filename)
+        logging.info(f"New photo path: {new_photo_path}")
+
+        img_data = requests.get(image_url).content
+        with open(new_photo_path, 'wb') as handler:
+            handler.write(img_data)
+
+        updated_agent_data['photo_path'] = os.path.join('agents', 'copies', os.path.basename(new_pics_dir), new_photo_filename)
+        logging.info(f"Updated photo path: {updated_agent_data['photo_path']}")
+
+        # Add back the modified_id field
+        if 'id' in updated_agent_data:
+            updated_agent_data['modified_id'] = updated_agent_data['id']
 
         updated_agents.append(updated_agent_data)
 
     return updated_agents
-
 
 
 def conduct_survey(payload, current_user):

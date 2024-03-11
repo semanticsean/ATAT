@@ -353,6 +353,15 @@ def show_survey_results(survey_id):
     # Pass the survey instance to the template
     return render_template('results.html', survey=survey)
 
+@auth_blueprint.route('/agents/copies/<path:filename>')
+@login_required
+def serve_agent_copy_file(filename):
+    user_dir = current_user.folder_path
+    file_path = os.path.join(user_dir, 'agents', 'copies', filename)
+    if os.path.exists(file_path):
+        return send_file(file_path)
+    else:
+        abort(404)
 @auth_blueprint.route('/logout')
 @login_required
 def logout():

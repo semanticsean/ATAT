@@ -1,3 +1,4 @@
+<!-- templates/dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -158,7 +159,7 @@
 
       {% for agent in agents %}
         <div class="bg-white border rounded-lg shadow overflow-hidden">
-          <img src="/agents/pics/{{ agent.photo_path.split('/')[-1] }}" alt="Agent Photo" class="w-full h-64 object-cover rounded-full">
+          <img src="{% if agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-full h-64 object-cover rounded-full">
           <div class="p-4">
             <h3 class="text-lg font-bold">{{ agent.id }}</h3>
             <h4 class="text-lg font-bold">{{ agent.jobtitle }}</h4>
