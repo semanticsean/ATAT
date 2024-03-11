@@ -243,6 +243,14 @@ function createChart(data) {
     </div>
     <script>
         document.getElementById('download-csv').addEventListener('click', function() {
+            function escapeCSVField(field) {
+                if (field == null || field == undefined) {
+                    return '';
+                }
+                // Convert the field to a string (in case it's a number or a boolean), escape quotes, and wrap in quotes.
+                return '"' + field.toString().replace(/"/g, '""') + '"';
+            }
+
             var csvContent = 'data:text/csv;charset=utf-8,';
             csvContent += 'Agent ID,Agent Email,Question ID,Question Text,Answer\n';
 
@@ -251,7 +259,14 @@ function createChart(data) {
                 if (agent.responses) {
                     Object.entries(agent.responses).forEach(function([questionId, answer]) {
                         var questionText = agent.questions && agent.questions[questionId] ? agent.questions[questionId].text : 'Unknown';
-                        csvContent += agent.id + ',' + agent.email + ',' + questionId + ',' + questionText.replace(/,/g, ';') + ',' + answer.toString().replace(/,/g, ';') + '\n';
+                        var row = [
+                            escapeCSVField(agent.id),
+                            escapeCSVField(agent.email),
+                            escapeCSVField(questionId),
+                            escapeCSVField(questionText),
+                            escapeCSVField(answer)
+                        ].join(',');
+                        csvContent += row + '\n';
                     });
                 }
             });
@@ -264,5 +279,6 @@ function createChart(data) {
             link.click();
         });
     </script>
+
 </body>
 </html>
