@@ -48,7 +48,6 @@ def login():
 
     return render_template('login.html')
 
-
 @auth_blueprint.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -71,7 +70,6 @@ def register():
         db.session.commit()
         return redirect(url_for('auth_blueprint.login'))
     return render_template('register.html')
-
 
 @auth_blueprint.route('/user', methods=['GET', 'POST'])
 @login_required
