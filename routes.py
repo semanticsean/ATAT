@@ -251,11 +251,11 @@ def survey_form(survey_id):
         survey_responses = abe_gpt.conduct_survey(payload, current_user)
 
         results_data = []
-        for i, agent in enumerate(selected_agents):
-            agent_data = agent.copy()
-            agent_data['responses'] = responses[i % len(responses)]
+        for agent_data, response in zip(selected_agents, survey_responses):
+            agent_data['responses'] = response['responses']  # Assuming 'responses' is structured accordingly
             agent_data['questions'] = questions
             results_data.append(agent_data)
+        
 
         results_file = os.path.join(os.path.dirname(survey.agents_file), f"selected_agents_results{survey.result_count + 1}.json")
         with open(results_file, 'w') as f:
