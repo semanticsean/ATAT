@@ -100,7 +100,6 @@ def serve_image(copy_num, filename):
     else:
         return abort(404)
 
-
 @auth_blueprint.route('/create_agent_copy', methods=['POST'])
 @login_required
 def create_agent_copy():
@@ -119,7 +118,7 @@ def create_agent_copy():
     }
 
     # Call abe_gpt.py to process each agent record
-    updated_agents_data = abe_gpt.process_agents(payload)
+    updated_agents_data = abe_gpt.process_agents(payload, current_user)
 
     # Save the updated agents data
     filename = form_data['filename']
@@ -234,13 +233,22 @@ def survey_form(survey_id):
     if request.method == 'POST':
         questions = extract_questions_from_form(request.form)
         selected_agent_ids = request.form.getlist('selected_agents')
+        llm_instructions = request.form.get('llm_instructions', '')
+        request_type = request.form.get('request_type', 'iterative')
         
         if selected_agent_ids:
             selected_agents = [agent for agent in agents if str(agent['id']) in selected_agent_ids]
         else:
             selected_agents = agents
 
-        responses = process_survey_responses(questions)
+        payload = {
+            "agents_data": selected_agents,
+            "questions": questions,
+            "llm_instructions": llm_instructions,
+            "request_type": request_type,
+        }
+
+        survey_responses = abe_gpt.conduct_survey(payload, current_user)
 
         results_data = []
         for i, agent in enumerate(selected_agents):
