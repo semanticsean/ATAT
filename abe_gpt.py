@@ -6,6 +6,7 @@ import shutil
 import base64
 import requests
 import logging
+import time 
 
 client = OpenAI()
 
@@ -50,6 +51,7 @@ def process_agents(payload, current_user):
         }
 
         # Call the OpenAI API
+        time.sleep(20)
         response = client.chat.completions.create(**agent_payload)
 
         # Check if the response is valid JSON
@@ -85,6 +87,7 @@ def process_agents(payload, current_user):
                 ]},
             ],
         }
+        time.sleep(30)
         vision_response = client.chat.completions.create(**vision_payload)
         vision_description = vision_response.choices[0].message.content.strip()
         logging.info(f"Vision API response: {vision_description}")
@@ -98,6 +101,7 @@ def process_agents(payload, current_user):
         updated_agent_data[f"{agent['id']}_image_instructions"] = dalle_prompt
         logging.info(f"DALL-E prompt: {dalle_prompt}")
 
+        time.sleep(30)
         dalle_response = client.images.generate(
             model="dall-e-3",
             prompt=dalle_prompt,
@@ -162,6 +166,7 @@ def conduct_survey(payload, current_user):
                       {"role": "user", "content": f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nQuestion: {question_text}\n{llm_instructions_combined}\nPlease respond in JSON format."},
                   ],
               }
+              time.sleep(30)
               response = client.chat.completions.create(**agent_payload)
               responses[question_id] = response.choices[0].message.content.strip()
       else:
@@ -173,6 +178,7 @@ def conduct_survey(payload, current_user):
                   {"role": "user", "content": f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nPlease answer the following questions:\n{questions_text}\n{llm_instructions_combined}\nProvide your responses in JSON format."},
               ],
           }
+          time.sleep(30)
           response = client.chat.completions.create(**agent_payload)
           responses = json.loads(response.choices[0].message.content.strip())
 

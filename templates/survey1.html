@@ -47,7 +47,7 @@
             </div>
 
             <div class="mb-8">
-                <h2 class="text-xl font-bold mb-2">Select Moment to Load Synths</h2>
+                <h2 class="text-xl font-bold mb-2">Select Moment</h2>
               {% for file in agent_files %}
                   <div class="flex items-center mb-2">
                       <input type="radio" id="{{ file }}" name="selected_file" value="{{ file }}" 
@@ -59,7 +59,7 @@
             </div>
 
             <div class="mb-8">
-                <h2 class="text-xl font-bold mb-2">Select Agents</h2>
+                <h2 class="text-xl font-bold mb-2">Select Synths</h2>
                 <div class="mb-2">
                     <button type="button" id="select-all" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Select All</button>
                     <button type="button" id="clear-all" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Clear All</button>
@@ -67,7 +67,7 @@
                 <div id="agent-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
             </div>
 
-            <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Proceed to Discussion Setup</button>
+            <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Next Step</button>
         </form>
     </div>
     </div>
