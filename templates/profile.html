@@ -26,9 +26,9 @@
                     console.log("Agent data:", {{ agent|tojson }});
                 </script>
                 <article class="bg-white shadow-lg rounded-lg overflow-hidden">
-                    {% if agent.photo_path %}
-                        <img src="{% if agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-full h-84 object-cover object-center">
-                    {% endif %}
+                  {% if agent.photo_path %}
+                      <img src="{% if agents_file == 'agents/agents.json' %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% elif agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-full h-84 object-cover object-center">
+                  {% endif %}
                     <div class="p-6">
                         <h2 class="text-2xl font-bold mb-2">{{ agent.id }}</h2>
                       {% if agent.email %}
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
-                        agents_file: 'agents/agents.json', // Assume the path to agents file or modify as needed
+                        agents_file: '{{ agents_file }}', 
                         agent_id: '{{ agent.id }}', // Current agent's ID
                         field: field, // Field to update
                         value: newValue // New value for the field
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    agents_file: 'agents/agents.json', // Assume the path to agents file or modify as needed
+                    agents_file: '{{ agents_file }}',
                     agent_id: '{{ agent.id }}', // Current agent's ID
                     relationship_id: relationshipId, // ID of the relationship being updated
                     field: 'relationship_description', // Field to update
