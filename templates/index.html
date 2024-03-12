@@ -72,18 +72,19 @@
 
         <div class="bg-white rounded-lg shadow-lg p-6">
           <h2 class="text-2xl font-bold mb-4">Times</h2>
+          
+          <a
+            href="{{ url_for('auth_blueprint.new_agent_copy') }}"
+            class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition duration-300 mb-4"
+          >
+            New Window of Time
+          </a>
           <a
             href="{{ url_for('survey_blueprint.create_survey') }}"
             class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition duration-300 mb-4"
           >
             New Moment
-            
-          </a>
-          <a
-            href="{{ url_for('auth_blueprint.new_agent_copy') }}"
-            class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition duration-300"
-          >
-            New Window of Time
+
           </a>
           
         </div>
@@ -94,7 +95,27 @@
       
       </div>
       </div>
+      <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+          <h2 class="text-2xl font-bold mb-4">Windows of Time</h2>
+          <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {% for copy in agent_copies %} {% if copy.endswith('.json') %}
+            <li>
+              <a
+                href="{{ url_for('dashboard_blueprint.dashboard', agents_file='agents/copies/' + copy) }}"
+                class="block bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300"
+              >
+                {{ copy[:-5] }}
+              </a>
+            </li>
+            {% endif %} {% endfor %}
+          </ul>
+          {% if not agent_copies and not survey_results %}
+          <p class="text-gray-600">No moments yet.</p>
+          {% endif %}
+        </div>
+      
 
+      
       <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
         <h2 class="text-2xl font-bold mb-4">Moments</h2>
         <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -111,29 +132,11 @@
           {% endif %} {% endfor %}
         </ul>
         {% if not survey_results %}
-        <p class="text-gray-600">No discussions yet.</p>
+        <p class="text-gray-600">No moments yet. You must create a Window of Time before you can create a Moment.</p>
         {% endif %}
       </div>
 
-      <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
-        <h2 class="text-2xl font-bold mb-4">Windows of Time</h2>
-        <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {% for copy in agent_copies %} {% if copy.endswith('.json') %}
-          <li>
-            <a
-              href="{{ url_for('dashboard_blueprint.dashboard', agents_file='agents/copies/' + copy) }}"
-              class="block bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300"
-            >
-              {{ copy[:-5] }}
-            </a>
-          </li>
-          {% endif %} {% endfor %}
-        </ul>
-        {% if not agent_copies and not survey_results %}
-        <p class="text-gray-600">No moments yet.</p>
-        {% endif %}
       </div>
-    </div>
     </main>
     <div id="footer-push"></div>
     </div>
