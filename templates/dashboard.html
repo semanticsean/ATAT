@@ -162,7 +162,7 @@
   </div>
 
     
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 ml-auto mr-auto mb-4 mt-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 ml-auto mr-auto mb-4 mt-12">
 
       {% for agent in agents %}
         <div class="bg-white border rounded-lg shadow overflow-hidden">
@@ -174,10 +174,13 @@
             <!-- Add a min-height class to the paragraph for consistent height -->
             <p >{{ agent.summary }}</p> 
             <div class="mt-4 flex justify-left gap-2">
-              <a href="mailto:{{ agent.email }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Email</a>
-              <button id="copyEmail{{ agent.id }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm rounded py-1 px-2" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email</button>
-              <button id="copyShortcode{{ agent.id }}" class="bg-gray-200 hover:bg-gray-400 text-black text-sm py-1 px-2 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
-
+              {% if agent_source.filename == "agents.json" %}<a href="mailto:{{ agent.email }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Email</a>
+                <button id="copyEmail{{ agent.id }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm rounded py-1 px-2" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email</button>
+                <button id="copyShortcode{{ agent.id }}" class="bg-gray-200 hover:bg-gray-400 text-black text-sm py-1 px-2 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
+              {% else %}
+                <!-- Display the Start Discussion button if any other agents file is loaded -->
+                <a href="{{ url_for('survey_blueprint.create_survey', selected_file=agent_source.filename) }}" class="bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded">Start Discussion</a>
+              {% endif %}
             </div>
           </div>
         </div>

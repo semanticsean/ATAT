@@ -1,3 +1,4 @@
+<!--templates/survey1.html-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,12 +36,14 @@
 
             <div class="mb-8">
                 <h2 class="text-xl font-bold mb-2">Select Moment to Load Synths</h2>
-                {% for file in agent_files %}
-                    <div class="flex items-center mb-2">
-                        <input type="radio" id="{{ file }}" name="selected_file" value="{{ file }}" required class="mr-2">
-                        <label for="{{ file }}" class="text-gray-700">{{ file }}</label>
-                    </div>
-                {% endfor %}
+              {% for file in agent_files %}
+                  <div class="flex items-center mb-2">
+                      <input type="radio" id="{{ file }}" name="selected_file" value="{{ file }}" 
+                             required class="mr-2" {% if selected_file == file %}checked{% endif %}>
+                      <label for="{{ file }}" class="text-gray-700">{{ file }}</label>
+                  </div>
+              {% endfor %}
+
             </div>
 
             <div class="mb-8">
@@ -101,5 +104,25 @@
 
         });
     </script>
+
+  <script>
+  // When the document is ready
+  $(document).ready(function() {
+    // Get the 'selected_file' query parameter from the URL
+    var urlParams = new URLSearchParams(window.location.search);
+    var selectedFile = urlParams.get('selected_file');
+
+    // If 'selected_file' is provided in the URL
+    if (selectedFile) {
+      // Iterate over the radio buttons and mark the matching value as checked
+      $('input[name="selected_file"]').each(function() {
+        if ($(this).val() === selectedFile) {
+          $(this).prop('checked', true);
+        }
+      });
+    }
+  });
+  </script>
+
 </body>
 </html>

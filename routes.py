@@ -172,7 +172,7 @@ def create_agent_copy():
 
 @survey_blueprint.route('/survey/create', methods=['GET', 'POST'])
 @login_required
-def create_survey():
+def create_survey(selected_file=None):
     logger = logging.getLogger(__name__)
     user_id = current_user.id  # Capture the current user's ID for logging
     user_dir = current_user.folder_path
@@ -181,7 +181,8 @@ def create_survey():
 
     agents_dir = os.path.join(user_dir, 'agents')
     copies_dir = os.path.join(agents_dir, 'copies')
-
+    selected_file = request.args.get('selected_file')
+  
     if request.method == 'POST':
         selected_file = request.form.get('selected_file')
         survey_name = request.form.get('survey_name')
@@ -243,7 +244,8 @@ def create_survey():
         logger.info(f"User {user_id} accessed the survey creation page.")
 
     agent_files = [f for f in os.listdir(copies_dir) if os.path.isfile(os.path.join(copies_dir, f))]
-    return render_template('survey1.html', agent_files=agent_files)
+    
+    return render_template('survey1.html', selected_file=selected_file, agent_files=agent_files)
 
   
 @survey_blueprint.route('/surveys/<path:survey_id>/pics/<filename>')
