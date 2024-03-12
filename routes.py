@@ -438,9 +438,7 @@ def serve_agent_copy_file(filename):
 @profile_blueprint.route('/profile')
 @login_required
 def profile():
-    agents = []
-    agent_copies = []
-    agents_file = request.args.get('agents_file', os.path.join('agents', 'agents.json'))
+    agents_file = request.args.get('agents_file', 'agents.json')  # Default to 'agents.json'
     agent_id = request.args.get('agent_id')
 
     agents_dir = os.path.join(current_user.folder_path, 'agents')
@@ -448,16 +446,38 @@ def profile():
 
     logger.info(f"Accessing profile with agents_file: {agents_file} and agent_id: {agent_id}")
 
+    # Corrected the logic for determining the file path
+    if agents_file == 'agents.json':
+        agents_file_path = os.path.join(agents_dir, agents_file)  # For the main agents.json file
+    else:
+        # Correctly form the path for copies, avoiding duplication of 'agents/copies/'
+        agents_file_path = os.path.join(copies_dir, os.path.basename(agents_file))  # Only use the basename for copies
+
+    agent_copies = get_agent_copies(copies_dir)
+    agents, _ = load_agents(agents_file_path)
+
+    agent = get_agent_by_id(agents, agent_id)
+    prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents, agent)
+
+    # Pass the correct file path or identifier as needed for AJAX or other calls
+    agents_file_for_ui = 'agents.json' if agents_file == 'agents.json' else os.path.basename(agents_file)
+
+    return render_template('profile.html', agent=agent, agents_file=agents_file_for_ui, agent_copies=agent_copies, prev_agent_id=prev_agent_id, next_agent_id=next_agent_id)
+
+
+
+def get_agent_copies(copies_dir):
     if os.path.isdir(copies_dir):
         agent_copies = [f for f in os.listdir(copies_dir) if f.endswith('.json')]
         logger.info(f"Found {len(agent_copies)} agent copies in directory: {copies_dir}")
+    else:
+        agent_copies = []
+    return agent_copies
 
+# Update load_agents function to accept the direct file path
+def load_agents(agents_file_path):
+    agents = []
     try:
-        if agents_file == 'agents/agents.json':
-            agents_file_path = os.path.join(agents_dir, 'agents.json')
-        else:
-            agents_file_path = os.path.join(copies_dir, agents_file.split('/')[-1])
-
         if os.path.exists(agents_file_path):
             with open(agents_file_path, 'r') as file:
                 agents = json.load(file)
@@ -468,10 +488,15 @@ def profile():
         logger.error(f"Failed to load or parse agents JSON file: {e}", exc_info=True)
         flash(f"Failed to load or parse agents JSON file: {e}", "error")
 
-    agent = None
-    if agent_id:
-        agent = next((a for a in agents if a['id'] == agent_id), None)
+    return agents, agents_file_path
 
+
+def get_agent_by_id(agents, agent_id):
+    if agent_id:
+        return next((a for a in agents if a['id'] == agent_id), None)
+    return None
+
+def get_prev_next_agent_ids(agents, agent):
     if agent:
         agent_index = agents.index(agent)
         prev_agent_id = agents[agent_index - 1]['id'] if agent_index > 0 else None
@@ -479,9 +504,7 @@ def profile():
     else:
         prev_agent_id = None
         next_agent_id = None
-
-    return render_template('profile.html', agent=agent, agents_file=agents_file, agent_copies=agent_copies, prev_agent_id=prev_agent_id, next_agent_id=next_agent_id)
-
+    return prev_agent_id, next_agent_id
 
 @profile_blueprint.route('/update_agent', methods=['POST'])
 @login_required
