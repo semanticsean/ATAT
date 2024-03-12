@@ -103,13 +103,13 @@
               href="{{ url_for('survey_blueprint.results', folder=folder, filename=file) }}"
               class="block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300"
             >
-              {{ folder }}
+              {{ folder[:-8] }}
             </a>
           </li>
           {% endif %} {% endfor %}
         </ul>
         {% if not survey_results %}
-        <p class="text-gray-600">No discussion results available.</p>
+        <p class="text-gray-600">No discussions yet.</p>
         {% endif %}
       </div>
 
@@ -122,13 +122,13 @@
               href="{{ url_for('dashboard_blueprint.dashboard', agents_file='agents/copies/' + copy) }}"
               class="block bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300"
             >
-              {{ copy[:-6] }}
+              {{ copy[:-5] }}
             </a>
           </li>
           {% endif %} {% endfor %}
         </ul>
         {% if not agent_copies and not survey_results %}
-        <p class="text-gray-600">No agents.json copies available.</p>
+        <p class="text-gray-600">No moments yet.</p>
         {% endif %}
       </div>
 
