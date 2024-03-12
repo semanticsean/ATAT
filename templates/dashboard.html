@@ -15,7 +15,7 @@
 
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
 
-    <title>Loading...</title>
+    <title>Semantic Life Dashboard</title>
     <!-- not using because causes errors <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet"> --> 
   
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
@@ -88,6 +88,7 @@
         
       }
     </script>
+  
 </head>
   <body class="flex flex-col h-full">
     {% include 'header.html' %}
@@ -114,22 +115,8 @@
 
   <div class="container mx-auto mt-4 mb-8">
   
-    <div class="font-bold mb-4 text-center text-3xl mt-12">DASHBOARD: {% if agent_source.filename[:-5] == "agents" %}All Agents{% else %}{{ agent_source.filename[14:-5] }}{% endif %}</div>
-    <!-- NOT USING <section id="webCopySection" class="text-center p-4 bg-gray-100">
-        <div class="container mx-auto">
-          <h1 class="font-bold mb-4 text-center text-xl">Loading...</h1> 
-        
-          <h2 class="mb-4 text-center">Loading...</h2>  
-         
-          
-          <div id="webCopyContainer" class="webCopyContainer"></div>
-        </div>
-    </section>
-
+    <div class="font-bold mb-4 text-center text-3xl mt-12">DASHBOARD: {% if agent_source.filename[:-5] == "agents" %}Base Agents{% else %}{{ agent_source.filename[14:-5] }}{% endif %}</div>
     
-    <div class="text-center md:absolute md:top-4 md:right-6 mx-auto">
-        <button onclick="window.location.href='/'" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">HOME</button>
-    </div> -->
   <div class="mt-1 relative rounded-md shadow-sm">
           <form id="agents-file-form" method="get" action="{{ url_for('dashboard_blueprint.dashboard') }}" class="max-w-xl mx-auto my-8">
               <label for="agents-file" class="block text-xl font-bold text-gray-700">Select Moment to View</label>
@@ -230,7 +217,21 @@
     </div>
     <!-- End of Instructions Section -->
 
-    
+    <!-- NOT USING AUTO GEN FROM STATIC/CONTENT.JSON <section id="webCopySection" class="text-center p-4 bg-gray-100">
+        <div class="container mx-auto">
+          <h1 class="font-bold mb-4 text-center text-xl">Loading...</h1> 
+
+          <h2 class="mb-4 text-center">Loading...</h2>  
+
+
+          <div id="webCopyContainer" class="webCopyContainer"></div>
+        </div>
+    </section>
+
+
+    <div class="text-center md:absolute md:top-4 md:right-6 mx-auto">
+        <button onclick="window.location.href='/'" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">HOME</button>
+    </div> -->
   </div>
 
   </div>
