@@ -87,6 +87,9 @@ def update_profile():
 
     return render_template('user.html')
 
+@auth_blueprint.route('/help')
+def help():
+    return render_template('help.html')
 
 
 def sanitize_filename(filename):
@@ -427,6 +430,7 @@ def serve_agent_copy_file(filename):
         return send_file(file_path)
     else:
         abort(404)
+
 
 @auth_blueprint.route('/logout')
 @login_required

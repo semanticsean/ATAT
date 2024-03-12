@@ -9,20 +9,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-blue-50">
-  <div id="header">
-    <div class="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 px-4 flex justify-between items-center">
-        <a href="/">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-32">
-        </a>
-        <div class="flex">
-            <a href="/" class="mr-4">
-                <button class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded">Home</button>
-            </a>
-            <a href="{{ url_for('auth_blueprint.logout') }}">
-                <button class="bg-gray-700 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
-            </a>
-        </div>
-    </div>
+    {% include 'header.html' %}
 
   
     <div class="container mx-auto px-4 py-8 mt-12">
@@ -60,6 +47,9 @@
     </div>
     </div>
   </div>
+
+  {% include 'footer.html' %}
+
 
     <script>
         $(document).ready(function() {
