@@ -11,34 +11,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   </head>
   <body class="bg-gray-100">
-    <div id="header">
-      <div
-        class="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 px-4 flex justify-between items-center"
-      >
-        <a href="/">
-          <img
-            src="{{ url_for('static', filename='logo.png') }}"
-            alt="Semantic Life"
-            class="w-32"
-          />
-        </a>
-        <div class="flex">
-          <a href="/" class="mr-4">
-            <button
-              class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded"
-            >
-              Home
-            </button>
-          </a>
-          <a href="{{ url_for('auth_blueprint.logout') }}">
-            <button
-              class="bg-gray-700 hover:bg-red-700 text-white py-2 px-4 rounded"
-            >
-              Logout
-            </button>
-          </a>
-        </div>
-      </div>
+
+    
 
       <button
         id="close-banner"
@@ -55,16 +29,19 @@
       </button>
     </div>
 
+    {% include 'header.html' %}
+
     <div class="container mx-auto px-4 mt-16">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="bg-white rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-bold mb-4">Synthetics</h2>
+          <h2 class="text-2xl font-bold mb-4">Synths</h2>
           <a
             href="/dashboard"
             class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
           >
-            See All AIs
+            Dashboard
           </a>
+          
         </div>
 
         <div class="bg-white rounded-lg shadow-lg p-6">
@@ -73,29 +50,28 @@
             href="{{ url_for('survey_blueprint.create_survey') }}"
             class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition duration-300 mb-4"
           >
-            New Discussion
+            New Moment
+            
           </a>
           <a
             href="{{ url_for('auth_blueprint.new_agent_copy') }}"
             class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition duration-300"
           >
-            New Moment
+            New Window of Time
           </a>
+          
         </div>
         <div class="bg-white rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-bold mb-4">Status</h2>
+          <h2 class="text-2xl font-bold mb-4">Tools</h2>
 
-          ✅ Synthetic Agents (AIs) Ready 
-          <br/>✅ ATAT Email Server Status: Running
-          <br/>✅ ABE Question / Answer Server Status: Running
-          <br/><br/>
-          <small>(Static check on load.)</small>
-        </div>
+          <a href="/help" class="block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300">Help</a>
+      
+      </div>
       </div>
 
       <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
-        <h2 class="text-2xl font-bold mb-4">Discussions</h2>
-        <ul class="space-y-4">
+        <h2 class="text-2xl font-bold mb-4">Moments</h2>
+        <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
           {% for folder, file in survey_results %} {% if file.endswith('.json')
           and file != 'selected_agents.json' %}
           <li>
@@ -114,7 +90,7 @@
       </div>
 
       <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
-        <h2 class="text-2xl font-bold mb-4">Moments</h2>
+        <h2 class="text-2xl font-bold mb-4">Windows of Time</h2>
         <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
           {% for copy in agent_copies %} {% if copy.endswith('.json') %}
           <li>
@@ -131,52 +107,8 @@
         <p class="text-gray-600">No moments yet.</p>
         {% endif %}
       </div>
+      {% include 'footer.html' %}
 
-      
-
-      <div class="mt-8">
-        <button
-          id="help-toggle"
-          class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300 focus:outline-none"
-        >
-          Help
-        </button>
-        <div
-          id="help-content"
-          class="bg-white rounded-lg shadow-lg p-6 mt-4 hidden"
-        >
-          <h3 class="text-xl font-bold mb-2">Instructions</h3>
-          <ul class="list-disc list-inside space-y-2">
-            <li>
-              Click on "Open Dashboard" to view and manage your AI agents.
-            </li>
-            <li>Click on a discussion result to view the detailed results.</li>
-            <li>
-              Click on "Start Discussion" to create a new discussion with your
-              selected agents.
-            </li>
-            <li>
-              Click on "Change Context" to modify the context of your AI agents.
-            </li>
-            <li>
-              The "Agents Files Copies" section lists the available copies of
-              your agents.json file.
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <script>
-      $(document).ready(function () {
-        $("#close-banner").click(function () {
-          $(this).closest("div").fadeOut();
-        });
-
-        $("#help-toggle").click(function () {
-          $("#help-content").toggleClass("hidden");
-        });
-      });
-    </script>
+    
   </body>
 </html>
