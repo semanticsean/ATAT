@@ -19,6 +19,8 @@ handlers=[
     RotatingFileHandler('app.log', maxBytes=10000, backupCount=3)  # File output
 ])
 
+logger = logging.getLogger(__name__)
+
 AGENTS_JSON_PATH = os.path.join('agents', 'agents.json')
 IMAGES_BASE_PATH = os.path.join('agents', 'pics')
 AGENTS_BASE_PATH = 'agents'
@@ -28,6 +30,8 @@ auth_blueprint = Blueprint('auth_blueprint', __name__, template_folder='template
 survey_blueprint = Blueprint('survey_blueprint', __name__, template_folder='templates')
 
 dashboard_blueprint = Blueprint('dashboard_blueprint', __name__, template_folder='templates')
+
+profile_blueprint = Blueprint('profile_blueprint', __name__, template_folder='templates')
 
 
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
@@ -430,7 +434,53 @@ def serve_agent_copy_file(filename):
         return send_file(file_path)
     else:
         abort(404)
+      
+@profile_blueprint.route('/profile')
+@login_required
+def profile():
+    agents = []
+    agent_copies = []
+    agents_file = request.args.get('agents_file', os.path.join('agents', 'agents.json'))
+    agent_id = request.args.get('agent_id')
 
+    agents_dir = os.path.join(current_user.folder_path, 'agents')
+    copies_dir = os.path.join(agents_dir, 'copies')
+
+    logger.info(f"Accessing profile with agents_file: {agents_file} and agent_id: {agent_id}")
+
+    if os.path.isdir(copies_dir):
+        agent_copies = [f for f in os.listdir(copies_dir) if f.endswith('.json')]
+        logger.info(f"Found {len(agent_copies)} agent copies in directory: {copies_dir}")
+
+    try:
+        if agents_file == 'agents/agents.json':
+            agents_file_path = os.path.join(current_user.folder_path, agents_file)
+        else:
+            agents_file_path = os.path.join(agents_file.split('/')[-1])
+
+        if os.path.exists(agents_file_path):
+            with open(agents_file_path, 'r') as file:
+                agents = json.load(file)
+                logger.info(f"Successfully loaded agents from: {agents_file_path}")
+        else:
+            logger.warning(f"Agents file does not exist at: {agents_file_path}")
+    except Exception as e:
+        logger.error(f"Failed to load or parse agents JSON file: {e}", exc_info=True)
+        flash(f"Failed to load or parse agents JSON file: {e}", "error")
+
+    agent = None
+    if agent_id:
+        agent = next((a for a in agents if a['id'] == agent_id), None)
+
+    if agent:
+        agent_index = agents.index(agent)
+        prev_agent_id = agents[agent_index - 1]['id'] if agent_index > 0 else None
+        next_agent_id = agents[agent_index + 1]['id'] if agent_index < len(agents) - 1 else None
+    else:
+        prev_agent_id = None
+        next_agent_id = None
+
+    return render_template('profile.html', agent=agent, agents_file=agents_file, agent_copies=agent_copies, prev_agent_id=prev_agent_id, next_agent_id=next_agent_id)
 
 @auth_blueprint.route('/logout')
 @login_required
