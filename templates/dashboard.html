@@ -19,42 +19,41 @@
   
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      fetch('static/content.json')
-        .then(response => response.json())
-        .then(data => {
-          // Update Meta Tags
-          document.querySelector('meta[property="og:image"]').setAttribute("content", data.meta.ogImage);
-          document.querySelector('meta[property="og:url"]').setAttribute("content", data.meta.ogUrl);
+    // document.addEventListener('DOMContentLoaded', function() {
+    //   fetch('static/content.json')
+    //     .then(response => response.json())
+    //     .then(data => {
+    //       // Update Meta Tags
+    //       document.querySelector('meta[property="og:image"]').setAttribute("content", data.meta.ogImage);
+    //       document.querySelector('meta[property="og:url"]').setAttribute("content", data.meta.ogUrl);
 
-          document.querySelector('meta[property="og:title"]').setAttribute("content", data.meta.ogTitle);
+    //       document.querySelector('meta[property="og:title"]').setAttribute("content", data.meta.ogTitle);
 
-          document.querySelector('meta[property="og:description"]').setAttribute("content", data.meta.ogDescription);
-          document.querySelector('meta[name="twitter:card"]').setAttribute("content", data.meta.twitterCard);
-          document.querySelector('meta[name="twitter:title"]').setAttribute("content", data.meta.twitterTitle);
-          document.querySelector('meta[name="twitter:description"]').setAttribute("content", data.meta.twitterDescription);
-          document.querySelector('meta[name="twitter:image"]').setAttribute("content", data.meta.twitterImage);
+    //       document.querySelector('meta[property="og:description"]').setAttribute("content", data.meta.ogDescription);
+    //       document.querySelector('meta[name="twitter:card"]').setAttribute("content", data.meta.twitterCard);
+    //       document.querySelector('meta[name="twitter:title"]').setAttribute("content", data.meta.twitterTitle);
+    //       document.querySelector('meta[name="twitter:description"]').setAttribute("content", data.meta.twitterDescription);
+    //       document.querySelector('meta[name="twitter:image"]').setAttribute("content", data.meta.twitterImage);
 
 
-          // Update Title, Headers, and Footer
-         document.title = data.title;
-          document.getElementById('header-logo').src = data.logo_url;
+    //       // Update Title, Headers, and Footer
+    //      document.title = data.title;
+    //       document.getElementById('header-logo').src = data.logo_url;
   
-          // Since h1 and h2 are direct children of a div with class `container`, you can use the :nth-of-type selector to target them
-          let containerDiv = document.querySelector('.container');
-          let h1 = containerDiv.querySelector('h1'); // This assumes h1 is the first h1 element inside .container
-          let h2 = containerDiv.querySelector('h2'); // This assumes h2 is the first h2 element inside .container
+    //       // Since h1 and h2 are direct children of a div with class `container`, you can use the :nth-of-type selector to target them
+    //       let containerDiv = document.querySelector('.container');
+    //       let h1 = containerDiv.querySelector('h1'); // This assumes h1 is the first h1 element inside .container
+    //       let h2 = containerDiv.querySelector('h2'); // This assumes h2 is the first h2 element inside .container
   
-          if (h1) h1.innerText = data.h1;
-          if (h2) h2.innerText = data.h2;
+    //       if (h1) h1.innerText = data.h1;
+    //       if (h2) h2.innerText = data.h2;
   
-          document.querySelector('.footer').innerText = data.footer;
-          document.getElementById('webCopyContainer').innerText = data.web_copy;
-          document.getElementById('social_image').src = data.social_image_url;
-        })
-        .catch(error => console.error('Error loading header data:', error));
-    });
-    
+    //       document.querySelector('.footer').innerText = data.footer;
+    //       document.getElementById('webCopyContainer').innerText = data.web_copy;
+    //       document.getElementById('social_image').src = data.social_image_url;
+    //     })
+    //     .catch(error => console.error('Error loading header data:', error));
+    // });
       // Enhanced function to copy text to clipboard and modify button appearance
       function copyToClipboard(text, buttonId) {
         navigator.clipboard.writeText(text).then(function() {
@@ -127,32 +126,40 @@
 
   <div class="container mx-auto mt-4 mb-8">
   
-    <div class="font-bold mb-4 text-center text-3xl mt-12">DASHBOARD</div>
-    <section id="webCopySection" class="text-center p-4 bg-gray-100">
+    <div class="font-bold mb-4 text-center text-3xl mt-12">DASHBOARD: {% if agent_source.filename[:-5] == "agents" %}All Agents{% else %}{{ agent_source.filename[14:-5] }}{% endif %}</div>
+    <!-- NOT USING <section id="webCopySection" class="text-center p-4 bg-gray-100">
         <div class="container mx-auto">
           <h1 class="font-bold mb-4 text-center text-xl">Loading...</h1> 
+        
           <h2 class="mb-4 text-center">Loading...</h2>  
-            <div id="webCopyContainer" class="webCopyContainer"></div>
+         
+          
+          <div id="webCopyContainer" class="webCopyContainer"></div>
         </div>
     </section>
 
-    <!-- NOT USING 
+    
     <div class="text-center md:absolute md:top-4 md:right-6 mx-auto">
         <button onclick="window.location.href='/'" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out mx-auto md:mx-0">HOME</button>
     </div> -->
-
-    <form id="agents-file-form" method="get" action="{{ url_for('dashboard_blueprint.dashboard') }}">
-        <label for="agents-file">Select Agents File:</label>
-        <select id="agents-file" name="agents_file">
-            <option value="agents/agents.json">agents/agents.json</option>
-            {% for copy in agent_copies %}
-                {% if copy.endswith('.json') %}
-                    <option value="agents/copies/{{ copy }}">{{ copy }}</option>
-                {% endif %}
-            {% endfor %}
-        </select>
-        <button type="submit">Load Agents</button>
-    </form>
+  <div class="mt-1 relative rounded-md shadow-sm">
+          <form id="agents-file-form" method="get" action="{{ url_for('dashboard_blueprint.dashboard') }}" class="max-w-xl mx-auto my-8">
+              <label for="agents-file" class="block text-xl font-bold text-gray-700">Select Moment to View</label>
+              <div class="mt-1 relative rounded-md shadow-sm">
+                  <select id="agents-file" name="agents_file" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    <option value="agents/agents.json">All Agents</option>
+                    {% for copy in agent_copies %}
+                        {% if copy.endswith('.json') %}
+                            <option value="agents/copies/{{ copy }}">{{ copy.split('/')[-1][:-5] }}</option>
+                          {% endif %}
+                      {% endfor %}
+                  </select>
+              </div>
+              <button type="submit" class="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:border-blue-700 focus:ring-blue active:bg-blue-700 transition duration-150 ease-in-out">
+                  Load Agents
+              </button>
+          </form>
+  </div>
 
     
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 ml-auto mr-auto mb-4 mt-4">
@@ -181,8 +188,14 @@
       <img id="social_image" class="social_image mx-auto justify-center" src="" alt="Social Image"> 
 
     </div>
-    <div class="bg-white rounded-lg shadow px-6 py-4 mx-auto max-w-4xl">
-        <h2 class="text-xl font-bold text-gray-800">Shortcodes</h2>
+        <div id="shortcodes-section" class="bg-white rounded-lg shadow px-6 py-4 mx-auto max-w-4xl relative">
+          <button id="close-shortcodes" class="absolute top-0 right-0 mt-2 mr-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-800 p-1 focus:outline-none">
+              <svg class="h-6 w-6" viewBox="0 0 24 24">
+                  <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+          </button>
+
+          <div class="text-xl font-bold text-gray-800">Shortcodes</div>
 
         <div class="mt-4">
             <h4 class="font-semibold text-lg text-blue-600">Call Agents from Email Body</h4>
@@ -248,6 +261,13 @@
       }, 600); // Adjust the timeout to match the fadeOut speed you desire
     }
   };
+  </script>
+
+  <script>
+  // Script to handle the closing of the shortcodes section
+  document.getElementById('close-shortcodes').addEventListener('click', function() {
+      document.getElementById('shortcodes-section').style.display = 'none';
+  });
   </script>
     
 </body>

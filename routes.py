@@ -160,12 +160,14 @@ def create_agent_copy():
     sanitized_filename = sanitize_filename(filename)
     copies_dir = os.path.join(agents_dir, 'copies')
     os.makedirs(copies_dir, exist_ok=True)
-    new_agents_file = os.path.join(copies_dir, f"{sanitized_filename}.json")
+    new_agents_file_name = f"{sanitized_filename}.json"  # Filename of the new agent copy
+    new_agents_file = os.path.join(copies_dir, new_agents_file_name)
 
     with open(new_agents_file, 'w') as f:
         json.dump(updated_agents_data, f)
 
-    return redirect('/')
+    # Redirect to the dashboard view of the new JSON file
+    return redirect(url_for('dashboard_blueprint.dashboard', agents_file=new_agents_file_name))
   
 
 @survey_blueprint.route('/survey/create', methods=['GET', 'POST'])
@@ -344,14 +346,16 @@ def results(folder, filename):
     survey = Survey.query.filter_by(agents_file=os.path.join(survey_folder, 'selected_agents.json')).first()
 
     if survey:
-        # Set the filename attribute on the survey object
+        # Set the filename and foldername attributes on the survey object
         survey.filename = filename
+        survey.foldername = folder  # Here is the modification to add foldername
     else:
         # Handle the case when the survey object is not found
         flash('Survey not found.')
         return redirect(url_for('home'))
 
     return render_template('results.html', results=survey_data, survey=survey)
+
 
 @dashboard_blueprint.route('/dashboard')
 @login_required
@@ -363,24 +367,27 @@ def dashboard():
 
     agents_dir = os.path.join(current_user.folder_path, 'agents')
     copies_dir = os.path.join(agents_dir, 'copies')
-    # The agents_file is now expected to be a filename or relative path within the copies_dir without prefix
-    agents_file = request.args.get('agents_file', 'agents.json')
+    agents_file = request.args.get('agents_file', 'agents.json')  # Default to agents.json
 
     logging.debug(f"Agents directory set to: {agents_dir}")
     logging.debug(f"Copies directory set to: {copies_dir}")
-    logging.debug(f"Default agents file set to: {agents_file}")
+    logging.debug(f"Agents file selected: {agents_file}")
+
+    # Store additional data about the agents' source
+    agent_source = {"foldername": None, "filename": None}
 
     if os.path.isdir(copies_dir):
-        agent_copies = [f for f in os.listdir(copies_dir) if f.endswith('.json')]
+        agent_copies = [os.path.basename(f) for f in os.listdir(copies_dir) if f.endswith('.json')]
         logging.info(f"Found {len(agent_copies)} agent copies in the directory.")
 
     try:
         if agents_file == 'agents.json':  # Default file requested
             agents_file_path = os.path.join(agents_dir, agents_file)
-            logging.debug(f"Using the default agents.json file at: {agents_file_path}")
+            agent_source["filename"] = "agents.json"
         else:  # Any other file from the copies directory
             agents_file_path = os.path.join(copies_dir, agents_file.replace('agents/copies/', ''))
-            logging.debug(f"Using a specified agents file at: {agents_file_path}")
+            agent_source["foldername"] = "copies"
+            agent_source["filename"] = agents_file
 
         if os.path.exists(agents_file_path):
             with open(agents_file_path, 'r') as file:
@@ -393,7 +400,7 @@ def dashboard():
         flash(f"Failed to load or parse agents JSON file: {e}", "error")
 
     logging.info("Rendering dashboard page")
-    return render_template('dashboard.html', agents=agents, agent_copies=agent_copies, survey_results=survey_results)
+    return render_template('dashboard.html', agents=agents, agent_copies=agent_copies, survey_results=survey_results, agent_source=agent_source)
 
 
 @survey_blueprint.route('/survey/results/<int:survey_id>')
