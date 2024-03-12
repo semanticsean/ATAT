@@ -8,101 +8,221 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-blue-50">
-  {% include 'header.html' %}
-    <div id="header">
-        <div class="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 px-4 flex justify-between items-center">
-            <a href="/">
-                <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-32">
+    {% include 'header.html' %}
+    <div class="pt-16">
+        <header class="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 px-4 flex justify-between items-center">
+            <a href="/" class="flex items-center space-x-2">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="h-8">
             </a>
-            <div class="flex">
-                <a href="/" class="mr-4">
-                    <button class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded">Home</button>
-                </a>
-                <a href="{{ url_for('auth_blueprint.logout') }}">
-                    <button class="bg-gray-700 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
-                </a>
-            </div>
-        </div>
-        <div class="container mx-auto px-4 py-8 mt-12">
-            <h1 class="text-3xl font-bold mb-4">Agent Profile</h1>
-            <form id="agents-file-form" method="get" action="{{ url_for('profile_blueprint.profile') }}">
-                <label for="agents-file">Select Agents File:</label>
-                <select id="agents-file" name="agents_file">
-                    <option value="agents/agents.json">agents/agents.json</option>
-                    {% for copy in agent_copies %}
-                        {% if copy.endswith('.json') %}
-                            <option value="agents/copies/{{ copy }}">{{ copy }}</option>
+            <nav class="flex space-x-4">
+                <a href="/" class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded transition-colors">Home</a>
+                <a href="{{ url_for('auth_blueprint.logout') }}" class="bg-gray-700 hover:bg-red-700 text-white py-2 px-4 rounded transition-colors">Logout</a>
+            </nav>
+        </header>
+        <main class="container mx-auto px-4 py-8 mt-4">
+            <h1 class="text-3xl font-bold mb-8 text-center">Agent Profile</h1>
+            {% if agent %}
+                <script>
+                    console.log("Agent data:", {{ agent|tojson }});
+                </script>
+                <article class="bg-white shadow-lg rounded-lg overflow-hidden">
+                    {% if agent.photo_path %}
+                        <img src="{% if agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-full h-84 object-cover object-center">
+                    {% endif %}
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold mb-2">{{ agent.id }}</h2>
+                      {% if agent.email %}
+                          <a href="mailto:{{ agent.email }}?subject=Continuing%20our%20discussion&body=Semantic-Life.com" class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300">{{ agent.email }}</a>
+                      {% endif %}
+                      {% if agent.keywords %}
+                          <div class="mt-4">
+                              <h3 class="text-xl font-semibold mb-2">Keywords</h3>
+                              <div id="keywords-text" class="flex flex-wrap gap-2">
+                                  {% for keyword in agent.keywords %}
+                                      <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full">{{ keyword }}</span>
+                                  {% endfor %}
+                              </div>
+                              <textarea id="keywords-input" class="w-full" style="display: none;">{{ agent.keywords|join(', ') }}</textarea>
+                              <!-- hidden not working <button id="keywords-edit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Edit</button>
+                              <button id="keywords-save" class="mt-2 bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded" style="display: none;">Save</button> -->
+                          </div>
+                      {% endif %}
+
+                        <div class="space-y-2 mt-6">
+                            
+                          {% if agent.jobtitle %}
+                              <div class="p-4 bg-white rounded-lg shadow mb-4">
+                                  <h3 class="text-lg font-semibold mb-2">Job Title</h3>
+                                  <p id="jobtitle-text">{{ agent.jobtitle }}</p>
+                                  <input type="text" class="w-full" id="jobtitle-input" value="{{ agent.jobtitle }}" style="display: none;">
+                                  <button id="jobtitle-edit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Edit</button>
+                                  <button id="jobtitle-save" class="mt-2 bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded" style="display: none;">Save</button>
+                              </div>
+                          {% endif %}
+                          {% if agent.summary %}
+                              <div class="p-4 bg-white rounded-lg shadow mb-4">
+                                  <h3 class="text-lg font-semibold mb-2">Summary</h3>
+                                  <p id="summary-text">{{ agent.summary }}</p>
+                                  <textarea id="summary-input" class="w-full" style="display: none;">{{ agent.summary }}</textarea>
+                                  <button id="summary-edit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Edit</button>
+                                  <button id="summary-save" class="mt-2 bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded" style="display: none;">Save</button>
+                              </div>
+                          {% endif %}
+
+                          {% if agent.persona %}
+                              <div class="p-4 bg-white rounded-lg shadow mb-4">
+                                  <h3 class="text-lg font-semibold mb-2">Persona</h3>
+                                  <p id="persona-text">{{ agent.persona }}</p>
+                                  <textarea id="persona-input" class="w-full min-h-6em" style="display: none;">{{ agent.persona }}</textarea>
+                                  <button id="persona-edit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Edit</button>
+                                  <button id="persona-save" class="mt-2 bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded" style="display: none;">Save</button>
+                              </div>
+                          {% endif %}
+
+                          {% if agent.relationships %}
+                              <div class="mt-4">
+                                  <h3 class="text-xl font-semibold mb-2">Relationships</h3>
+                                  <div class="space-y-4">
+                                      {% for relationship in agent.relationships %}
+                                          <div class="p-4 bg-gray-50 rounded-lg shadow" data-relationship-id="{{ relationship.id }}">
+                                              <p class="font-semibold">{{ relationship.name | default('N/A', true) }}</p>
+                                              <p><strong>Job:</strong> {{ relationship.job | default('N/A', true) }}</p>
+                                              <p><strong>Relationship:</strong> <span class="relationship-description-text">{{ relationship.relationship_description | default('N/A', true) }}</span></p>
+                                              <input type="text" class="relationship-description-input w-full" value="{{ relationship.relationship_description }}" style="display: none;">
+                                              <button class="relationship-edit-btn bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Edit</button>
+                                              <button class="relationship-save-btn bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded" style="display: none;">Save</button>
+                                              <p><strong>Summary:</strong> {{ relationship.summary | default('N/A', true) }}</p>
+                                              {% if relationship.common_interactions %}
+                                                  <div>
+                                                      <strong>Common Interactions:</strong>
+                                                      <ul class="list-disc pl-5">
+                                                          {% for interaction in relationship.common_interactions %}
+                                                              <li>{{ interaction }}</li>
+                                                          {% endfor %}
+                                                      </ul>
+                                                  </div>
+                                              {% endif %}
+                                          </div>
+                                      {% endfor %}
+                                  </div>
+                              </div>
+                          {% endif %}
+
+                          
+                        </div>
+                    </div>
+                    <footer class="px-6 py-4 bg-gray-100 flex justify-between items-center">
+                        {% if prev_agent_id %}
+                            <a href="{{ url_for('profile_blueprint.profile', agents_file=agents_file, agent_id=prev_agent_id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors">Previous</a>
                         {% endif %}
-                    {% endfor %}
-                </select>
-                <button type="submit">Load Agents</button>
-            </form>
-          {% if agent %}
-            <script>
-                console.log("Agent data:", {{ agent|tojson }});
-            </script>
-            <div class="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
-                {% if agent.photo_path %}
-                    <img src="{% if agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-32 h-32 rounded-full mx-auto mb-4">
-                {% endif %}
-                <h2 class="text-2xl font-bold mb-2">{{ agent.id }}</h2>
-                {% if agent.email %}
-                    <p class="mb-2"><strong>Email:</strong> {{ agent.email }}</p>
-                {% endif %}
-                {% if agent.jobtitle %}
-                    <p class="mb-2"><strong>Job Title:</strong> {{ agent.jobtitle }}</p>
-                {% endif %}
-                {% if agent.summary %}
-                    <p class="mb-2"><strong>Summary:</strong> {{ agent.summary }}</p>
-                {% endif %}
-                {% if agent.persona %}
-                    <p class="mb-2"><strong>Persona:</strong> {{ agent.persona }}</p>
-                {% endif %}
-                {% if agent.relationships %}
-                    <p class="mb-2"><strong>Relationships:</strong></p>
-                    <ul>
-                        {% for relationship in agent.relationships %}
-                            <li>
-                                {% if relationship.name %}<strong>Name:</strong> {{ relationship.name }}<br>{% endif %}
-                                {% if relationship.job %}<strong>Job:</strong> {{ relationship.job }}<br>{% endif %}
-                                {% if relationship.relationship_description %}<strong>Relationship Description:</strong> {{ relationship.relationship_description }}<br>{% endif %}
-                                {% if relationship.summary %}<strong>Summary:</strong> {{ relationship.summary }}<br>{% endif %}
-                                {% if relationship.common_interactions %}
-                                    <strong>Common Interactions:</strong>
-                                    <ul>
-                                        {% for interaction in relationship.common_interactions %}
-                                            <li>{{ interaction }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                {% endif %}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% if agent.keywords %}
-                    <p class="mb-2"><strong>Keywords:</strong></p>
-                    <ul>
-                        {% for keyword in agent.keywords %}
-                            <li>{{ keyword }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-                <div class="flex justify-between">
-                    {% if prev_agent_id %}
-                        <a href="{{ url_for('profile_blueprint.profile', agents_file=agents_file, agent_id=prev_agent_id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Previous</a>
-                    {% endif %}
-                    {% if next_agent_id %}
-                        <a href="{{ url_for('profile_blueprint.profile', agents_file=agents_file, agent_id=next_agent_id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Next</a>
-                    {% endif %}
-                </div>
-{% else %}
-            <script>
-                console.log("No agent found.");
-            </script>
-            <p>No agent found.</p>
-        {% endif %}
+                        {% if next_agent_id %}
+                            <a href="{{ url_for('profile_blueprint.profile', agents_file=agents_file, agent_id=next_agent_id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors">Next</a>
+                        {% endif %}
+                    </footer>
+                </article>
+            {% else %}
+               
+                <p>No agent found.</p>
+            {% endif %}
+        </main>
     </div>
-  {% include 'footer.html' %}
+    {% include 'footer.html' %}
+
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to setup edit/save handlers
+    function setupEditSaveHandlers(editButtonId, saveButtonId, textElementId, inputElementId, field) {
+        const editButton = document.getElementById(editButtonId);
+        const saveButton = document.getElementById(saveButtonId);
+        const textElement = document.getElementById(textElementId);
+        const inputElement = document.getElementById(inputElementId);
+
+        if (editButton && saveButton && textElement && inputElement) {
+            editButton.addEventListener('click', function() {
+                textElement.style.display = 'none';
+                inputElement.style.display = 'block';
+                editButton.style.display = 'none';
+                saveButton.style.display = 'inline-block';
+            });
+
+            saveButton.addEventListener('click', function() {
+                const newValue = inputElement.value;
+                // AJAX call to save newValue
+                fetch('/update_agent', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        agents_file: 'agents/agents.json', // Assume the path to agents file or modify as needed
+                        agent_id: '{{ agent.id }}', // Current agent's ID
+                        field: field, // Field to update
+                        value: newValue // New value for the field
+                    })
+                }).then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    textElement.innerText = newValue;
+                    textElement.style.display = 'block';
+                    inputElement.style.display = 'none';
+                    saveButton.style.display = 'none';
+                    editButton.style.display = 'inline-block';
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            });
+        }
+    }
+
+    // Initialize edit/save functionality for job title, summary, and persona
+    setupEditSaveHandlers('jobtitle-edit', 'jobtitle-save', 'jobtitle-text', 'jobtitle-input', 'jobtitle');
+    setupEditSaveHandlers('summary-edit', 'summary-save', 'summary-text', 'summary-input', 'summary');
+    setupEditSaveHandlers('persona-edit', 'persona-save', 'persona-text', 'persona-input', 'persona');
+
+    // Relationship edit/save functionality
+    document.querySelectorAll('.relationship-edit-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const parentDiv = btn.closest('div[data-relationship-id]');
+            parentDiv.querySelector('.relationship-description-text').style.display = 'none';
+            parentDiv.querySelector('.relationship-description-input').style.display = 'block';
+            btn.style.display = 'none';
+            parentDiv.querySelector('.relationship-save-btn').style.display = 'inline-block';
+        });
+    });
+
+    document.querySelectorAll('.relationship-save-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const parentDiv = btn.closest('div[data-relationship-id]');
+            const newDescription = parentDiv.querySelector('.relationship-description-input').value;
+            const relationshipId = parentDiv.getAttribute('data-relationship-id');
+
+            // AJAX call to save the new relationship description
+            fetch('/update_agent', { // Assume a route exists or modify as needed
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    agents_file: 'agents/agents.json', // Assume the path to agents file or modify as needed
+                    agent_id: '{{ agent.id }}', // Current agent's ID
+                    relationship_id: relationshipId, // ID of the relationship being updated
+                    field: 'relationship_description', // Field to update
+                    value: newDescription // New value for the field
+                })
+            }).then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                parentDiv.querySelector('.relationship-description-text').innerText = newDescription;
+                parentDiv.querySelector('.relationship-description-text').style.display = 'block';
+                parentDiv.querySelector('.relationship-description-input').style.display = 'none';
+                btn.style.display = 'none';
+                parentDiv.querySelector('.relationship-edit-btn').style.display = 'inline-block';
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script>
+
+
 </body>
 </html>

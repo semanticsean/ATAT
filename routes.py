@@ -454,9 +454,9 @@ def profile():
 
     try:
         if agents_file == 'agents/agents.json':
-            agents_file_path = os.path.join(current_user.folder_path, agents_file)
+            agents_file_path = os.path.join(agents_dir, 'agents.json')
         else:
-            agents_file_path = os.path.join(agents_file.split('/')[-1])
+            agents_file_path = os.path.join(copies_dir, agents_file.split('/')[-1])
 
         if os.path.exists(agents_file_path):
             with open(agents_file_path, 'r') as file:
@@ -481,6 +481,55 @@ def profile():
         next_agent_id = None
 
     return render_template('profile.html', agent=agent, agents_file=agents_file, agent_copies=agent_copies, prev_agent_id=prev_agent_id, next_agent_id=next_agent_id)
+
+
+@profile_blueprint.route('/update_agent', methods=['POST'])
+@login_required
+def update_agent():
+    logging.info('Starting agent update process')
+    try:
+        data = request.get_json()
+        agents_file = data['agents_file']
+        agent_id = data['agent_id']
+        field = data['field']
+        value = data['value']
+
+        agents_dir = os.path.join(current_user.folder_path, 'agents')
+        copies_dir = os.path.join(agents_dir, 'copies')
+        backups_dir = os.path.join(agents_dir, 'backups')
+
+        if agents_file == 'agents/agents.json':
+            agents_file_path = os.path.join(agents_dir, 'agents.json')
+        else:
+            agents_file_path = os.path.join(copies_dir, agents_file.split('/')[-1])
+
+        # Load the agents data from the file
+        with open(agents_file_path, 'r') as file:
+            agents_data = json.load(file)
+
+        # Find the agent to update
+        agent = next((a for a in agents_data if a['id'] == agent_id), None)
+        if agent:
+            # Update the specified field
+            agent[field] = value
+
+            # Create a backup of the original file
+            os.makedirs(backups_dir, exist_ok=True)
+            backup_file = os.path.join(backups_dir, f"{os.path.basename(agents_file_path)}.bak")
+            shutil.copy2(agents_file_path, backup_file)
+
+            # Save the updated agents data back to the file
+            with open(agents_file_path, 'w') as file:
+                json.dump(agents_data, file)
+
+            logging.info(f"Successfully updated agent {agent_id}")
+        else:
+            logging.warning(f"Agent {agent_id} not found. No updates made.")
+        
+        return jsonify(success=True)
+    except Exception as e:
+        logging.error(f"Error updating agent: {str(e)}")
+        return jsonify(success=False, error=str(e))
 
 @auth_blueprint.route('/logout')
 @login_required
