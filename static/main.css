@@ -69,7 +69,13 @@ p {
 }
 
 
-
+/* Style the header and footer */
+.header, .footer {
+  background-color: #FFFFFF;
+  color: #333333;
+  text-align: center;
+  padding: 1rem 0;
+}
 
 /* Navbar styles */
 .navbar {
@@ -112,6 +118,12 @@ h1, h2 {
   margin: 0.5rem 0;
 }
 
+/* Update main content layout to include padding from left for the sidebar */
+.main {
+  padding-left: 12px; /* Equal to the width of the sidebar */
+  margin-left: 250px; 
+  padding-top:20px;
+}
 
 
 .agents-table{
