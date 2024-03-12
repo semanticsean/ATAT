@@ -214,9 +214,9 @@ function createChart(data) {
   <div class="container mx-auto px-4 py-8 mt-12">
     
     
-      <h1 class="text-3xl font-bold mb-4">Discussion Results</h1>
+      <h2 class="text-3xl font-bold mb-4">Discussion:</h2>
       <div class="mb-8">
-          <h2 class="text-xl font-bold mb-2">Discussion Name: {{ survey.filename }}</h2>
+          <h1 class="text-xl font-bold mb-2">{{ survey.foldername[:-8]}}</h1>
           <p class="text-gray-700">Synths Responding: {{ results|length }}</p>
       </div>
     <div class="bg-white shadow-md rounded-lg mb-6">
@@ -233,9 +233,6 @@ function createChart(data) {
       </div>
         </div>
     </div>
-3
-  
-      
 
       <button id="download-csv" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Download CSV</button>
   </div>
