@@ -1,0 +1,108 @@
+<!-- templates/profile.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-blue-50">
+  {% include 'header.html' %}
+    <div id="header">
+        <div class="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 px-4 flex justify-between items-center">
+            <a href="/">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-32">
+            </a>
+            <div class="flex">
+                <a href="/" class="mr-4">
+                    <button class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded">Home</button>
+                </a>
+                <a href="{{ url_for('auth_blueprint.logout') }}">
+                    <button class="bg-gray-700 hover:bg-red-700 text-white py-2 px-4 rounded">Logout</button>
+                </a>
+            </div>
+        </div>
+        <div class="container mx-auto px-4 py-8 mt-12">
+            <h1 class="text-3xl font-bold mb-4">Agent Profile</h1>
+            <form id="agents-file-form" method="get" action="{{ url_for('profile_blueprint.profile') }}">
+                <label for="agents-file">Select Agents File:</label>
+                <select id="agents-file" name="agents_file">
+                    <option value="agents/agents.json">agents/agents.json</option>
+                    {% for copy in agent_copies %}
+                        {% if copy.endswith('.json') %}
+                            <option value="agents/copies/{{ copy }}">{{ copy }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <button type="submit">Load Agents</button>
+            </form>
+          {% if agent %}
+            <script>
+                console.log("Agent data:", {{ agent|tojson }});
+            </script>
+            <div class="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
+                {% if agent.photo_path %}
+                    <img src="{% if agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-32 h-32 rounded-full mx-auto mb-4">
+                {% endif %}
+                <h2 class="text-2xl font-bold mb-2">{{ agent.id }}</h2>
+                {% if agent.email %}
+                    <p class="mb-2"><strong>Email:</strong> {{ agent.email }}</p>
+                {% endif %}
+                {% if agent.jobtitle %}
+                    <p class="mb-2"><strong>Job Title:</strong> {{ agent.jobtitle }}</p>
+                {% endif %}
+                {% if agent.summary %}
+                    <p class="mb-2"><strong>Summary:</strong> {{ agent.summary }}</p>
+                {% endif %}
+                {% if agent.persona %}
+                    <p class="mb-2"><strong>Persona:</strong> {{ agent.persona }}</p>
+                {% endif %}
+                {% if agent.relationships %}
+                    <p class="mb-2"><strong>Relationships:</strong></p>
+                    <ul>
+                        {% for relationship in agent.relationships %}
+                            <li>
+                                {% if relationship.name %}<strong>Name:</strong> {{ relationship.name }}<br>{% endif %}
+                                {% if relationship.job %}<strong>Job:</strong> {{ relationship.job }}<br>{% endif %}
+                                {% if relationship.relationship_description %}<strong>Relationship Description:</strong> {{ relationship.relationship_description }}<br>{% endif %}
+                                {% if relationship.summary %}<strong>Summary:</strong> {{ relationship.summary }}<br>{% endif %}
+                                {% if relationship.common_interactions %}
+                                    <strong>Common Interactions:</strong>
+                                    <ul>
+                                        {% for interaction in relationship.common_interactions %}
+                                            <li>{{ interaction }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if agent.keywords %}
+                    <p class="mb-2"><strong>Keywords:</strong></p>
+                    <ul>
+                        {% for keyword in agent.keywords %}
+                            <li>{{ keyword }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+                <div class="flex justify-between">
+                    {% if prev_agent_id %}
+                        <a href="{{ url_for('profile_blueprint.profile', agents_file=agents_file, agent_id=prev_agent_id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Previous</a>
+                    {% endif %}
+                    {% if next_agent_id %}
+                        <a href="{{ url_for('profile_blueprint.profile', agents_file=agents_file, agent_id=next_agent_id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Next</a>
+                    {% endif %}
+                </div>
+{% else %}
+            <script>
+                console.log("No agent found.");
+            </script>
+            <p>No agent found.</p>
+        {% endif %}
+    </div>
+  {% include 'footer.html' %}
+</body>
+</html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,9 +26,9 @@
         }
     </script>
 </head>
-<body class="bg-blue-50">
+<body class="bg-blue-50 h-full">
           {% include 'header.html' %}
-
+  <main class="flex-grow">
           <div class="container mx-auto px-4 py-8 mt-12">
         <h1 class="text-3xl font-bold mb-4">Discussion Questions</h1>
         <form id="surveyForm" action="{{ url_for('survey_blueprint.survey_form', survey_id=survey.id) }}" method="post">
@@ -57,6 +58,7 @@
             <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Submit Survey</button>
         </form>
     </div>
+  </main>
               {% include 'footer.html' %}
 
 </body>

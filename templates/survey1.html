@@ -1,6 +1,7 @@
 <!--templates/survey1.html-->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,9 +9,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body class="bg-blue-50">
+<body class="bg-blue-50 h-full">
     {% include 'header.html' %}
-
+  <main class="flex-grow">
   
     <div class="container mx-auto px-4 py-8 mt-12">
       
@@ -47,6 +48,7 @@
     </div>
     </div>
   </div>
+  </main>
 
   {% include 'footer.html' %}
 

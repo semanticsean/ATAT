@@ -1,6 +1,7 @@
 <!-- templates/dashboard.html -->
 <!DOCTYPE html>
-<html lang="en">
+  <html lang="en" class="h-full">
+
 <head>
   <meta property="og:title" content="" />
   <meta property="og:description" content="" />
@@ -88,8 +89,9 @@
       }
     </script>
 </head>
-<body>
+  <body class="flex flex-col h-full">
     {% include 'header.html' %}
+  <main class="flex-grow">
 
           <button id="close-banner" class="text-white hover:text-gray-200 focus:outline-none">
               <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
@@ -149,24 +151,28 @@
 
     
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 ml-auto mr-auto mb-4 mt-12">
-
       {% for agent in agents %}
         <div class="bg-white border rounded-lg shadow overflow-hidden">
           <img src="{% if agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-full h-64 object-cover rounded-full">
           <div class="p-4">
             <h3 class="text-lg font-bold">{{ agent.id }}</h3>
             <h4 class="text-lg font-bold">{{ agent.jobtitle }}</h4>
-            
+
             <!-- Add a min-height class to the paragraph for consistent height -->
-            <p >{{ agent.summary }}</p> 
+            <p>{{ agent.summary }}</p> 
             <div class="mt-4 flex justify-left gap-2">
-              {% if agent_source.filename == "agents.json" %}<a href="mailto:{{ agent.email }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Email</a>
+              {% if agent_source.filename == "agents.json" %}
+                <a href="mailto:{{ agent.email }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Email</a>
                 <button id="copyEmail{{ agent.id }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm rounded py-1 px-2" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email</button>
                 <button id="copyShortcode{{ agent.id }}" class="bg-gray-200 hover:bg-gray-400 text-black text-sm py-1 px-2 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
               {% else %}
                 <!-- Display the Start Discussion button if any other agents file is loaded -->
                 <a href="{{ url_for('survey_blueprint.create_survey', selected_file=agent_source.filename) }}" class="bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded">Start Discussion</a>
               {% endif %}
+            </div>
+            <!-- Add the "View Profile" button -->
+            <div class="mt-4">
+              <a href="{{ url_for('profile_blueprint.profile', agents_file=agent_source.filename, agent_id=agent.id) }}" class="bg-gray-200 hover:bg-gray-300 text-black text-sm py-1 px-2 rounded">View Profile</a>
             </div>
           </div>
         </div>
@@ -228,9 +234,10 @@
   </div>
 
   </div>
-</div>
   
-
+  </main>
+  
+    
   {% include 'footer.html' %}
 
   <script>
@@ -246,14 +253,13 @@
       }, 600); // Adjust the timeout to match the fadeOut speed you desire
     }
   };
+
+    // Script to handle the closing of the shortcodes section
+    document.getElementById('close-shortcodes').addEventListener('click', function() {
+        document.getElementById('shortcodes-section').style.display = 'none';
+    });
   </script>
 
-  <script>
-  // Script to handle the closing of the shortcodes section
-  document.getElementById('close-shortcodes').addEventListener('click', function() {
-      document.getElementById('shortcodes-section').style.display = 'none';
-  });
-  </script>
     
 </body>
 
