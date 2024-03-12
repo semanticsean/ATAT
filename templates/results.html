@@ -13,6 +13,28 @@
           height: auto !important;
           max-height: 400px; /* You can adjust this value */
       }
+
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+
+      #content {
+        min-height: 100%;
+        /* Equal to footer height */
+        margin-bottom: -4rem; 
+      }
+
+      #footer-push {
+        height: 4rem; 
+        /* Equal to footer height */
+      }
+
+      footer {
+        height: 4rem;
+        /* Other styling */
+      }
+
   </style>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -227,6 +249,8 @@ function createChart(data) {
       </div>
     </div>
     </main>
+    <div id="footer-push"></div>
+    </div>
     {% include 'footer.html' %}
 
     <script>

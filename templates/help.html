@@ -8,6 +8,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Help - Semantic Life</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" />
+    <style>
+
+        html, body {
+          height: 100%;
+          margin: 0;
+        }
+
+        #content {
+          min-height: 100%;
+          /* Equal to footer height */
+          margin-bottom: -4rem; 
+        }
+
+        #footer-push {
+          height: 4rem; 
+          /* Equal to footer height */
+        }
+
+        footer {
+          height: 4rem;
+          /* Other styling */
+        }
+
+    </style>
   </head>
     
     <body class="flex flex-col h-full">
@@ -23,11 +47,52 @@
           <li>Managing your synths</li>
           <li>Customizing discussions</li>
         </ul>
-        
+            <div class="text-xl font-bold text-gray-800">Shortcodes</div>
+
+                <div class="mt-4">
+                    <h4 class="font-semibold text-lg text-blue-600">Call Agents from Email Body</h4>
+                    <div> class="text-gray-600">@@(Agent Name)</div>
+                </div>
+
+                <div class="mt-4">
+                    <h4 class="font-semibold text-lg text-blue-600">Create a Temporary Synth</h4>
+                    <div class="text-gray-600">@@.creator(Embody a synth that...)</div>
+                </div>
+
+                <div class="mt-4">
+                    <h4 class="font-semibold text-lg text-blue-600">Long Responses (Multi-Chunk)</h4>
+                    <div class="text-gray-600">!detail_start!<br>instruction or content<br>!split!<br>instruction or content<br>!detail_stop!</div>
+                </div>
+
+                <div class="mt-4">
+                    <h4 class="font-semibold text-lg text-blue-600">Summarize</h4>
+                    <div class="text-gray-600">!summarize_start!<br>content<br>!summarize_stop!</div>
+                </div>
+
+                <div class="mt-4">
+                    <h4 class="font-semibold text-lg text-blue-600">Summarize with Modifier e.g. JSON Return</h4>
+                    <div class="text-gray-600">!summarize.json_start!<br>content<br>!summarize.json_stop!</div>
+                </div>
+
+                <!-- Code Links Section -->
+                <div class="pb-12 mt-6 mb-12">
+                    <h3 class="text-lg font-bold text-gray-800">Code:</h3>
+                    <p class="text-blue-600 hover:text-blue-800 visited:text-purple-600">
+                        <a href="https://github.com/semanticsean/ATAT" target="_blank">Github / Readme</a><br>
+                        <a href="https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public" target="_blank">Setup on Replit in 5 Minutes</a><br>
+                        <a href="https://x.com/seanmcdonaldxyz" target="_blank">Follow Sean</a><br>
+                        <a href="https://x.com/semanticlife" target="_blank">Follow Semantic Life</a>
+                    </p>
+                </div>
+            </div>
       </div>
+          
     </div>
+
+        
     </main>
-      
+      <div id="footer-push"></div>
+      </div>
       {% include 'footer.html' %}
       
   </body>

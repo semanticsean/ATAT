@@ -6,6 +6,30 @@
     <meta charset="UTF-8" />
     <title>Create New Moment</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet"/>
+  <style>
+
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+
+      #content {
+        min-height: 100%;
+        /* Equal to footer height */
+        margin-bottom: -4rem; 
+      }
+
+      #footer-push {
+        height: 4rem; 
+        /* Equal to footer height */
+      }
+
+      footer {
+        height: 4rem;
+        /* Other styling */
+      }
+
+  </style>
 </head>
 <body class="bg-blue-50 h-full">
     {% include 'header.html' %}
@@ -62,6 +86,8 @@
         </div>
     </div>
   </main>
+  <div id="footer-push"></div>
+  </div>
     {% include 'footer.html' %}
 
   <script>
