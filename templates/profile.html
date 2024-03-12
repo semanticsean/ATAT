@@ -43,15 +43,19 @@
                 <a href="{{ url_for('auth_blueprint.logout') }}" class="bg-gray-700 hover:bg-red-700 text-white py-2 px-4 rounded transition-colors">Logout</a>
             </nav>
         </header>
-        <main class="container mx-auto px-4 py-8 mt-4">
-            <h1 class="text-3xl font-bold mb-8 text-center">Agent Profile</h1>
+        <main class="container mx-auto px-4 py-4 mt-2">
+            <h1 class="text-3xl font-bold mb-4 text-center">Agent Profile</h1>
             {% if agent %}
                 <script>
                     console.log("Agent data:", {{ agent|tojson }});
                 </script>
                 <article class="bg-white shadow-lg rounded-lg overflow-hidden">
                   {% if agent.photo_path %}
-                      <img src="{% if agents_file == 'agents/agents.json' %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% elif agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-full h-84 object-cover object-center">
+                  <div class="flex items-center justify-center h-420 overflow-hidden">
+                      <img src="{% if agents_file == 'agents/agents.json' %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% elif agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-full object-cover object-center" style="max-height: 600px;">
+                  </div>
+
+
                   {% endif %}
                     <div class="p-6">
                         <h2 class="text-2xl font-bold mb-2">{{ agent.id }}</h2>
