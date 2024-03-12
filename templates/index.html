@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
+
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,7 +11,7 @@
     />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   </head>
-  <body class="bg-gray-100">
+  <body class="flex flex-col h-full">
 
     
 
@@ -30,6 +31,7 @@
     </div>
 
     {% include 'header.html' %}
+    <main class="flex-grow">
 
     <div class="container mx-auto px-4 mt-16">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -107,6 +109,8 @@
         <p class="text-gray-600">No moments yet.</p>
         {% endif %}
       </div>
+    </div>
+    </main>
       {% include 'footer.html' %}
 
     

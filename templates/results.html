@@ -1,6 +1,7 @@
 <!--results.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -195,9 +196,9 @@ function createChart(data) {
         }
     </style>
 </head>
-  <body class="bg-blue-50">
+  <body class="bg-blue-50 h-full">
       {% include 'header.html' %}
-
+    <main class="flex-grow">
   <div class="container mx-auto px-4 py-8 mt-12">
     
     
@@ -225,6 +226,7 @@ function createChart(data) {
   </div>
       </div>
     </div>
+    </main>
     {% include 'footer.html' %}
 
     <script>

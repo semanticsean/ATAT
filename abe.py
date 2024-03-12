@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 from datetime import datetime
 from extensions import db, login_manager
 from models import User, Survey
-from routes import auth_blueprint, survey_blueprint,  dashboard_blueprint
+from routes import auth_blueprint, survey_blueprint, dashboard_blueprint, profile_blueprint
 from werkzeug.utils import secure_filename
 
 def configure_logging():
@@ -63,6 +63,7 @@ app.logger.setLevel(logging.DEBUG)
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(survey_blueprint)
 app.register_blueprint(dashboard_blueprint)
+app.register_blueprint(profile_blueprint)
 
 
 

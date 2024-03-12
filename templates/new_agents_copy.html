@@ -1,13 +1,15 @@
 <!--templates/new_agents_copy.html-->
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
+
 <head>
     <meta charset="UTF-8" />
     <title>Create New Moment</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet"/>
 </head>
-<body class="bg-blue-50">
+<body class="bg-blue-50 h-full">
     {% include 'header.html' %}
+  <main class="flex-grow">
   
     <div class="container mx-auto px-4 py-8 mt-12">
         <div class="max-w-md mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg">
@@ -59,6 +61,7 @@
             </div>
         </div>
     </div>
+  </main>
     {% include 'footer.html' %}
 
   <script>
