@@ -12,6 +12,35 @@
   <meta name="twitter:description" content="" />
   <meta name="twitter:image" content="" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    .content-container {
+      min-height: calc(100vh - var(--header-footer-height)); /* Adjust the --header-footer-height accordingly */
+      padding-bottom: 4rem; /* This is equivalent to 1rem = 16px */
+    }
+
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+
+      #content {
+        min-height: 100%;
+        /* Equal to footer height */
+        margin-bottom: -4rem; 
+      }
+
+      #footer-push {
+        height: 4rem; 
+        /* Equal to footer height */
+      }
+
+      footer {
+        height: 4rem;
+        /* Other styling */
+      }
+
+    </style>
+
 
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
 
@@ -92,7 +121,7 @@
 </head>
   <body class="flex flex-col h-full">
     {% include 'header.html' %}
-  <main class="flex-grow">
+    <main class="flex-grow content-container">
 
           <button id="close-banner" class="text-white hover:text-gray-200 focus:outline-none">
               <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
@@ -113,59 +142,60 @@
   </div>
   
 
-  <div class="container mx-auto mt-4 mb-8">
-  
-    <div class="font-bold mb-4 text-center text-3xl mt-12">DASHBOARD: {% if agent_source.filename[:-5] == "agents" %}Base Agents{% else %}{{ agent_source.filename[14:-5] }}{% endif %}</div>
-    
-  <div class="mt-1 relative rounded-md shadow-sm">
-          <form id="agents-file-form" method="get" action="{{ url_for('dashboard_blueprint.dashboard') }}" class="max-w-xl mx-auto my-8">
-              <label for="agents-file" class="block text-xl font-bold text-gray-700">Select Moment to View</label>
-              <div class="mt-1 relative rounded-md shadow-sm">
-                  <select id="agents-file" name="agents_file" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+  <div class="container mx-auto mt-2 mb-2">
+    <div class="font-bold mb-2 text-center text-3xl mt-8">DASHBOARD: {% if agent_source.filename[:-5] == "agents" %}Base Agents{% else %}{{ agent_source.filename[14:-5] }}{% endif %}</div>
+    <form id="agents-file-form" method="get" action="{{ url_for('dashboard_blueprint.dashboard') }}" class="max-w-xl mx-auto my-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <label for="agents-file" class="block text-sm text-gray-700 md:mb-0">Change Moments:</label>
+            <div class="mt-1 md:mt-0 md:flex-1 md:mx-3 relative rounded-md shadow-sm">
+                <select id="agents-file" name="agents_file" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
                     <option value="agents/agents.json">All Agents</option>
                     {% for copy in agent_copies %}
                         {% if copy.endswith('.json') %}
                             <option value="agents/copies/{{ copy }}">{{ copy.split('/')[-1][:-5] }}</option>
-                          {% endif %}
-                      {% endfor %}
-                  </select>
-              </div>
-              <button type="submit" class="mb-12 mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:border-blue-700 focus:ring-blue active:bg-blue-700 transition duration-150 ease-in-out">
-                  Load Agents
-              </button>
-          </form>
-  </div>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="mb-6 md:mb-0 mt-3 md:mt-0 inline-flex items-center px-2 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-black hover:bg-blue-600 focus:outline-none focus:border-blue-700 focus:ring-blue active:bg-blue-700 transition duration-150 ease-in-out">
+                Load Agents
+            </button>
+        </div>
+    </form>
+</div>
 
     
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 ml-auto mr-auto mb-4 mt-12">
-      {% for agent in agents %}
-        <div class="bg-white border rounded-lg shadow overflow-hidden">
-          <img src="{% if agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-full h-64 object-cover rounded-full">
-          <div class="p-4">
-            <h3 class="text-lg font-bold">{{ agent.id }}</h3>
-            <h4 class="text-lg font-bold">{{ agent.jobtitle }}</h4>
-
-            <!-- Add a min-height class to the paragraph for consistent height -->
-            <p>{{ agent.summary }}</p> 
-            <div class="mt-4 flex justify-left gap-2">
-              {% if agent_source.filename == "agents.json" %}
-                <a href="mailto:{{ agent.email }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Email</a>
-                <button id="copyEmail{{ agent.id }}" class="bg-blue-500 hover:bg-blue-700 text-white text-sm rounded py-1 px-2" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email</button>
-                <button id="copyShortcode{{ agent.id }}" class="bg-gray-200 hover:bg-gray-400 text-black text-sm py-1 px-2 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
-              {% else %}
-                <!-- Display the Start Discussion button if any other agents file is loaded -->
-                <a href="{{ url_for('survey_blueprint.create_survey', selected_file=agent_source.filename) }}" class="bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded">Start Discussion</a>
-              {% endif %}
+    
+    <div class="max-w-6xl mx-auto my-4">
+        <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6">
+            {% for agent in agents %}
+            <div class="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                <img src="{% if agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-full object-cover" style="height: 250px; object-fit: cover;">
+              <div class="flex-grow p-4 flex flex-col justify-between"> 
+                <div class="p-6">
+                    <div class="flex flex-col items-start">
+                        <a href="{{ url_for('profile_blueprint.profile', agents_file=agent_source.filename, agent_id=agent.id) }}" class="mb-4 inline-block bg-black hover:bg-indigo-600 text-white text-sm py-2 px-4 rounded">View Profile</a>
+                        <h3 class="text-xl font-semibold mb-1">{{ agent.id }}</h3>
+                        <h4 class="text-md text-gray-500 mb-3">{{ agent.jobtitle }}</h4>
+                        <p class="mb-4">{{ agent.summary }}</p>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <a href="mailto:{{ agent.email }}" class="inline-block bg-gray-700 hover:bg-blue-600 text-white text-sm py-2 px-4 rounded text-center" style="flex: 1 1 30%;">Email</a>
+                        <button id="copyEmail{{ agent.id }}" class="inline-block bg-gray-500 hover:bg-green-600 text-white text-sm py-2 px-4 rounded" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')" style="flex: 1 1 30%;">Copy Email</button>
+                        <button id="copyShortcode{{ agent.id }}" class="inline-block bg-gray-300 hover:bg-yellow-600 text-white text-sm py-2 px-4 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')" style="flex: 1 1 30%;">Copy Shortcode</button>
+                        {% if agent_source.filename != "agents.json" %}
+                        <a href="{{ url_for('survey_blueprint.create_survey', selected_file=agent_source.filename) }}" class="inline-block bg-black hover:bg-gray-800 text-white text-sm py-2 px-4 rounded" style="flex: 1 1 100%;">Start Moment</a>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            <!-- Add the "View Profile" button -->
-            <div class="mt-4">
-              <a href="{{ url_for('profile_blueprint.profile', agents_file=agent_source.filename, agent_id=agent.id) }}" class="bg-gray-200 hover:bg-gray-300 text-black text-sm py-1 px-2 rounded">View Profile</a>
-            </div>
-          </div>
+              </div>
+            {% endfor %}
         </div>
-      {% endfor %}
+        
     </div>
-    <!-- Instructions Section -->
+
+    <!-- 
     <div class="image-section" style="display: none;">
       <img id="social_image" class="social_image mx-auto justify-center" src="" alt="Social Image"> 
 
@@ -177,44 +207,7 @@
               </svg>
           </button>
 
-          <div class="text-xl font-bold text-gray-800">Shortcodes</div>
-
-        <div class="mt-4">
-            <h4 class="font-semibold text-lg text-blue-600">Call Agents from Email Body</h4>
-            <div> class="text-gray-600">@@(Agent Name)</div>
-        </div>
-
-        <div class="mt-4">
-            <h4 class="font-semibold text-lg text-blue-600">Create a Temporary Synth</h4>
-            <div class="text-gray-600">@@.creator(Embody a synth that...)</div>
-        </div>
-
-        <div class="mt-4">
-            <h4 class="font-semibold text-lg text-blue-600">Long Responses (Multi-Chunk)</h4>
-            <div class="text-gray-600">!detail_start!<br>instruction or content<br>!split!<br>instruction or content<br>!detail_stop!</div>
-        </div>
-
-        <div class="mt-4">
-            <h4 class="font-semibold text-lg text-blue-600">Summarize</h4>
-            <div class="text-gray-600">!summarize_start!<br>content<br>!summarize_stop!</div>
-        </div>
-
-        <div class="mt-4">
-            <h4 class="font-semibold text-lg text-blue-600">Summarize with Modifier e.g. JSON Return</h4>
-            <div class="text-gray-600">!summarize.json_start!<br>content<br>!summarize.json_stop!</div>
-        </div>
-
-        <!-- Code Links Section -->
-        <div class="pb-12 mt-6 mb-12">
-            <h3 class="text-lg font-bold text-gray-800">Code:</h3>
-            <p class="text-blue-600 hover:text-blue-800 visited:text-purple-600">
-                <a href="https://github.com/semanticsean/ATAT" target="_blank">Github / Readme</a><br>
-                <a href="https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public" target="_blank">Setup on Replit in 5 Minutes</a><br>
-                <a href="https://x.com/seanmcdonaldxyz" target="_blank">Follow Sean</a><br>
-                <a href="https://x.com/semanticlife" target="_blank">Follow Semantic Life</a>
-            </p>
-        </div>
-    </div>
+          
     <!-- End of Instructions Section -->
 
     <!-- NOT USING AUTO GEN FROM STATIC/CONTENT.JSON <section id="webCopySection" class="text-center p-4 bg-gray-100">
@@ -238,7 +231,8 @@
   
   </main>
   
-    
+    <div id="footer-push"></div>
+    </div>
   {% include 'footer.html' %}
     
   <script>
