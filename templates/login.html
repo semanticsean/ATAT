@@ -8,6 +8,30 @@
   <title>Login - Semantic Life</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+
+      #content {
+        min-height: 100%;
+        /* Equal to footer height */
+        margin-bottom: -4rem; 
+      }
+
+      #footer-push {
+        height: 4rem; 
+        /* Equal to footer height */
+      }
+
+      footer {
+        height: 4rem;
+        /* Other styling */
+      }
+
+  </style>
 </head>
   <body class="flex flex-col h-full">
     <main class="flex-grow">
@@ -46,6 +70,8 @@
     </div>
   </div>
     </main>
+    <div id="footer-push"></div>
+    </div>
     {% include 'footer.html' %}
   <script>
     $(document).ready(function () {

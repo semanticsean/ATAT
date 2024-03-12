@@ -4,7 +4,7 @@ import abe_gpt
 
 from models import User, Survey
 from extensions import db
-from flask import Blueprint, render_template, redirect, url_for, request, flash, send_from_directory, abort, jsonify, send_file
+from flask import Blueprint, render_template, redirect, url_for, request, flash, send_from_directory, abort, jsonify, send_file, make_response
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
@@ -558,4 +558,8 @@ def update_agent():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('home'))
+    response = make_response(redirect('/'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
