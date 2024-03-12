@@ -87,10 +87,7 @@ def update_profile():
 
     return render_template('user.html')
 
-@auth_blueprint.route('/new_agent_copy')
-@login_required
-def new_agent_copy():
-    return render_template('new_agents_copy.html')
+
 
 def sanitize_filename(filename):
   # Strip HTML tags
@@ -112,24 +109,50 @@ def serve_image(copy_num, filename):
     else:
         return abort(404)
 
+@auth_blueprint.route('/new_agent_copy')
+@login_required
+def new_agent_copy():
+    agents_dir = os.path.join(current_user.folder_path, 'agents')
+    agents_file = os.path.join(agents_dir, 'agents.json')
+    try:
+        with open(agents_file, 'r') as f:
+            agents_data = json.load(f)
+        # Make sure agents_data is a list of agents
+        if not isinstance(agents_data, list):
+            raise ValueError("agents_data is not a list")
+    except Exception as e:
+        # Log the error or inform the user if necessary
+        print(f"Error loading agents from JSON: {e}")
+        agents_data = []  # Ensure agents_data is an empty list if there's an error
+
+    return render_template('new_agents_copy.html', agents=agents_data)
+
 @auth_blueprint.route('/create_agent_copy', methods=['POST'])
 @login_required
 def create_agent_copy():
-    form_data = request.form.to_dict()
-
     # Read the starting agents.json
     agents_dir = os.path.join(current_user.folder_path, 'agents')
     agents_file = os.path.join(agents_dir, 'agents.json')
     with open(agents_file, 'r') as f:
         agents_data = json.load(f)
 
+    # Get the selected agent IDs from the form data directly using request.form.getlist
+    selected_agent_ids = request.form.getlist('selected_agents')
+
+    # Filter the agents_data to include only the selected agents
+    selected_agents_data = [agent for agent in agents_data if str(agent['id']) in selected_agent_ids]
+
+    # Extract other form data
+    form_data = request.form.to_dict()
+    form_data.pop('selected_agents', None)
+
     # Prepare the payload for the OpenAI API
     payload = {
-        "agents_data": agents_data,
-        "instructions": form_data,
+        "agents_data": selected_agents_data,
+        "instructions": form_data,  # This will include all other form data besides 'selected_agents'
     }
 
-    # Call abe_gpt.py to process each agent record
+    # Call abe_gpt.py to process each selected agent record
     updated_agents_data = abe_gpt.process_agents(payload, current_user)
 
     # Save the updated agents data
@@ -143,7 +166,7 @@ def create_agent_copy():
         json.dump(updated_agents_data, f)
 
     return redirect('/')
-
+  
 
 @survey_blueprint.route('/survey/create', methods=['GET', 'POST'])
 @login_required
@@ -333,38 +356,45 @@ def results(folder, filename):
 @dashboard_blueprint.route('/dashboard')
 @login_required
 def dashboard():
+    logging.info("Accessing dashboard page")
     agents = []  # Initialize agents as an empty list to handle exceptions
+    agent_copies = []
+    survey_results = []
+
+    agents_dir = os.path.join(current_user.folder_path, 'agents')
+    copies_dir = os.path.join(agents_dir, 'copies')
+    # The agents_file is now expected to be a filename or relative path within the copies_dir without prefix
     agents_file = request.args.get('agents_file', 'agents.json')
 
+    logging.debug(f"Agents directory set to: {agents_dir}")
+    logging.debug(f"Copies directory set to: {copies_dir}")
+    logging.debug(f"Default agents file set to: {agents_file}")
+
+    if os.path.isdir(copies_dir):
+        agent_copies = [f for f in os.listdir(copies_dir) if f.endswith('.json')]
+        logging.info(f"Found {len(agent_copies)} agent copies in the directory.")
+
     try:
-        # Determine the correct file path based on the selected agents file
-        if agents_file.startswith('agents/copies/'):
-            agents_file_path = os.path.join(current_user.folder_path, agents_file)
-        elif agents_file.startswith('surveys/'):
-            agents_file_path = os.path.join(current_user.folder_path, agents_file)
+        if agents_file == 'agents.json':  # Default file requested
+            agents_file_path = os.path.join(agents_dir, agents_file)
+            logging.debug(f"Using the default agents.json file at: {agents_file_path}")
+        else:  # Any other file from the copies directory
+            agents_file_path = os.path.join(copies_dir, agents_file.replace('agents/copies/', ''))
+            logging.debug(f"Using a specified agents file at: {agents_file_path}")
+
+        if os.path.exists(agents_file_path):
+            with open(agents_file_path, 'r') as file:
+                agents = json.load(file)
+                logging.info(f"Successfully loaded agents from: {agents_file_path}")
         else:
-            agents_file_path = os.path.join(AGENTS_BASE_PATH, agents_file)
-
-        with open(agents_file_path, 'r') as file:
-            agents = json.load(file)
-        # Process each agent for additional data
-        for agent in agents:
-            # Assuming get_image_path is a function that updates the agent's photo path
-            agent['photo_path'] = get_image_path(agent)
-            # Handle keywords, if present
-            if 'keywords' in agent and isinstance(agent['keywords'], list):
-                agent['keywords'] = random.sample(agent['keywords'], min(len(agent['keywords']), 3))
-            else:
-                agent['keywords'] = []
+            logging.warning(f"Agents file does not exist at: {agents_file_path}")
     except Exception as e:
-        print(f"Failed to load or parse JSON file: {e}")
+        logging.error(f"Failed to load or parse agents JSON file: {e}", exc_info=True)
+        flash(f"Failed to load or parse agents JSON file: {e}", "error")
 
-    agent_copies = [f for f in os.listdir(os.path.join(current_user.folder_path, 'agents', 'copies')) if f.endswith('.json')]
-    survey_results = [(folder, file) for folder in os.listdir(os.path.join(current_user.folder_path, SURVEYS_BASE_PATH))
-                      for file in os.listdir(os.path.join(current_user.folder_path, SURVEYS_BASE_PATH, folder))
-                      if file.endswith('.json') and file != 'selected_agents.json']
-
+    logging.info("Rendering dashboard page")
     return render_template('dashboard.html', agents=agents, agent_copies=agent_copies, survey_results=survey_results)
+
 
 @survey_blueprint.route('/survey/results/<int:survey_id>')
 @login_required
