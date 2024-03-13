@@ -1,5 +1,6 @@
+<!-- templates/index.html --> 
 <!doctype html>
-<html lang="en" class="h-full">
+<html lang="en">
 
   <head>
     <meta charset="UTF-8" />
@@ -12,16 +13,12 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
 
-        html, body {
-          height: 100%;
-          margin: 0;
+
+        .flex-grow {
+          flex: 1;
         }
 
-        #content {
-          min-height: 100%;
-          /* Equal to footer height */
-          margin-bottom: -4rem; 
-        }
+      
 
         #footer-push {
           height: 4rem; 
@@ -35,7 +32,7 @@
 
     </style>
   </head>
-  <body class="flex flex-col h-full">
+  <body class="flex flex-col">
 
     
 
@@ -55,7 +52,10 @@
     </div>
 
     {% include 'header.html' %}
-    <main class="flex-grow">
+    <div class="flex-grow">
+    <main>
+      
+      
 
     <div class="container mx-auto px-4 mt-16">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -142,6 +142,8 @@
     </main>
     <div id="footer-push"></div>
     </div>
+  </div>
+     
       {% include 'footer.html' %}
 
     

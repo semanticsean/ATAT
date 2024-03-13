@@ -75,60 +75,100 @@
     <div id="footer-push"></div>
     {% include 'footer.html' %}
 
-    <script>
-        $(document).ready(function() {
-            // Event handler for file buttons
-            $('.file-button').click(function() {
-                var selectedFile = $(this).data('file');
-                $('#selected_file').val(selectedFile);
-                loadAgents(selectedFile);
-            });
+  <script>
+      $(document).ready(function() {
+          console.log("Document ready. Initializing event handlers...");
+          var selectedAgents = []; // Initialize an empty array to keep track of selected agents
 
-            // Event handler for "Select All" button
-            $('#select-all').click(function() {
-                $('input[name="selected_agents"]').prop('checked', true);
-            });
+          // Event handler for file buttons
+          $('.file-button').click(function() {
+              var selectedFile = $(this).data('file');
+              console.log("File button clicked. Selected file: ", selectedFile);
+              $('#selected_file').val(selectedFile);
+              loadAgents(selectedFile);
+          });
 
-            // Event handler for "Clear All" button
-            $('#clear-all').click(function() {
-                $('input[name="selected_agents"]').prop('checked', false);
-            });
+          // Event handler for "Select All" button
+          $('#select-all').click(function() {
+              console.log("'Select All' button clicked. Selecting all agents.");
+              $('input[name="selected_agents"]').prop('checked', true).each(function() {
+                  addAgentToSelection(this.value); // Add agent to selection when selecting all
+              });
+          });
 
-            // Load agents based on the selected file
-            function loadAgents(file) {
-            var endpoint;
-            if (file === 'agents/agents.json') {
-                endpoint = '/agents/agents.json';
-            } else {
-                // Extract the basename of the file for the endpoint
-                // This assumes 'file' contains a path and uses a regex to extract the filename
-                var basename = file.split('/').pop(); // Extracts the last part after '/'
-                endpoint = `/agents/copies/${basename}`;
-            }
-        
-            $.getJSON(endpoint, function(data) {
-                var agentList = $('#agent-list');
-                agentList.empty();
-                data.forEach(function(agent) {
-                    var photoPath = `/${agent.photo_path}`;
-                    var agentItem = `
-                        <div class="flex flex-col items-start mb-4">
-                            <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="mb-2">
-                            <label for="agent-${agent.id}" class="text-gray-700">
-                                <img src="${photoPath}" alt="Agent Profile" class="w-24 h-24 rounded-full mr-2">
-                                <span class="font-bold">${agent.id}</span> - ${agent.email}<br>
-                                ${agent.summary}
-                            </label>
-                        </div>
-                    `;
-                    agentList.append(agentItem);
-                });
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                console.error("Failed to load agents: " + textStatus);
-            });
-        }
-        
-        });
-    </script>
+          // Event handler for "Clear All" button
+          $('#clear-all').click(function() {
+              console.log("'Clear All' button clicked. Clearing all agent selections.");
+              $('input[name="selected_agents"]').each(function() {
+                  removeAgentFromSelection(this.value); // Remove agent from selection when clearing all
+              }).prop('checked', false);
+          });
+
+          // Event handler for individual agent checkbox clicks
+          $(document).on('change', 'input[name="selected_agents"]', function() {
+              var agentId = $(this).val();
+              if (this.checked) {
+                  addAgentToSelection(agentId);
+              } else {
+                  removeAgentFromSelection(agentId);
+              }
+              console.log("Current selection of agents: ", selectedAgents);
+          });
+
+          // Adds an agent ID to the selection array
+          function addAgentToSelection(agentId) {
+              if (!selectedAgents.includes(agentId)) {
+                  selectedAgents.push(agentId);
+                  console.log(`Agent ${agentId} added to selection.`);
+              }
+          }
+
+          // Removes an agent ID from the selection array
+          function removeAgentFromSelection(agentId) {
+              const index = selectedAgents.indexOf(agentId);
+              if (index > -1) {
+                  selectedAgents.splice(index, 1);
+                  console.log(`Agent ${agentId} removed from selection.`);
+              }
+          }
+
+          // Load agents based on the selected file
+          function loadAgents(file) {
+              console.log("Loading agents for file: ", file);
+              var endpoint;
+              if (file === 'agents/agents.json') {
+                  endpoint = '/agents/agents.json';
+              } else {
+                  var basename = file.split('/').pop(); // Extracts the last part after '/'
+                  endpoint = `/agents/copies/${basename}`;
+              }
+              console.log("Endpoint for loading agents: ", endpoint);
+
+              $.getJSON(endpoint, function(data) {
+                  console.log("Received agent data: ", data);
+                  var agentList = $('#agent-list');
+                  agentList.empty();
+                  data.forEach(function(agent) {
+                      var photoPath = `/${agent.photo_path}`;
+                      var agentItem = `
+                          <div class="flex flex-col items-start mb-4">
+                              <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="mb-2">
+                              <label for="agent-${agent.id}" class="text-gray-700">
+                                  <img src="${photoPath}" alt="Agent Profile" class="w-24 h-24 rounded-full mr-2">
+                                  <span class="font-bold">${agent.id}</span> - ${agent.email}<br>
+                                  ${agent.summary}
+                              </label>
+                          </div>
+                      `;
+                      agentList.append(agentItem);
+                  });
+              }).fail(function(jqXHR, textStatus, errorThrown) {
+                  console.error("Failed to load agents: " + textStatus + ", " + errorThrown);
+              });
+          }
+      });
+  </script>
+
+
 </body>
 </html>

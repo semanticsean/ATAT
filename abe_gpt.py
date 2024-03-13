@@ -1,6 +1,6 @@
 #abe_gpt.py 
 import json
-from openai import OpenAI
+from openai import OpenAI, APIError
 import os
 import shutil
 import base64
@@ -51,9 +51,22 @@ def process_agents(payload, current_user):
             ],
         }
 
-        # Call the OpenAI API
-        time.sleep(20)
-        response = client.chat.completions.create(**agent_payload)
+        # Call the OpenAI API with exponential backoff and retries
+        max_retries = 12
+        retry_delay = 5
+        retry_count = 0
+        while retry_count < max_retries:
+            try:
+                response = client.chat.completions.create(**agent_payload)
+                break
+            except APIError as e:
+                logging.error(f"OpenAI API error: {e}")
+                retry_count += 1
+                if retry_count < max_retries:
+                    time.sleep(retry_delay)
+                    retry_delay *= 2
+                else:
+                    raise e
 
         # Check if the response is valid JSON
         if response.choices[0].finish_reason == "stop":
@@ -88,8 +101,22 @@ def process_agents(payload, current_user):
                 ]},
             ],
         }
-        time.sleep(30)
-        vision_response = client.chat.completions.create(**vision_payload)
+        # Vision API - Get detailed description of profile picture
+        max_retries = 12
+        retry_delay = 5
+        retry_count = 0
+        while retry_count < max_retries:
+            try:
+                vision_response = client.chat.completions.create(**vision_payload)
+                break
+            except APIError as e:
+                logging.error(f"OpenAI API error: {e}")
+                retry_count += 1
+                if retry_count < max_retries:
+                    time.sleep(retry_delay)
+                    retry_delay *= 2
+                else:
+                    raise e
         vision_description = vision_response.choices[0].message.content.strip()
         logging.info(f"Vision API response: {vision_description}")
 
@@ -102,14 +129,28 @@ def process_agents(payload, current_user):
         updated_agent_data[f"{agent['id']}_image_instructions"] = dalle_prompt
         logging.info(f"DALL-E prompt: {dalle_prompt}")
 
-        time.sleep(30)
-        dalle_response = client.images.generate(
-            model="dall-e-3",
-            prompt=dalle_prompt,
-            quality="standard",
-            size="1024x1024",
-            n=1,
-        )
+        # DALL-E - Generate new profile picture
+        max_retries = 12
+        retry_delay = 5
+        retry_count = 0
+        while retry_count < max_retries:
+            try:
+                dalle_response = client.images.generate(
+                    model="dall-e-3",
+                    prompt=dalle_prompt,
+                    quality="standard",
+                    size="1024x1024",
+                    n=1,
+                )
+                break
+            except APIError as e:
+                logging.error(f"OpenAI API error: {e}")
+                retry_count += 1
+                if retry_count < max_retries:
+                    time.sleep(retry_delay)
+                    retry_delay *= 2
+                else:
+                    raise e
 
         image_url = dalle_response.data[0].url
         logging.info(f"Generated image URL: {image_url}")
@@ -168,8 +209,21 @@ def conduct_survey(payload, current_user):
                       {"role": "user", "content": f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nQuestion: {question_text}\n{llm_instructions_combined}\nPlease respond in JSON format."},
                   ],
               }
-              time.sleep(30)
-              response = client.chat.completions.create(**agent_payload)
+              max_retries = 12
+              retry_delay = 5
+              retry_count = 0
+              while retry_count < max_retries:
+                  try:
+                      response = client.chat.completions.create(**agent_payload)
+                      break
+                  except APIError as e:
+                      logging.error(f"OpenAI API error: {e}")
+                      retry_count += 1
+                      if retry_count < max_retries:
+                          time.sleep(retry_delay)
+                          retry_delay *= 2
+                      else:
+                          raise e
               responses[question_id] = response.choices[0].message.content.strip()
       else:
           questions_text = "\n".join([f"Question {question_id}: {question_data['text']}" for question_id, question_data in questions.items()])
@@ -180,8 +234,22 @@ def conduct_survey(payload, current_user):
                   {"role": "user", "content": f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nPlease answer the following questions:\n{questions_text}\n{llm_instructions_combined}\nProvide your responses in JSON format."},
               ],
           }
-          time.sleep(30)
-          response = client.chat.completions.create(**agent_payload)
+          max_retries = 12
+          retry_delay = 5
+          retry_count = 0
+          while retry_count < max_retries:
+              try:
+                  response = client.chat.completions.create(**agent_payload)
+                  break
+              except APIError as e:
+                  logging.error(f"OpenAI API error: {e}")
+                  retry_count += 1
+                  if retry_count < max_retries:
+                      time.sleep(retry_delay)
+                      retry_delay *= 2
+                  else:
+                      raise e
+
           responses = json.loads(response.choices[0].message.content.strip())
 
       agent_response["responses"] = responses

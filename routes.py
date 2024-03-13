@@ -198,8 +198,8 @@ def create_survey(selected_file=None):
         survey_name = request.form.get('survey_name')
         logger.info(f"User {user_id} is creating survey '{survey_name}' with file '{selected_file}'.")
 
-        if selected_file == 'agents.json':
-            file_path = os.path.join(agents_dir, selected_file)
+        if selected_file == 'agents/agents.json':
+            file_path = os.path.join(agents_dir, 'agents.json')
         else:
             file_path = os.path.join(copies_dir, selected_file)
 
@@ -211,7 +211,6 @@ def create_survey(selected_file=None):
             logger.error(f"Failed to load agents for user {user_id} from '{file_path}': {e}")
             flash('There was an error loading the selected agent file. Please try again.')
             return redirect(url_for('survey_blueprint.create_survey'))
-
 
         selected_agents = request.form.getlist('selected_agents')
         survey_agents = [agent for agent in agents if str(agent['id']) in selected_agents]
