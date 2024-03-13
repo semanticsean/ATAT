@@ -72,39 +72,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-@app.route('/user_files/<path:filename>')
-@login_required
-def user_file(filename):
-    user_dir = current_user.folder_path
-    agents_dir = os.path.join(user_dir, 'agents')
-    copies_dir = os.path.join(agents_dir, 'copies')
-    safe_filename = secure_filename(filename)  # Ensure the filename is safe
-
-    # Determine the file path based on whether it's the default agents.json or a copy
-    if safe_filename == 'agents.json':
-        file_path = os.path.join(agents_dir, safe_filename)
-    else:
-        file_path = os.path.join(copies_dir, safe_filename)
-
-    # Check if the file exists and serve it
-    if os.path.exists(file_path):
-        return send_from_directory(os.path.dirname(file_path), os.path.basename(file_path))
-    else:
-        abort(404)
-
-@app.route('/agents/agents.json')
-@login_required
-def serve_agents_json():
-    user_dir = current_user.folder_path
-    agents_json_path = os.path.join(user_dir, 'agents', 'agents.json')
-    if os.path.exists(agents_json_path):
-        return send_file(agents_json_path)
-    else:
-        return abort(404)
-
-@app.route('/user_content/<path:filename>')
-def custom_static(filename):
-    return send_from_directory('user_content', filename)
 
 @app.route('/')
 def home():
