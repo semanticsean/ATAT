@@ -12,7 +12,47 @@
     />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
+        <style>
 
+          html {
+            height: 100%;
+            margin: 0;
+          }
+
+        body {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+        }
+
+          #content {
+            min-height: 100%;
+            /* Equal to footer height */
+            margin-bottom: -4rem; 
+          }
+
+          #footer-push {
+            margin-top:124px;
+            height: 4rem; 
+            /* Equal to footer height */
+          }
+
+          footer {
+            height: 4rem;
+            /* Other styling */
+          }
+
+      
+          body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+          }
+
+          main {
+            flex: 1;
+          }
+      
 
         .flex-grow {
           flex: 1;
@@ -32,7 +72,7 @@
 
     </style>
   </head>
-  <body class="flex flex-col">
+  <body>
 
     
 
@@ -53,7 +93,7 @@
 
     {% include 'header.html' %}
     <div class="flex-grow">
-    <main>
+    <main class="flex-1">
       
       
 
@@ -139,13 +179,15 @@
       </div>
 
       </div>
+      </div>
+        <div id="footer-push"></div>
+      </div>
     </main>
-    <div id="footer-push"></div>
-    </div>
-  </div>
+    
+    
      
-      {% include 'footer.html' %}
-
+      
+    {% include 'footer.html' %}
     
   </body>
 </html>
