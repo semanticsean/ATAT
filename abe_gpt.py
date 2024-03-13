@@ -129,9 +129,12 @@ def process_agents(payload, current_user):
             updated_agent_data['modified_id'] = updated_agent_data['id']
 
         updated_agents.append(updated_agent_data)
+        db.session.commit() 
 
     return updated_agents
 
+
+psql -h ep-noisy-cherry-a5vaqnhe.us-east-2.aws.neon.tech -U neon -d neondb
 
 def conduct_survey(payload, current_user):
   agents_data = payload["agents_data"]
