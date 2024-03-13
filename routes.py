@@ -186,16 +186,23 @@ def create_survey(selected_file=None):
 
     logger.info(f"User {user_id} started creating a survey. User directory: {user_dir}")
 
+    # Set the directory paths
     agents_dir = os.path.join(user_dir, 'agents')
     copies_dir = os.path.join(agents_dir, 'copies')
-    selected_file = request.args.get('selected_file')
-  
+
+    # Get the selected_file from query parameters or use a default
+    selected_file = request.args.get('selected_file', AGENTS_JSON_PATH)
+
     if request.method == 'POST':
         selected_file = request.form.get('selected_file')
         survey_name = request.form.get('survey_name')
         logger.info(f"User {user_id} is creating survey '{survey_name}' with file '{selected_file}'.")
 
-        file_path = os.path.join(copies_dir if selected_file != 'agents.json' else agents_dir, selected_file)
+        # Update the file_path construction based on the selected file
+        if selected_file == 'agents.json':
+            file_path = os.path.join(agents_dir, selected_file)
+        else:
+            file_path = os.path.join(copies_dir, selected_file)
 
         try:
             with open(file_path, 'r') as f:
@@ -205,6 +212,7 @@ def create_survey(selected_file=None):
             logger.error(f"Failed to load agents for user {user_id} from '{file_path}': {e}")
             flash('There was an error loading the selected agent file. Please try again.')
             return redirect(url_for('survey_blueprint.create_survey'))
+
 
         selected_agents = request.form.getlist('selected_agents')
         survey_agents = [agent for agent in agents if str(agent['id']) in selected_agents]
@@ -250,7 +258,10 @@ def create_survey(selected_file=None):
     else:
         logger.info(f"User {user_id} accessed the survey creation page.")
 
-    agent_files = [f for f in os.listdir(copies_dir) if os.path.isfile(os.path.join(copies_dir, f))]
+    # List available agent files
+    agent_files = [AGENTS_JSON_PATH]  # Start with the default agents.json
+    agent_files.extend(f for f in glob.glob(os.path.join(copies_dir, '*.json')))
+  
     
     return render_template('survey1.html', selected_file=selected_file, agent_files=agent_files)
 
