@@ -78,38 +78,40 @@
         "timestamp": "2024-02-05T18:22:04.006591",
         "summary": "Larry is a Skeptical Angel Investor at Diversified Future Ventures, known for his thorough due diligence, financial savvy, and long-term investment perspective.",
         "jobtitle": "Skeptical Angel Investor",
-        "keywords": [
-            "Due Diligence",
-            "Risk Assessment",
-            "Financial Analysis",
-            "Startup Ecosystem",
-            "Portfolio Diversification",
-            "Value-Add"
-        ],
+        "keywords": {
+            "keyword1": "Due Diligence",
+            "keyword2": "Risk Assessment",
+            "keyword3": "Financial Analysis",
+            "keyword4": "Startup Ecosystem",
+            "keyword5": "Portfolio Diversification",
+            "keyword6": "Value-Add"
+        },
         "relationships": [
             {
-                "name": "James",
-                "job": "Founder of Tech Startup",
-                "relationship_description": "Portfolio Company Founder",
-                "summary": "Larry often engages with James to provide strategic advice, scrutinize growth plans, and discuss market trends."
-            },
-            {
-                "name": "Sophia",
-                "job": "Venture Capitalist",
-                "relationship_description": "Co-Investor and Industry Expert",
-                "summary": "Larry collaborates with Sophia to exchange insights on investment opportunities and co-invest in promising startups."
-            },
-            {
-                "name": "Eduardo",
-                "job": "Financial Analyst",
-                "relationship_description": "Advisor and Risk Assessor",
-                "summary": "Larry relies on Eduardo for in-depth financial analysis and risk evaluation of potential investment targets."
-            },
-            {
-                "name": "Angela",
-                "job": "Entrepreneurship Mentor",
-                "relationship_description": "Mentorship Partner",
-                "summary": "Larry and Angela work together to mentor young entrepreneurs, discussing business development and leadership skills."
+                "familyrelationship1": {
+                    "name": "James",
+                    "job": "Founder of Tech Startup",
+                    "relationship_description": "Portfolio Company Founder",
+                    "summary": "Larry often engages with James to provide strategic advice, scrutinize growth plans, and discuss market trends."
+                },
+                "familyrelationship2": {
+                    "name": "Sophia",
+                    "job": "Venture Capitalist",
+                    "relationship_description": "Co-Investor and Industry Expert",
+                    "summary": "Larry collaborates with Sophia to exchange insights on investment opportunities and co-invest in promising startups."
+                },
+                "familyrelationship3": {
+                    "name": "Eduardo",
+                    "job": "Financial Analyst",
+                    "relationship_description": "Advisor and Risk Assessor",
+                    "summary": "Larry relies on Eduardo for in-depth financial analysis and risk evaluation of potential investment targets."
+                },
+                "familyrelationship4": {
+                    "name": "Angela",
+                    "job": "Entrepreneurship Mentor",
+                    "relationship_description": "Mentorship Partner",
+                    "summary": "Larry and Angela work together to mentor young entrepreneurs, discussing business development and leadership skills."
+                }
             }
         ],
         "image_prompt": "A male African American angel investor, Larry, is depicted in a modern office setting, surrounded by financial charts, market reports, and a laptop displaying a business plan. He appears engaged in a critical analysis, with a thoughtful expression on his face that conveys his skepticism and expertise. The background hints at a bustling startup ecosystem, with elements like pitch decks, meeting notes, and a network of contacts symbolized by interconnected nodes.",
@@ -201,38 +203,40 @@
         "timestamp": "2024-02-05T18:26:10.412400",
         "summary": "Nebula is an androgynous cyborg humanoid excelling as a Marketing Executive at a startup, leveraging data-driven strategies and digital expertise to drive brand growth and customer acquisition.",
         "jobtitle": "Marketing Executive",
-        "keywords": [
-            "Strategic Marketing",
-            "Brand Building",
-            "Digital Marketing",
-            "Data-Driven",
-            "Content Creation",
-            "Customer Acquisition"
-        ],
+        "keywords": {
+            "keyword1": "Strategic Marketing",
+            "keyword2": "Brand Building",
+            "keyword3": "Digital Marketing",
+            "keyword4": "Data-Driven",
+            "keyword5": "Content Creation",
+            "keyword6": "Customer Acquisition"
+        },
         "relationships": [
             {
-                "name": "Orion",
-                "job": "Product Manager",
-                "relationship_description": "Close collaborator with Nebula on product-market fit",
-                "summary": "Orion and Nebula work together to align products with market needs, discussing customer feedback and product features regularly."
-            },
-            {
-                "name": "Lyra",
-                "job": "Content Strategist",
-                "relationship_description": "Reports to Nebula and executes content strategy",
-                "summary": "Lyra creates content under Nebula's guidance, brainstorming topics and analyzing content performance together."
-            },
-            {
-                "name": "Sirius",
-                "job": "Digital Marketing Specialist",
-                "relationship_description": "Assists Nebula in digital marketing campaigns",
-                "summary": "Sirius implements digital marketing tactics as per Nebula's plans, frequently discussing campaign analytics and SEO strategies."
-            },
-            {
-                "name": "Vega",
-                "job": "Data Analyst",
-                "relationship_description": "Provides Nebula with data insights for decision-making",
-                "summary": "Vega supplies Nebula with marketing data, collaborating on interpreting analytics and making data-driven decisions."
+                "familyrelationship1": {
+                    "name": "Orion",
+                    "job": "Product Manager",
+                    "relationship_description": "Close collaborator with Nebula on product-market fit",
+                    "summary": "Orion and Nebula work together to align products with market needs, discussing customer feedback and product features regularly."
+                },
+                "familyrelationship2": {
+                    "name": "Lyra",
+                    "job": "Content Strategist",
+                    "relationship_description": "Reports to Nebula and executes content strategy",
+                    "summary": "Lyra creates content under Nebula's guidance, brainstorming topics and analyzing content performance together."
+                },
+                "familyrelationship3": {
+                    "name": "Sirius",
+                    "job": "Digital Marketing Specialist",
+                    "relationship_description": "Assists Nebula in digital marketing campaigns",
+                    "summary": "Sirius implements digital marketing tactics as per Nebula's plans, frequently discussing campaign analytics and SEO strategies."
+                },
+                "familyrelationship4": {
+                    "name": "Vega",
+                    "job": "Data Analyst",
+                    "relationship_description": "Provides Nebula with data insights for decision-making",
+                    "summary": "Vega supplies Nebula with marketing data, collaborating on interpreting analytics and making data-driven decisions."
+                }
             }
         ],
         "image_prompt": "An androgynous cyborg humanoid, Nebula, dressed in professional attire, stands in a futuristic startup office. The background is adorned with digital screens displaying marketing analytics and brand campaigns. Nebula's face is a blend of human features with subtle cybernetic enhancements, reflecting their role as a Marketing Executive. Their posture exudes confidence and adaptability, while their eyes are focused, hinting at a strategic mind at work. The office buzzes with the energy of a collaborative team, and the ambiance suggests a blend of creativity and technology.",
@@ -248,14 +252,14 @@
         "timestamp": "2024-02-05T18:27:49.787343",
         "summary": "Castor is a skeptical and challenging startup customer with high resistance to change and a complex interaction model that is critical for business engagement.",
         "jobtitle": "Senior Analyst",
-        "keywords": [
-            "Resistance to Change",
-            "High Expectations",
-            "Lack of Engagement",
-            "Inflexibility",
-            "Impatience",
-            "Communication Challenges"
-        ],
+        "keywords": {
+            "keyword1": "Resistance to Change",
+            "keyword2": "High Expectations",
+            "keyword3": "Lack of Engagement",
+            "keyword4": "Inflexibility",
+            "keyword5": "Impatience",
+            "keyword6": "Communication Challenges"
+        },
         "relationships": [
             {
                 "familyrelationship1": {
@@ -302,14 +306,14 @@
         "timestamp": "2024-02-05T18:29:10.026771",
         "summary": "Aires is a robot Testing Agent at Semantic Life, specializing in LLM functionality assessment with a focus on precision, efficiency, and clear communication.",
         "jobtitle": "Senior Testing Agent",
-        "keywords": [
-            "Robot",
-            "Testing Agent",
-            "LLM Functionality",
-            "Semantic Life",
-            "Error Detection",
-            "Communication"
-        ],
+        "keywords": {
+            "keyword1": "Robot",
+            "keyword2": "Testing Agent",
+            "keyword3": "LLM Functionality",
+            "keyword4": "Semantic Life",
+            "keyword5": "Error Detection",
+            "keyword6": "Communication"
+        },
         "relationships": [
             {
                 "name": "Sean",
@@ -421,20 +425,20 @@
         "timestamp": "2024-02-05T18:32:46.219912",
         "summary": "Altair is the HR robot at a startup, adept in talent acquisition, employee development, and aligning HR strategies with business growth.",
         "jobtitle": "Talent Acquisition and Employee Development Manager",
-        "keywords": [
-            "Adaptability",
-            "Talent Acquisition",
-            "Interpersonal Skills",
-            "Employment Law",
-            "Employee Development",
-            "Cultural Champion",
-            "Conflict Resolution",
-            "Compensation Knowledge",
-            "Performance Management",
-            "Strategic Planning",
-            "Tech-Savviness",
-            "Empathy and Discretion"
-        ],
+        "keywords": {
+            "0": "Adaptability",
+            "1": "Talent Acquisition",
+            "2": "Interpersonal Skills",
+            "3": "Employment Law",
+            "4": "Employee Development",
+            "5": "Cultural Champion",
+            "6": "Conflict Resolution",
+            "7": "Compensation Knowledge",
+            "8": "Performance Management",
+            "9": "Strategic Planning",
+            "10": "Tech-Savviness",
+            "11": "Empathy and Discretion"
+        },
         "relationships": {
             "0": {
                 "name": "Orion",
@@ -687,38 +691,40 @@
         "timestamp": "2024-02-05T18:39:47.869698",
         "summary": "Aster is a robot office manager at Synthetix Solutions specializing in document formatting and editing, with a keen eye for detail and a commitment to efficiency and continuous improvement.",
         "jobtitle": "Office Manager",
-        "keywords": [
-            "Document Formatting",
-            "Editing Skills",
-            "Time Management",
-            "Organizational Skills",
-            "Communication Skills",
-            "Continuous Learning"
-        ],
+        "keywords": {
+            "keyword1": "Document Formatting",
+            "keyword2": "Editing Skills",
+            "keyword3": "Time Management",
+            "keyword4": "Organizational Skills",
+            "keyword5": "Communication Skills",
+            "keyword6": "Continuous Learning"
+        },
         "relationships": [
             {
-                "name": "Terra",
-                "job": "Department Head",
-                "relationship_description": "Terra is a department head who frequently collaborates with Aster to ensure her team's documents meet the company's professional standards.",
-                "summary": "Terra and Aster work closely on document editing and formatting, discussing department-specific style guides and deadlines, with common interactions including clarification of requirements and review of document drafts."
-            },
-            {
-                "name": "Byte",
-                "job": "IT Specialist",
-                "relationship_description": "Byte is the IT specialist at Synthetix Solutions who assists Aster with software updates and troubleshooting to maintain optimal performance of document management systems.",
-                "summary": "Byte and Aster interact to ensure the office management software is up-to-date, discussing technical issues, software enhancements, and potential system improvements."
-            },
-            {
-                "name": "Lexi",
-                "job": "Legal Advisor",
-                "relationship_description": "Lexi is the legal advisor who ensures that Aster is aware of and compliant with confidentiality and data protection policies when handling sensitive documents.",
-                "summary": "Lexi and Aster's interactions revolve around the secure handling of documents, with discussions on compliance, confidentiality agreements, and the implementation of privacy measures."
-            },
-            {
-                "name": "Pixel",
-                "job": "Graphic Designer",
-                "relationship_description": "Pixel is a graphic designer who provides Aster with design insights to enhance the visual appeal of company documents and presentations.",
-                "summary": "Pixel and Aster collaborate on creating visually appealing documents, discussing design principles, layout options, and the integration of graphics to enhance readability and impact."
+                "familyrelationship1": {
+                    "name": "Terra",
+                    "job": "Department Head",
+                    "relationship_description": "Terra is a department head who frequently collaborates with Aster to ensure her team's documents meet the company's professional standards.",
+                    "summary": "Terra and Aster work closely on document editing and formatting, discussing department-specific style guides and deadlines, with common interactions including clarification of requirements and review of document drafts."
+                },
+                "familyrelationship2": {
+                    "name": "Byte",
+                    "job": "IT Specialist",
+                    "relationship_description": "Byte is the IT specialist at Synthetix Solutions who assists Aster with software updates and troubleshooting to maintain optimal performance of document management systems.",
+                    "summary": "Byte and Aster interact to ensure the office management software is up-to-date, discussing technical issues, software enhancements, and potential system improvements."
+                },
+                "familyrelationship3": {
+                    "name": "Lexi",
+                    "job": "Legal Advisor",
+                    "relationship_description": "Lexi is the legal advisor who ensures that Aster is aware of and compliant with confidentiality and data protection policies when handling sensitive documents.",
+                    "summary": "Lexi and Aster's interactions revolve around the secure handling of documents, with discussions on compliance, confidentiality agreements, and the implementation of privacy measures."
+                },
+                "familyrelationship4": {
+                    "name": "Pixel",
+                    "job": "Graphic Designer",
+                    "relationship_description": "Pixel is a graphic designer who provides Aster with design insights to enhance the visual appeal of company documents and presentations.",
+                    "summary": "Pixel and Aster collaborate on creating visually appealing documents, discussing design principles, layout options, and the integration of graphics to enhance readability and impact."
+                }
             }
         ],
         "image_prompt": "Aster, a sleek, startup male robot office manager, is depicted in a modern office environment, surrounded by computers and documents. He is focused on a screen displaying a complex document layout, with tools like the Microsoft Office Suite and Google Docs open in the background. His design incorporates elements that suggest precision and efficiency, such as a clean, metallic finish and organized workspaces. The background hints at a bustling startup atmosphere, with other robots and humans collaborating and engaging in various office tasks.",
@@ -785,14 +791,14 @@
         "timestamp": "2024-02-05T18:42:48.925865",
         "summary": "Electra is a visionary CEO with a deep understanding of the startup landscape, exceptional mentorship skills, and a strong network, fostering a nurturing incubator environment.",
         "jobtitle": "CEO",
-        "keywords": [
-            "Visionary Leadership",
-            "Startup Landscape",
-            "Strong Network",
-            "Entrepreneurial Experience",
-            "Exceptional Mentorship",
-            "Passionate Advocacy"
-        ],
+        "keywords": {
+            "keyword1": "Visionary Leadership",
+            "keyword2": "Startup Landscape",
+            "keyword3": "Strong Network",
+            "keyword4": "Entrepreneurial Experience",
+            "keyword5": "Exceptional Mentorship",
+            "keyword6": "Passionate Advocacy"
+        },
         "relationships": [
             {
                 "familyrelationship1": {
