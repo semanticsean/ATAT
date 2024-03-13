@@ -46,12 +46,12 @@
                     </div>
                     <form action="/create_agent_copy" method="post">
                         <div class="mb-4">
-                            <label for="filename" class="block text-sm font-medium text-gray-700">New Moment Name</label>
+                            <label for="filename" class="block text-sm font-medium text-gray-700"><h2 class="text-xl font-bold mb-2">Choose a Name for this Window of Time:</label>
                             <input type="text" id="filename" name="filename" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
                         </div>
 
                       <div class="mb-8">
-                          <h2 class="text-xl font-bold mb-2">Select Synths to adapt to this window of time.</h2>
+                          <h2 class="text-xl font-bold mb-2">Select Synths to adapt to this window of time:</h2>
                           <div id="agent-list">
                               {% for agent in agents %}
                               <div class="flex items-center mb-2">
@@ -63,21 +63,21 @@
                       </div>
 
                         <div class="mb-4">
-                            <label for="instruction1" class="block text-sm font-medium text-gray-700">Timepoint Description (including year)</label>
+                            <label for="instruction1" class="block text-sm font-medium text-gray-700"><h2 class="text-xl font-bold mb-2">Describe the timepoint, including year:</h2></label>
                             <textarea id="instruction1" name="instruction1" rows="4" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required></textarea>
                         </div>
 
                         <div class="mb-4">
-                            <label for="instruction2" class="block text-sm font-medium text-gray-700">Setting</label>
+                            <label for="instruction2" class="block text-sm font-medium text-gray-700"><h2 class="text-xl font-bold mb-2">Describe the setting, including place:</h2></label>
                             <textarea id="instruction2" name="instruction2" rows="4" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
                         </div>
 
                         <div class="mb-4">
-                            <label for="instruction3" class="block text-sm font-medium text-gray-700">Plot Details</label>
+                            <label for="instruction3" class="block text-sm font-medium text-gray-700"><h2 class="text-xl font-bold mb-2">Describe the 'plot' and other context:</h2></label>
                             <textarea id="instruction3" name="instruction3" rows="4" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
                         </div>
 
-                      <button type="submit" class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 w-full">Create Moment</button>
+                      <button type="submit" class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 w-full">Render Window of Time</button>
                           <div class="text-center">
                               <img id="loading" src="{{ url_for('static', filename='loading.gif') }}" style="display: none; margin-top: 10px; max-width: 60px;" alt="Loading" />
                           </div>
