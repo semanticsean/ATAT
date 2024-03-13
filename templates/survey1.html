@@ -38,26 +38,28 @@
   <main class="flex-grow">
   
     <div class="container mx-auto px-4 py-8 mt-12">
-      <h1>Start a Moment in Time</h1>
+      <h1 class="text-2xl font-bold mb-2">Start a Moment in Time</h1>
         <h2>1 credit per question or discussion point per synth.</h2>
-        <h3 class="text-xl font-bold mb-4">Select Synths for the Discussion</h3>
         <form action="{{ url_for('survey_blueprint.create_survey') }}" method="post" class="mb-8">
             <div class="mb-4">
                 <label for="survey_name" class="block text-gray-700 font-bold mb-2">Discussion Name:</label>
                 <input type="text" id="survey_name" name="survey_name" value="defaultname" required class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
             </div>
 
-            <div class="mb-8">
-                <h2 class="text-xl font-bold mb-2">Select Moment</h2>
-              {% for file in agent_files %}
-                  <div class="flex items-center mb-2">
-                      <input type="radio" id="{{ file }}" name="selected_file" value="{{ file }}" 
-                             required class="mr-2" {% if selected_file == file %}checked{% endif %}>
-                      <label for="{{ file }}" class="text-gray-700">{{ file }}</label>
-                  </div>
-              {% endfor %}
-
-            </div>
+          <div class="mb-8">
+              <h2 class="text-xl font-bold mb-2">Select Window in Time</h2>
+              {% if agent_files %}
+                {% for file in agent_files %}
+                    <div class="flex items-center mb-2">
+                        <input type="radio" id="{{ file }}" name="selected_file" value="{{ file }}" 
+                               required class="mr-2" {% if selected_file == file %}checked{% endif %}>
+                        <label for="{{ file }}" class="text-gray-700">{{ file.split('/')[-1] }}</label>
+                    </div>
+                {% endfor %}
+              {% else %}
+                <p>No agent files available to create a survey.</p>
+              {% endif %}
+          </div>
 
             <div class="mb-8">
                 <h2 class="text-xl font-bold mb-2">Select Synths</h2>
@@ -79,68 +81,79 @@
   {% include 'footer.html' %}
 
 
-    <script>
-        $(document).ready(function() {
-            $('input[name="selected_file"]').change(function() {
-                var selectedFile = $(this).val();
-                loadAgents(selectedFile);
-            });
+  <script>
+      $(document).ready(function() {
+          // Event handler for changing the selected file
+          $('input[name="selected_file"]').change(function() {
+              var selectedFile = $(this).val();
+              loadAgents(selectedFile);
+          });
 
-            $('#select-all').click(function() {
-                $('input[name="selected_agents"]').prop('checked', true);
-            });
+          // Event handler for "Select All" button
+          $('#select-all').click(function() {
+              $('input[name="selected_agents"]').prop('checked', true);
+          });
 
-            $('#clear-all').click(function() {
-                $('input[name="selected_agents"]').prop('checked', false);
-            });
+          // Event handler for "Clear All" button
+          $('#clear-all').click(function() {
+              $('input[name="selected_agents"]').prop('checked', false);
+          });
 
-          function loadAgents(file) {
-              $.getJSON(`/user_files/${file}`, function(data) {
-                  var agentList = $('#agent-list');
-                  agentList.empty();
-                  data.forEach(function(agent) {
-                      // Assume the photo is stored in a static directory accessible via a '/static/' prefix
-                      // This will depend on how you're serving static files in Flask
-                      // Adjust the path below according to your actual static files serving setup
-                      var photoPath = `/${agent.photo_path.replace('survey/', '')}`; // Adjust the path replacement as needed
+          // Load agents based on the selected file
+            function loadAgents(file) {
+                    var endpoint;
+                    if (file === 'agents/agents.json') {
+                        endpoint = '/agents/agents.json'; 
+                    } else {
+                        endpoint = `/user_content/${file}`;
+                    }
+            
+                $.getJSON(endpoint, function(data) {
+                    var agentList = $('#agent-list');
+                    agentList.empty();
+                    data.forEach(function(agent) {
+                        var photoPath = `/${agent.photo_path.replace('survey/', '')}`;
+                        var agentItem = `
+                            <div class="flex flex-col items-start mb-4">
+                                <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="mb-2">
+                                <label for="agent-${agent.id}" class="text-gray-700">
+                                    <img src="${photoPath}" alt="Agent Profile" class="w-24 h-24 rounded-full mr-2">
+                                    <span class="font-bold">${agent.id}</span> - ${agent.email}<br>
+                                    ${agent.summary}
+                                </label>
+                            </div>
+                        `;
+                        agentList.append(agentItem);
+                    });
+                }).fail(function(jqXHR, textStatus, errorThrown) {
+                      console.error("Failed to load agents: " + textStatus);
+                });
+            }
+            
+              
 
-                      var agentItem = `
-                          <div class="flex flex-col items-start mb-4">
-                              <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="mb-2">
-                              <label for="agent-${agent.id}" class="text-gray-700">
-                                  <img src="${photoPath}" alt="Agent Profile" class="w-24 h-24 rounded-full mr-2">
-                                  <span class="font-bold">${agent.id}</span> - ${agent.email}<br>
-                                  ${agent.summary}
-                              </label>
-                         
-                          </div>
-                      `;
-                      agentList.append(agentItem);
-                  });
-              });
+          // Initial actions to perform on document ready
+          var urlParams = new URLSearchParams(window.location.search);
+          var selectedFile = urlParams.get('selected_file');
+          var initialFile = $('input[name="selected_file"]:checked').val();
+
+          // If an initial file is selected, load its agents
+          if (initialFile) {
+              loadAgents(initialFile);
           }
 
-        });
-    </script>
-
-  <script>
-  // When the document is ready
-  $(document).ready(function() {
-    // Get the 'selected_file' query parameter from the URL
-    var urlParams = new URLSearchParams(window.location.search);
-    var selectedFile = urlParams.get('selected_file');
-
-    // If 'selected_file' is provided in the URL
-    if (selectedFile) {
-      // Iterate over the radio buttons and mark the matching value as checked
-      $('input[name="selected_file"]').each(function() {
-        if ($(this).val() === selectedFile) {
-          $(this).prop('checked', true);
-        }
+          // If 'selected_file' is provided in the URL, check the corresponding input
+          if (selectedFile) {
+              $('input[name="selected_file"]').each(function() {
+                  if ($(this).val() === selectedFile) {
+                      $(this).prop('checked', true);
+                      loadAgents(selectedFile); // Automatically load agents if specified in the URL
+                  }
+              });
+          }
       });
-    }
-  });
   </script>
+
 
 </body>
 </html>
