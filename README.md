@@ -288,3 +288,16 @@ ATAT is licensed under the MIT License. Refer to the LICENSE file for details.
 @@ and ATAT are trademarks of Semantic Life, Copyright 2024. All rights reserved.
 
 Google / Google Workspace (TM) Google.
+
+
+
+
+
+
+
+# NOTES TO ADD 
+
+## ABE db setup
+
+psql -h hostname -U username -d databasename
+SET idle_in_transaction_session_timeout = '1min';

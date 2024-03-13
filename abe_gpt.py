@@ -7,10 +7,11 @@ import base64
 import requests
 import logging
 import time 
+from models import db
 
 client = OpenAI()
-
 openai_api_key = os.environ['OPENAI_API_KEY']
+
 
 def process_agents(payload, current_user):
     agents_data = payload["agents_data"]
@@ -133,8 +134,6 @@ def process_agents(payload, current_user):
 
     return updated_agents
 
-
-psql -h ep-noisy-cherry-a5vaqnhe.us-east-2.aws.neon.tech -U neon -d neondb
 
 def conduct_survey(payload, current_user):
   agents_data = payload["agents_data"]
