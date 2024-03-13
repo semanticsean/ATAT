@@ -30,130 +30,105 @@
       }
 
   </style>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
 <body class="bg-blue-50 h-full">
     {% include 'header.html' %}
-  <main class="flex-grow">
-  
-    <div class="container mx-auto px-4 py-8 mt-12">
-      <h1 class="text-2xl font-bold mb-2">Start a Moment in Time</h1>
-        <h2>1 credit per question or discussion point per synth.</h2>
-        <form action="{{ url_for('survey_blueprint.create_survey') }}" method="post" class="mb-8">
-            <div class="mb-4">
-                <label for="survey_name" class="block text-gray-700 font-bold mb-2">Discussion Name:</label>
-                <input type="text" id="survey_name" name="survey_name" value="defaultname" required class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
-            </div>
-
-          <div class="mb-8">
-              <h2 class="text-xl font-bold mb-2">Select Window in Time</h2>
-              {% if agent_files %}
-                {% for file in agent_files %}
-                    <div class="flex items-center mb-2">
-                        <input type="radio" id="{{ file }}" name="selected_file" value="{{ file }}" 
-                               required class="mr-2" {% if selected_file == file %}checked{% endif %}>
-                        <label for="{{ file }}" class="text-gray-700">{{ file.split('/')[-1] }}</label>
-                    </div>
-                {% endfor %}
-              {% else %}
-                <p>No agent files available to create a survey.</p>
-              {% endif %}
-          </div>
-
-            <div class="mb-8">
-                <h2 class="text-xl font-bold mb-2">Select Synths</h2>
-                <div class="mb-2">
-                    <button type="button" id="select-all" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Select All</button>
-                    <button type="button" id="clear-all" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Clear All</button>
+    <main class="flex-grow">
+        <div class="container mx-auto px-4 py-8 mt-12">
+            <h1 class="text-2xl font-bold mb-2">Start a Moment in Time</h1>
+            <h2>1 credit per question or discussion point per synth.</h2>
+            <form action="{{ url_for('survey_blueprint.create_survey') }}" method="post" class="mb-8">
+                <div class="mb-4">
+                    <label for="survey_name" class="block text-gray-700 font-bold mb-2">Discussion Name:</label>
+                    <input type="text" id="survey_name" name="survey_name" value="defaultname" required class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
                 </div>
-                <div id="agent-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
-            </div>
 
-            <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Next Step</button>
-        </form>
-    </div>
-    </div>
-  </div>
-  </main>
-  <div id="footer-push"></div>
-  </div>
-  {% include 'footer.html' %}
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold mb-2">Select Window in Time</h2>
+                    <div id="file-list" class="flex flex-wrap">
+                        {% if agent_files %}
+                            {% for file in agent_files %}
+                                <button type="button" class="file-button px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 mr-2 mb-2" data-file="{{ file }}">{{ file.split('/')[-1] }}</button>
+                            {% endfor %}
+                        {% else %}
+                            <p>No agent files available to create a survey.</p>
+                        {% endif %}
+                    </div>
+                </div>
 
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold mb-2">Select Synths</h2>
+                    <div class="mb-2">
+                        <button type="button" id="select-all" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Select All</button>
+                        <button type="button" id="clear-all" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Clear All</button>
+                    </div>
+                    <div id="agent-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+                </div>
 
-  <script>
-      $(document).ready(function() {
-          // Event handler for changing the selected file
-          $('input[name="selected_file"]').change(function() {
-              var selectedFile = $(this).val();
-              loadAgents(selectedFile);
-          });
+                <input type="hidden" id="selected_file" name="selected_file" value="">
+                <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Next Step</button>
+            </form>
+        </div>
+    </main>
+    <div id="footer-push"></div>
+    {% include 'footer.html' %}
 
-          // Event handler for "Select All" button
-          $('#select-all').click(function() {
-              $('input[name="selected_agents"]').prop('checked', true);
-          });
+    <script>
+        $(document).ready(function() {
+            // Event handler for file buttons
+            $('.file-button').click(function() {
+                var selectedFile = $(this).data('file');
+                $('#selected_file').val(selectedFile);
+                loadAgents(selectedFile);
+            });
 
-          // Event handler for "Clear All" button
-          $('#clear-all').click(function() {
-              $('input[name="selected_agents"]').prop('checked', false);
-          });
+            // Event handler for "Select All" button
+            $('#select-all').click(function() {
+                $('input[name="selected_agents"]').prop('checked', true);
+            });
 
-          // Load agents based on the selected file
+            // Event handler for "Clear All" button
+            $('#clear-all').click(function() {
+                $('input[name="selected_agents"]').prop('checked', false);
+            });
+
+            // Load agents based on the selected file
             function loadAgents(file) {
-                    var endpoint;
-                    if (file === 'agents/agents.json') {
-                        endpoint = '/agents/agents.json'; 
-                    } else {
-                        endpoint = `/user_content/${file}`;
-                    }
-            
-                $.getJSON(endpoint, function(data) {
-                    var agentList = $('#agent-list');
-                    agentList.empty();
-                    data.forEach(function(agent) {
-                        var photoPath = `/${agent.photo_path.replace('survey/', '')}`;
-                        var agentItem = `
-                            <div class="flex flex-col items-start mb-4">
-                                <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="mb-2">
-                                <label for="agent-${agent.id}" class="text-gray-700">
-                                    <img src="${photoPath}" alt="Agent Profile" class="w-24 h-24 rounded-full mr-2">
-                                    <span class="font-bold">${agent.id}</span> - ${agent.email}<br>
-                                    ${agent.summary}
-                                </label>
-                            </div>
-                        `;
-                        agentList.append(agentItem);
-                    });
-                }).fail(function(jqXHR, textStatus, errorThrown) {
-                      console.error("Failed to load agents: " + textStatus);
-                });
+            var endpoint;
+            if (file === 'agents/agents.json') {
+                endpoint = '/agents/agents.json';
+            } else {
+                // Extract the basename of the file for the endpoint
+                // This assumes 'file' contains a path and uses a regex to extract the filename
+                var basename = file.split('/').pop(); // Extracts the last part after '/'
+                endpoint = `/agents/copies/${basename}`;
             }
-            
-              
-
-          // Initial actions to perform on document ready
-          var urlParams = new URLSearchParams(window.location.search);
-          var selectedFile = urlParams.get('selected_file');
-          var initialFile = $('input[name="selected_file"]:checked').val();
-
-          // If an initial file is selected, load its agents
-          if (initialFile) {
-              loadAgents(initialFile);
-          }
-
-          // If 'selected_file' is provided in the URL, check the corresponding input
-          if (selectedFile) {
-              $('input[name="selected_file"]').each(function() {
-                  if ($(this).val() === selectedFile) {
-                      $(this).prop('checked', true);
-                      loadAgents(selectedFile); // Automatically load agents if specified in the URL
-                  }
-              });
-          }
-      });
-  </script>
-
-
+        
+            $.getJSON(endpoint, function(data) {
+                var agentList = $('#agent-list');
+                agentList.empty();
+                data.forEach(function(agent) {
+                    var photoPath = `/${agent.photo_path}`;
+                    var agentItem = `
+                        <div class="flex flex-col items-start mb-4">
+                            <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="mb-2">
+                            <label for="agent-${agent.id}" class="text-gray-700">
+                                <img src="${photoPath}" alt="Agent Profile" class="w-24 h-24 rounded-full mr-2">
+                                <span class="font-bold">${agent.id}</span> - ${agent.email}<br>
+                                ${agent.summary}
+                            </label>
+                        </div>
+                    `;
+                    agentList.append(agentItem);
+                });
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.error("Failed to load agents: " + textStatus);
+            });
+        }
+        
+        });
+    </script>
 </body>
 </html>
