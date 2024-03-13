@@ -40,8 +40,9 @@
             <div class="md:flex">
                 <div class="w-full p-5">
                     <div class="text-center mb-4">
-                        <h1 class="font-bold text-2xl">Create New Moment</h1>
-                      <h3>Approximately 1-3 minutes per agent, average wait 15 minutes.</h3>
+                        <h1 class="font-bold text-2xl">Create New Window of Time</h1>
+                      <h3>Approximately 1-3 minutes per synth you adapt.</h3>
+                      <h4>15 credits per synth adapted.</h4><br/><div class="text-gray-400 text-sm">Important: don't refresh the page.</div>
                     </div>
                     <form action="/create_agent_copy" method="post">
                         <div class="mb-4">
@@ -50,7 +51,7 @@
                         </div>
 
                       <div class="mb-8">
-                          <h2 class="text-xl font-bold mb-2">Select Agents</h2>
+                          <h2 class="text-xl font-bold mb-2">Select Synths to adapt to this window of time.</h2>
                           <div id="agent-list">
                               {% for agent in agents %}
                               <div class="flex items-center mb-2">
