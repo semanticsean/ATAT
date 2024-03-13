@@ -70,7 +70,7 @@
         var questionText = agent.questions && agent.questions[questionId] ? agent.questions[questionId].text : 'Unknown';
         return `
           <div class="mb-6">
-            <h4 class="text-lg font-bold text-blue-600 mb-2">Question ${questionId}</h4>
+            <h4 class="text-lg font-bold text-blue-600 mb-2">Question / Talking Point: ${questionId}</h4>
             <p class="text-gray-700 mb-2">${questionText}</p>
             <div class="bg-white rounded-lg p-4 shadow-md">
               <h4 class="text-2xl font-bold text-black mb-2">Response</h4>
@@ -233,7 +233,7 @@ function createChart(data) {
 
             <div id="results-container" class="w-full mb-8"></div>
       <div class="px-6 py-4 flex flex-col items-left">
-      <label for="question-dropdown" class="block text-sm font-medium text-gray-700">Select Question:</label>
+      <label for="question-dropdown" class="block text-sm font-medium text-gray-700">Select Question / Talking Point:</label>
       <select id="question-dropdown" name="question-dropdown" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
       </select>
 

@@ -40,57 +40,52 @@
         <div class="container mx-auto px-4 mt-16">
           <div class="bg-white rounded-lg shadow-lg p-6">
             <h2 class="text-2xl font-bold mb-4">Help & Support</h2>
-        <p class="mb-4">Find answers to common questions or get in touch for further assistance.</p>
-        <ul class="list-disc list-inside space-y-2">
-          <li>How to create a new synth</li>
-          <li>Understanding moments and journeys</li>
-          <li>Managing your synths</li>
-          <li>Customizing discussions</li>
-        </ul>
-            <div class="text-xl font-bold text-gray-800">Shortcodes</div>
-
-                <div class="mt-4">
-                    <h4 class="font-semibold text-lg text-blue-600">Call Agents from Email Body</h4>
-                    <div> class="text-gray-600">@@(Agent Name)</div>
+            <p class="mb-4">Find answers to common questions or get in touch for further assistance.</p>
+            <ul class="list-disc list-inside space-y-2">
+              <li>How to create a new synth</li>
+              <li>Understanding moments and journeys</li>
+              <li>Managing your synths</li>
+              <li>Customizing discussions</li>
+            </ul>
+            <div class="mt-8">
+              <h3 class="text-xl font-bold text-gray-800 mb-4">Shortcodes</h3>
+              <div class="space-y-4">
+                <div>
+                  <h4 class="font-semibold text-lg text-blue-600">Call Agents from Email Body</h4>
+                  <p class="text-gray-600">@@(Agent Name)</p>
                 </div>
-
-                <div class="mt-4">
-                    <h4 class="font-semibold text-lg text-blue-600">Create a Temporary Synth</h4>
-                    <div class="text-gray-600">@@.creator(Embody a synth that...)</div>
+                <div>
+                  <h4 class="font-semibold text-lg text-blue-600">Create a Temporary Synth</h4>
+                  <p class="text-gray-600">@@.creator(Embody a synth that...)</p>
                 </div>
-
-                <div class="mt-4">
-                    <h4 class="font-semibold text-lg text-blue-600">Long Responses (Multi-Chunk)</h4>
-                    <div class="text-gray-600">!detail_start!<br>instruction or content<br>!split!<br>instruction or content<br>!detail_stop!</div>
+                <div>
+                  <h4 class="font-semibold text-lg text-blue-600">Long Responses (Multi-Chunk)</h4>
+                  <p class="text-gray-600">!detail_start!<br>instruction or content<br>!split!<br>instruction or content<br>!detail_stop!</p>
                 </div>
-
-                <div class="mt-4">
-                    <h4 class="font-semibold text-lg text-blue-600">Summarize</h4>
-                    <div class="text-gray-600">!summarize_start!<br>content<br>!summarize_stop!</div>
+                <div>
+                  <h4 class="font-semibold text-lg text-blue-600">Summarize</h4>
+                  <p class="text-gray-600">!summarize_start!<br>content<br>!summarize_stop!</p>
                 </div>
-
-                <div class="mt-4">
-                    <h4 class="font-semibold text-lg text-blue-600">Summarize with Modifier e.g. JSON Return</h4>
-                    <div class="text-gray-600">!summarize.json_start!<br>content<br>!summarize.json_stop!</div>
+                <div>
+                  <h4 class="font-semibold text-lg text-blue-600">Summarize with Modifier e.g., JSON Return</h4>
+                  <p class="text-gray-600">!summarize.json_start!<br>content<br>!summarize.json_stop!</p>
                 </div>
-
-                <!-- Code Links Section -->
-                <div class="pb-12 mt-6 mb-12">
-                    <h3 class="text-lg font-bold text-gray-800">Code:</h3>
-                    <p class="text-blue-600 hover:text-blue-800 visited:text-purple-600">
-                        <a href="https://github.com/semanticsean/ATAT" target="_blank">Github / Readme</a><br>
-                        <a href="https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public" target="_blank">Setup on Replit in 5 Minutes</a><br>
-                        <a href="https://x.com/seanmcdonaldxyz" target="_blank">Follow Sean</a><br>
-                        <a href="https://x.com/semanticlife" target="_blank">Follow Semantic Life</a>
-                    </p>
-                </div>
+              </div>
             </div>
-      </div>
-          
-    </div>
+            <!-- Code Links Section -->
+            <div class="mt-12 mb-6">
+              <h3 class="text-lg font-bold text-gray-800 mb-4">Code & Resources</h3>
+              <ul class="list-none space-y-2">
+                <li><a href="https://github.com/semanticsean/ATAT" target="_blank" class="text-blue-600 hover:text-blue-800 visited:text-purple-600">GitHub / README</a></li>
+                <li><a href="https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public" target="_blank" class="text-blue-600 hover:text-blue-800 visited:text-purple-600">Setup on Replit in 5 Minutes</a></li>
+                <li><a href="https://x.com/seanmcdonaldxyz" target="_blank" class="text-blue-600 hover:text-blue-800 visited:text-purple-600">Follow Sean</a></li>
+                <li><a href="https://x.com/semanticlife" target="_blank" class="text-blue-600 hover:text-blue-800 visited:text-purple-600">Follow Semantic Life</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </main>
 
-        
-    </main>
       <div id="footer-push"></div>
       </div>
       {% include 'footer.html' %}
