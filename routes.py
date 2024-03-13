@@ -8,7 +8,6 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
-from survey_handler import generate_random_answers, process_survey_responses, extract_questions_from_form
 from logging.handlers import RotatingFileHandler
 
 
@@ -582,7 +581,27 @@ def serve_agent_copy_file(filename):
     else:
         abort(404)  # Return a 404 error if the file does not exist
 
+def extract_questions_from_form(form_data):
+    questions = {}
+    for key, value in form_data.items():
+        if key.startswith('question_'):
+            question_id = key.split('_')[1]
+            question_type = form_data.get(f"question_{question_id}_type")
+            questions[question_id] = {
+                'type': question_type,
+                'text': value
+            }
+            if question_type == 'multiple_choice':
+                options = form_data.getlist(f"question_{question_id}_options")
+                questions[question_id]['options'] = options
+            elif question_type == 'scale':
+                min_value = int(form_data.get(f"question_{question_id}_min"))
+                max_value = int(form_data.get(f"question_{question_id}_max"))
+                questions[question_id]['min'] = min_value
+                questions[question_id]['max'] = max_value
+    return questions
 
+  
 @auth_blueprint.route('/logout')
 @login_required
 def logout():
