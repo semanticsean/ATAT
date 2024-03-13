@@ -10,10 +10,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" />
     <style>
 
-        html, body {
+        html {
           height: 100%;
           margin: 0;
         }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
 
         #content {
           min-height: 100%;
@@ -30,13 +36,25 @@
           height: 4rem;
           /* Other styling */
         }
+      
+      <style>
+        body {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+        }
+
+        main {
+          flex: 1;
+        }
+      </style>
 
     </style>
   </head>
     
     <body class="flex flex-col h-full">
       {% include 'header.html' %}
-      <main class="flex-grow" style="min-height: calc(100vh - 4rem);">
+      <main class="flex-1" style="min-height: calc(100vh - 4rem);">
         <div class="container mx-auto px-4 mt-16">
           <div class="bg-white rounded-lg shadow-lg p-6">
             <h2 class="text-2xl font-bold mb-4">Help & Support</h2>
