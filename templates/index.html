@@ -105,7 +105,7 @@
             href="/dashboard"
             class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
           >
-            Dashboard
+            Principal Agents
           </a>
           
         </div>
@@ -117,7 +117,7 @@
             href="{{ url_for('auth_blueprint.new_agent_copy') }}"
             class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition duration-300 mb-4"
           >
-            New Window of Time
+            New Day
           </a>
           <a
             href="{{ url_for('survey_blueprint.create_survey') }}"
@@ -136,7 +136,7 @@
       </div>
       </div>
       <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
-          <h2 class="text-2xl font-bold mb-4">Windows of Time</h2>
+          <h2 class="text-2xl font-bold mb-4">Days</h2>
           
           <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
             {% for copy in agent_copies %} {% if copy.endswith('.json') %}
