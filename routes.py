@@ -788,35 +788,21 @@ def start_route():
   
     return render_template('start.html', config=config, new_agent_files=new_agent_files, new_agent_files_content=new_agent_files_content)
 
+
 @profile_blueprint.route('/create_new_agent', methods=['GET', 'POST'])
+@login_required
 def create_new_agent():
     if request.method == 'POST':
         agent_name = request.form['agent_name']
+        # Process the agent_name to ensure it's safe for file paths
+        agent_name = re.sub(r'[^a-zA-Z0-9\s]', '', agent_name).replace(' ', '_')
         jobtitle = request.form['jobtitle']
         agent_description = request.form['agent_description']
 
-        new_agent_data = generate_new_agent(agent_name, jobtitle, agent_description)
+        # Corrected: Generate the new agent data and save it to the current user's agents.json
+        new_agent_data = generate_new_agent(agent_name, jobtitle, agent_description, current_user)
 
-        # Save the new agent data to agents/agents.json
-        agents_file = os.path.join('agents', 'agents.json')
-        with open(agents_file, 'r') as f:
-            agents_data = json.load(f)
+        return redirect(url_for('profile_blueprint.profile', agents_file='agents.json', agent_id=new_agent_data['id']))
 
-        agents_data.append(new_agent_data)
-
-        with open(agents_file, 'w') as f:
-            json.dump(agents_data, f, indent=4)
-
-        return redirect(url_for('profile_blueprint.profile', agent_id=new_agent_data['id']))
-
-    # Load the first agent from agents.json as a template
-    agents_file = os.path.join('agents', 'agents.json')
-    with open(agents_file, 'r') as f:
-        agents_data = json.load(f)
-
-    if agents_data:
-        agent_template = agents_data[0]['persona']
-    else:
-        agent_template = ''
-
-    return render_template('new_agent.html', agent_template=agent_template)
+    # Assuming you're loading a template for the form from here
+    return render_template('new_agent.html')

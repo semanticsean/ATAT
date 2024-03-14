@@ -305,3 +305,84 @@ psql -d $DB_NAME -U $DB_USER -W $DB_PASS
 flask db init  # Only needed the first time to set up migrations directory
 flask db migrate -m "Added PageView model"
 flask db upgrade
+
+
+
+
+
+
+Semantic Life - AI Agent Dashboard
+
+Welcome to the Semantic Life - AI Agent Dashboard! This powerful tool allows you to create, manage, and interact with AI agents in a user-friendly web interface. With features like agent creation, timeframe management, meeting organization, and survey conducting, you can leverage the power of AI to gain valuable insights and make informed decisions.
+Features
+
+    Agent Creation: Easily create new AI agents by providing a name, job title, and description. The system generates a detailed agent persona, including keywords, relationships, and an image prompt, using the OpenAI GPT-4 model. It also generates a profile picture using the DALL-E model.
+    Timeframe Management: Create different scenarios or contexts for your AI agents by establishing timeframes. You can select specific agents to include in a timeframe and provide instructions to modify their attributes using the OpenAI API. The modified agents are saved in a new JSON file for easy access.
+    Meeting Organization: Organize meetings with your AI agents to gather insights and conduct surveys. Select a timeframe, choose the agents to include, and provide a name for the meeting. The system creates a survey form where you can define questions and gather responses from the agents using the OpenAI API.
+    Survey Results: View the results of your surveys in a user-friendly interface. The responses from each agent are displayed alongside their profile information. You can analyze the responses, compare insights from different agents, and make informed decisions based on the survey results.
+    Public Sharing: Make your survey results publicly accessible by generating a unique public URL. Anyone with the URL can view the survey results without authentication, allowing you to share insights with a broader audience.
+
+Prerequisites
+
+Before running the Semantic Life - AI Agent Dashboard, ensure you have the following:
+
+    Python 3.x installed
+    OpenAI API key
+    Required Python packages (listed in requirements.txt)
+
+Installation
+
+    Clone the repository:
+
+bash
+
+git clone https://github.com/your-username/semantic-life.git
+
+    Install the required Python packages:
+
+bash
+
+pip install -r requirements.txt
+
+    Set up the environment variables:
+
+    OPENAI_API_KEY: Your OpenAI API key
+    DATABASE_URL: URL for your database (e.g., PostgreSQL)
+    FLASK_KEY: Secret key for Flask sessions
+    DOMAIN_NAME: Domain name for your application
+
+    Run the database migrations:
+
+bash
+
+flask db upgrade
+
+    Start the application:
+
+bash
+
+python app.py
+
+    Access the application in your web browser at http://localhost:5000.
+
+Usage
+
+    Register a new account or log in to an existing account.
+    Create new agents by providing a name, job title, and description.
+    Establish timeframes and select agents to include. Provide instructions to modify the agents' attributes.
+    Organize meetings by selecting a timeframe, choosing agents, and providing a name.
+    Conduct surveys by defining questions and gathering responses from the agents.
+    View survey results and analyze the insights provided by the AI agents.
+    Optionally, make survey results publicly accessible by generating a unique public URL.
+
+Contributing
+
+Contributions to the Semantic Life - AI Agent Dashboard are welcome! If you encounter any issues or have suggestions for improvements, please open an issue or submit a pull request on the GitHub repository.
+License
+
+This project is licensed under the MIT License.
+Contact
+
+For any inquiries or feedback, please contact us at info@semanticlife.com.
+
+Enjoy using the Semantic Life - AI Agent Dashboard to unlock the potential of AI agents and gain valuable insights!
