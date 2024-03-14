@@ -34,15 +34,7 @@
 <body class="bg-blue-50">
     {% include 'header.html' %}
     <div class="pt-16">
-        <header class="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 px-4 flex justify-between items-center">
-            <a href="/" class="flex items-center space-x-2">
-                <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="h-8">
-            </a>
-            <nav class="flex space-x-4">
-                <a href="/" class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded transition-colors">Home</a>
-                <a href="{{ url_for('auth_blueprint.logout') }}" class="bg-gray-700 hover:bg-red-700 text-white py-2 px-4 rounded transition-colors">Logout</a>
-            </nav>
-        </header>
+        
         <main class="container mx-auto px-4 py-4 mt-2">
             <h1 class="text-3xl font-bold mb-4 text-center">Agent Profile</h1>
             {% if agent %}
@@ -59,8 +51,10 @@
                   {% endif %}
                     <div class="p-6">
                         <h2 class="text-2xl font-bold mb-2">{{ agent.id }}</h2>
+                      {% if agents_file == 'agents/agents.json' %}
                       {% if agent.email %}
                           <a href="mailto:{{ agent.email }}?subject=Continuing%20our%20discussion&body=Semantic-Life.com" class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300">{{ agent.email }}</a>
+                      {% endif %}
                       {% endif %}
                       {% if agent.keywords %}
                           <div class="mt-4">
