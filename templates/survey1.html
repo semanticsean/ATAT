@@ -1,178 +1,231 @@
 <!--templates/survey1.html-->
 <!DOCTYPE html>
 <html lang="en" class="h-full">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Survey</title>
-  <style>
-
-      html, body {
-        height: 100%;
-        margin: 0;
-      }
-
-      #content {
-        min-height: 100%;
-        /* Equal to footer height */
-        margin-bottom: -4rem; 
-      }
-
-      #footer-push {
-        height: 16rem; 
-        /* Equal to footer height */
-      }
-
-      footer {
-        height: 4rem;
-        /* Other styling */
-      }
-
-  </style>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  </head>
-<body class="bg-blue-50 h-full">
-    {% include 'header.html' %}
-    <main class="flex-grow">
-        <div class="container mx-auto px-4 py-8 mt-12">
-          <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
-            <h1 class="text-2xl font-bold mb-2">Make a Meeting</h1>
-            <h2 class="italic">1 credit per question or discussion point per synth.</h2>
-            <form action="{{ url_for('survey_blueprint.create_survey') }}" method="post" class="mb-8">
-                <div class="mb-4">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Create Survey</title>
+          <style>
+            html, body {
+              height: 100%;
+              margin: 0;
+            }
+            #content {
+              min-height: 100%;
+              /* Equal to footer height */
+              margin-bottom: -4rem; 
+            }
+            #footer-push {
+              height: 16rem; 
+              /* Equal to footer height */
+            }
+            footer {
+              height: 4rem;
+              /* Other styling */
+            }
+            .agent-item {
+              cursor: pointer;
+            }
+            .agent-item.selected {
+              background-color: #d3e1ff;
+            }
+            .agent-item:hover {
+              background-color: #e9f0ff;
+            }
+          </style>
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        </head>
+        <body class="bg-blue-50 h-full">
+          {% include 'header.html' %}
+          <main class="flex-grow">
+            <div class="container mx-auto px-4 py-8 mt-12">
+              <div id="loading" style="display: none;">Loading...</div>
+              <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
+                <h1 class="text-2xl font-bold mb-2">Make a Meeting</h1>
+                <h2 class="italic">1 credit per question or discussion point per synth.</h2>
+                <form action="{{ url_for('survey_blueprint.create_survey') }}" method="post" class="mb-8">
+                  <div class="mb-4">
                     <label for="survey_name" class="block text-xl font-bold mb-2 mt-4">Meeting Name:</label>
                     <input type="text" id="survey_name" name="survey_name" value="default_name" required class="w-full px-3 py-text-xl font-bold mb-2 border rounded-lg focus:outline-none">
-                </div>
-
-                <div class="mb-8">
-                    <h2 class="text-xl font-bold mb-2">Select Window in Time</h2>
+                  </div>
+                  <div class="mb-8">
+                    <h2 class="text-xl font-bold mb-2">Select Timeframe</h2>
                     <div id="file-list" class="flex flex-wrap">
-                        {% if agent_files %}
-                            {% for file in agent_files %}
-                                <button type="button" class="file-button px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-blue-600 mr-2 mb-2" data-file="{{ file }}">{{ file.split('/')[-1] }}</button>
-                            {% endfor %}
-                        {% else %}
-                            <p>No agent files available to create a survey.</p>
-                        {% endif %}
+                      {% if agent_files %}
+                        {% for file in agent_files %}
+                          <button type="button" class="file-button px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-blue-600 mr-2 mb-2" data-file="{{ file }}">{{ file.split('/')[-1] }}</button>
+                        {% endfor %}
+                      {% else %}
+                        <p>No agent files available</p>
+                      {% endif %}
                     </div>
-                </div>
-
-                <div class="mb-8">
+                  </div>
+                  <div class="mb-8">
                     <h2 class="text-xl font-bold mb-2">Select Synths</h2>
-                    <div class="mb-2">
-                        <button type="button" id="select-all" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-blue-600">Select All</button>
-                        <button type="button" id="clear-all" class="px-4 py-2 bg-gray-200 text-white rounded-lg hover:bg-red-600">Clear All</button>
+                    <div id="agent-list">
+                      <div class="mb-4 flex justify-between">
+                        <button type="button" id="select-all" class="px-4 py-2 text-sm md:px-6 md:py-3 bg-gray-400 text-white rounded-lg hover:bg-green-600">Select All</button>
+                        <button type="button" id="clear-all" class="px-2 py-1 text-sm md:px-2 md:py-1 bg-gray-200 text-white rounded-lg hover:bg-red-600">Clear All</button>
+                      </div>
                     </div>
-                    <div id="agent-list" class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 gap-4"></div>
-                </div>
-
-                <input type="hidden" id="selected_file" name="selected_file" value="">
-                <button type="submit" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-green-600">Next Step</button>
-            </form>
-        </div>
-        </div>
-    </main>
-  
-    <div id="footer-push"></div>
-  
-    {% include 'footer.html' %}
-
-  <script>
-      $(document).ready(function() {
-          console.log("Document ready. Initializing event handlers...");
-          var selectedAgents = []; // Initialize an empty array to keep track of selected agents
-
-          // Event handler for file buttons
-          $('.file-button').click(function() {
-              var selectedFile = $(this).data('file');
-              console.log("File button clicked. Selected file: ", selectedFile);
-              $('#selected_file').val(selectedFile);
-              loadAgents(selectedFile);
-          });
-
-          // Event handler for "Select All" button
-          $('#select-all').click(function() {
-              console.log("'Select All' button clicked. Selecting all agents.");
-              $('input[name="selected_agents"]').prop('checked', true).each(function() {
-                  addAgentToSelection(this.value); // Add agent to selection when selecting all
+                  </div>
+                  <input type="hidden" id="selected_file" name="selected_file" value="">
+                    <input type="hidden" id="selected_agents" name="selected_agents" value="">
+                    <button type="submit" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-600">Next Step</button>
+                  
+                </form>
+              </div>
+            </div>
+          </main>
+          <div id="footer-push"></div>
+          {% include 'footer.html' %}
+          <script>
+            $(document).ready(function() {
+              console.log("Document ready. Initializing event handlers...");
+              var selectedAgents = []; // Initialize an empty array to keep track of selected agents
+              
+              // Event handler for file buttons
+              $('.file-button').click(function() {
+                var selectedFile = $(this).data('file');
+                console.log("File button clicked. Selected file: ", selectedFile);
+                $('#selected_file').val(selectedFile);
+                loadAgents(selectedFile);
               });
-          });
 
-          // Event handler for "Clear All" button
-          $('#clear-all').click(function() {
-              console.log("'Clear All' button clicked. Clearing all agent selections.");
-              $('input[name="selected_agents"]').each(function() {
-                  removeAgentFromSelection(this.value); // Remove agent from selection when clearing all
-              }).prop('checked', false);
-          });
-
-          // Event handler for individual agent checkbox clicks
-          $(document).on('change', 'input[name="selected_agents"]', function() {
-              var agentId = $(this).val();
-              if (this.checked) {
+              // Update the form submission event listener
+              $('form').on('submit', function(e) {
+                // Set the value of each selected agent's checkbox to "on"
+                selectedAgents.forEach(function(agentId) {
+                  $(`input[type="checkbox"][value="${agentId}"]`).prop('checked', true);
+                });
+              });
+              
+              // Event handler for "Select All" button
+              $(document).on('click', '#select-all', function() {
+                console.log("'Select All' button clicked. Selecting all agents.");
+                $('.agent-item').each(function() {
+                  var agentId = $(this).data('agent-id');
+                  $(this).addClass('selected');
                   addAgentToSelection(agentId);
-              } else {
+                });
+              });
+              
+              // Event handler for "Clear All" button
+              $(document).on('click', '#clear-all', function() {
+                console.log("'Clear All' button clicked. Clearing all agent selections.");
+                $('.agent-item').each(function() {
+                  var agentId = $(this).data('agent-id');
+                  $(this).removeClass('selected');
                   removeAgentFromSelection(agentId);
-              }
-              console.log("Current selection of agents: ", selectedAgents);
-          });
-
-          // Adds an agent ID to the selection array
-          function addAgentToSelection(agentId) {
-              if (!selectedAgents.includes(agentId)) {
+                });
+              });
+              
+              // Event handler for individual agent item clicks
+              $(document).on('click', '.agent-item', function(e) {
+                e.preventDefault();
+                if (e.target !== $(this).find('input[type="checkbox"]')[0]) {
+                  var agentId = $(this).data('agent-id');
+                  
+                  $(this).toggleClass('selected');
+                  if ($(this).hasClass('selected')) {
+                    addAgentToSelection(agentId);
+                  } else {
+                    removeAgentFromSelection(agentId);
+                  }
+                }
+              });
+              
+              // Adds an agent ID to the selection array
+              function addAgentToSelection(agentId) {
+                if (!selectedAgents.includes(agentId)) {
                   selectedAgents.push(agentId);
                   console.log(`Agent ${agentId} added to selection.`);
+                }
               }
-          }
-
-          // Removes an agent ID from the selection array
-          function removeAgentFromSelection(agentId) {
-              const index = selectedAgents.indexOf(agentId);
-              if (index > -1) {
+              
+              // Removes an agent ID from the selection array
+              function removeAgentFromSelection(agentId) {
+                const index = selectedAgents.indexOf(agentId);
+                if (index > -1) {
                   selectedAgents.splice(index, 1);
                   console.log(`Agent ${agentId} removed from selection.`);
+                }
               }
-          }
-
-          // Load agents based on the selected file
-          function loadAgents(file) {
-              console.log("Loading agents for file: ", file);
-              var endpoint;
-              if (file === 'agents/agents.json') {
+              
+              // Load agents based on the selected file
+              function loadAgents(file) {
+                console.log("Loading agents for file: ", file);
+                var endpoint;
+                if (file === 'agents/agents.json') {
                   endpoint = '/agents/agents.json';
-              } else {
+                } else {
                   var basename = file.split('/').pop(); // Extracts the last part after '/'
                   endpoint = `/agents/copies/${basename}`;
-              }
-              console.log("Endpoint for loading agents: ", endpoint);
-
-              $.getJSON(endpoint, function(data) {
+                }
+                console.log("Endpoint for loading agents: ", endpoint);
+                $.getJSON(endpoint, function(data) {
                   console.log("Received agent data: ", data);
                   var agentList = $('#agent-list');
                   agentList.empty();
                   data.forEach(function(agent) {
-                      var photoPath = `/${agent.photo_path}`;
-                      var agentItem = `
-                          <div class="flex flex-col items-start mb-4">
-                              <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="mb-2 h-6 w-6">
-                              <label for="agent-${agent.id}" class="text-gray-700">
-                                  <img src="${photoPath}" alt="Agent Profile" class="w-24 h-24 rounded-full mr-2">
-                                  <span class="font-bold">${agent.id}</span> - ${agent.email}<br>
-                                  ${agent.summary}
-                              </label>
-                          </div>
-                      `;
-                      agentList.append(agentItem);
+                    var photoPath = `/${agent.photo_path}`;
+                    var agentItem = `
+                      <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="${agent.id}">
+                        <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden">
+                       
+                        <img src="${photoPath}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
+                        <label for="agent-${agent.id}" class="text-gray-700 text-sm md:text-md">
+                          <div class="text-lg md:text-xl font-bold mb-2">${agent.id}</div>
+                          <div class="mb-2">${agent.jobtitle}</div>
+                          <div class="mb-2">${agent.summary}</div>
+                        </label>
+                      </div>
+                    `;
+                    agentList.append(agentItem);
                   });
-              }).fail(function(jqXHR, textStatus, errorThrown) {
+                }).fail(function(jqXHR, textStatus, errorThrown) {
                   console.error("Failed to load agents: " + textStatus + ", " + errorThrown);
-              });
-          }
-      });
-  </script>
+                });
+              }
+            });
+          </script>
+          <script>
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.querySelector('form');
+                const loading = document.getElementById('loading');
+
+                form.addEventListener('submit', function(e) {
+                    const filenameInput = document.getElementById('filename');
+                    filenameInput.value = filenameInput.value.replace(/\s+/g, '_');
+                    $('#selected_agents').val(selectedAgents.join(','));
+                    loading.style.display = 'block';
+                });
+            });
 
 
-</body>
-</html>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.querySelector('form');
+                const loading = document.getElementById('loading');
+                const agentItems = document.querySelectorAll('.agent-item');
+
+                // Individual agent item click event
+                agentItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        // Prevent form from submitting if the form is clicked
+                        e.preventDefault();
+
+                        // Check the clicked element is not the checkbox itself
+                        if (e.target !== this.querySelector('input[type="checkbox"]')) {
+                            const checkbox = this.querySelector('input[type="checkbox"]');
+                            checkbox.checked = !checkbox.checked;
+                            this.classList.toggle('selected', checkbox.checked);
+                        }
+                    });
+                });
+
+            });
+          </script>
+        </body>
+      </html>
