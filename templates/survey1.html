@@ -37,8 +37,8 @@
     {% include 'header.html' %}
     <main class="flex-grow">
         <div class="container mx-auto px-4 py-8 mt-12">
-            <h1 class="text-2xl font-bold mb-2">Start a Moment in Time</h1>
-            <h2>1 credit per question or discussion point per synth.</h2>
+            <h1 class="text-2xl font-bold mb-2">Make a Moment</h1>
+            <h2 class="italic">1 credit per question or discussion point per synth.</h2>
             <form action="{{ url_for('survey_blueprint.create_survey') }}" method="post" class="mb-8">
                 <div class="mb-4">
                     <label for="survey_name" class="block text-gray-700 font-bold mb-2">Discussion Name:</label>
