@@ -315,7 +315,7 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
     # DALL-E - Generate profile picture for the new agent
     image_prompt = new_agent_data.get('image_prompt', '')
     dalle_prompt = f"{image_prompt}"
-
+    
     # DALL-E - Generate profile picture
     max_retries = 12
     retry_delay = 5
@@ -338,21 +338,25 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
                 retry_delay *= 2
             else:
                 raise e
-
+    
     image_url = dalle_response.data[0].url
     logging.info(f"Generated image URL: {image_url}")
-
-    # Save the profile picture
+    
+    # Adjusted path to save the profile picture in the user's folder
     new_photo_filename = f"{agent_name}.png"
-    new_photo_path = os.path.join('agents', 'pics', new_photo_filename)
+    new_photo_path = os.path.join(current_user.folder_path, 'agents', 'pics', new_photo_filename)  # Adjusted path
     logging.info(f"New photo path: {new_photo_path}")
-
+    
     img_data = requests.get(image_url).content
     with open(new_photo_path, 'wb') as handler:
         handler.write(img_data)
-
-    new_agent_data['photo_path'] = os.path.join('agents', 'pics', new_photo_filename)
+    
+    # Update the new_agent_data['photo_path'] to reflect the user-specific path
+    new_agent_data['photo_path'] = os.path.join('agents', 'pics', new_photo_filename)  # This path is saved in the JSON, might be adjusted based on your application's needs
     logging.info(f"Updated photo path: {new_agent_data['photo_path']}")
+    
+    # Rest of the function remains unchanged...
+    
 
     # Modify the path where the new agent data will be saved to the user-specific file
     agents_file_path = os.path.join(current_user.folder_path, 'agents', 'agents.json')
