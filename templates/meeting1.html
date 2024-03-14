@@ -48,6 +48,7 @@
                   <div class="mb-4">
                     <label for="survey_name" class="block text-xl font-bold mb-2 mt-4">Meeting Name:</label>
                     <input type="text" id="survey_name" name="survey_name" value="default_name" required class="w-full px-3 py-text-xl font-bold mb-2 border rounded-lg focus:outline-none">
+                    
                   </div>
                   <div class="mb-8">
                     <h2 class="text-xl font-bold mb-2">Select Timeframe</h2>
@@ -95,10 +96,10 @@
 
               // Update the form submission event listener
               $('form').on('submit', function(e) {
-                // Set the value of each selected agent's checkbox to "on"
-                selectedAgents.forEach(function(agentId) {
-                  $(`input[type="checkbox"][value="${agentId}"]`).prop('checked', true);
-                });
+                  // Set the value of each selected agent's checkbox to "on"
+                  selectedAgents.forEach(function(agentId) {
+                      $(`input[type="checkbox"][value="${agentId}"]`).prop('checked', true);
+                  });
               });
               
               // Event handler for "Select All" button
