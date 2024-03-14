@@ -260,7 +260,7 @@ def create_survey(selected_file=None):
     agent_files.extend(f for f in glob.glob(os.path.join(copies_dir, '*.json')))
 
 
-    return render_template('survey1.html', selected_file=selected_file, agent_files=agent_files)
+    return render_template('meeting1.html', selected_file=selected_file, agent_files=agent_files)
 
 
 @survey_blueprint.route('/surveys/<path:survey_id>/pics/<filename>')
@@ -323,7 +323,7 @@ def survey_form(survey_id):
 
         return redirect(url_for('survey_blueprint.results', folder=survey_folder, filename=results_filename))
 
-    return render_template('survey2.html', survey=survey, agents=agents)
+    return render_template('meeting2.html', survey=survey, agents=agents)
 
 @survey_blueprint.route('/survey/<int:survey_id>/get_results')
 @login_required
