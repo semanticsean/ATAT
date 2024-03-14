@@ -28,10 +28,7 @@ def configure_logging():
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY', 'default_secret_key')
-
-
 configure_logging() 
-
 
 database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith("postgres://"):
