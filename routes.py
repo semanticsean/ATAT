@@ -1,5 +1,5 @@
 # routes.py
-import os, json, random, re, glob, shutil, bleach, logging
+import os, json, random, re, glob, shutil, bleach, logging, uuid
 import abe_gpt
 
 from models import User, Survey
@@ -341,7 +341,7 @@ def get_results(survey_id):
     return jsonify(results)
 
 
-@survey_blueprint.route('/survey/<folder>/<filename>/results')
+@survey_blueprint.route('/survey/<folder>/<filename>/results', methods=['GET', 'POST'])
 @login_required
 def results(folder, filename):
     user_dir = current_user.folder_path
@@ -370,6 +370,19 @@ def results(folder, filename):
         # Handle the case when the survey object is not found
         flash('Survey not found.')
         return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        is_public = request.form.get('is_public') == 'on'
+        survey.is_public = is_public
+
+        if is_public and not survey.public_url:
+            # Generate a unique public URL if it doesn't exist
+            survey.public_url = str(uuid.uuid4())
+        elif not is_public:
+            # Clear the public URL if the survey is made private
+            survey.public_url = None
+
+        db.session.commit()
 
     return render_template('results.html', results=survey_data, survey=survey)
 
@@ -600,6 +613,29 @@ def extract_questions_from_form(form_data):
                 questions[question_id]['min'] = min_value
                 questions[question_id]['max'] = max_value
     return questions
+
+@survey_blueprint.route('/public/survey/<public_url>')
+def public_survey_results(public_url):
+    survey = Survey.query.filter_by(public_url=public_url).first()
+
+    if not survey or not survey.is_public:
+        abort(404)
+
+    # Load the survey data and render the public results template
+    survey_file = os.path.join(survey.agents_file)
+    with open(survey_file, 'r') as f:
+        survey_data = json.load(f)
+
+    return render_template('public_results.html', results=survey_data, survey=survey)
+
+@survey_blueprint.route('/public_folder_name')
+def public_folder_name():
+    # Logic to determine survey and foldername...
+    survey = get_survey()  # Hypothetical function to get a Survey object
+    foldername = calculate_foldername(survey)  # Hypothetical function to determine foldername
+
+    return render_template('public_results.html', survey=survey, foldername=foldername)
+
 
   
 @auth_blueprint.route('/logout')
