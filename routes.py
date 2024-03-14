@@ -39,6 +39,11 @@ dashboard_blueprint = Blueprint('dashboard_blueprint', __name__, template_folder
 
 profile_blueprint = Blueprint('profile_blueprint', __name__, template_folder='templates')
 
+class PageView(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  page = db.Column(db.String(50), nullable=False)
+  timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+
 
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
@@ -771,6 +776,15 @@ def start_route():
     
     page_view = PageView(page='/start_route')
     db.session.add(page_view)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        app.logger.error(f"Failed to commit to DB: {e}")
+        db.session.rollback()
+
+  
   
     return render_template('start.html', config=config, new_agent_files=new_agent_files, new_agent_files_content=new_agent_files_content)
+
+
+
