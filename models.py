@@ -55,3 +55,6 @@ class Survey(db.Model):
     agents_file = db.Column(db.String(255), nullable=False)
     result_count = db.Column(db.Integer, default=0)
     user = db.relationship('User', backref=db.backref('surveys', lazy=True))
+    is_public = db.Column(db.Boolean, default=False)  
+    foldername = db.Column(db.String(255)) 
+    public_url = db.Column(db.String(255), unique=True)  
