@@ -8,7 +8,7 @@
 <body class="bg-gray-100">
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-2xl font-bold mb-4">Start Configuration</h1>
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="startForm">
             <div class="mb-4">
                 <label class="block mb-2 font-bold">Run Update Team:</label>
                 <select name="run_update_team" class="w-full p-2 border border-gray-300 rounded">
@@ -89,7 +89,15 @@
 
             </div>
             <button type="submit" name="run_start" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Run Start</button>
+          <img src="static/loading.gif" id="loadingGif" style="display: none; width: 24px;" alt="Loading...">
         </form>
+      
     </div>
+  <script>
+      document.getElementById('startForm').addEventListener('submit', function() {
+          // Show the loading GIF
+          document.getElementById('loadingGif').style.display = 'inline';
+      });
+  </script>
 </body>
 </html>
