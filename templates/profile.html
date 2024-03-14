@@ -56,7 +56,7 @@
                           <a href="mailto:{{ agent.email }}?subject=Continuing%20our%20discussion&body=Semantic-Life.com" class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300">{{ agent.email }}</a>
                       {% endif %}
                       {% endif %}
-                      {% if agent.keywords %}
+                      {% if agent.keywords and agent.keywords is iterable %}
                           <div class="mt-4">
                               <h3 class="text-xl font-semibold mb-2">Keywords</h3>
                               <div id="keywords-text" class="flex flex-wrap gap-2">
@@ -64,11 +64,9 @@
                                       <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full">{{ keyword }}</span>
                                   {% endfor %}
                               </div>
-                              <textarea id="keywords-input" class="w-full" style="display: none;">{{ agent.keywords|join(', ') }}</textarea>
-                              <!-- hidden not working <button id="keywords-edit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Edit</button>
-                              <button id="keywords-save" class="mt-2 bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded" style="display: none;">Save</button> -->
                           </div>
                       {% endif %}
+
 
                         <div class="space-y-2 mt-6">
                             
@@ -102,17 +100,15 @@
                           {% endif %}
 
                           {% if agent.relationships %}
+                              {% set relationships_list = agent.relationships if agent.relationships is iterable and not agent.relationships is mapping else agent.relationships.values() %}
                               <div class="mt-4">
                                   <h3 class="text-xl font-semibold mb-2">Relationships</h3>
                                   <div class="space-y-4">
-                                      {% for relationship in agent.relationships %}
-                                          <div class="p-4 bg-gray-50 rounded-lg shadow" data-relationship-id="{{ relationship.id }}">
+                                      {% for relationship in relationships_list %}
+                                          <div class="p-4 bg-gray-50 rounded-lg shadow">
                                               <p class="font-semibold">{{ relationship.name | default('N/A', true) }}</p>
                                               <p><strong>Job:</strong> {{ relationship.job | default('N/A', true) }}</p>
-                                              <p><strong>Relationship:</strong> <span class="relationship-description-text">{{ relationship.relationship_description | default('N/A', true) }}</span></p>
-                                              <input type="text" class="relationship-description-input w-full" value="{{ relationship.relationship_description }}" style="display: none;">
-                                              <button class="relationship-edit-btn bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Edit</button>
-                                              <button class="relationship-save-btn bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded" style="display: none;">Save</button>
+                                              <p><strong>Relationship:</strong> {{ relationship.relationship_description | default('N/A', true) }}</p>
                                               <p><strong>Summary:</strong> {{ relationship.summary | default('N/A', true) }}</p>
                                               {% if relationship.common_interactions %}
                                                   <div>
@@ -129,6 +125,7 @@
                                   </div>
                               </div>
                           {% endif %}
+
 
                           
                         </div>
