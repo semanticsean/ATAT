@@ -1,0 +1,95 @@
+<!--templates/start.html-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Start Configuration</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-4">Start Configuration</h1>
+        <form method="post" enctype="multipart/form-data">
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Run Update Team:</label>
+                <select name="run_update_team" class="w-full p-2 border border-gray-300 rounded">
+                    <option value="false" {% if not config.run_update_team %}selected{% endif %}>No</option>
+                    <option value="true" {% if config.run_update_team %}selected{% endif %}>Yes</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Run Render Agents:</label>
+                <select name="run_render_agents" class="w-full p-2 border border-gray-300 rounded">
+                    <option value="false" {% if not config.run_render_agents %}selected{% endif %}>No</option>
+                    <option value="true" {% if config.run_render_agents %}selected{% endif %}>Yes</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Run Update Content:</label>
+                <select name="run_update_content" class="w-full p-2 border border-gray-300 rounded">
+                    <option value="false" {% if not config.run_update_content %}selected{% endif %}>No</option>
+                    <option value="true" {% if config.run_update_content %}selected{% endif %}>Yes</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Directory:</label>
+                <input type="text" name="directory" value="{{ config.directory }}" class="w-full p-2 border border-gray-300 rounded">
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Transformation Prompt:</label>
+                <textarea name="transformation_prompt" rows="4" class="w-full p-2 border border-gray-300 rounded">{{ config.transformation_prompt }}</textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Cover Photo Instructions:</label>
+                <textarea name="cover_photo_instructions" rows="4" class="w-full p-2 border border-gray-300 rounded">{{ config.cover_photo_instructions }}</textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Number of Additional Agents:</label>
+                <input type="number" name="num_agents_additional" value="{{ config.num_agents_additional }}" class="w-full p-2 border border-gray-300 rounded">
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Fictionalize Option:</label>
+                <select name="fictionalize_option" class="w-full p-2 border border-gray-300 rounded">
+                    <option value="no" {% if config.fictionalize_option == 'no' %}selected{% endif %}>No</option>
+                    <option value="yes" {% if config.fictionalize_option == 'yes' %}selected{% endif %}>Yes</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Clear JSON Confirm:</label>
+                <select name="clear_json_confirm" class="w-full p-2 border border-gray-300 rounded">
+                    <option value="no" {% if config.clear_json_confirm == 'no' %}selected{% endif %}>No</option>
+                    <option value="yes" {% if config.clear_json_confirm == 'yes' %}selected{% endif %}>Yes</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Clear Pics Confirm:</label>
+                <select name="clear_pics_confirm" class="w-full p-2 border border-gray-300 rounded">
+                    <option value="no" {% if config.clear_pics_confirm == 'no' %}selected{% endif %}>No</option>
+                    <option value="yes" {% if config.clear_pics_confirm == 'yes' %}selected{% endif %}>Yes</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Social Image URL:</label>
+                <input type="text" name="social_image_url" value="{{ config.social_image_url }}" class="w-full p-2 border border-gray-300 rounded">
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Logo URL:</label>
+                <input type="text" name="logo_url" value="{{ config.logo_url }}" class="w-full p-2 border border-gray-300 rounded">
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">Upload Files:</label>
+                <input type="file" name="upload_files" multiple class="w-full p-2 border border-gray-300 rounded">
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 font-bold">New Agent Files:</label>
+              {% for file, content in new_agent_files_content.items() %}
+                  <div class="mb-2">
+                      <textarea name="{{ file }}" rows="4" class="w-full p-2 border border-gray-300 rounded">{{ content }}</textarea>
+                  </div>
+              {% endfor %}
+
+            </div>
+            <button type="submit" name="run_start" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Run Start</button>
+        </form>
+    </div>
+</body>
+</html>
