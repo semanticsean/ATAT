@@ -143,10 +143,15 @@
   
 
   <div class="container mx-auto mt-2 mb-2">
-    <div class="font-bold mb-2 text-center text-3xl -mt-6 md:mt-2">DASHBOARD: {% if agent_source.filename[:-5] == "agents" %}Base Agents{% else %}{{ agent_source.filename[14:-5] }}{% endif %}</div>
-    <!-- <form id="agents-file-form" method="get" action="{{ url_for('dashboard_blueprint.dashboard') }}" class="max-w-xl mx-auto my-4">
+    <div class="font-bold mb-2 text-center text-3xl mt-6 md:mt-12">Synthetics (AIs)
+      
+      </div>
+    <h3 class="font-bold mb-2 text-center text-xl text-gray-400 mt-4 md:mt-4">{% if agent_source.filename[:-5] == "agents" %}Base Agents{% else %}{{ agent_source.filename[14:-5] }}{% endif %}</h3>
+    <!-- 
+    
+    <form id="agents-file-form" method="get" action="{{ url_for('dashboard_blueprint.dashboard') }}" class="max-w-xl mx-auto my-4">
         <div class="flex flex-col md:flex-row justify-between items-center">
-            <label for="agents-file" class="block text-sm text-gray-700 md:mb-0">Change to A Moments:</label>
+            <label for="agents-file" class="block text-sm text-gray-700 md:mb-0">Change to Meetings:</label>
             <div class="mt-1 md:mt-0 md:flex-1 md:mx-3 relative rounded-md shadow-sm">
                 <select id="agents-file" name="agents_file" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
                     <option value="agents/agents.json">All Agents</option>
@@ -181,7 +186,7 @@
                     </div>
                     <div class="mt-4 flex flex-wrap gap-2">                        
                         {% if agent_source.filename != "agents.json" %}
-                        <a href="{{ url_for('survey_blueprint.create_survey', selected_file=agent_source.filename) }}" class="inline-block bg-black hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" style="flex: 1 1 100%;">Start Moment</a>
+                        <a href="{{ url_for('survey_blueprint.create_survey', selected_file=agent_source.filename) }}" class="inline-block bg-black hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" style="flex: 1 1 100%;">Start Meeting</a>
                         {% else %}
                       <a href="mailto:{{ agent.email }}" class="inline-block bg-gray-700 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded text-center" style="flex: 1 1 30%;">Email</a>
                       <button id="copyEmail{{ agent.id }}" class="inline-block bg-gray-500 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')" style="flex: 1 1 30%;">Copy Email</button>

@@ -2,7 +2,7 @@
 <div x-data="{ open: false, dropdownOpen: false }" id="header" class="fixed top-0 left-0 right-0 z-50 bg-black text-white">
   <div class="py-2 px-4 flex justify-between items-center w-full">
     <a href="/">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-32">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-32 md:w-64">
     </a>
     <!-- Hamburger icon for mobile -->
     <div class="md:hidden">
@@ -17,17 +17,31 @@
     </div>
     <!-- Dropdown Menu for md and larger -->
     <div class="hidden md:block relative">
-      <button @click="dropdownOpen = !dropdownOpen" class="text-white focus:outline-none">
+    <button @click="dropdownOpen = !dropdownOpen" class="font-md md:text-xl text-white focus:outline-none">
         Menu
         <svg class="w-4 h-4 fill-current inline-block ml-1" viewBox="0 0 20 20">
           <path :class="{'hidden': dropdownOpen, 'block': !dropdownOpen}" d="M5.5 7l4.5 4.5L14.5 7H5.5z"/>
           <path :class="{'block': dropdownOpen, 'hidden': !dropdownOpen}" d="M14.5 13l-4.5-4.5L5.5 13h9z"/>
         </svg>
       </button>
-      <div x-show="dropdownOpen" @click.away="dropdownOpen = false" class="absolute right-0 mt-2 py-2 w-48 bg-black shadow-xl rounded-md overflow-hidden z-50">
-        <a href="/" class="block px-4 py-2 text-sm text-white hover:bg-gray-800">Home</a>
-        <a href="/help" class="block px-4 py-2 text-sm text-white hover:bg-gray-800">Help</a>
-        <a href="{{ url_for('auth_blueprint.logout') }}" class="block px-4 py-2 text-sm text-white hover:bg-gray-800">Logout</a>
+      <div x-show="dropdownOpen" @click.away="dropdownOpen = false" class="absolute right-6 mt-2 py-2 w-48 bg-black shadow-xl rounded-md overflow-hidden z-50 justify-right text-right">
+        <a href="/" class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800">Home</a>
+        <a href="/help" class="font-md md: text-xl block px-4 py-2 text-sm text-white hover:bg-gray-800">Help</a>
+
+        <a
+          href="{{ url_for('auth_blueprint.new_agent_copy') }}"
+          class="font-md md: text-xl block px-4 py-2 text-sm text-white hover:bg-gray-800"
+        >
+          New Timeframe
+        </a>
+        <a
+          href="{{ url_for('survey_blueprint.create_survey') }}"
+          class="font-md md: text-xl block px-4 py-2 text-sm text-white hover:bg-gray-800"
+        >
+          New Meeting
+
+        </a>
+        <a href="{{ url_for('auth_blueprint.logout') }}" class="font-md md: text-xl block px-4 py-2 text-sm text-white hover:bg-gray-800">Logout</a>
       </div>
     </div>
     <!-- Mobile menu -->
