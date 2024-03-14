@@ -37,12 +37,13 @@
     {% include 'header.html' %}
     <main class="flex-grow">
         <div class="container mx-auto px-4 py-8 mt-12">
-            <h1 class="text-2xl font-bold mb-2">Make a Moment</h1>
+          <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
+            <h1 class="text-2xl font-bold mb-2">Make a Meeting</h1>
             <h2 class="italic">1 credit per question or discussion point per synth.</h2>
             <form action="{{ url_for('survey_blueprint.create_survey') }}" method="post" class="mb-8">
                 <div class="mb-4">
-                    <label for="survey_name" class="block text-gray-700 font-bold mb-2">Discussion Name:</label>
-                    <input type="text" id="survey_name" name="survey_name" value="default_name" required class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
+                    <label for="survey_name" class="block text-xl font-bold mb-2 mt-4">Meeting Name:</label>
+                    <input type="text" id="survey_name" name="survey_name" value="default_name" required class="w-full px-3 py-text-xl font-bold mb-2 border rounded-lg focus:outline-none">
                 </div>
 
                 <div class="mb-8">
@@ -50,7 +51,7 @@
                     <div id="file-list" class="flex flex-wrap">
                         {% if agent_files %}
                             {% for file in agent_files %}
-                                <button type="button" class="file-button px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 mr-2 mb-2" data-file="{{ file }}">{{ file.split('/')[-1] }}</button>
+                                <button type="button" class="file-button px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-blue-600 mr-2 mb-2" data-file="{{ file }}">{{ file.split('/')[-1] }}</button>
                             {% endfor %}
                         {% else %}
                             <p>No agent files available to create a survey.</p>
@@ -61,15 +62,16 @@
                 <div class="mb-8">
                     <h2 class="text-xl font-bold mb-2">Select Synths</h2>
                     <div class="mb-2">
-                        <button type="button" id="select-all" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Select All</button>
-                        <button type="button" id="clear-all" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Clear All</button>
+                        <button type="button" id="select-all" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-blue-600">Select All</button>
+                        <button type="button" id="clear-all" class="px-4 py-2 bg-gray-200 text-white rounded-lg hover:bg-red-600">Clear All</button>
                     </div>
-                    <div id="agent-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+                    <div id="agent-list" class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 gap-4"></div>
                 </div>
 
                 <input type="hidden" id="selected_file" name="selected_file" value="">
-                <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Next Step</button>
+                <button type="submit" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-green-600">Next Step</button>
             </form>
+        </div>
         </div>
     </main>
   
@@ -154,7 +156,7 @@
                       var photoPath = `/${agent.photo_path}`;
                       var agentItem = `
                           <div class="flex flex-col items-start mb-4">
-                              <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="mb-2">
+                              <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="mb-2 h-6 w-6">
                               <label for="agent-${agent.id}" class="text-gray-700">
                                   <img src="${photoPath}" alt="Agent Profile" class="w-24 h-24 rounded-full mr-2">
                                   <span class="font-bold">${agent.id}</span> - ${agent.email}<br>

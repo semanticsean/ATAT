@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moment Questions and Talking Points</title>
+    <title>Meeting Questions and Talking Points</title>
   <style>
 
       html, body {
@@ -20,7 +20,7 @@
       }
 
       #footer-push {
-        height: 16rem; 
+        height: 26rem; 
         /* Equal to footer height */
       }
 
@@ -55,7 +55,8 @@
           {% include 'header.html' %}
   <main class="flex-grow">
           <div class="container mx-auto px-4 py-8 mt-12">
-        <h1 class="text-3xl font-bold mb-4">Moment Conversation Starters</h1>
+            <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
+        <h1 class="text-3xl font-bold mb-4">Meeting Conversation Starters</h1>
         <form id="surveyForm" action="{{ url_for('survey_blueprint.survey_form', survey_id=survey.id) }}" method="post">
             <!-- ... (selected synths and predefined questions remain the same) ... -->
 
@@ -83,6 +84,7 @@
             <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Submit Survey</button>
         </form>
     </div>
+          </div>
   </main>
   <div id="footer-push"></div>
   </div>

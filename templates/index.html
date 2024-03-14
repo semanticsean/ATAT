@@ -32,7 +32,7 @@
           }
 
           #footer-push {
-            margin-top:124px;
+            margin-top:100px;
             height: 4rem; 
             /* Equal to footer height */
           }
@@ -117,13 +117,13 @@
             href="{{ url_for('auth_blueprint.new_agent_copy') }}"
             class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition duration-300 mb-4"
           >
-            New Day
+            New Timeframe
           </a>
           <a
             href="{{ url_for('survey_blueprint.create_survey') }}"
             class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition duration-300 mb-4"
           >
-            New Moment
+            New Meeting
 
           </a>
           
@@ -136,7 +136,7 @@
       </div>
       </div>
       <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
-          <h2 class="text-2xl font-bold mb-4">Days</h2>
+          <h2 class="text-2xl font-bold mb-4">Timeframes</h2>
           
           <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
             {% for copy in agent_copies %} {% if copy.endswith('.json') %}
@@ -151,14 +151,14 @@
             {% endif %} {% endfor %}
           </ul>
           {% if not agent_copies and not survey_results %}
-          <p class="text-gray-600">No moments yet.</p>
+          <p class="text-gray-600">No meetings yet.</p>
           {% endif %}
         </div>
       
 
       
       <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
-        <h2 class="text-2xl font-bold mb-4">Moments</h2>
+        <h2 class="text-2xl font-bold mb-4">Meetings</h2>
         
         <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
           {% for folder, file in survey_results %} {% if file.endswith('.json')
@@ -174,7 +174,7 @@
           {% endif %} {% endfor %}
         </ul>
         {% if not survey_results %}
-        <p class="text-gray-600">No moments yet. You must create a Window of Time before you can create a Moment.</p>
+        <p class="text-gray-600">No meetings yet. You must create a timeframe before you can create a meeting.</p>
         {% endif %}
       </div>
 
