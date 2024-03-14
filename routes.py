@@ -1,6 +1,7 @@
 # routes.py
 import os, json, random, re, glob, shutil, bleach, logging, uuid
 import abe_gpt
+import start
 
 from models import User, Survey
 from extensions import db
@@ -24,6 +25,12 @@ AGENTS_JSON_PATH = os.path.join('agents', 'agents.json')
 IMAGES_BASE_PATH = os.path.join('agents', 'pics')
 AGENTS_BASE_PATH = 'agents'
 SURVEYS_BASE_PATH = 'surveys'
+
+start_blueprint = Blueprint('start_blueprint', __name__, template_folder='templates')
+
+UPLOAD_FOLDER = 'agents/new_agent_files'
+ALLOWED_EXTENSIONS = {'txt', 'doc', 'rtf', 'md', 'pdf'}
+
 
 auth_blueprint = Blueprint('auth_blueprint', __name__, template_folder='templates')
 survey_blueprint = Blueprint('survey_blueprint', __name__, template_folder='templates')
@@ -685,3 +692,36 @@ def logout():
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     return response
+
+
+def allowed_file(filename):
+  return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@start_blueprint.route('/start', methods=['GET', 'POST'])
+def start_route():
+    if request.method == 'POST':
+        config = request.form.to_dict()
+        with open('start-config.json', 'w') as file:
+            json.dump(config, file)
+
+        if 'run_start' in request.form:
+            start.main()
+            return redirect(url_for('start_blueprint.start_route'))
+
+        if 'upload_files' in request.files:
+            files = request.files.getlist('upload_files')
+            for file in files:
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                    file.save(file_path)
+                    # Assuming extract_text.extract_and_save_text(file_path) exists and works as intended
+                    extract_text.extract_and_save_text(file_path)
+
+    config = start.load_configuration()
+    new_agent_files = os.listdir(UPLOAD_FOLDER)
+    new_agent_files_content = {}
+    for file in new_agent_files:
+        with open(os.path.join(UPLOAD_FOLDER, file), 'r') as file_content:
+            new_agent_files_content[file] = file_content.read()
+    return render_template('start.html', config=config, new_agent_files=new_agent_files, new_agent_files_content=new_agent_files_content)
