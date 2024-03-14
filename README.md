@@ -302,3 +302,6 @@ Google / Google Workspace (TM) Google.
 psql -h hostname -U username -d databasename
 SET idle_in_transaction_session_timeout = '15min';
 psql -d $DB_NAME -U $DB_USER -W $DB_PASS
+flask db init  # Only needed the first time to set up migrations directory
+flask db migrate -m "Added PageView model"
+flask db upgrade
