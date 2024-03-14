@@ -300,4 +300,5 @@ Google / Google Workspace (TM) Google.
 ## ABE db setup
 
 psql -h hostname -U username -d databasename
-SET idle_in_transaction_session_timeout = '1min';
+SET idle_in_transaction_session_timeout = '15min';
+psql -d $DB_NAME -U $DB_USER -W $DB_PASS
