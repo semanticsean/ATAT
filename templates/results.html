@@ -315,33 +315,32 @@ function createChart(data) {
                 
                 
             </div>
-              <div  class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 min-h-fit">
-              <form id="public-access-form" method="post">
+              <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
                 <div class="mb-4">
-                  <label for="is_public" class="flex items-center">
-                    <input type="checkbox" id="is_public" name="is_public" {% if survey.is_public %}checked{% endif %} class="form-checkbox h-5 w-5 text-blue-600">
-                    <span class="ml-2 text-gray-700 font-bold">Make this survey publicly accessible</span>
-                  </label>
-                  <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 mt-2 rounded focus:outline-none focus:shadow-outline float-left">
-                    Update
+                  <form id="public-access-form" method="post" class="flex items-center">
+                    <label for="is_public" class="flex items-center mr-4">
+                      <input type="checkbox" id="is_public" name="is_public" {% if survey.is_public %}checked{% endif %} class="form-checkbox h-5 w-5 text-blue-600">
+                      <span class="ml-2 text-gray-700 font-bold">Make this survey publicly accessible</span>
+                    </label>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline">
+                      Update
+                    </button>
+                  </form>
+                </div>
+
+                {% if survey.is_public and survey.public_url %}
+                <div class="mt-4 bg-blue-100 border-t-4 border-blue-500 rounded-b text-blue-900 px-4 py-3 shadow-md" role="alert">
+                  <div class="flex items-center">
+                    <p class="mb-2">Public URL:</p>
+                    <a href="{{ url_for('survey_blueprint.public_survey_results', public_url=survey.public_url, _external=True) }}" target="_blank" class="ml-2 text-blue-600 underline truncate" id="public-url">
+                      {{ url_for('survey_blueprint.public_survey_results', public_url=survey.public_url, _external=True) }}
+                    </a>
+                  </div>
+                  <button class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onclick="copyPublicUrl()">
+                    Copy Link
                   </button>
                 </div>
-                
-              </form>
-
-              {% if survey.is_public and survey.public_url %}
-              <div class="mt-4 bg-blue-100 border-t-4 border-blue-500 rounded-b text-blue-900 px-4 py-3 shadow-md" role="alert">
-                <div class="flex items-center">
-                  <p class="mb-2">Public URL:</p>
-                  <a href="{{ url_for('survey_blueprint.public_survey_results', public_url=survey.public_url, _external=True) }}" target="_blank" class="ml-2 text-blue-600 underline truncate" id="public-url">
-                    {{ url_for('survey_blueprint.public_survey_results', public_url=survey.public_url, _external=True) }}
-                  </a>
-                </div>
-                <button class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onclick="copyPublicUrl()">
-                  Copy Link
-                </button>
-              </div>
-              {% endif %}
+                {% endif %}
               </div>
     <div id="footer-push"></div>
     </div>
