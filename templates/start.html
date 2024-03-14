@@ -6,8 +6,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
 </head>
 <body class="bg-gray-100">
+  {% include 'header.html' %}
     <div class="container mx-auto px-4 py-8">
+      <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg">
         <h1 class="text-2xl font-bold mb-4">Start Configuration</h1>
+      <h2 class="text-xl font-bold mb-4">STILL IN TESTING, ALPHA FEATURES.</h2>
         <form method="post" enctype="multipart/form-data" id="startForm">
             <div class="mb-4">
                 <label class="block mb-2 font-bold">Run Update Team:</label>
@@ -54,6 +57,7 @@
                 </select>
             </div>
             <div class="mb-4">
+              WARNING THIS WILL DELETE YOUR PRINCIPAL AGENTS! NO RECOVERY! (YET)
                 <label class="block mb-2 font-bold">Clear JSON Confirm:</label>
                 <select name="clear_json_confirm" class="w-full p-2 border border-gray-300 rounded">
                     <option value="no" {% if config.clear_json_confirm == 'no' %}selected{% endif %}>No</option>
@@ -82,22 +86,31 @@
             <div class="mb-4">
                 <label class="block mb-2 font-bold">New Agent Files:</label>
               {% for file, content in new_agent_files_content.items() %}
-                  <div class="mb-2">
-                      <textarea name="{{ file }}" rows="4" class="w-full p-2 border border-gray-300 rounded">{{ content }}</textarea>
-                  </div>
+              <div class="mb-2 relative" id="file-{{ loop.index }}">
+                  <button type="button" class="absolute right-2 top-2 text-lg text-red-500" onclick="removeFile('file-{{ loop.index }}')">×</button>
+                  <textarea name="{{ file }}" rows="4" class="w-full p-2 border border-gray-300 rounded">{{ content }}</textarea>
+              </div>
               {% endfor %}
 
             </div>
             <button type="submit" name="run_start" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Run Start</button>
           <img src="static/loading.gif" id="loadingGif" style="display: none; width: 24px;" alt="Loading...">
         </form>
-      
+      </div>
     </div>
+  {% include 'footer.html' %}
   <script>
       document.getElementById('startForm').addEventListener('submit', function() {
           // Show the loading GIF
           document.getElementById('loadingGif').style.display = 'inline';
       });
   </script>
+  <script>
+      function removeFile(elementId) {
+          var element = document.getElementById(elementId);
+          element.parentNode.removeChild(element);
+      }
+  </script>
+
 </body>
 </html>
