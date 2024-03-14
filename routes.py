@@ -56,6 +56,10 @@ def login():
         login_user(user)
         return redirect(url_for('home'))
 
+    page_view = PageView(page='/login')
+    db.session.add(page_view)
+    db.session.commit()
+
     return render_template('login.html')
 
 @auth_blueprint.route('/register', methods=['GET', 'POST'])
@@ -78,7 +82,11 @@ def register():
         new_user.create_user_folder()
         db.session.add(new_user)
         db.session.commit()
+        page_view = PageView(page='/register')
+        db.session.add(page_view)
+        db.session.commit()
         return redirect(url_for('auth_blueprint.login'))
+        
     return render_template('register.html')
 
 @auth_blueprint.route('/user', methods=['GET', 'POST'])
@@ -93,7 +101,14 @@ def update_profile():
 
         db.session.commit()
         flash('Your profile was updated successfully!')
+
+        page_view = PageView(page='/user')
+        db.session.add(page_view)
+        db.session.commit()
+      
         return redirect(url_for('auth_blueprint.update_profile'))
+
+  
 
     return render_template('user.html')
 
@@ -116,6 +131,10 @@ def sanitize_filename(filename):
 def serve_image(copy_num, filename):
     user_dir = current_user.folder_path
     image_path = os.path.join(user_dir, 'agents', 'copies', f'pics_{copy_num}', filename)
+
+    page_view = PageView(page='/serve_image')
+    db.session.add(page_view)
+    db.session.commit()
 
     if os.path.exists(image_path):
         return send_from_directory(os.path.join(user_dir, 'agents', 'copies', f'pics_{copy_num}'), filename)
@@ -437,6 +456,10 @@ def dashboard():
         flash(f"Failed to load or parse agents JSON file: {e}", "error")
 
     logging.info("Rendering dashboard page")
+
+    page_view = PageView(page='/dashboard')
+    db.session.add(page_view)
+    db.session.commit()
     return render_template('dashboard.html', agents=agents, agent_copies=agent_copies, survey_results=survey_results, agent_source=agent_source)
 
 
@@ -444,6 +467,9 @@ def dashboard():
 @login_required
 def show_survey_results(survey_id):
     survey = Survey.query.get_or_404(survey_id)
+    page_view = PageView(page='/show_survey_results')
+    db.session.add(page_view)
+    db.session.commit()
     # Debugging: Print or log the survey object to ensure it has a filename attribute
     print("Survey filename:", survey.filename)  # Adjust according to your actual data structure
     if not hasattr(survey, 'filename'):
@@ -463,7 +489,10 @@ def profile():
 
     agents_dir = os.path.join(current_user.folder_path, 'agents')
     copies_dir = os.path.join(agents_dir, 'copies')
-
+    page_view = PageView(page='/profile')
+    db.session.add(page_view)
+    db.session.commit()
+  
     logger.info(f"Accessing profile with agents_file: {agents_file} and agent_id: {agent_id}")
 
     # Corrected the logic for determining the file path
@@ -536,6 +565,9 @@ def update_agent():
         agent_id = data['agent_id']
         field = data['field']
         value = data['value']
+        page_view = PageView(page='/update_agent')
+        db.session.add(page_view)
+        db.session.commit()
 
         agents_dir = os.path.join(current_user.folder_path, 'agents')
         copies_dir = os.path.join(agents_dir, 'copies')
@@ -628,6 +660,10 @@ def public_survey_results(public_url):
     if not survey or not survey.is_public:
         abort(404)
 
+    page_view = PageView(page='/public_survey_results')
+    db.session.add(page_view)
+    db.session.commit()
+
     return render_template('public_results.html', survey=survey, public_url=public_url)
 
 @survey_blueprint.route('/public_folder_name')
@@ -635,6 +671,10 @@ def public_folder_name():
     # Logic to determine survey and foldername...
     survey = get_survey()  # Hypothetical function to get a Survey object
     foldername = calculate_foldername(survey)  # Hypothetical function to determine foldername
+
+    page_view = PageView(page='/public_folder_name')
+    db.session.add(page_view)
+    db.session.commit()
 
     return render_template('public_results.html', survey=survey, foldername=foldername)
 
@@ -691,6 +731,9 @@ def logout():
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
+    page_view = PageView(page='/logout')
+    db.session.add(page_view)
+    db.session.commit()
     return response
 
 
@@ -721,7 +764,13 @@ def start_route():
     config = start.load_configuration()
     new_agent_files = os.listdir(UPLOAD_FOLDER)
     new_agent_files_content = {}
+  
     for file in new_agent_files:
         with open(os.path.join(UPLOAD_FOLDER, file), 'r') as file_content:
             new_agent_files_content[file] = file_content.read()
+    
+    page_view = PageView(page='/start_route')
+    db.session.add(page_view)
+    db.session.commit()
+  
     return render_template('start.html', config=config, new_agent_files=new_agent_files, new_agent_files_content=new_agent_files_content)
