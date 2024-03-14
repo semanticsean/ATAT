@@ -131,9 +131,9 @@ def new_agent_copy():
         print(f"Error loading agents from JSON: {e}")
         agents_data = []  # Ensure agents_data is an empty list if there's an error
 
-    return render_template('new_agents_copy.html', agents=agents_data)
+    return render_template('new_window_of_time.html', agents=agents_data)
 
-@auth_blueprint.route('/create_agent_copy', methods=['POST'])
+@auth_blueprint.route('/new_window_of_time', methods=['POST'])
 @login_required
 def create_agent_copy():
     # Read the starting agents.json
