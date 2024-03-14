@@ -10,12 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => console.log('Session active:', data))
             .catch(error => {
-                alert('You have timed out, please refresh.');
+                alert('Your session has timed out, please refresh.');
                 // Optional: Redirect to login or refresh
                 // window.location.href = '/login';
             });
     }
 
     // Check session status every 5 minutes as an example; adjust the interval as needed
-    setInterval(checkSession, 5 * 60 * 1000);
+    setInterval(checkSession, 60 * 60 * 1000);
 });
