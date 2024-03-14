@@ -1,3 +1,4 @@
+<!--templates/public_results.html-->
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 
@@ -91,11 +92,11 @@
 
 
   <script>
-                function loadResults() {
-                console.log("Loading results...");
-                $.get("{{ url_for('survey_blueprint.get_results', survey_id=survey.id) }}", function(data) {
-                    console.log("Received data:", data);
-                    if (data.length > 0) {
+    function loadResults() {
+    console.log("Loading results...");
+    $.get("{{ url_for('survey_blueprint.public_survey_data', public_url=survey.public_url) }}", function(data) {
+        console.log("Received data:", data);
+        if (data.length > 0) {
                         var resultsContainer = $('#results-container');
                         resultsContainer.empty();
 
