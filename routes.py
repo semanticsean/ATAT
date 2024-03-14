@@ -214,26 +214,27 @@ def create_agent_copy():
 def create_survey(selected_file=None):
     logger = logging.getLogger(__name__)
     user_id = current_user.id  # Capture the current user's ID for logging
-    user_dir = current_user.folder_path
+    user_dir = current_user.folder_path  # Use the current user's directory
 
     logger.info(f"User {user_id} started creating a survey. User directory: {user_dir}")
 
-    # Set the directory paths
     agents_dir = os.path.join(user_dir, 'agents')
     copies_dir = os.path.join(agents_dir, 'copies')
 
-    # Get the selected_file from query parameters or use a default
-    selected_file = request.args.get('selected_file', AGENTS_JSON_PATH)
+    # Dynamically set the default agents.json path based on the user's directory
+    default_agents_json_path = os.path.join(agents_dir, 'agents.json')
+    selected_file = request.args.get('selected_file', default_agents_json_path)
 
     if request.method == 'POST':
-        selected_file = request.form.get('selected_file')
+        selected_file = request.form.get('selected_file', default_agents_json_path)
         survey_name = request.form.get('survey_name')
         logger.info(f"User {user_id} is creating survey '{survey_name}' with file '{selected_file}'.")
 
-        if selected_file == 'agents/agents.json':
-            file_path = os.path.join(agents_dir, 'agents.json')
+        # Adjusted to handle the case where selected_file is directly the path to user's agents.json
+        if selected_file.endswith('agents/agents.json') or selected_file == default_agents_json_path:
+            file_path = default_agents_json_path
         else:
-            file_path = os.path.join(copies_dir, selected_file)
+            file_path = os.path.join(copies_dir, os.path.basename(selected_file))
 
         try:
             with open(file_path, 'r') as f:
@@ -243,6 +244,7 @@ def create_survey(selected_file=None):
             logger.error(f"Failed to load agents for user {user_id} from '{file_path}': {e}")
             flash('There was an error loading the selected agent file. Please try again.')
             return redirect(url_for('survey_blueprint.create_survey'))
+
 
         selected_agents = request.form.getlist('selected_agents')
         survey_agents = [agent for agent in agents if str(agent['id']) in selected_agents]
@@ -288,12 +290,11 @@ def create_survey(selected_file=None):
     else:
         logger.info(f"User {user_id} accessed the survey creation page.")
 
-    # List available agent files
-    agent_files = [AGENTS_JSON_PATH]  # Start with the default agents.json
-    agent_files.extend(f for f in glob.glob(os.path.join(copies_dir, '*.json')))
+    agent_files = [default_agents_json_path]
+    agent_files.extend(glob.glob(os.path.join(copies_dir, '*.json')))
+    agent_files = [os.path.basename(path) for path in agent_files]  # Use only the basename for display
 
-
-    return render_template('meeting1.html', selected_file=selected_file, agent_files=agent_files)
+    return render_template('meeting1.html', selected_file=selected_file, agent_files=agent_files, user_dir=current_user.folder_path)
 
 
 @survey_blueprint.route('/surveys/<path:survey_id>/pics/<filename>')
@@ -618,7 +619,7 @@ def update_agent():
 @login_required
 def serve_agents_json():
     user_dir = current_user.folder_path
-    agents_json_path = os.path.join('agents', 'agents.json')
+    agents_json_path = os.path.join(user_dir, 'agents', 'agents.json')
     if os.path.exists(agents_json_path):
         return send_file(agents_json_path)
     else:
@@ -627,18 +628,12 @@ def serve_agents_json():
 @auth_blueprint.route('/agents/copies/<path:filename>')
 @login_required
 def serve_agent_copy_file(filename):
-    # Ensure the filename is safe to use in a file path
-    safe_filename = secure_filename(filename)
-
-    # Construct the path to where the user's copies are stored
-    user_dir = current_user.folder_path  # Get the path to the current user's directory
-    file_path = os.path.join(user_dir, 'agents', 'copies', safe_filename)  # Adjusted to include user_dir
-
-    # Check if the file exists in the user's directory and serve it
+    user_dir = current_user.folder_path
+    file_path = os.path.join(user_dir, 'agents', 'copies', filename)
     if os.path.exists(file_path):
-        return send_file(file_path)  # Serve the file if it exists
+        return send_file(file_path)
     else:
-        abort(404)  # Return a 404 error if the file does not exist
+        return abort(404)
 
 def extract_questions_from_form(form_data):
     questions = {}

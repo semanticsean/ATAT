@@ -154,40 +154,45 @@
               }
               
               // Load agents based on the selected file
-              function loadAgents(file) {
-                console.log("Loading agents for file: ", file);
-                var endpoint;
-                if (file === 'agents/agents.json') {
-                  endpoint = '/agents/agents.json';
-                } else {
-                  var basename = file.split('/').pop(); // Extracts the last part after '/'
-                  endpoint = `/agents/copies/${basename}`;
-                }
-                console.log("Endpoint for loading agents: ", endpoint);
-                $.getJSON(endpoint, function(data) {
-                  console.log("Received agent data: ", data);
-                  var agentList = $('#agent-list');
-                  agentList.empty();
-                  data.forEach(function(agent) {
-                    var photoPath = `/${agent.photo_path}`;
-                    var agentItem = `
-                      <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="${agent.id}">
-                        <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden">
-                       
-                        <img src="${photoPath}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
-                        <label for="agent-${agent.id}" class="text-gray-700 text-sm md:text-md">
-                          <div class="text-lg md:text-xl font-bold mb-2">${agent.id}</div>
-                          <div class="mb-2">${agent.jobtitle}</div>
-                          <div class="mb-2">${agent.summary}</div>
-                        </label>
-                      </div>
-                    `;
-                    agentList.append(agentItem);
-                  });
-                }).fail(function(jqXHR, textStatus, errorThrown) {
-                  console.error("Failed to load agents: " + textStatus + ", " + errorThrown);
+                    function loadAgents(file) {
+                    console.log("Loading agents for file: ", file);
+                    var endpoint;
+
+                    // Check if the file is the default agents.json or from the copies directory
+                    if (file === '{{ user_dir }}/agents/agents.json' || file === 'agents.json') {
+                        // Directly request the user-specific agents.json
+                        endpoint = '{{ url_for("auth_blueprint.serve_agents_json") }}';
+                    } else {
+                        // Adjust the endpoint for agent copies
+                        var basename = file.split('/').pop(); // Extracts the last part after '/'
+                        endpoint = '/agents/copies/' + basename;
+                    }
+
+                    console.log("Endpoint for loading agents: ", endpoint);
+                    $.getJSON(endpoint, function(data) {
+                      console.log("Received agent data: ", data);
+                      var agentList = $('#agent-list');
+                      agentList.empty();
+                      data.forEach(function(agent) {
+                          var photoPath = `/${agent.photo_path}`;
+                          var agentItem = `
+                            <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="${agent.id}">
+                              <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden">
+                              <img src="${photoPath}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
+                              <label for="agent-${agent.id}" class="text-gray-700 text-sm md:text-md">
+                                <div class="text-lg md:text-xl font-bold mb-2">${agent.id}</div>
+                                <div class="mb-2">${agent.jobtitle}</div>
+                                <div class="mb-2">${agent.summary}</div>
+                              </label>
+                            </div>
+                          `;
+                          agentList.append(agentItem);
+                      });
+                  }).fail(function(jqXHR, textStatus, errorThrown) {
+                    console.error("Failed to load agents: " + textStatus + ", " + errorThrown);
                 });
               }
+
             });
           </script>
           <script>
