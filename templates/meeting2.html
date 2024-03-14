@@ -57,7 +57,7 @@
           <div class="container mx-auto px-4 py-8 mt-12">
             <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
         <h1 class="text-3xl font-bold mb-4">Meeting Conversation Starters</h1>
-        <form id="surveyForm" action="{{ url_for('survey_blueprint.survey_form', survey_id=survey.id) }}" method="post">
+              <form id="surveyForm" action="{{ url_for('survey_blueprint.survey_form', survey_id=survey.id, survey_agents=agents) }}" method="post">
             <!-- ... (selected synths and predefined questions remain the same) ... -->
 
             <div id="questionsContainer">
