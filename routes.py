@@ -229,13 +229,13 @@ def create_survey(selected_file=None):
         selected_file = request.form.get('selected_file', default_agents_json_path)
         survey_name = request.form.get('survey_name')
         logger.info(f"User {user_id} is creating survey '{survey_name}' with file '{selected_file}'.")
-
-        # Adjusted to handle the case where selected_file is directly the path to user's agents.json
-        if selected_file.endswith('agents/agents.json') or selected_file == default_agents_json_path:
+    
+        # Adjusted to handle the case when selected_file is 'agents.json' or the default path
+        if selected_file == 'agents.json' or selected_file == default_agents_json_path:
             file_path = default_agents_json_path
         else:
             file_path = os.path.join(copies_dir, os.path.basename(selected_file))
-
+    
         try:
             with open(file_path, 'r') as f:
                 agents = json.load(f)
@@ -244,10 +244,16 @@ def create_survey(selected_file=None):
             logger.error(f"Failed to load agents for user {user_id} from '{file_path}': {e}")
             flash('There was an error loading the selected agent file. Please try again.')
             return redirect(url_for('survey_blueprint.create_survey'))
+    
+        # ... rest of the code ...
 
 
         selected_agents = request.form.getlist('selected_agents')
+        logger.info(f"Selected agents: {selected_agents}")  # Log the selected agents
+
         survey_agents = [agent for agent in agents if str(agent['id']) in selected_agents]
+        logger.info(f"Survey agents: {survey_agents}")  # Log the survey agents
+
         logger.info(f"Selected {len(survey_agents)} agents for survey '{survey_name}'.")
 
         # Create survey folder and selected_agents.json
@@ -286,7 +292,7 @@ def create_survey(selected_file=None):
         db.session.commit()
         logger.info(f"Successfully created survey '{survey_name}' with ID {new_survey.id} for user {user_id}.")
 
-        return redirect(url_for('survey_blueprint.survey_form', survey_id=new_survey.id))
+        return redirect(url_for('survey_blueprint.survey_form', survey_id=new_survey.id, survey_agents=survey_agents))
     else:
         logger.info(f"User {user_id} accessed the survey creation page.")
 
@@ -310,54 +316,72 @@ def serve_survey_image(survey_id, filename):
 
 @survey_blueprint.route('/survey/<int:survey_id>', methods=['GET', 'POST'])
 @login_required
-def survey_form(survey_id):
-    survey = Survey.query.get_or_404(survey_id)
-    if survey.user_id != current_user.id:
-        abort(403)
+def survey_form(survey_id, survey_agents=None):
+    logger.info(f"Accessing survey form for survey ID: {survey_id} with method: {request.method}")
 
-    with open(survey.agents_file, 'r') as f:
-        agents = json.load(f)
+    try:
+        survey = Survey.query.get_or_404(survey_id)
+        if survey.user_id != current_user.id:
+            logger.warning(f"Unauthorized access attempt by user ID: {current_user.id} for survey ID: {survey_id}")
+            abort(403)
 
-    if request.method == 'POST':
-        questions = extract_questions_from_form(request.form)
-        selected_agent_ids = request.form.getlist('selected_agents')
-        llm_instructions = request.form.get('llm_instructions', '')
-        request_type = request.form.get('request_type', 'iterative')
-
-        if selected_agent_ids:
-            selected_agents = [agent for agent in agents if str(agent['id']) in selected_agent_ids]
+        if survey_agents is None:
+            try:
+                with open(survey.agents_file, 'r') as f:
+                    agents = json.load(f)
+                logger.info(f"Loaded agents from file: {survey.agents_file}")
+            except Exception as e:
+                logger.error(f"Error loading agents file: {survey.agents_file}, Error: {e}")
+                raise
         else:
-            selected_agents = agents
+            agents = survey_agents
 
-        payload = {
-            "agents_data": selected_agents,
-            "questions": questions,
-            "llm_instructions": llm_instructions,
-            "request_type": request_type,
-        }
+        if request.method == 'POST':
+            questions = extract_questions_from_form(request.form)
+            selected_agent_ids = request.form.getlist('selected_agents')
+            llm_instructions = request.form.get('llm_instructions', '')
+            request_type = request.form.get('request_type', 'iterative')
+            logger.debug(f"Processing POST request with data: {locals()}")
 
-        survey_responses = abe_gpt.conduct_survey(payload, current_user)
+            if selected_agent_ids:
+                selected_agents = [agent for agent in agents if str(agent['id']) in selected_agent_ids]
+            else:
+                selected_agents = agents
 
-        results_data = []
-        for agent_data, response in zip(selected_agents, survey_responses):
-            agent_data['responses'] = response['responses']  # Assuming 'responses' is structured accordingly
-            agent_data['questions'] = questions
-            results_data.append(agent_data)
+            payload = {
+                "agents_data": selected_agents,
+                "questions": questions,
+                "llm_instructions": llm_instructions,
+                "request_type": request_type,
+            }
 
+            survey_responses = abe_gpt.conduct_survey(payload, current_user)
+            logger.info(f"Survey conducted successfully for survey ID: {survey_id}")
 
-        results_file = os.path.join(os.path.dirname(survey.agents_file), f"selected_agents_results{survey.result_count + 1}.json")
-        with open(results_file, 'w') as f:
-            json.dump(results_data, f)
+            results_data = []
+            for agent_data, response in zip(selected_agents, survey_responses):
+                agent_data['responses'] = response['responses']  # Assuming 'responses' is structured accordingly
+                agent_data['questions'] = questions
+                results_data.append(agent_data)
 
-        survey.result_count += 1
-        db.session.commit()
+            results_file = os.path.join(os.path.dirname(survey.agents_file), f"selected_agents_results{survey.result_count + 1}.json")
+            with open(results_file, 'w') as f:
+                json.dump(results_data, f)
+            logger.info(f"Results written to file: {results_file}")
 
-        survey_folder = os.path.basename(os.path.dirname(survey.agents_file))
-        results_filename = f"selected_agents_results{survey.result_count}.json"
+            survey.result_count += 1
+            db.session.commit()
 
-        return redirect(url_for('survey_blueprint.results', folder=survey_folder, filename=results_filename))
+            survey_folder = os.path.basename(os.path.dirname(survey.agents_file))
+            results_filename = f"selected_agents_results{survey.result_count}.json"
 
-    return render_template('meeting2.html', survey=survey, agents=agents)
+            return redirect(url_for('survey_blueprint.results', folder=survey_folder, filename=results_filename))
+        else:
+            return render_template('meeting2.html', survey=survey, agents=agents)
+    except Exception as e:
+        logger.error(f"An error occurred in survey_form function for survey ID: {survey_id}, Error: {e}")
+        abort(500)  # Internal Server Error
+  
 
 @survey_blueprint.route('/survey/<int:survey_id>/get_results')
 @login_required
