@@ -256,3 +256,82 @@ def conduct_survey(payload, current_user):
       survey_responses.append(agent_response)
 
   return survey_responses
+
+
+def generate_new_agent(agent_name, jobtitle, agent_description):
+  # Prepare the API payload for the new agent
+  agent_payload = {
+      "model": "gpt-4-turbo-preview",
+      "response_format": {"type": "json_object"},
+      "messages": [
+          {"role": "system", "content": f"You are a helpful assistant designed to generate a new agent data in JSON format based on the following instructions:\n{json.load(open('abe/abe-instructions.json'))['new_agent_json_instructions']}"},
+          {"role": "user", "content": f"Agent Name: {agent_name}\nJob Title: {jobtitle}\nAgent Description: {agent_description}\n\nPlease generate the new agent data in JSON format."}
+      ],
+  }
+
+  # Call the OpenAI API with exponential backoff and retries
+  max_retries = 12
+  retry_delay = 5
+  retry_count = 0
+  while retry_count < max_retries:
+      try:
+          response = client.chat.completions.create(**agent_payload)
+          break
+      except APIError as e:
+          logging.error(f"OpenAI API error: {e}")
+          retry_count += 1
+          if retry_count < max_retries:
+              time.sleep(retry_delay)
+              retry_delay *= 2
+          else:
+              raise e
+
+  # Check if the response is valid JSON
+  if response.choices[0].finish_reason == "stop":
+      new_agent_data = json.loads(response.choices[0].message.content)
+  else:
+      raise ValueError(f"Incomplete or invalid JSON response: {response.choices[0].message.content}")
+
+  # DALL-E - Generate profile picture for the new agent
+  image_prompt = new_agent_data.get('image_prompt', '')
+  dalle_prompt = f"{image_prompt}"
+
+  # DALL-E - Generate profile picture
+  max_retries = 12
+  retry_delay = 5
+  retry_count = 0
+  while retry_count < max_retries:
+      try:
+          dalle_response = client.images.generate(
+              model="dall-e-3",
+              prompt=dalle_prompt,
+              quality="standard",
+              size="1024x1024",
+              n=1,
+          )
+          break
+      except APIError as e:
+          logging.error(f"OpenAI API error: {e}")
+          retry_count += 1
+          if retry_count < max_retries:
+              time.sleep(retry_delay)
+              retry_delay *= 2
+          else:
+              raise e
+
+  image_url = dalle_response.data[0].url
+  logging.info(f"Generated image URL: {image_url}")
+
+  # Save the profile picture
+  new_photo_filename = f"{new_agent_data['id']}.png"
+  new_photo_path = os.path.join('agents', 'pics', new_photo_filename)
+  logging.info(f"New photo path: {new_photo_path}")
+
+  img_data = requests.get(image_url).content
+  with open(new_photo_path, 'wb') as handler:
+      handler.write(img_data)
+
+  new_agent_data['photo_path'] = os.path.join('agents', 'pics', new_photo_filename)
+  logging.info(f"Updated photo path: {new_agent_data['photo_path']}")
+
+  return new_agent_data
