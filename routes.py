@@ -621,12 +621,7 @@ def public_survey_results(public_url):
     if not survey or not survey.is_public:
         abort(404)
 
-    # Load the survey data and render the public results template
-    survey_file = os.path.join(survey.agents_file)
-    with open(survey_file, 'r') as f:
-        survey_data = json.load(f)
-
-    return render_template('public_results.html', results=survey_data, survey=survey)
+    return render_template('public_results.html', survey=survey, public_url=public_url)
 
 @survey_blueprint.route('/public_folder_name')
 def public_folder_name():
@@ -636,7 +631,50 @@ def public_folder_name():
 
     return render_template('public_results.html', survey=survey, foldername=foldername)
 
+@survey_blueprint.route('/public/survey/<public_url>/data')
+def public_survey_data(public_url):
+    survey = Survey.query.filter_by(public_url=public_url).first()
 
+    if not survey or not survey.is_public:
+        abort(404)
+
+    # Load the survey data from the JSON file
+    survey_file = os.path.join(survey.agents_file)
+    with open(survey_file, 'r') as f:
+        survey_data = json.load(f)
+
+    # Update the photo_path for each agent
+    for agent in survey_data:
+        agent['photo_path'] = url_for('survey_blueprint.public_survey_image', public_url=public_url, filename=os.path.basename(agent['photo_path']))
+
+    # Load the survey responses from the JSON file(s)
+    results_files = glob.glob(os.path.join(os.path.dirname(survey.agents_file), 'selected_agents_results*.json'))
+    responses_data = []
+    for file in results_files:
+        with open(file, 'r') as f:
+            responses_data.extend(json.load(f))
+
+    # Combine the survey data and responses data
+    for agent in survey_data:
+        agent_responses = next((r for r in responses_data if r['id'] == agent['id']), None)
+        if agent_responses:
+            agent['responses'] = agent_responses['responses']
+            agent['questions'] = agent_responses['questions']
+
+    return jsonify(survey_data)
+
+@survey_blueprint.route('/public/survey/<public_url>/pics/<filename>')
+def public_survey_image(public_url, filename):
+    survey = Survey.query.filter_by(public_url=public_url).first()
+
+    if not survey or not survey.is_public:
+        abort(404)
+
+    file_path = os.path.join(os.path.dirname(survey.agents_file), 'pics', filename)
+    if os.path.exists(file_path):
+        return send_file(file_path)
+    else:
+        abort(404)
   
 @auth_blueprint.route('/logout')
 @login_required
