@@ -96,8 +96,10 @@
     <img src="${agent.photo_path}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0 md:mr-12">
     <div class="text-center md:text-left">
       <h3 class="text-2xl font-bold text-black mb-4">Synth: ${agent.id || 'Unknown'}</h3>
-      <div class="max-w-xl break-words"><p class="text-black mb-4">${agent.summary}</p></div>
-      <button onclick="window.location.href='mailto:${agent.email}'" class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded">Email: ${agent.email}</button>
+      <div class="max-w-xl break-words"><p class="text-black font-md md:font-xl mb-4">${agent.summary}</p></div>
+      <!-- Email button -->
+            <button onclick="window.location.href='mailto:` + agent.email + `'" class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded">` + agent.email + `</button>
+            
     </div>
   </div>
 </div>
@@ -116,19 +118,20 @@
       <div class="mx-auto">
         <!-- Question Bubble -->
         <div class="w-full bg-gray-100 rounded-lg rounded-br-none shadow mb-4 p-4 md:-ml-12">
-          <h4 class="text-sm md:text-lg font-bold text-gray-400 mb-2">You</h4>
-          <div class="text-xxs md:text-xs text-gray-400 italic">Question / Talking Point: ${questionId}</div>
-          <p class="text-gray-400 md:text-md text-sm">${questionText}</p>
+          <h4 class="text-lg md:text-2xl font-bold text-gray-400 mb-2">You</h4>
+          <div class="text-lg md:text-xl text-gray-700 italic">Question / Talking Point: ${questionId}</div>
+          <p class="text-gray-700 md:text-xl text-lg">${questionText}</p>
         </div>
 
         <!-- Answer Bubble -->
-        <div class="w-full bg-gray-200 rounded-lg rounded-bl-none shadow mb-4 p-4 -mr-12">
-          <div class="flex items-center mb-2">
-            <img src="${agent.photo_path}" alt="Agent Profile" class="md:w-12 md:h-12 h-8 w-8 rounded-full mr-2">
-            <h4 class="text-md md:text-xl font-bold text-gray-900">${agent.id}</h4>
-          </div>
-          <p class="text-md md:text-lg text-gray-900">${answer}</p>
-        </div>
+        
+<div class="w-full bg-gray-200 rounded-lg rounded-bl-none shadow mb-4 p-4 -mr-12 text-right justify-right float-right">
+  <div class="mb-2">
+    <img src="${agent.photo_path}" alt="Agent Profile" class="md:w-12 md:h-12 h-8 w-8 rounded-full mr-2 float-right">
+    <h4 class="text-xl md:text-2xl font-bold text-gray-900 mr-6 mt-1 pr-12">${agent.id}</h4>
+  </div>
+  <p class="text-lg md:text-xl font-bold text-gray-900 mt-8">${extractValue(answer)}</p>
+</div>
       </div>
     </div>
   </div>
@@ -193,6 +196,8 @@
                 }
             });
         }
+
+      
 
         // Function to create a chart
         // Function to create a chart
@@ -276,6 +281,25 @@ function createChart(data) {
             loadResults();
             $(".sortable").tablesorter();
         });
+
+
+      
+      data.forEach(function(agent) {
+          var agentHtml = `
+              <!-- other HTML content -->
+
+              <!-- Corrected Email button using JavaScript concatenation -->
+              <button onclick="window.location.href='mailto:` + agent.email + `'" class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded">` + agent.email + `</button>
+
+              <!-- Corrected Copy Email button -->
+              <button id="copyEmail` + agent.id + `" class="inline-block bg-gray-500 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" data-original-text="Copy Email Address" onclick="copyToClipboard('` + agent.email + `', 'copyEmail` + agent.id + `')" style="flex: 1 1 30%;">Copy Email</button>
+
+              <!-- other HTML content -->
+          `;
+          resultsContainer.append(agentHtml);
+      });
+
+      
     </script>
     <style>
         .sortable th {
@@ -397,6 +421,19 @@ function createChart(data) {
             document.body.removeChild(tempInput);
             alert('Public URL copied to clipboard!');
           }
+
+            function extractValue(answer) {
+              // Regular expression to match JSON-like string
+              const jsonRegex = /\{[\s]*["']?(\w+)["']?[\s]*:[\s]*["']?([^"']+)["']?[\s]*\}/;
+
+              const match = answer.match(jsonRegex);
+              if (match && match[2]) {
+                return match[2]; // Return the captured value
+              }
+
+              return answer; // Return the original answer if no match found
+            }
+            
           </script>
 
 </body>
