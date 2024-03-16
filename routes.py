@@ -244,8 +244,7 @@ def create_survey(selected_file=None):
             logger.error(f"Failed to load agents for user {user_id} from '{file_path}': {e}")
             flash('There was an error loading the selected agent file. Please try again.')
             return redirect(url_for('survey_blueprint.create_survey'))
-    
-        # ... rest of the code ...
+  
 
 
         selected_agents = request.form.getlist('selected_agents')
