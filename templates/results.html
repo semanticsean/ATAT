@@ -308,68 +308,37 @@ function createChart(data) {
         }
     </style>
 </head>
-    <body class="bg-blue-50 min-h-screen">
-        {% include 'header.html' %}
-        <main class="flex flex-col justify-between min-h-screen">
-            <div class="container mx-auto px-4 py-8 mt-12">
-              <div class="mb-4">
-                <a href="/" class="float-left md:float-right mt-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-blue-600">Home</a>
- 
-                
-                <a href="#raw-data" class="float-left md:float-right mt-2 px-4 py-2 bg-gray-500 text-white mr-4 rounded-lg hover:bg-blue-600">Raw Data</a>
-                  <a href="#charts" class="float-left md:float-right mt-2 mb-6 md:mb-0 ml-4 mr-12 md:mr-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Charts</a>      
-                <a href="{{ url_for('survey_blueprint.create_survey') }}" class="float-left md:float-right mt-2 mb-6 md:mb-0 ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">New Meeting</a>  
-                
-                <br/><h2 class="text-4xl font-extrabold text-gray-900 mb-6">Meeting: {{ survey.foldername[:-7] }}</h2>
-                <p class="text-lg text-gray-700 mb-8">Number of Synths Participating: {{ results|length }}</p>
-                
-              
-                <!-- Results Container -->
-                <div id="results-container" class="space-y-6"></div>
-              
-                <!-- Chart and Dropdown -->
-                <div class="bg-white p-6 rounded-lg shadow my-6" id="charts">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-4">
-                        <label for="question-dropdown" class="block text-lg font-medium text-gray-700"><h2 class="text-2xl text-black font-bold">Charts</h2></label>
-                        <select id="question-dropdown" class="mt-1 form-select block w-full md:w-1/2 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"></select>
-                    </div>
-                    <canvas id="chart" class="p-4 w-full my-6 h-64"></canvas>
-                  
-                </div>
-                
-                
-            </div>
-              <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                <div class="mb-4">
-                  <form id="public-access-form" method="post" class="flex items-center">
-                    <label for="is_public" class="flex items-center mr-4">
-                      <input type="checkbox" id="is_public" name="is_public" {% if survey.is_public %}checked{% endif %} class="form-checkbox h-5 w-5 text-blue-600">
-                      <span class="ml-2 text-gray-700 font-bold">Make this Meeting public.</span>
+          <body class="bg-gray-100">
+            {% include 'header.html' %}
+            <div class="container mx-auto py-8">
+              <h1 class="text-3xl font-bold mb-4">Survey Results</h1>
+              <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:p-6">
+                  <h2 class="text-xl font-semibold mb-4">{{ survey.name }}</h2>
+                  <div class="mb-4">
+                    <label for="is_public" class="inline-flex items-center">
+                      <input type="checkbox" id="is_public" name="is_public" {% if survey.is_public %}checked{% endif %}>
+                      <span class="ml-2">Make survey results public</span>
                     </label>
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline">
-                      Update
-                    </button>
-                  </form>
-                </div>
-
-                {% if survey.is_public and survey.public_url %}
-                <div class="mt-4 bg-blue-100 border-t-4 border-blue-500 rounded-b text-blue-900 px-4 py-3 shadow-md" role="alert">
-                  <div class="flex items-center">
-                    <button class="mr-4 bg-blue-500 float-right hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onclick="copyPublicUrl()">
-                      Copy Link
-                    </button>
-                    <p class="mb-2">Public URL:</p>
-                    <a href="{{ url_for('survey_blueprint.public_survey_results', public_url=survey.public_url, _external=True) }}" target="_blank" class="ml-2 text-blue-600 underline truncate" id="public-url">
-                      {{ url_for('survey_blueprint.public_survey_results', public_url=survey.public_url, _external=True) }}
-                    </a>
                   </div>
-                  
+                  {% for agent_data in results %}
+                  <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-2">{{ agent_data.id }}</h3>
+                    <img src="{{ url_for('serve_image', filename=agent_data.photo_path) }}" alt="Agent Photo" class="w-32 h-32 rounded-full mb-4">
+                    <ul>
+                      {% for question_id, response in agent_data.responses.items() %}
+                      <li class="mb-2">
+                        <strong>{{ agent_data.questions[question_id].text }}:</strong> {{ response }}
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  {% endfor %}
                 </div>
-                {% endif %}
               </div>
-    <div id="footer-push"></div>
-    </div>
-    {% include 'footer.html' %}
+            </div>
+            {% include 'footer.html' %}
+          
 
     <script>
         document.getElementById('download-csv').addEventListener('click', function() {

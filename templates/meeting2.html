@@ -1,4 +1,5 @@
 <!-- templates/survey2.html -->
+
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 
@@ -51,44 +52,37 @@
         }
     </script>
 </head>
-<body class="bg-blue-50 h-full">
-          {% include 'header.html' %}
-  <main class="flex-grow">
-          <div class="container mx-auto px-4 py-8 mt-12">
-            <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
-        <h1 class="text-3xl font-bold mb-4">Meeting Conversation Starters</h1>
-              <form id="surveyForm" action="{{ url_for('survey_blueprint.survey_form', survey_id=survey.id, survey_agents=agents) }}" method="post">
+  <body class="bg-blue-50 h-full">
+    {% include 'header.html' %}
+    <main class="flex-grow">
+      <div class="container mx-auto px-4 py-8 mt-12">
+        <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
+          <h1 class="text-3xl font-bold mb-4">Meeting Conversation Starters</h1>
+          <form id="surveyForm" action="{{ url_for('survey_blueprint.survey_form', survey_id=survey.id) }}" method="post">
             <!-- ... (selected synths and predefined questions remain the same) ... -->
-
             <div id="questionsContainer">
-                <!-- Additional questions will be added here dynamically -->
+              <!-- Additional questions will be added here dynamically -->
             </div>
-
             <div class="mb-8">
-                <button type="button" onclick="addQuestion()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Add Question / Talking Point </button>
+              <button type="button" onclick="addQuestion()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Add Question / Talking Point</button>
             </div>
-
             <div class="mb-8">
-                <label for="llm_instructions" class="block text-gray-700 font-bold mb-2">Custom LLM Instructions (Optional):</label>
-                <textarea id="llm_instructions" name="llm_instructions" rows="4" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"></textarea>
+              <label for="llm_instructions" class="block text-gray-700 font-bold mb-2">Custom LLM Instructions (Optional):</label>
+              <textarea id="llm_instructions" name="llm_instructions" rows="4" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"></textarea>
             </div>
-
-          <div class="mb-8">
+            <div class="mb-8">
               <label for="request_type" class="block text-gray-700 font-bold mb-2">Request Type:</label>
               <select id="request_type" name="request_type" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
-                  <option value="iterative">Iterative</option>
-                  <option value="whole">Whole</option>
+                <option value="iterative">Iterative</option>
+                <option value="whole">Whole</option>
               </select>
-          </div>
-
+            </div>
             <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Submit Survey</button>
-        </form>
-    </div>
-          </div>
-  </main>
-  <div id="footer-push"></div>
-  </div>
-              {% include 'footer.html' %}
-
-</body>
+          </form>
+        </div>
+      </div>
+    </main>
+    <div id="footer-push"></div>
+    {% include 'footer.html' %}
+  </body>
 </html>

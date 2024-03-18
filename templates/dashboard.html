@@ -1,7 +1,6 @@
 <!-- templates/dashboard.html -->
 <!DOCTYPE html>
-  <html lang="en" class="h-full">
-
+<html lang="en" class="h-full">
 <head>
   <meta property="og:title" content="" />
   <meta property="og:description" content="" />
@@ -17,164 +16,112 @@
       min-height: calc(100vh - var(--header-footer-height)); 
       padding-bottom: 4rem; 
     }
-
-      html, body {
-        height: 100%;
-        margin: 0;
-      }
-
-      #content {
-        min-height: 100%;
-        /* Equal to footer height */
-        margin-bottom: -4rem; 
-      }
-
-      #footer-push {
-        height: 4rem; 
-        /* Equal to footer height */
-      }
-
-      footer {
-        height: 4rem;
-        /* Other styling */
-      }
-
-    </style>
-
-
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
-
-    <title>Semantic Life Dashboard</title>
-
-  
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    #content {
+      min-height: 100%;
+      margin-bottom: -4rem; 
+    }
+    #footer-push {
+      height: 4rem; 
+    }
+    footer {
+      height: 4rem;
+    }
+  </style>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+  <title>Semantic Life Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
   <script>
-    
-      
-      function copyToClipboard(text, buttonId) {
-        navigator.clipboard.writeText(text).then(function() {
-          // Success: Change button appearance and text
-          var button = document.getElementById(buttonId);
-          button.style.backgroundColor = "#4CAF50"; // Green color
-          button.innerText = "Copied"; // Update button text
-          // Optionally, reset button after a delay
-          setTimeout(function() {
-            button.style.backgroundColor = ""; // Reset background color
-            button.innerText = button.getAttribute("data-original-text"); // Reset button text
-          }, 2000); // Adjust delay as needed
-        }).catch(function(error) {
-          console.error('Error copying text: ', error);
-        });
-
-          function loadWebCopy() {
-            fetch('{{ url_for('static', filename='content.json') }}') // Adjust the path as necessary
-              .then(response => response.json())
-              .then(data => {
-                const webCopy = data.web_copy;
-                document.getElementById('webCopyContainer').innerText = webCopy;
-              })
-              .catch(error => console.error('Error loading web copy:', error));
-          }
-
-        
+    function copyToClipboard(text, buttonId) {
+      navigator.clipboard.writeText(text).then(function() {
+        var button = document.getElementById(buttonId);
+        button.style.backgroundColor = "#4CAF50"; 
+        button.innerText = "Copied";
+        setTimeout(function() {
+          button.style.backgroundColor = "";
+          button.innerText = button.getAttribute("data-original-text");
+        }, 2000);
+      }).catch(function(error) {
+        console.error('Error copying text: ', error);
+      });
+      function loadWebCopy() {
+        fetch('{{ url_for('static', filename='content.json') }}')
+          .then(response => response.json())
+          .then(data => {
+            const webCopy = data.web_copy;
+            document.getElementById('webCopyContainer').innerText = webCopy;
+          })
+          .catch(error => console.error('Error loading web copy:', error));
       }
-    </script>
-  
-</head>
-  <body class="flex flex-col h-full">
-    {% include 'header.html' %}
-    <main class="flex-grow content-container">
-
-          <button id="close-banner" class="text-white hover:text-gray-200 focus:outline-none">
-              <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
-                  <path d="M18.364 5.636l-3.536 3.536L18.364 5.636zM5.636 18.364l3.536-3.536L5.636 18.364z"></path>
-                  <path d="M18.364 18.364l-3.536-3.536 3.536 3.536zM5.636 5.636l3.536 3.536L5.636 5.636z"></path>
-              </svg>
-          </button>
-      </div>
-  <div id="loadingPlaceholder" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; display:flex; justify-content:center; align-items:center;">
-      <img id="loading" src="static/loading.gif" style="max-width:60px;" alt="Loading" />
-  </div>
-  
-  
-  <div class="text-center md:absolute md:top-6 md:left-4 mx-auto">
-    
-
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo" class="mx-auto w-32">
-  </div>
-  
-
-  <div class="container mx-auto mt-2 mb-2">
-    <div class="font-bold mb-2 text-center text-3xl mt-6 md:mt-12">Synthetics (AIs)
-      
-      
-      </div>
-    <h3 class="font-bold mb-2 text-center text-xl text-gray-400 mt-4 md:mt-4">{% if agent_source.filename[:-5] == "agents" %}Base Agents{% else %}{{ agent_source.filename[14:-5] }}{% endif %}</h3>
-    
-</div>
-
-    
-    
-    <div class="max-w-6xl mx-auto my-4">
-        <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6">
-            {% for agent in agents %}
-            <div class="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
-                <img src="{% if agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-full object-cover" style="height: 250px; object-fit: cover;">
-              <div class="flex-grow p-4 flex flex-col justify-between"> 
-                <div class="p-6">
-                    <div class="flex flex-col items-start">
-                        <a href="{{ url_for('profile_blueprint.profile', agents_file=agent_source.filename, agent_id=agent.id) }}" class="mb-4 inline-block bg-black hover:bg-blue-500 text-white text-sm py-2 px-4 rounded">View Profile / Edit</a>
-                        <h3 class="text-xl font-semibold mb-1">{{ agent.id }}</h3>
-                        <h4 class="text-md text-gray-500 mb-3">{{ agent.jobtitle }}</h4>
-                        <p class="mb-4">{{ agent.summary }}</p>
-                    </div>
-                    <div class="mt-4 flex flex-wrap gap-2">                        
-                        {% if agent_source.filename != "agents.json" %}
-                        <a href="{{ url_for('survey_blueprint.create_survey', selected_file=agent_source.filename) }}" class="inline-block bg-black hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" style="flex: 1 1 100%;">Start Meeting</a>
-                        {% else %}
-                      <a href="mailto:{{ agent.email }}" class="inline-block bg-gray-700 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded text-center" style="flex: 1 1 30%;">Email</a>
-                      <button id="copyEmail{{ agent.id }}" class="inline-block bg-gray-500 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')" style="flex: 1 1 30%;">Copy Email</button>
-                      <button id="copyShortcode{{ agent.id }}" class="inline-block bg-gray-300 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')" style="flex: 1 1 30%;">Copy Shortcode</button>
-                      {% endif %}
-                    </div>
-                </div>
-            </div>
-              </div>
-            {% endfor %}
-        </div>
-        
-    </div>
-
-    
-  </div>
-
-  </div>
-  
-  </main>
-  
-    <div id="footer-push"></div>
-    </div>
-  {% include 'footer.html' %}
-    
-  <script>
-  window.onload = function() {
-    
-    var loadingPlaceholder = document.getElementById('loadingPlaceholder');
-    if (loadingPlaceholder) {
-      loadingPlaceholder.style.opacity = '0';
-      setTimeout(function() {
-        loadingPlaceholder.style.display = 'none';
-      }, 600); 
     }
-  };
-
-    
+  </script>
+</head>
+<body class="flex flex-col h-full">
+  {% include 'header.html' %}
+  <main class="flex-grow content-container">
+    <button id="close-banner" class="text-white hover:text-gray-200 focus:outline-none">
+      <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
+        <path d="M18.364 5.636l-3.536 3.536L18.364 5.636zM5.636 18.364l3.536-3.536L5.636 18.364z"></path>
+        <path d="M18.364 18.364l-3.536-3.536 3.536 3.536zM5.636 5.636l3.536 3.536L5.636 5.636z"></path>
+      </svg>
+    </button>
+    <div id="loadingPlaceholder" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; display:flex; justify-content:center; align-items:center;">
+      <img id="loading" src="static/loading.gif" style="max-width:60px;" alt="Loading" />
+    </div>
+    <div class="text-center md:absolute md:top-6 md:left-4 mx-auto">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo" class="mx-auto w-32">
+    </div>
+    <div class="container mx-auto mt-2 mb-2">
+      <div class="font-bold mb-2 text-center text-3xl mt-6 md:mt-12">Synthetics (AIs)</div>
+      <h3 class="font-bold mb-2 text-center text-xl text-gray-400 mt-4 md:mt-4">{% if not agent_copies %}Base Agents{% else %}{{ agent_copies[0].name }}{% endif %}</h3>
+    </div>
+    <div class="max-w-6xl mx-auto my-4">
+      <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6">
+        {% for agent in agents %}
+        <div class="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+          <img src="{{ url_for('serve_image', filename=agent.photo_path) }}" alt="Agent Photo" class="w-full object-cover" style="height: 250px; object-fit: cover;">
+          <div class="flex-grow p-4 flex flex-col justify-between">
+            <div class="p-6">
+              <div class="flex flex-col items-start">
+                <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}" class="mb-4 inline-block bg-black hover:bg-blue-500 text-white text-sm py-2 px-4 rounded">View Profile / Edit</a>
+                <h3 class="text-xl font-semibold mb-1">{{ agent.id }}</h3>
+                <h4 class="text-md text-gray-500 mb-3">{{ agent.jobtitle }}</h4>
+                <p class="mb-4">{{ agent.summary }}</p>
+              </div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                {% if not agent_copies %}
+                <a href="mailto:{{ agent.email }}" class="inline-block bg-gray-700 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded text-center" style="flex: 1 1 30%;">Email</a>
+                <button id="copyEmail{{ agent.id }}" class="inline-block bg-gray-500 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')" style="flex: 1 1 30%;">Copy Email</button>
+                <button id="copyShortcode{{ agent.id }}" class="inline-block bg-gray-300 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')" style="flex: 1 1 30%;">Copy Shortcode</button>
+                {% else %}
+                <a href="{{ url_for('survey_blueprint.create_survey') }}" class="inline-block bg-black hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" style="flex: 1 1 100%;">Start Meeting</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+  <div id="footer-push"></div>
+  {% include 'footer.html' %}
+  <script>
+    window.onload = function() {
+      var loadingPlaceholder = document.getElementById('loadingPlaceholder');
+      if (loadingPlaceholder) {
+        loadingPlaceholder.style.opacity = '0';
+        setTimeout(function() {
+          loadingPlaceholder.style.display = 'none';
+        }, 600); 
+      }
+    };
     document.getElementById('close-shortcodes').addEventListener('click', function() {
-        document.getElementById('shortcodes-section').style.display = 'none';
+      document.getElementById('shortcodes-section').style.display = 'none';
     });
   </script>
-
-    
 </body>
-
-</html>  
+</html>
