@@ -1,116 +1,361 @@
 <!--templates/start.html-->
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Start Configuration</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-</head>
-<body class="bg-gray-100">
-  {% include 'header.html' %}
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+    />
+  </head>
+  <body class="bg-gray-100">
+    {% include 'header.html' %}
     <div class="container mx-auto px-4 py-8">
-      <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg">
-        <h1 class="text-2xl font-bold mb-4">Start Configuration</h1>
-      <h2 class="text-xl font-bold mb-4">STILL IN TESTING, ALPHA FEATURES.</h2>
-        <form method="post" enctype="multipart/form-data" id="startForm">
+      <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-4xl">
+        <h1 class="text-3xl font-bold mb-4 px-6 pt-6">Start Configuration</h1>
+        <h2 class="text-xl font-bold mb-4 px-6">
+          STILL IN TESTING, ALPHA FEATURES.
+        </h2>
+        <form
+          method="post"
+          enctype="multipart/form-data"
+          id="startForm"
+          class="px-6 pb-6"
+        >
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="mb-4">
-                <label class="block mb-2 font-bold">Run Update Team:</label>
-                <select name="run_update_team" class="w-full p-2 border border-gray-300 rounded">
-                    <option value="false" {% if not config.run_update_team %}selected{% endif %}>No</option>
-                    <option value="true" {% if config.run_update_team %}selected{% endif %}>Yes</option>
-                </select>
+              <label class="block mb-2 font-bold">Run Update Team:</label>
+              <select
+                name="run_update_team"
+                class="w-full p-2 border border-gray-300 rounded"
+              >
+                <option
+                  value="false"
+                  {%
+                  if
+                  not
+                  config.run_update_team
+                  %}selected{%
+                  endif
+                  %}
+                >
+                  No
+                </option>
+                <option
+                  value="true"
+                  {%
+                  if
+                  config.run_update_team
+                  %}selected{%
+                  endif
+                  %}
+                >
+                  Yes
+                </option>
+              </select>
             </div>
             <div class="mb-4">
-                <label class="block mb-2 font-bold">Run Render Agents:</label>
-                <select name="run_render_agents" class="w-full p-2 border border-gray-300 rounded">
-                    <option value="false" {% if not config.run_render_agents %}selected{% endif %}>No</option>
-                    <option value="true" {% if config.run_render_agents %}selected{% endif %}>Yes</option>
-                </select>
+              <label class="block mb-2 font-bold">Run Render Agents:</label>
+              <select
+                name="run_render_agents"
+                class="w-full p-2 border border-gray-300 rounded"
+              >
+                <option
+                  value="false"
+                  {%
+                  if
+                  not
+                  config.run_render_agents
+                  %}selected{%
+                  endif
+                  %}
+                >
+                  No
+                </option>
+                <option
+                  value="true"
+                  {%
+                  if
+                  config.run_render_agents
+                  %}selected{%
+                  endif
+                  %}
+                >
+                  Yes
+                </option>
+              </select>
             </div>
             <div class="mb-4">
-                <label class="block mb-2 font-bold">Run Update Content:</label>
-                <select name="run_update_content" class="w-full p-2 border border-gray-300 rounded">
-                    <option value="false" {% if not config.run_update_content %}selected{% endif %}>No</option>
-                    <option value="true" {% if config.run_update_content %}selected{% endif %}>Yes</option>
-                </select>
+              <label class="block mb-2 font-bold">Run Update Content:</label>
+              <select
+                name="run_update_content"
+                class="w-full p-2 border border-gray-300 rounded"
+              >
+                <option
+                  value="false"
+                  {%
+                  if
+                  not
+                  config.run_update_content
+                  %}selected{%
+                  endif
+                  %}
+                >
+                  No
+                </option>
+                <option
+                  value="true"
+                  {%
+                  if
+                  config.run_update_content
+                  %}selected{%
+                  endif
+                  %}
+                >
+                  Yes
+                </option>
+              </select>
             </div>
             <div class="mb-4">
-                <label class="block mb-2 font-bold">Directory:</label>
-                <input type="text" name="directory" value="{{ config.directory }}" class="w-full p-2 border border-gray-300 rounded">
+              <label class="block mb-2 font-bold">Directory:</label>
+              <input
+                type="text"
+                name="directory"
+                value="{{ config.directory }}"
+                class="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+            <div class="mb-4 col-span-2">
+              <label class="block mb-2 font-bold">Transformation Prompt:</label>
+              <textarea
+                name="transformation_prompt"
+                rows="3"
+                class="w-full p-2 border border-gray-300 rounded"
+              >
+{{ config.transformation_prompt }}</textarea
+              >
+            </div>
+            <div class="mb-4 col-span-2">
+              <label class="block mb-2 font-bold"
+                >Cover Photo Instructions:</label
+              >
+              <textarea
+                name="cover_photo_instructions"
+                rows="3"
+                class="w-full p-2 border border-gray-300 rounded"
+              >
+{{ config.cover_photo_instructions }}</textarea
+              >
             </div>
             <div class="mb-4">
-                <label class="block mb-2 font-bold">Transformation Prompt:</label>
-                <textarea name="transformation_prompt" rows="4" class="w-full p-2 border border-gray-300 rounded">{{ config.transformation_prompt }}</textarea>
+              <label class="block mb-2 font-bold"
+                >Number of Additional Agents:</label
+              >
+              <input
+                type="number"
+                name="num_agents_additional"
+                value="{{ config.num_agents_additional }}"
+                class="w-full p-2 border border-gray-300 rounded"
+              />
             </div>
             <div class="mb-4">
-                <label class="block mb-2 font-bold">Cover Photo Instructions:</label>
-                <textarea name="cover_photo_instructions" rows="4" class="w-full p-2 border border-gray-300 rounded">{{ config.cover_photo_instructions }}</textarea>
+              <label class="block mb-2 font-bold">Fictionalize Option:</label>
+              <select
+                name="fictionalize_option"
+                class="w-full p-2 border border-gray-300 rounded"
+              >
+                <option
+                  value="no"
+                  {%
+                  if
+                  config.fictionalize_option=""
+                  ="no"
+                  %}selected{%
+                  endif
+                  %}
+                >
+                  No
+                </option>
+                <option
+                  value="yes"
+                  {%
+                  if
+                  config.fictionalize_option=""
+                  ="yes"
+                  %}selected{%
+                  endif
+                  %}
+                >
+                  Yes
+                </option>
+              </select>
             </div>
             <div class="mb-4">
-                <label class="block mb-2 font-bold">Number of Additional Agents:</label>
-                <input type="number" name="num_agents_additional" value="{{ config.num_agents_additional }}" class="w-full p-2 border border-gray-300 rounded">
+              <label class="block mb-2 font-bold text-red-600"
+                >Clear JSON Confirm:</label
+              >
+              <p class="text-red-600 mb-2">
+                WARNING: THIS WILL DELETE YOUR PRINCIPAL AGENTS! NO RECOVERY!
+                (YET)
+              </p>
+              <select
+                name="clear_json_confirm"
+                class="w-full p-2 border border-gray-300 rounded"
+              >
+                <option
+                  value="no"
+                  {%
+                  if
+                  config.clear_json_confirm=""
+                  ="no"
+                  %}selected{%
+                  endif
+                  %}
+                >
+                  No
+                </option>
+                <option
+                  value="yes"
+                  {%
+                  if
+                  config.clear_json_confirm=""
+                  ="yes"
+                  %}selected{%
+                  endif
+                  %}
+                >
+                  Yes
+                </option>
+              </select>
             </div>
             <div class="mb-4">
-                <label class="block mb-2 font-bold">Fictionalize Option:</label>
-                <select name="fictionalize_option" class="w-full p-2 border border-gray-300 rounded">
-                    <option value="no" {% if config.fictionalize_option == 'no' %}selected{% endif %}>No</option>
-                    <option value="yes" {% if config.fictionalize_option == 'yes' %}selected{% endif %}>Yes</option>
-                </select>
+              <label class="block mb-2 font-bold">Clear Pics Confirm:</label>
+              <select
+                name="clear_pics_confirm"
+                class="w-full p-2 border border-gray-300 rounded"
+              >
+                <option
+                  value="no"
+                  {%
+                  if
+                  config.clear_pics_confirm=""
+                  ="no"
+                  %}selected{%
+                  endif
+                  %}
+                >
+                  No
+                </option>
+                <option
+                  value="yes"
+                  {%
+                  if
+                  config.clear_pics_confirm=""
+                  ="yes"
+                  %}selected{%
+                  endif
+                  %}
+                >
+                  Yes
+                </option>
+              </select>
             </div>
             <div class="mb-4">
-              WARNING THIS WILL DELETE YOUR PRINCIPAL AGENTS! NO RECOVERY! (YET)
-                <label class="block mb-2 font-bold">Clear JSON Confirm:</label>
-                <select name="clear_json_confirm" class="w-full p-2 border border-gray-300 rounded">
-                    <option value="no" {% if config.clear_json_confirm == 'no' %}selected{% endif %}>No</option>
-                    <option value="yes" {% if config.clear_json_confirm == 'yes' %}selected{% endif %}>Yes</option>
-                </select>
+              <label class="block mb-2 font-bold">Social Image URL:</label>
+              <input
+                type="text"
+                name="social_image_url"
+                value="{{ config.social_image_url }}"
+                class="w-full p-2 border border-gray-300 rounded"
+              />
             </div>
             <div class="mb-4">
-                <label class="block mb-2 font-bold">Clear Pics Confirm:</label>
-                <select name="clear_pics_confirm" class="w-full p-2 border border-gray-300 rounded">
-                    <option value="no" {% if config.clear_pics_confirm == 'no' %}selected{% endif %}>No</option>
-                    <option value="yes" {% if config.clear_pics_confirm == 'yes' %}selected{% endif %}>Yes</option>
-                </select>
+              <label class="block mb-2 font-bold">Logo URL:</label>
+              <input
+                type="text"
+                name="logo_url"
+                value="{{ config.logo_url }}"
+                class="w-full p-2 border border-gray-300 rounded"
+              />
             </div>
-            <div class="mb-4">
-                <label class="block mb-2 font-bold">Social Image URL:</label>
-                <input type="text" name="social_image_url" value="{{ config.social_image_url }}" class="w-full p-2 border border-gray-300 rounded">
-            </div>
-            <div class="mb-4">
-                <label class="block mb-2 font-bold">Logo URL:</label>
-                <input type="text" name="logo_url" value="{{ config.logo_url }}" class="w-full p-2 border border-gray-300 rounded">
-            </div>
-            <div class="mb-4">
-                <label class="block mb-2 font-bold">Upload Files:</label>
-                <input type="file" name="upload_files" multiple class="w-full p-2 border border-gray-300 rounded">
-            </div>
-            <div class="mb-4">
-                <label class="block mb-2 font-bold">New Agent Files:</label>
+          </div>
+          <div class="mb-4">
+            <label class="block mb-2 font-bold">Upload Files:</label>
+            <input
+              type="file"
+              name="upload_files"
+              multiple
+              class="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+          <div class="mb-4">
+            <label class="block mb-2 font-bold">New Agent Files:</label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               {% for file, content in new_agent_files_content.items() %}
               <div class="mb-2 relative" id="file-{{ loop.index }}">
-                  <button type="button" class="absolute right-2 top-2 text-lg text-red-500" onclick="removeFile('file-{{ loop.index }}')">×</button>
-                  <textarea name="{{ file }}" rows="4" class="w-full p-2 border border-gray-300 rounded">{{ content }}</textarea>
+                <button
+                  type="button"
+                  class="absolute right-2 top-2 text-lg text-red-500 hover:text-red-700 focus:outline-none"
+                  onclick="removeFile('file-{{ loop.index }}')"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+                <textarea
+                  name="{{ file }}"
+                  rows="6"
+                  class="w-full p-2 border border-gray-300 rounded"
+                >
+{{ content }}</textarea
+                >
               </div>
               {% endfor %}
-
             </div>
-            <button type="submit" name="run_start" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Run Start</button>
-          <img src="static/loading.gif" id="loadingGif" style="display: none; width: 24px;" alt="Loading...">
+          </div>
+          <div class="text-center">
+            <button
+              type="submit"
+              name="run_start"
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Run Start
+              <img
+                src="static/loading.gif"
+                id="loadingGif"
+                style="display: none; width: 24px; margin-left: 8px"
+                alt="Loading..."
+              />
+            </button>
+          </div>
         </form>
       </div>
     </div>
-  {% include 'footer.html' %}
-  <script>
-      document.getElementById('startForm').addEventListener('submit', function() {
+    {% include 'footer.html' %}
+    <script>
+      document
+        .getElementById("startForm")
+        .addEventListener("submit", function () {
           // Show the loading GIF
-          document.getElementById('loadingGif').style.display = 'inline';
-      });
-  </script>
-  <script>
+          document.getElementById("loadingGif").style.display = "inline";
+        });
+    </script>
+    <script>
       function removeFile(elementId) {
-          var element = document.getElementById(elementId);
-          element.parentNode.removeChild(element);
+        var element = document.getElementById(elementId);
+        element.parentNode.removeChild(element);
       }
-  </script>
-
-</body>
+    </script>
+  </body>
 </html>

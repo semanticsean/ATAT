@@ -1,7 +1,6 @@
-<!-- templates/index.html --> 
+<!-- templates/index.html -->
 <!doctype html>
 <html lang="en">
-
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,190 +11,117 @@
     />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        <style>
-
-          html {
-            height: 100%;
-            margin: 0;
-          }
-
-        body {
-          display: flex;
-          flex-direction: column;
-          min-height: 100vh;
-        }
-
-          #content {
-            min-height: 100%;
-            /* Equal to footer height */
-            margin-bottom: -4rem; 
-          }
-
-          #footer-push {
-            margin-top:100px;
-            height: 4rem; 
-            /* Equal to footer height */
-          }
-
-          footer {
-            height: 4rem;
-            /* Other styling */
-          }
-
-      
-          body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-          }
-
-          main {
-            flex: 1;
-          }
-      
-
-        .flex-grow {
-          flex: 1;
-        }
-
-      
-
-        #footer-push {
-          height: 4rem; 
-          /* Equal to footer height */
-        }
-
-        footer {
-          height: 4rem;
-          /* Other styling */
-        }
-
+      html {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      main {
+        flex: 1;
+      }
+      .flex-grow {
+        flex: 1;
+      }
+      #footer-push {
+        height: 4rem;
+      }
+      footer {
+        height: 4rem;
+      }
     </style>
   </head>
   <body>
-
-    
-
-      <button
-        id="close-banner"
-        class="text-white hover:text-gray-200 focus:outline-none"
-      >
-        <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
-          <path
-            d="M18.364 5.636l-3.536 3.536L18.364 5.636zM5.636 18.364l3.536-3.536L5.636 18.364z"
-          ></path>
-          <path
-            d="M18.364 18.364l-3.536-3.536 3.536 3.536zM5.636 5.636l3.536 3.536L5.636 5.636z"
-          ></path>
-        </svg>
-      </button>
-    </div>
-
     {% include 'header.html' %}
     <div class="flex-grow">
-    <main class="flex-1">
-      
-      
-
-    <div class="container mx-auto px-4 mt-16">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="bg-white rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-bold mb-4">Synths</h2>
-          <a
-            href="/dashboard"
-            class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-          >
-            Base Synths
-          </a>
-          <a
-            href="/create_new_agent"
-            class="block bg-blue-500 mt-4 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-          >
-            New Base Synth
-          </a>
-          <!-- <a href="/start" class="block bg-blue-500 text-white mt-4 font-bold py-2 px-4 rounded hover:bg-blue-700 transition duration-300">
-             Rewrite Principals
-          </a> -->
-        </div>
-        
-        <div class="bg-white rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-bold mb-4">Times</h2>
-          
-          <a
-            href="{{ url_for('auth_blueprint.new_agent_copy') }}"
-            class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition duration-300 mb-4"
-          >
-            New Timeframe
-          </a>
-          <a
-            href="{{ url_for('survey_blueprint.create_survey') }}"
-            class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition duration-300 mb-4"
-          >
-            New Meeting
-
-          </a>
-          
-        </div>
-        <div class="bg-white rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-bold mb-4">Tools</h2>
-
-          <a href="/help" class="block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300">Help</a>
-      
-      </div>
-      </div>
-      <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
-          <h2 class="text-2xl font-bold mb-4">Timeframes</h2>
-          
-          <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {% for copy in agent_copies %} {% if copy.endswith('.json') %}
-            <li>
+      <main class="flex-1">
+        <div class="container mx-auto px-4 mt-16">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+              <h2 class="text-2xl font-bold mb-4">Synths</h2>
               <a
-                href="{{ url_for('dashboard_blueprint.dashboard', agents_file='agents/copies/' + copy) }}"
-                class="block bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300"
+                href="{{ url_for('dashboard_blueprint.dashboard') }}"
+                class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
               >
-                {{ copy[:-5] }}
+                Base Synths
               </a>
-            </li>
-            {% endif %} {% endfor %}
-          </ul>
-          {% if not agent_copies and not survey_results %}
-          <p class="text-gray-600">No meetings yet.</p>
-          {% endif %}
+              <a
+                href="{{ url_for('profile_blueprint.create_new_agent') }}"
+                class="block bg-blue-500 mt-4 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+              >
+                New Base Synth
+              </a>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+              <h2 class="text-2xl font-bold mb-4">Times</h2>
+              <a
+                href="{{ url_for('auth_blueprint.new_agent_copy') }}"
+                class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition duration-300 mb-4"
+              >
+                New Timeframe
+              </a>
+              <a
+                href="{{ url_for('survey_blueprint.create_survey') }}"
+                class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition duration-300 mb-4"
+              >
+                New Meeting
+              </a>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+              <h2 class="text-2xl font-bold mb-4">Tools</h2>
+              <a
+                href="/help"
+                class="block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300"
+                >Help</a
+              >
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+            <h2 class="text-2xl font-bold mb-4">Timeframes</h2>
+            <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {% for copy in agent_copies %}
+              <li>
+                <a
+                  href="{{ url_for('dashboard_blueprint.dashboard', copy_id=copy.id) }}"
+                  class="block bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300"
+                >
+                  {{ copy.name }}
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+            {% if not agent_copies %}
+            <p class="text-gray-600">No timeframes yet.</p>
+            {% endif %}
+          </div>
+          <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+            <h2 class="text-2xl font-bold mb-4">Meetings</h2>
+            <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {% for survey in surveys %}
+              <li>
+                <a
+                  href="{{ url_for('survey_blueprint.results', survey_id=survey.id) }}"
+                  class="block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300"
+                >
+                  {{ survey.name }}
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+            {% if not surveys %}
+            <p class="text-gray-600">
+              No meetings yet. You must create a timeframe before you can create
+              a meeting.
+            </p>
+            {% endif %}
+          </div>
         </div>
-      
-
-      
-      <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
-        <h2 class="text-2xl font-bold mb-4">Meetings</h2>
-        
-        <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {% for folder, file in survey_results %} {% if file.endswith('.json')
-          and file != 'selected_agents.json' %}
-          <li>
-            <a
-              href="{{ url_for('survey_blueprint.results', folder=folder, filename=file) }}"
-              class="block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300"
-            >
-              {{ folder[:-7] }}
-            </a>
-          </li>
-          {% endif %} {% endfor %}
-        </ul>
-        {% if not survey_results %}
-        <p class="text-gray-600">No meetings yet. You must create a timeframe before you can create a meeting.</p>
-        {% endif %}
-      </div>
-
-      </div>
-      </div>
-        <div id="footer-push"></div>
-      </div>
-    </main>
-    
-    
-     
-      
+      </main>
+      <div id="footer-push"></div>
+    </div>
     {% include 'footer.html' %}
-    
   </body>
 </html>
