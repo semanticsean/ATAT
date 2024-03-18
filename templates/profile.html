@@ -1,249 +1,213 @@
 <!-- templates/profile.html -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agent Profile</title>
-  <style>
-    
-      html, body {
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      html,
+      body {
         height: 100%;
         margin: 0;
       }
-
       #content {
         min-height: 100%;
-        /* Equal to footer height */
-        margin-bottom: -4rem; 
+        margin-bottom: -4rem;
       }
-
       #footer-push {
-        height: 4rem; 
-        /* Equal to footer height */
+        height: 4rem;
       }
-
       footer {
         height: 4rem;
-        /* Other styling */
       }
-
-  </style>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-blue-50">
+    </style>
+  </head>
+  <body class="bg-blue-50">
     {% include 'header.html' %}
-    <div class="pt-16">
-        
-        <main class="container mx-auto px-4 py-4 mt-2">
-            <h1 class="text-3xl font-bold mb-4 text-center">Agent Profile</h1>
-            {% if agent %}
-                <script>
-                    console.log("Agent data:", {{ agent|tojson }});
-                </script>
-                <article class="bg-white shadow-lg rounded-lg overflow-hidden">
-                  {% if agent.photo_path %}
-                  <div class="flex items-center justify-center h-420 overflow-hidden">
-                      <img src="{% if agents_file == 'agents/agents.json' %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% elif agent.photo_path.startswith('agents/copies/') %}/{{ agent.photo_path }}{% else %}/agents/pics/{{ agent.photo_path.split('/')[-1] }}{% endif %}" alt="Agent Photo" class="w-full object-cover object-center" style="max-height: 600px;">
-                  </div>
-
-
-                  {% endif %}
-                    <div class="p-6">
-                        <h2 class="text-2xl font-bold mb-2">{{ agent.id }}</h2>
-                      {% if agents_file == 'agents/agents.json' %}
-                      {% if agent.email %}
-                          <a href="mailto:{{ agent.email }}?subject=Continuing%20our%20discussion&body=Semantic-Life.com" class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300">{{ agent.email }}</a>
-                      {% endif %}
-                      {% endif %}
-                      {% if agent.keywords and agent.keywords is iterable %}
-                          <div class="mt-4">
-                              <h3 class="text-xl font-semibold mb-2">Keywords</h3>
-                              <div id="keywords-text" class="flex flex-wrap gap-2">
-                                  {% for keyword in agent.keywords %}
-                                      <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full">{{ keyword }}</span>
-                                  {% endfor %}
-                              </div>
-                          </div>
-                      {% endif %}
-
-
-                        <div class="space-y-2 mt-6">
-                            
-                          {% if agent.jobtitle %}
-                              <div class="p-4 bg-white rounded-lg shadow mb-4">
-                                  <h3 class="text-lg font-semibold mb-2">Job Title</h3>
-                                  <p id="jobtitle-text">{{ agent.jobtitle }}</p>
-                                  <input type="text" class="w-full" id="jobtitle-input" value="{{ agent.jobtitle }}" style="display: none;">
-                                  <button id="jobtitle-edit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Edit</button>
-                                  <button id="jobtitle-save" class="mt-2 bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded" style="display: none;">Save</button>
-                              </div>
-                          {% endif %}
-                          {% if agent.summary %}
-                              <div class="p-4 bg-white rounded-lg shadow mb-4">
-                                  <h3 class="text-lg font-semibold mb-2">Summary</h3>
-                                  <p id="summary-text">{{ agent.summary }}</p>
-                                  <textarea id="summary-input" class="w-full" style="display: none;">{{ agent.summary }}</textarea>
-                                  <button id="summary-edit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Edit</button>
-                                  <button id="summary-save" class="mt-2 bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded" style="display: none;">Save</button>
-                              </div>
-                          {% endif %}
-
-                          {% if agent.persona %}
-                              <div class="p-4 bg-white rounded-lg shadow mb-4">
-                                  <h3 class="text-lg font-semibold mb-2">Persona</h3>
-                                  <p id="persona-text">{{ agent.persona }}</p>
-                                  <textarea id="persona-input" class="w-full min-h-6em" style="display: none;">{{ agent.persona }}</textarea>
-                                  <button id="persona-edit" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white text-sm py-1 px-2 rounded">Edit</button>
-                                  <button id="persona-save" class="mt-2 bg-green-500 hover:bg-green-700 text-white text-sm py-1 px-2 rounded" style="display: none;">Save</button>
-                              </div>
-                          {% endif %}
-
-                          {% if agent.relationships %}
-                              {% set relationships_list = agent.relationships if agent.relationships is iterable and not agent.relationships is mapping else agent.relationships.values() %}
-                              <div class="mt-4">
-                                  <h3 class="text-xl font-semibold mb-2">Relationships</h3>
-                                  <div class="space-y-4">
-                                      {% for relationship in relationships_list %}
-                                          <div class="p-4 bg-gray-50 rounded-lg shadow">
-                                              <p class="font-semibold">{{ relationship.name | default('N/A', true) }}</p>
-                                              <p><strong>Job:</strong> {{ relationship.job | default('N/A', true) }}</p>
-                                              <p><strong>Relationship:</strong> {{ relationship.relationship_description | default('N/A', true) }}</p>
-                                              <p><strong>Summary:</strong> {{ relationship.summary | default('N/A', true) }}</p>
-                                              {% if relationship.common_interactions %}
-                                                  <div>
-                                                      <strong>Common Interactions:</strong>
-                                                      <ul class="list-disc pl-5">
-                                                          {% for interaction in relationship.common_interactions %}
-                                                              <li>{{ interaction }}</li>
-                                                          {% endfor %}
-                                                      </ul>
-                                                  </div>
-                                              {% endif %}
-                                          </div>
-                                      {% endfor %}
-                                  </div>
-                              </div>
-                          {% endif %}
-
-
-                          
-                        </div>
-                    </div>
-                    <footer class="px-6 py-4 bg-gray-100 flex justify-between items-center">
-                        {% if prev_agent_id %}
-                            <a href="{{ url_for('profile_blueprint.profile', agents_file=agents_file, agent_id=prev_agent_id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors">Previous</a>
-                        {% endif %}
-                        {% if next_agent_id %}
-                            <a href="{{ url_for('profile_blueprint.profile', agents_file=agents_file, agent_id=next_agent_id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors">Next</a>
-                        {% endif %}
-                    </footer>
-                </article>
-            {% else %}
-               
-                <p>No agent found.</p>
-            {% endif %}
-        </main>
+    <div class="container mx-auto px-4 py-8">
+      {% if agent %}
+      <div class="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
+        <div class="flex items-center mb-6">
+          <img
+            src="{{ url_for('serve_image', filename=agent.photo_path) }}"
+            alt="Agent Photo"
+            class="w-32 h-32 rounded-full"
+          />
+          <div class="ml-4">
+            <h1 class="text-2xl font-semibold mb-2">{{ agent.id }}</h1>
+            <p class="text-gray-600">{{ agent.jobtitle }}</p>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label for="email" class="block text-gray-700 text-sm font-bold mb-2"
+            >Email:</label
+          >
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value="{{ agent.email }}"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            readonly
+          />
+        </div>
+        <div class="mb-4">
+          <label
+            for="persona"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Persona:</label
+          >
+          <textarea
+            id="persona"
+            name="persona"
+            rows="4"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          >
+{{ agent.persona }}</textarea
+          >
+        </div>
+        <div class="mb-4">
+          <label
+            for="summary"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Summary:</label
+          >
+          <textarea
+            id="summary"
+            name="summary"
+            rows="4"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          >
+{{ agent.summary }}</textarea
+          >
+        </div>
+        <div class="mb-4">
+          <label
+            for="keywords"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Keywords:</label
+          >
+          <textarea
+            id="keywords"
+            name="keywords"
+            rows="2"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          >
+{{ agent.keywords | join(', ') }}</textarea
+          >
+        </div>
+        <div class="mb-4">
+          <label
+            for="image_prompt"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Image Prompt:</label
+          >
+          <textarea
+            id="image_prompt"
+            name="image_prompt"
+            rows="4"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          >
+{{ agent.image_prompt }}</textarea
+          >
+        </div>
+        <div class="mb-4">
+          <label
+            for="relationships"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Relationships:</label
+          >
+          <textarea
+            id="relationships"
+            name="relationships"
+            rows="6"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          >
+{{ agent.relationships | tojson }}</textarea
+          >
+        </div>
+        <div class="flex justify-between">
+          <a
+            href="{{ url_for('profile_blueprint.profile', agent_id=prev_agent_id) }}"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded {% if not prev_agent_id %}opacity-50 cursor-not-allowed{% endif %}"
+            {%
+            if
+            not
+            prev_agent_id
+            %}disabled{%
+            endif
+            %}
+            >Previous</a
+          >
+          <button
+            type="button"
+            id="saveButton"
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Save Changes
+          </button>
+          <a
+            href="{{ url_for('profile_blueprint.profile', agent_id=next_agent_id) }}"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded {% if not next_agent_id %}opacity-50 cursor-not-allowed{% endif %}"
+            {%
+            if
+            not
+            next_agent_id
+            %}disabled{%
+            endif
+            %}
+            >Next</a
+          >
+        </div>
+      </div>
+      {% else %}
+      <p>Agent not found.</p>
+      {% endif %}
     </div>
-  <div id="footer-push"></div>
-  </div>
+    <div id="footer-push"></div>
     {% include 'footer.html' %}
 
-  <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Function to setup edit/save handlers
-    function setupEditSaveHandlers(editButtonId, saveButtonId, textElementId, inputElementId, field) {
-        const editButton = document.getElementById(editButtonId);
-        const saveButton = document.getElementById(saveButtonId);
-        const textElement = document.getElementById(textElementId);
-        const inputElement = document.getElementById(inputElementId);
+    <script>
+      $(document).ready(function () {
+        $("#saveButton").click(function () {
+          var agentId = "{{ agent.id }}";
+          var persona = $("#persona").val();
+          var summary = $("#summary").val();
+          var keywords = $("#keywords").val();
+          var imagePrompt = $("#image_prompt").val();
+          var relationships = $("#relationships").val();
 
-        if (editButton && saveButton && textElement && inputElement) {
-            editButton.addEventListener('click', function() {
-                textElement.style.display = 'none';
-                inputElement.style.display = 'block';
-                editButton.style.display = 'none';
-                saveButton.style.display = 'inline-block';
-            });
-
-            saveButton.addEventListener('click', function() {
-                const newValue = inputElement.value;
-                // AJAX call to save newValue
-                fetch('/update_agent', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        agents_file: '{{ agents_file }}', 
-                        agent_id: '{{ agent.id }}', // Current agent's ID
-                        field: field, // Field to update
-                        value: newValue // New value for the field
-                    })
-                }).then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                    textElement.innerText = newValue;
-                    textElement.style.display = 'block';
-                    inputElement.style.display = 'none';
-                    saveButton.style.display = 'none';
-                    editButton.style.display = 'inline-block';
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-            });
-        }
-    }
-
-    // Initialize edit/save functionality for job title, summary, and persona
-    setupEditSaveHandlers('jobtitle-edit', 'jobtitle-save', 'jobtitle-text', 'jobtitle-input', 'jobtitle');
-    setupEditSaveHandlers('summary-edit', 'summary-save', 'summary-text', 'summary-input', 'summary');
-    setupEditSaveHandlers('persona-edit', 'persona-save', 'persona-text', 'persona-input', 'persona');
-
-    // Relationship edit/save functionality
-    document.querySelectorAll('.relationship-edit-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const parentDiv = btn.closest('div[data-relationship-id]');
-            parentDiv.querySelector('.relationship-description-text').style.display = 'none';
-            parentDiv.querySelector('.relationship-description-input').style.display = 'block';
-            btn.style.display = 'none';
-            parentDiv.querySelector('.relationship-save-btn').style.display = 'inline-block';
+          $.ajax({
+            url: '{{ url_for("profile_blueprint.update_agent") }}',
+            method: "POST",
+            data: JSON.stringify({
+              agent_id: agentId,
+              persona: persona,
+              summary: summary,
+              keywords: keywords,
+              image_prompt: imagePrompt,
+              relationships: relationships,
+            }),
+            contentType: "application/json",
+            success: function (response) {
+              if (response.success) {
+                alert("Agent updated successfully!");
+              } else {
+                alert("Error updating agent: " + response.error);
+              }
+            },
+            error: function () {
+              alert("Error updating agent. Please try again.");
+            },
+          });
         });
-    });
-
-    document.querySelectorAll('.relationship-save-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const parentDiv = btn.closest('div[data-relationship-id]');
-            const newDescription = parentDiv.querySelector('.relationship-description-input').value;
-            const relationshipId = parentDiv.getAttribute('data-relationship-id');
-
-            // AJAX call to save the new relationship description
-            fetch('/update_agent', { // Assume a route exists or modify as needed
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    agents_file: '{{ agents_file }}',
-                    agent_id: '{{ agent.id }}', // Current agent's ID
-                    relationship_id: relationshipId, // ID of the relationship being updated
-                    field: 'relationship_description', // Field to update
-                    value: newDescription // New value for the field
-                })
-            }).then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                parentDiv.querySelector('.relationship-description-text').innerText = newDescription;
-                parentDiv.querySelector('.relationship-description-text').style.display = 'block';
-                parentDiv.querySelector('.relationship-description-input').style.display = 'none';
-                btn.style.display = 'none';
-                parentDiv.querySelector('.relationship-edit-btn').style.display = 'inline-block';
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        });
-    });
-});
-</script>
-
-
-</body>
+      });
+    </script>
+  </body>
 </html>

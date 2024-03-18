@@ -1,4 +1,4 @@
-<!--templates/survey1.html-->
+<!-- templates/meeting1.html -->
 <!DOCTYPE html>
 <html lang="en" class="h-full">
         <head>
@@ -37,50 +37,35 @@
           <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         </head>
         <body class="bg-blue-50 h-full">
-          {% include 'header.html' %}
-          <main class="flex-grow">
-            <div class="container mx-auto px-4 py-8 mt-12">
-              <div id="loading" style="display: none;">Loading...</div>
-              <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
-                <h1 class="text-2xl font-bold mb-2">Make a Meeting</h1>
-                <h2 class="italic">1 credit per question or discussion point per synth.</h2>
-                <form action="{{ url_for('survey_blueprint.create_survey') }}" method="post" class="mb-8">
-                  <div class="mb-4">
-                    <label for="survey_name" class="block text-xl font-bold mb-2 mt-4">Meeting Name:</label>
-                    <input type="text" id="survey_name" name="survey_name" value="default_name" required class="w-full px-3 py-text-xl font-bold mb-2 border rounded-lg focus:outline-none">
-                    
-                  </div>
-                  <div class="mb-8">
-                    <h2 class="text-xl font-bold mb-2">Select Timeframe</h2>
-                    <div id="file-list" class="flex flex-wrap">
-                      {% if agent_files %}
-                        {% for file in agent_files %}
-                          <button type="button" class="file-button px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-blue-600 mr-2 mb-2" data-file="{{ file }}">{{ file.split('/')[-1] }}</button>
-                        {% endfor %}
-                      {% else %}
-                        <p>No agent files available</p>
-                      {% endif %}
-                    </div>
-                  </div>
-                  <div class="mb-8">
-                    <h2 class="text-xl font-bold mb-2">Select Synths</h2>
-                    <div id="agent-list">
-                      <div class="mb-4 flex justify-between">
-                        <button type="button" id="select-all" class="px-4 py-2 text-sm md:px-6 md:py-3 bg-gray-400 text-white rounded-lg hover:bg-green-600">Select All</button>
-                        <button type="button" id="clear-all" class="px-2 py-1 text-sm md:px-2 md:py-1 bg-gray-200 text-white rounded-lg hover:bg-red-600">Clear All</button>
-                      </div>
-                    </div>
-                  </div>
-                  <input type="hidden" id="selected_file" name="selected_file" value="">
-                    <input type="hidden" id="selected_agents" name="selected_agents" value="">
-                    <button type="submit" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-600">Next Step</button>
-                  
-                </form>
+  {% include 'header.html' %}
+  <main class="flex-grow">
+    <div class="container mx-auto px-4 py-8 mt-12">
+      <div id="loading" style="display: none;">Loading...</div>
+      <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
+        <h1 class="text-2xl font-bold mb-2">Make a Meeting</h1>
+        <h2 class="italic">1 credit per question or discussion point per synth.</h2>
+        <form action="{{ url_for('survey_blueprint.create_survey') }}" method="post" class="mb-8">
+          <div class="mb-4">
+            <label for="survey_name" class="block text-xl font-bold mb-2 mt-4">Meeting Name:</label>
+            <input type="text" id="survey_name" name="survey_name" value="default_name" required class="w-full px-3 py-text-xl font-bold mb-2 border rounded-lg focus:outline-none">
+          </div>
+          <div class="mb-8">
+            <h2 class="text-xl font-bold mb-2">Select Synths</h2>
+            <div id="agent-list">
+              <div class="mb-4 flex justify-between">
+                <button type="button" id="select-all" class="px-4 py-2 text-sm md:px-6 md:py-3 bg-gray-400 text-white rounded-lg hover:bg-green-600">Select All</button>
+                <button type="button" id="clear-all" class="px-2 py-1 text-sm md:px-2 md:py-1 bg-gray-200 text-white rounded-lg hover:bg-red-600">Clear All</button>
               </div>
             </div>
-          </main>
-          <div id="footer-push"></div>
-          {% include 'footer.html' %}
+          </div>
+          <input type="hidden" id="selected_agents" name="selected_agents" value="">
+          <button type="submit" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-600">Next Step</button>
+        </form>
+      </div>
+    </div>
+  </main>
+  <div id="footer-push"></div>
+  {% include 'footer.html' %}
           <script>
             $(document).ready(function() {
               console.log("Document ready. Initializing event handlers...");
