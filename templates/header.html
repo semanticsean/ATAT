@@ -1,46 +1,127 @@
 <!-- header.html -->
-<div x-data="{ open: false, dropdownOpen: false }" id="header" class="fixed top-0 left-0 right-0 z-50 bg-black text-white">
+<div
+  x-data="{ open: false, dropdownOpen: false }"
+  id="header"
+  class="fixed top-0 left-0 right-0 z-50 bg-black text-white"
+>
   <div class="py-2 px-4 flex justify-between items-center w-full">
     <a href="/">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-32 md:w-64">
+      <img
+        src="{{ url_for('static', filename='logo.png') }}"
+        alt="Semantic Life"
+        class="w-32 md:w-64"
+      />
     </a>
 
     <!-- Hamburger icon for mobile -->
     <div class="md:hidden">
       <button @click="open = !open" class="text-white focus:outline-none">
-        <svg :class="{'hidden': open, 'block': !open}" class="h-6 w-6 fill-current transition duration-500 ease-in-out" viewBox="0 0 24 24">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M4 5h16v2H4V5zm0 6h16v2H4v-2zm0 6h16v2H4v-2z"/>
+        <svg
+          :class="{'hidden': open, 'block': !open}"
+          class="h-6 w-6 fill-current transition duration-500 ease-in-out"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M4 5h16v2H4V5zm0 6h16v2H4v-2zm0 6h16v2H4v-2z"
+          />
         </svg>
-        <svg :class="{'block': open, 'hidden': !open}" class="h-6 w-6 fill-current transition duration-500 ease-in-out" viewBox="0 0 24 24">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M6 18L18 6M6 6l12 12"/>
+        <svg
+          :class="{'block': open, 'hidden': !open}"
+          class="h-6 w-6 fill-current transition duration-500 ease-in-out"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       </button>
     </div>
 
     <!-- Dropdown Menu for md and larger -->
     <div class="hidden md:block relative">
-      <button @click="dropdownOpen = !dropdownOpen" class="font-md md:text-xl text-white focus:outline-none mr-6">
+      <button
+        @click="dropdownOpen = !dropdownOpen"
+        class="font-md md:text-xl text-white focus:outline-none mr-6"
+      >
         {{ current_user.username }}
         <svg class="w-4 h-4 fill-current inline-block ml-1" viewBox="0 0 20 20">
-          <path :class="{'hidden': dropdownOpen, 'block': !dropdownOpen}" d="M5.5 7l4.5 4.5L14.5 7H5.5z"/>
-          <path :class="{'block': dropdownOpen, 'hidden': !dropdownOpen}" d="M14.5 13l-4.5-4.5L5.5 13h9z"/>
+          <path
+            :class="{'hidden': dropdownOpen, 'block': !dropdownOpen}"
+            d="M5.5 7l4.5 4.5L14.5 7H5.5z"
+          />
+          <path
+            :class="{'block': dropdownOpen, 'hidden': !dropdownOpen}"
+            d="M14.5 13l-4.5-4.5L5.5 13h9z"
+          />
         </svg>
       </button>
-      <div x-show="dropdownOpen" @click.away="dropdownOpen = false" class="absolute right-6 mt-2 py-2 w-48 bg-black shadow-xl rounded-md overflow-hidden z-50 justify-right text-right">
-        <a href="/" class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800">Home</a>
-        <a href="/help" class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800">Help</a>
-        <a href="{{ url_for('auth_blueprint.new_agent_copy') }}" class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800">New Timeframe</a>
-        <a href="{{ url_for('survey_blueprint.create_survey') }}" class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800">New Meeting</a>
-        <a href="{{ url_for('auth_blueprint.logout') }}" class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800">Logout</a>
+      <div
+        x-show="dropdownOpen"
+        @click.away="dropdownOpen = false"
+        class="absolute right-6 mt-2 py-2 w-48 bg-black shadow-xl rounded-md overflow-hidden z-50 justify-right text-right"
+      >
+        <a
+          href="/"
+          class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800"
+          >Home</a
+        >
+        <a
+          href="/help"
+          class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800"
+          >Help</a
+        >
+        <a
+          href="{{ url_for('auth_blueprint.new_agent_copy') }}"
+          class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800"
+          >New Timeframe</a
+        >
+        <a
+          href="{{ url_for('survey_blueprint.create_survey') }}"
+          class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800"
+          >New Meeting</a
+        >
+        <a
+          href="/user"
+          class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800"
+          >Account</a
+        >
+        <a
+          href="{{ url_for('auth_blueprint.logout') }}"
+          class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800"
+          >Logout</a
+        >
+       
       </div>
     </div>
 
     <!-- Mobile menu -->
-    <div class="md:hidden absolute top-full left-0 right-0 bg-black transform transition duration-500 ease-in-out" x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+    <div
+      class="md:hidden absolute top-full left-0 right-0 bg-black transform transition duration-500 ease-in-out"
+      x-show="open"
+      @click.away="open = false"
+      x-transition:enter="transition ease-out duration-300"
+      x-transition:enter-start="opacity-0 scale-95"
+      x-transition:enter-end="opacity-100 scale-100"
+      x-transition:leave="transition ease-in duration-300"
+      x-transition:leave-start="opacity-100 scale-100"
+      x-transition:leave-end="opacity-0 scale-95"
+    >
       <div class="pt-2 pb-4 space-y-1">
-        <a href="/" class="block px-2 py-1 text-white hover:bg-gray-800">Home</a>
-        <a href="/help" class="block px-2 py-1 text-white hover:bg-gray-800">Help</a>
-        <a href="{{ url_for('auth_blueprint.logout') }}" class="block px-2 py-1 text-white hover:bg-gray-800">Logout</a>
+        <a href="/" class="block px-2 py-1 text-white hover:bg-gray-800"
+          >Home</a
+        >
+        <a href="/help" class="block px-2 py-1 text-white hover:bg-gray-800"
+          >Help</a
+        >
+        <a
+          href="{{ url_for('auth_blueprint.logout') }}"
+          class="block px-2 py-1 text-white hover:bg-gray-800"
+          >Logout</a
+        >
       </div>
     </div>
   </div>

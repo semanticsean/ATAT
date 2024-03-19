@@ -214,6 +214,14 @@ def create_agent_copy():
   
   new_timeframe_id = abe_gpt.process_agents(payload, current_user)
 
+  updated_agents = abe_gpt.process_agents(payload, current_user)
+    
+  logger.info(f"Creating new timeframe: {payload['timeframe_name']}")
+  new_timeframe = Timeframe(name=payload["timeframe_name"], user_id=current_user.id, agents_data=updated_agents)
+  db.session.add(new_timeframe)
+  db.session.commit()
+  logger.info(f"New timeframe created: {new_timeframe.id}")
+
   return redirect(url_for('dashboard_blueprint.dashboard'))
 
 
@@ -429,12 +437,16 @@ def dashboard():
         timeframe = Timeframe.query.get(timeframe_id)
         if timeframe and timeframe.user_id == current_user.id:
             agents = timeframe.agents_data
+            logger.info(f"Loaded agents from timeframe: {timeframe.id}")
         else:
+            logger.warning(f"Timeframe not found or not accessible: {timeframe_id}")
             abort(404)
     else:
         agents = current_user.agents_data or []
+        logger.info("Loaded base agents")
 
     timeframes = current_user.timeframes
+    logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
 
     return render_template('dashboard.html', agents=agents, timeframes=timeframes)
   
