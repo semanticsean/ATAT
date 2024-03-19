@@ -89,7 +89,7 @@ def home():
     survey_results = []
 
   return render_template('index.html',
-                         agents_content=agents_content,x2
+                         agents_content=agents_content,
                          survey_results=survey_results)
 
 
