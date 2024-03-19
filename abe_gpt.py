@@ -24,7 +24,7 @@ def process_agents(payload, current_user):
     updated_agent_data = agent.copy()
 
     # Remove the specified fields from the agent data
-    excluded_fields = ['id', 'email', 'unique_id', 'timestamp']
+    excluded_fields = ['id', 'email', 'unique_id', 'timestamp', 'photo_path']
     for field in excluded_fields:
       if field in updated_agent_data:
         del updated_agent_data[field]
@@ -65,7 +65,12 @@ def process_agents(payload, current_user):
     retry_count = 0
     while retry_count < max_retries:
       try:
+        if current_user.token_balance <= 0:
+          raise Exception("Out of tokens, please add more")
         response = client.chat.completions.create(**agent_payload)
+        tokens_used = response.usage.total_tokens
+        current_user.token_balance -= tokens_used
+        db.session.commit()
         break
       except APIError as e:
         logging.error(f"OpenAI API error: {e}")
@@ -242,7 +247,12 @@ def conduct_survey(payload, current_user):
         retry_count = 0
         while retry_count < max_retries:
           try:
+            if current_user.token_balance <= 0:
+              raise Exception("Out of tokens, please add more")
             response = client.chat.completions.create(**agent_payload)
+            tokens_used = response.usage.total_tokens
+            current_user.token_balance -= tokens_used
+            db.session.commit()
             break
           except APIError as e:
             logging.error(f"OpenAI API error: {e}")
@@ -279,7 +289,12 @@ def conduct_survey(payload, current_user):
       retry_count = 0
       while retry_count < max_retries:
         try:
+          if current_user.token_balance <= 0:
+            raise Exception("Out of tokens, please add more")
           response = client.chat.completions.create(**agent_payload)
+          tokens_used = response.usage.total_tokens
+          current_user.token_balance -= tokens_used
+          db.session.commit()
           break
         except APIError as e:
           logging.error(f"OpenAI API error: {e}")
@@ -330,7 +345,12 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
   retry_count = 0
   while retry_count < max_retries:
     try:
+      if current_user.token_balance <= 0:
+        raise Exception("Out of tokens, please add more")
       response = client.chat.completions.create(**agent_payload)
+      tokens_used = response.usage.total_tokens
+      current_user.token_balance -= tokens_used
+      db.session.commit()
       break
     except APIError as e:
       logging.error(f"OpenAI API error: {e}")

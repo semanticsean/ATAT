@@ -753,3 +753,13 @@ def delete_agent(agent_id):
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'error': 'Agent not found'})
+
+
+
+@profile_blueprint.route('/status')
+@login_required
+def status():
+    email_status = 'working' if email_server.is_running() else 'error'
+    num_agents = len(current_user.agents_data)
+    user_tokens = current_user.token_balance
+    return render_template('status.html', status=email_status, num_agents=num_agents, user_tokens=user_tokens)

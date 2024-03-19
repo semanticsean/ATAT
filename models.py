@@ -10,6 +10,7 @@ class User(UserMixin, db.Model):
   password_hash = db.Column(db.String(256))
   agents_data = db.Column(db.JSON)
   images_data = db.Column(db.JSON)
+  token_balance = db.Column(db.Integer, default=1000)
 
   def set_password(self, password):
     self.password_hash = generate_password_hash(password)
