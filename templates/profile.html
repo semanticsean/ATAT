@@ -1,213 +1,101 @@
 <!-- templates/profile.html -->
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agent Profile</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css"
-    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-      }
-      #content {
-        min-height: 100%;
-        margin-bottom: -4rem;
-      }
-      #footer-push {
-        height: 4rem;
-      }
-      footer {
-        height: 4rem;
-      }
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        #content {
+            min-height: 100%;
+            margin-bottom: -4rem;
+        }
+
+        #footer-push {
+            height: 4rem;
+        }
+
+        footer {
+            height: 4rem;
+        }
+
+        .agent-image {
+            position: relative;
+        }
+
     </style>
-  </head>
-  <body class="bg-blue-50">
+</head>
+<body class="bg-blue-50">
     {% include 'header.html' %}
-    <div class="container mx-auto px-4 py-8">
-      {% if agent %}
-      <div class="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
-        <div class="flex items-center mb-6">
-          <img
-            src="{{ url_for('serve_image', filename=agent.photo_path) }}"
-            alt="Agent Photo"
-            class="w-32 h-32 rounded-full"
-          />
-          <div class="ml-4">
-            <h1 class="text-2xl font-semibold mb-2">{{ agent.id }}</h1>
-            <p class="text-gray-600">{{ agent.jobtitle }}</p>
+      <div class="container mx-auto px-4 py-8 md:mt-12 mt-6 ">
+        {% if agent %}
+          <div class="bg-white rounded-lg shadow-md">
+            <div class="flex flex-col md:flex-row">
+              <div class="md:w-1/2">
+                <img src="{{ agent.photo_path }}" alt="Agent Photo" class="w-full h-auto rounded-t-lg md:rounded-l-lg md:rounded-tr-none">
+              </div>
+              <div class="md:w-1/2 p-6">
+                <div class="mb-12">
+                  <h1 class="text-3xl font-semibold">{{ agent.id }}</h1>
+                  <h2 class="text-xl font-semibold text-gray-400">{{ agent.jobtitle }}</h2>
+                </div>
+                <div class="mb-4">
+                  <a href="mailto:{{ agent.email }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Email Synth</a>
+                  <a href="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Edit Synth</a>
+                </div>
+                <div class="flex space-x-2 mt-12">
+                  <a href="{{ url_for('profile_blueprint.profile', agent_id=prev_agent_id) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not prev_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not prev_agent_id %}disabled{% endif %}>Previous</a>
+                  <a href="{{ url_for('profile_blueprint.profile', agent_id=next_agent_id) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not next_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not next_agent_id %}disabled{% endif %}>Next</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="container mx-auto px-4 py-8">
+            <div class="mb-8 container mx-auto px-4 py-8 md:mt-12 mt-6 bg-white rounded-lg shadow-md">
+              <h2 class="text-xl font-semibold mb-2">Persona</h2>
+              {% set sentences = agent.persona.split('. ') %}
+              {% for group in sentences | batch(6) %}
+              <p class="text-gray-700 mb-4">{{ group | join('. ') }}.</p>
+              {% endfor %}
+            </div>
+            <div class="mb-8 container mx-auto px-4 py-8 md:mt-12 mt-6 bg-white rounded-lg shadow-md">
+              <h2 class="text-xl font-semibold mb-2">Summary</h2>
+              <p class="text-gray-700">{{ agent.summary }}</p>
+            </div>
+            <div class="mb-8 container mx-auto px-4 py-8 md:mt-12 mt-6 bg-white rounded-lg shadow-md">
+              <h2 class="text-xl font-semibold mb-2">Keywords</h2>
+              <p class="text-gray-700">{{ agent.keywords | join(', ') }}</p>
+            </div>
+            <div class="mb-8 container mx-auto px-4 py-8 md:mt-12 mt-6 bg-white rounded-lg shadow-md">
+              <h2 class="text-xl font-semibold mb-2">Image Prompt</h2>
+              <p class="text-gray-700">{{ agent.image_prompt }}</p>
+            </div>
+            <div class="mb-8 container mx-auto px-4 py-8 md:mt-12 mt-6 bg-white rounded-lg shadow-md">
+              <h2 class="text-xl font-semibold mb-2">Relationships</h2>
+              {% for relationship in agent.relationships %}
+              <div class="bg-gray-100 rounded-lg p-4 mb-4">
+                <h3 class="text-lg font-semibold mb-2">{{ relationship.name }}</h3>
+                <p class="text-gray-700 mb-2"><strong>Job:</strong> {{ relationship.job }}</p>
+                <p class="text-gray-700 mb-2"><strong>Relationship Description:</strong> {{ relationship.relationship_description }}</p>
+                <p class="text-gray-700"><strong>Summary:</strong> {{ relationship.summary }}</p>
+              </div>
+              {% endfor %}
+            </div>
           </div>
         </div>
-        <div class="mb-4">
-          <label for="email" class="block text-gray-700 text-sm font-bold mb-2"
-            >Email:</label
-          >
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value="{{ agent.email }}"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            readonly
-          />
-        </div>
-        <div class="mb-4">
-          <label
-            for="persona"
-            class="block text-gray-700 text-sm font-bold mb-2"
-            >Persona:</label
-          >
-          <textarea
-            id="persona"
-            name="persona"
-            rows="4"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          >
-{{ agent.persona }}</textarea
-          >
-        </div>
-        <div class="mb-4">
-          <label
-            for="summary"
-            class="block text-gray-700 text-sm font-bold mb-2"
-            >Summary:</label
-          >
-          <textarea
-            id="summary"
-            name="summary"
-            rows="4"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          >
-{{ agent.summary }}</textarea
-          >
-        </div>
-        <div class="mb-4">
-          <label
-            for="keywords"
-            class="block text-gray-700 text-sm font-bold mb-2"
-            >Keywords:</label
-          >
-          <textarea
-            id="keywords"
-            name="keywords"
-            rows="2"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          >
-{{ agent.keywords | join(', ') }}</textarea
-          >
-        </div>
-        <div class="mb-4">
-          <label
-            for="image_prompt"
-            class="block text-gray-700 text-sm font-bold mb-2"
-            >Image Prompt:</label
-          >
-          <textarea
-            id="image_prompt"
-            name="image_prompt"
-            rows="4"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          >
-{{ agent.image_prompt }}</textarea
-          >
-        </div>
-        <div class="mb-4">
-          <label
-            for="relationships"
-            class="block text-gray-700 text-sm font-bold mb-2"
-            >Relationships:</label
-          >
-          <textarea
-            id="relationships"
-            name="relationships"
-            rows="6"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          >
-{{ agent.relationships | tojson }}</textarea
-          >
-        </div>
-        <div class="flex justify-between">
-          <a
-            href="{{ url_for('profile_blueprint.profile', agent_id=prev_agent_id) }}"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded {% if not prev_agent_id %}opacity-50 cursor-not-allowed{% endif %}"
-            {%
-            if
-            not
-            prev_agent_id
-            %}disabled{%
-            endif
-            %}
-            >Previous</a
-          >
-          <button
-            type="button"
-            id="saveButton"
-            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Save Changes
-          </button>
-          <a
-            href="{{ url_for('profile_blueprint.profile', agent_id=next_agent_id) }}"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded {% if not next_agent_id %}opacity-50 cursor-not-allowed{% endif %}"
-            {%
-            if
-            not
-            next_agent_id
-            %}disabled{%
-            endif
-            %}
-            >Next</a
-          >
-        </div>
+        {% else %}
+        <p>Agent not found.</p>
+        {% endif %}
       </div>
-      {% else %}
-      <p>Agent not found.</p>
-      {% endif %}
     </div>
     <div id="footer-push"></div>
     {% include 'footer.html' %}
-
-    <script>
-      $(document).ready(function () {
-        $("#saveButton").click(function () {
-          var agentId = "{{ agent.id }}";
-          var persona = $("#persona").val();
-          var summary = $("#summary").val();
-          var keywords = $("#keywords").val();
-          var imagePrompt = $("#image_prompt").val();
-          var relationships = $("#relationships").val();
-
-          $.ajax({
-            url: '{{ url_for("profile_blueprint.update_agent") }}',
-            method: "POST",
-            data: JSON.stringify({
-              agent_id: agentId,
-              persona: persona,
-              summary: summary,
-              keywords: keywords,
-              image_prompt: imagePrompt,
-              relationships: relationships,
-            }),
-            contentType: "application/json",
-            success: function (response) {
-              if (response.success) {
-                alert("Agent updated successfully!");
-              } else {
-                alert("Error updating agent: " + response.error);
-              }
-            },
-            error: function () {
-              alert("Error updating agent. Please try again.");
-            },
-          });
-        });
-      });
-    </script>
-  </body>
+</body>
 </html>
