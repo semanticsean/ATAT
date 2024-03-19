@@ -4,6 +4,8 @@ import abe_gpt
 import start
 import base64
 
+import email_client
+
 from models import User, Survey, db
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, send_file, make_response, Response
 from flask_login import login_user, logout_user, login_required, current_user
@@ -198,6 +200,9 @@ def add_base_agents():
 @auth_blueprint.route('/new_timeframe', methods=['POST'])
 @login_required
 def create_agent_copy():
+  if current_user.credits is None or current_user.credits <= 0:
+      flash("You don't have enough credits. Please contact the admin to add more credits.")
+      return redirect(url_for('home'))
   agents_data = current_user.agents_data
   selected_agent_ids = request.form.getlist('selected_agents')
   selected_agents_data = [
@@ -226,6 +231,9 @@ def create_agent_copy():
 @survey_blueprint.route('/survey/create', methods=['GET', 'POST'])
 @login_required
 def create_survey():
+  if current_user.credits is None or current_user.credits <= 0:
+      flash("You don't have enough credits. Please contact the admin to add more credits.")
+      return redirect(url_for('home'))
   agents_data = current_user.agents_data or []
 
   if not agents_data:
@@ -709,6 +717,9 @@ def start_route():
 @profile_blueprint.route('/create_new_agent', methods=['GET', 'POST'])
 @login_required
 def create_new_agent():
+  if current_user.credits is None or current_user.credits <= 0:
+      flash("You don't have enough credits. Please contact the admin to add more credits.")
+      return redirect(url_for('home'))
   if request.method == 'POST':
     agent_name = request.form['agent_name']
     agent_name = re.sub(r'[^a-zA-Z0-9\s]', '', agent_name).replace(' ', '_')
@@ -759,7 +770,7 @@ def delete_agent(agent_id):
 @profile_blueprint.route('/status')
 @login_required
 def status():
-    email_status = 'working' if email_server.is_running() else 'error'
+    email_status = 'working' if email_client.is_running() else 'error'
     num_agents = len(current_user.agents_data)
-    user_tokens = current_user.token_balance
-    return render_template('status.html', status=email_status, num_agents=num_agents, user_tokens=user_tokens)
+    user_credits = current_user.credits  
+    return render_template('status.html', status=email_status, num_agents=num_agents, user_credits=user_credits)
