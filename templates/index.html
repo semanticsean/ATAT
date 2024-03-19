@@ -121,18 +121,15 @@
           <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
             <h2 class="text-2xl font-bold mb-4">Timeframes</h2>
             <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {% for copy in agent_copies %}
+              {% for timeframe in current_user.timeframes %}
               <li>
-                <a
-                  href="{{ url_for('dashboard_blueprint.dashboard', copy_id=copy.id) }}"
-                  class="block bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300"
-                >
-                  {{ copy.name }}
+                <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="block bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300">
+                  {{ timeframe.name }}
                 </a>
               </li>
               {% endfor %}
             </ul>
-            {% if not agent_copies %}
+            {% if not timeframe in current_user.timeframes %}
             <p class="text-gray-600">No timeframes yet.</p>
             {% endif %}
           </div>
