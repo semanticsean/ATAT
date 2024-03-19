@@ -129,7 +129,7 @@
               </li>
               {% endfor %}
             </ul>
-            {% if not timeframe in current_user.timeframes %}
+            {% if not current_user.timeframes %}
             <p class="text-gray-600">No timeframes yet.</p>
             {% endif %}
           </div>

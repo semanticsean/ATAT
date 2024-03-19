@@ -234,6 +234,9 @@ def process_agents(payload, current_user):
     db.session.add(new_timeframe)
     db.session.commit()
 
+  updated_agents.appendupdated_agents.append(updated_agent_data)
+  logger.info(f"Updated agents: {updated_agents}")
+
   return updated_agents
 
 
