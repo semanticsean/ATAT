@@ -79,105 +79,105 @@ class GPTModel:
   # GENERATE RESPONSE
   
   def generate_response(self, dynamic_prompt, content, conversation_history, additional_context=None, note=None, is_summarize=False):
-      print("Generating Response from gpt-4 call")
-  
-      max_retries = 99
-      delay = 62
-      max_delay = 3000
-  
-      full_content = f"{content}\n\n{conversation_history}"
+    print("Generating Response from gpt-4 call")
+
+    max_retries = 99
+    delay = 62
+    max_delay = 3000
+
+    full_content = f"{content}\n\n{conversation_history}"
+    if additional_context:
+      full_content += f"\n{additional_context}"
+    if note:
+      full_content += f"\n{note}"
+
+    # Remove '>'' and '=' if they occur more than once in sequence
+    full_content = re.sub(r'>>+', '', full_content)
+    full_content = re.sub(r'==+', '', full_content)
+
+    # Always remove '=3D'
+    full_content = full_content.replace('=3D', '')
+
+    # Remove email addresses with specified domain endings
+    email_pattern = r'\S+@\S+\.(com|net|co|org|ai)'
+    full_content = re.sub(email_pattern, '', full_content)
+
+    api_buffer = 50
+    truncate_chars = 1000
+
+    # Increased total token limit for the payload
+    max_tokens_hard_limit = 96000
+
+    # New max tokens for the response
+    tokens_limit = 4096
+
+    while True:
+      total_tokens = self.count_tokens(full_content + dynamic_prompt) + api_buffer
+      if total_tokens + tokens_limit <= max_tokens_hard_limit:
+        print(f"Content is within hard limit at {total_tokens + tokens_limit} tokens.")
+        break
+      if len(conversation_history) > truncate_chars:
+        print(f"Total tokens: {total_tokens}, reducing conversation history by {truncate_chars} chars...")
+        conversation_history = conversation_history[-(len(conversation_history) - truncate_chars):]
+        full_content = f"{content}\n\n{conversation_history}"  # Update here
+      elif len(full_content) > truncate_chars:
+        print(f"Total tokens: {total_tokens}, reducing full content by {truncate_chars} chars...")
+        full_content = full_content[:-truncate_chars]
+        # No need to re-assemble full_content here; it's already updated
+      else:
+        print("Content is too short to truncate further. Exiting.")
+        return None
+
       if additional_context:
         full_content += f"\n{additional_context}"
       if note:
         full_content += f"\n{note}"
-  
-      # Remove '>'' and '=' if they occur more than once in sequence
-      full_content = re.sub(r'>>+', '', full_content)
-      full_content = re.sub(r'==+', '', full_content)
-  
-      # Always remove '=3D'
-      full_content = full_content.replace('=3D', '')
-  
-      # Remove email addresses with specified domain endings
-      email_pattern = r'\S+@\S+\.(com|net|co|org|ai)'
-      full_content = re.sub(email_pattern, '', full_content)
-  
-      api_buffer = 50
-      truncate_chars = 1000
-  
-      # Increased total token limit for the payload
-      max_tokens_hard_limit = 96000
-  
-      # New max tokens for the response
-      tokens_limit = 4096
-  
-      while True:
-        total_tokens = self.count_tokens(full_content + dynamic_prompt) + api_buffer
-        if total_tokens + tokens_limit <= max_tokens_hard_limit:
-          print(f"Content is within hard limit at {total_tokens + tokens_limit} tokens.")
-          break
-        if len(conversation_history) > truncate_chars:
-          print(f"Total tokens: {total_tokens}, reducing conversation history by {truncate_chars} chars...")
-          conversation_history = conversation_history[-(len(conversation_history) - truncate_chars):]
-          full_content = f"{content}\n\n{conversation_history}"  # Update here
-        elif len(full_content) > truncate_chars:
-          print(f"Total tokens: {total_tokens}, reducing full content by {truncate_chars} chars...")
-          full_content = full_content[:-truncate_chars]
-          # No need to re-assemble full_content here; it's already updated
-        else:
-          print("Content is too short to truncate further. Exiting.")
-          return None
-  
-        if additional_context:
-          full_content += f"\n{additional_context}"
-        if note:
-          full_content += f"\n{note}"
-  
-      # Change this line to set a default of 1500 tokens
-      tokens_limit = 1500
-  
-      # Re-check the rate limit with the new token limit
-      total_tokens = self.count_tokens(full_content + dynamic_prompt) + api_buffer + tokens_limit
-      self.check_rate_limit(total_tokens)
-  
-      response = None
-      for i in range(max_retries):
-        try:
-          if current_user.token_balance <= 0:
-            raise Exception("Out of tokens, please add more")
-  
-          request_payload = {
-              "model": "gpt-4-1106-preview",
-              "messages": [
-                  {"role": "system", "content": dynamic_prompt},
-                  {"role": "user", "content": full_content}
-              ],
-              "max_tokens": tokens_limit,
-              "top_p": 0.5,
-              "frequency_penalty": 0.2,
-              "presence_penalty": 0.2,
-              "temperature": 0.6
-          }
-  
-          response = client.chat.completions.create(**request_payload)
-          tokens_used = response.usage.total_tokens
-          current_user.token_balance -= tokens_used
-          db.session.commit()
-          break
-  
-        except openai.OpenAIError as e:
-          print(e)
-          sleep_time = max(min(delay * (2**i) + uniform(5, 0.1 * (2**i)), max_delay), 30)
-          print(f"Retrying in {sleep_time:.2f} seconds.")
-          time.sleep(sleep_time)
-  
-      if response is None:
-        print("Max retries reached. Could not generate a response.")
-        return None
-  
-      self.last_api_call_time = time.time()
-  
-      return response.choices[0].message.content
+
+    # Change this line to set a default of 1500 tokens
+    tokens_limit = 1500
+
+    # Re-check the rate limit with the new token limit
+    total_tokens = self.count_tokens(full_content + dynamic_prompt) + api_buffer + tokens_limit
+    self.check_rate_limit(total_tokens)
+
+    response = None
+    for i in range(max_retries):
+      try:
+        if current_user.token_balance <= 0:
+          raise Exception("Out of tokens, please add more")
+
+        request_payload = {
+            "model": "gpt-4-1106-preview",
+            "messages": [
+                {"role": "system", "content": dynamic_prompt},
+                {"role": "user", "content": full_content}
+            ],
+            "max_tokens": tokens_limit,
+            "top_p": 0.5,
+            "frequency_penalty": 0.2,
+            "presence_penalty": 0.2,
+            "temperature": 0.6
+        }
+
+        response = client.chat.completions.create(**request_payload)
+        tokens_used = response.usage.total_tokens
+        current_user.token_balance -= tokens_used
+        db.session.commit()
+        break
+
+      except openai.OpenAIError as e:
+        print(e)
+        sleep_time = max(min(delay * (2**i) + uniform(5, 0.1 * (2**i)), max_delay), 30)
+        print(f"Retrying in {sleep_time:.2f} seconds.")
+        time.sleep(sleep_time)
+
+    if response is None:
+      print("Max retries reached. Could not generate a response.")
+      return None
+
+    self.last_api_call_time = time.time()
+
+    return response.choices[0].message.content
   
   def generate_agent_profile(self, description):
       """
