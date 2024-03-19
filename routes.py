@@ -162,15 +162,9 @@ def serve_image(filename):
 @auth_blueprint.route('/new_agent_copy')
 @login_required
 def new_agent_copy():
-  agents_data = current_user.agents_data or []
-
-  if not agents_data:
-    base_agents_files = ['agents.json'
-                         ]  # Add more files in the future if needed
-    return render_template('add_base_agents.html',
-                           base_agents_files=base_agents_files)
-
-  return render_template('new_timeframe.html', agents=agents_data)
+    base_agents = current_user.agents_data or []
+    timeframes = current_user.timeframes
+    return render_template('new_timeframe.html', base_agents=base_agents, timeframes=timeframes)
 
 
 @auth_blueprint.route('/add_base_agents', methods=['POST'])
@@ -211,19 +205,14 @@ def create_agent_copy():
 
   form_data = request.form.to_dict()
   form_data.pop('selected_agents', None)
-
+  
   payload = {
       "agents_data": selected_agents_data,
       "instructions": form_data,
+      "timeframe_name": form_data["name"]
   }
-
-  updated_agents_data = abe_gpt.process_agents(payload, current_user)
-
-  for agent_data in updated_agents_data:
-    agent_data['is_copy'] = True
-
-  current_user.agents_data.extend(updated_agents_data)
-  db.session.commit()
+  
+  new_timeframe_id = abe_gpt.process_agents(payload, current_user)
 
   return redirect(url_for('dashboard_blueprint.dashboard'))
 
@@ -434,33 +423,30 @@ def results(survey_id):
 @dashboard_blueprint.route('/dashboard')
 @login_required
 def dashboard():
-  agents_data = current_user.agents_data or []
+    timeframe_id = request.args.get('timeframe_id')
+    
+    if timeframe_id:
+        timeframe = Timeframe.query.get(timeframe_id)
+        if timeframe and timeframe.user_id == current_user.id:
+            agents_data = timeframe.agents_data
+        else:
+            abort(404)
+    else:
+        agents_data = current_user.agents_data or []
 
-  if not agents_data:
-    base_agents_files = ['agents.json'
-                         ]  # Add more files in the future if needed
-    return render_template('add_base_agents.html',
-                           base_agents_files=base_agents_files)
-
-  agent_copies = [
-      agent for agent in agents_data if 'is_copy' in agent and agent['is_copy']
-  ]
-  survey_results = []
-
-  for survey in current_user.surveys:
-    if survey.survey_data:
-      for agent_data in survey.survey_data:
-        survey_results.append((survey.name, agent_data['id']))
-
-  # Update the photo_path to use the base64-encoded image
-  for agent in agents_data:
-    agent['photo_path'] = agent['photo_path'].replace('agents/pics/', '')
-
-  return render_template('dashboard.html',
-                         agents=agents_data,
-                         agent_copies=agent_copies,
-                         survey_results=survey_results)
-
+    for survey in current_user.surveys:
+        if survey.survey_data:
+            for agent_data in survey.survey_data:
+                survey_results.append((survey.name, agent_data['id']))
+    
+    # Update the photo_path to use the base64-encoded image
+    for agent in agents_data:
+        agent['photo_path'] = agent['photo_path'].replace('agents/pics/', '')
+    
+    return render_template('dashboard.html',
+                           agents=agents_data,
+                           survey_results=survey_results)
+  
 
 @survey_blueprint.route('/survey/results/<int:survey_id>')
 @login_required
@@ -491,15 +477,6 @@ def profile():
 
     return render_template('profile.html', agent=agent, prev_agent_id=prev_agent_id, next_agent_id=next_agent_id)
 
-def get_agent_copies(copies_dir):
-  if os.path.isdir(copies_dir):
-    agent_copies = [f for f in os.listdir(copies_dir) if f.endswith('.json')]
-    logger.info(
-        f"Found {len(agent_copies)} agent copies in directory: {copies_dir}")
-  else:
-    agent_copies = []
-  return agent_copies
-
 
 # Update load_agents function to accept the direct file path
 def load_agents(agents_file_path):
@@ -518,6 +495,21 @@ def load_agents(agents_file_path):
 
   return agents, agents_file_path
 
+@auth_blueprint.route('/timeframes/<int:timeframe_id>/agents')
+@login_required
+def get_timeframe_agents(timeframe_id):
+    timeframe = Timeframe.query.get(timeframe_id)
+    if timeframe and timeframe.user_id == current_user.id:
+        agents_data = timeframe.agents_data
+        return jsonify(agents_data)
+    else:
+        return jsonify([])
+
+@auth_blueprint.route('/base_agents')
+@login_required
+def get_base_agents():
+    base_agents = current_user.agents_data or []
+    return jsonify(base_agents)
 
 def get_agent_by_id(agents, agent_id):
   if agent_id:

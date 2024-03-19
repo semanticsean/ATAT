@@ -44,3 +44,11 @@ class Survey(db.Model):
   public_url = db.Column(db.String(255), unique=True)
 
   user = db.relationship('User', backref=db.backref('surveys', lazy=True))
+
+
+class Timeframe(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String(100), nullable=False)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+  agents_data = db.Column(db.JSON)
+  user = db.relationship('User', backref=db.backref('timeframes', lazy=True))

@@ -141,47 +141,39 @@
                   ></textarea>
                 </div>
                 <div class="mb-8">
-                  <h2 class="text-lg md:text-xl font-bold mb-2">
-                    {% if not agent_copies %}Base Agents{% else %}{% include
-                    'add_base_agents.html' %}{{ agent_copies[0].name }}{% endif %}
-                    Select Synths:
-                  </h2>
-                  <div id="agent-list">
-                    <div class="mb-4 flex justify-between">
-                      <button
-                        type="button"
-                        id="select-all"
-                        class="px-4 py-2 text-sm md:px-6 md:py-3 bg-gray-400 text-white rounded-lg hover:bg-green-600"
-                      >
-                        Select All
-                      </button>
-                      <button
-                        type="button"
-                        id="clear-all"
-                        class="px-2 py-1 text-sm md:px-2 md:py-1 bg-gray-200 text-white rounded-lg hover:bg-red-600"
-                      >
-                        Clear All
-                      </button>
-                    </div>
-                    {% if agents %} {% for agent in agents %}
-                    <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
-                    <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden">
-                    <img src="{{ agent.photo_path }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
-                      <label
-                        for="agent-{{ agent.id }}"
-                        class="text-gray-700 text-sm md:text-md"
-                      >
-                        <div class="text-lg md:text-xl font-bold mb-2">
-                          {{ agent.id }}
+                <h2 class="text-lg md:text-xl font-bold mb-2">Select Synths:</h2>
+                <div class="mb-4">
+                  <label for="timeframe" class="block text-sm font-bold text-gray-700">Select Timeframe:</label>
+                  <select id="timeframe" name="timeframe" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-sm">
+                    <option value="">Base Agents</option>
+                    {% for timeframe in current_user.timeframes %}
+                      <option value="{{ timeframe.id }}">{{ timeframe.name }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div id="agent-list">
+                  <div class="mb-4 flex justify-between">
+                    <button type="button" id="select-all" class="px-4 py-2 text-sm md:px-6 md:py-3 bg-gray-400 text-white rounded-lg hover:bg-green-600">Select All</button>
+                    <button type="button" id="clear-all" class="px-2 py-1 text-sm md:px-2 md:py-1 bg-gray-200 text-white rounded-lg hover:bg-red-600">Clear All</button>
+                  </div>
+                  <div id="agent-list-content">
+                    {% if base_agents %}
+                      {% for agent in base_agents %}
+                        <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
+                          <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden">
+                          <img src="{{ agent.photo_path }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
+                          <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-md">
+                            <div class="text-lg md:text-xl font-bold mb-2">{{ agent.id }}</div>
+                            <div class="mb-2">{{ agent.jobtitle }}</div>
+                            <div class="mb-2">{{ agent.summary }}</div>
+                          </label>
                         </div>
-                        <div class="mb-2">{{ agent.jobtitle }}</div>
-                        <div class="mb-2">{{ agent.summary }}</div>
-                      </label>
-                    </div>
-                    {% endfor %} {% else %}
-                    <p>No agents available.</p>
+                      {% endfor %}
+                    {% else %}
+                      <p>No agents available.</p>
                     {% endif %}
                   </div>
+                </div>              
                 </div>
                 <button
                   type="submit"
@@ -275,6 +267,69 @@
             checkbox.closest(".agent-item").classList.remove("selected");
           });
         });
+      });
+    // Timeframe selection change event
+      document.getElementById('timeframe').addEventListener('change', function (e) {
+        const timeframeId = e.target.value;
+        const agentListContent = document.getElementById('agent-list-content');
+
+        // Clear the existing agent list
+        agentListContent.innerHTML = '';
+
+        if (timeframeId) {
+          // Load agents from the selected timeframe
+          fetch(`/timeframes/${timeframeId}/agents`)
+            .then(response => response.json())
+            .then(agents => {
+              if (agents.length > 0) {
+                agents.forEach(agent => {
+                  const agentItem = `
+                    <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="${agent.id}">
+                      <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden">
+                      <img src="${agent.photo_path}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
+                      <label for="agent-${agent.id}" class="text-gray-700 text-sm md:text-md">
+                        <div class="text-lg md:text-xl font-bold mb-2">${agent.id}</div>
+                        <div class="mb-2">${agent.jobtitle}</div>
+                        <div class="mb-2">${agent.summary}</div>
+                      </label>
+                    </div>
+                  `;
+                  agentListContent.innerHTML += agentItem;
+                });
+              } else {
+                agentListContent.innerHTML = '<p>No agents available.</p>';
+              }
+            })
+            .catch(error => {
+              console.error('Error loading agents:', error);
+            });        } else {
+          // Load base agents
+          fetch('/base_agents')
+            .then(response => response.json())
+            .then(agents => {
+              if (agents.length > 0) {
+                agents.forEach(agent => {
+                  const agentItem = `
+                    <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="${agent.id}">
+                      <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden">
+                      <img src="${agent.photo_path}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
+                      <label for="agent-${agent.id}" class="text-gray-700 text-sm md:text-md">
+                        <div class="text-lg md:text-xl font-bold mb-2">${agent.id}</div>
+                        <div class="mb-2">${agent.jobtitle}</div>
+                        <div class="mb-2">${agent.summary}</div>
+                      </label>
+                    </div>
+                  `;
+                  agentListContent.innerHTML += agentItem;
+                });
+              } else {
+                agentListContent.innerHTML = '<p>No agents available.</p>';
+              }
+            })
+            .catch(error => {
+              console.error('Error loading base agents:', error);
+            });
+        }
       });
     </script>
   </body>

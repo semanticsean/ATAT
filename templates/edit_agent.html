@@ -30,59 +30,133 @@
   </head>
   <body class="bg-blue-50">
     {% include 'header.html' %}
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-8 mt-12">
       {% if agent %}
-        <form action="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}" method="post">
-          <div class="mb-4">
-            <label for="persona" class="block text-gray-700 text-sm font-bold mb-2">Persona:</label>
-            <textarea id="persona" name="persona" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.persona }}</textarea>
-          </div>
-          <div class="mb-4">
-            <label for="summary" class="block text-gray-700 text-sm font-bold mb-2">Summary:</label>
-            <textarea id="summary" name="summary" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.summary }}</textarea>
-          </div>
-          <div class="mb-4">
-            <label for="keywords" class="block text-gray-700 text-sm font-bold mb-2">Keywords:</label>
-            <textarea id="keywords" name="keywords" rows="2" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.keywords | join(', ') }}</textarea>
-          </div>
-          <div class="mb-4">
-            <label for="image_prompt" class="block text-gray-700 text-sm font-bold mb-2">Image Prompt:</label>
-            <textarea id="image_prompt" name="image_prompt" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.image_prompt }}</textarea>
-          </div>
-          <div class="mb-4">
-            <label for="relationships" class="block text-gray-700 text-sm font-bold mb-2">Relationships:</label>
-            <textarea id="relationships" name="relationships" rows="6" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.relationships | tojson }}</textarea>
-          </div>
-          <div class="flex justify-between items-center">
-            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Save Changes</button>
-            <button type="button" id="deleteButton" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Delete Agent</button>
-          </div>
-        </form>
+      <form
+        action="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}"
+        method="post"
+      >
+        <div class="mb-4">
+          <label
+            for="persona"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Persona:</label
+          >
+          <textarea
+            id="persona"
+            name="persona"
+            rows="4"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          >
+{{ agent.persona }}</textarea
+          >
+        </div>
+        <div class="mb-4">
+          <label
+            for="summary"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Summary:</label
+          >
+          <textarea
+            id="summary"
+            name="summary"
+            rows="4"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          >
+{{ agent.summary }}</textarea
+          >
+        </div>
+        <div class="mb-4">
+          <label
+            for="keywords"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Keywords:</label
+          >
+          <textarea
+            id="keywords"
+            name="keywords"
+            rows="2"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          >
+{{ agent.keywords | join(', ') }}</textarea
+          >
+        </div>
+        <div class="mb-4">
+          <label
+            for="image_prompt"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Image Prompt:</label
+          >
+          <textarea
+            id="image_prompt"
+            name="image_prompt"
+            rows="4"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          >
+{{ agent.image_prompt }}</textarea
+          >
+        </div>
+        <div class="mb-4">
+          <label
+            for="relationships"
+            class="block text-gray-700 text-sm font-bold mb-2"
+            >Relationships:</label
+          >
+          <textarea
+            id="relationships"
+            name="relationships"
+            rows="6"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          >
+{{ agent.relationships | tojson }}</textarea
+          >
+        </div>
+        <div class="flex justify-between items-center">
+          <button
+            type="submit"
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Save Changes
+          </button>
+          <button
+            type="button"
+            id="deleteButton"
+            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Delete Agent
+          </button>
+        </div>
+      </form>
       {% else %}
-        <p>Agent not found.</p>
+      <p>Agent not found.</p>
       {% endif %}
     </div>
     <div id="footer-push"></div>
     {% include 'footer.html' %}
 
     <script>
-      $(document).ready(function() {
-        $('#deleteButton').click(function() {
-          if (confirm('Are you sure you want to delete this agent? This action is permanent.')) {
+      $(document).ready(function () {
+        $("#deleteButton").click(function () {
+          if (
+            confirm(
+              "Are you sure you want to delete this agent? This action is permanent.",
+            )
+          ) {
             $.ajax({
               url: '{{ url_for("profile_blueprint.delete_agent", agent_id=agent.id) }}',
-              method: 'POST',
-              success: function(response) {
+              method: "POST",
+              success: function (response) {
                 if (response.success) {
-                  alert('Agent deleted successfully.');
-                  window.location.href = '{{ url_for("dashboard_blueprint.dashboard") }}';
+                  alert("Agent deleted successfully.");
+                  window.location.href =
+                    '{{ url_for("dashboard_blueprint.dashboard") }}';
                 } else {
-                  alert('Error deleting agent: ' + response.error);
+                  alert("Error deleting agent: " + response.error);
                 }
               },
-              error: function() {
-                alert('Error deleting agent. Please try again.');
-              }
+              error: function () {
+                alert("Error deleting agent. Please try again.");
+              },
             });
           }
         });
