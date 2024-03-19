@@ -120,6 +120,8 @@
                 </div>
                 <div class="mb-8">
                   <h2 class="text-lg md:text-xl font-bold mb-2">
+                    {% if not agent_copies %}Base Agents{% else %}{% include
+                    'add_base_agents.html' %}{{ agent_copies[0].name }}{% endif %}
                     Select Synths:
                   </h2>
                   <div id="agent-list">
@@ -140,22 +142,9 @@
                       </button>
                     </div>
                     {% if agents %} {% for agent in agents %}
-                    <div
-                      class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8"
-                      data-agent-id="{{ agent.id }}"
-                    >
-                      <input
-                        type="checkbox"
-                        id="agent-{{ agent.id }}"
-                        name="selected_agents"
-                        value="{{ agent.id }}"
-                        class="hidden"
-                      />
-                      <img
-                        src="{{ url_for('serve_image', filename=agent.photo_path) }}"
-                        alt="Agent Profile"
-                        class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4"
-                      />
+                    <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
+                    <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden">
+                    <img src="{{ agent.photo_path }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
                       <label
                         for="agent-{{ agent.id }}"
                         class="text-gray-700 text-sm md:text-md"

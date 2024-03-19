@@ -55,6 +55,13 @@
                 New Base Synth
               </a>
             </div>
+            {% if not agent_copies %}
+            <div class="bg-white rounded-lg shadow-lg p-6">
+              {% include 'add_base_agents.html' %}
+              </div>
+            </div>
+            {% endif %}
+            
             <div class="bg-white rounded-lg shadow-lg p-6">
               <h2 class="text-2xl font-bold mb-4">Times</h2>
               <a

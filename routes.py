@@ -2,6 +2,7 @@
 import os, json, random, re, glob, shutil, bleach, logging, uuid
 import abe_gpt
 import start
+import base64
 
 from models import User, Survey, db
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, send_file, make_response, Response
@@ -159,8 +160,42 @@ def serve_image(filename):
 @auth_blueprint.route('/new_agent_copy')
 @login_required
 def new_agent_copy():
-    agents_data = current_user.agents_data or []  # Use an empty list if agents_data is None
-    return render_template('new_timeframe.html', agents=agents_data)
+  agents_data = current_user.agents_data or []
+
+  if not agents_data:
+    base_agents_files = ['agents.json'
+                         ]  # Add more files in the future if needed
+    return render_template('add_base_agents.html',
+                           base_agents_files=base_agents_files)
+
+  return render_template('new_timeframe.html', agents=agents_data)
+
+
+@auth_blueprint.route('/add_base_agents', methods=['POST'])
+@login_required
+def add_base_agents():
+  base_agents_file = request.form.get('base_agents_file', 'agents.json')
+  base_agents_path = os.path.join('agents', base_agents_file)
+
+  try:
+    with open(base_agents_path, 'r') as file:
+      base_agents_data = json.load(file)
+
+    for agent in base_agents_data:
+      photo_path = agent['photo_path']
+      photo_filename = os.path.basename(photo_path)
+      image_path = os.path.join('agents', 'pics', photo_filename)
+
+      with open(image_path, 'rb') as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+        agent['photo_path'] = f"data:image/jpeg;base64,{encoded_string}"
+
+    current_user.agents_data = base_agents_data
+    db.session.commit()
+
+    return jsonify({'success': True})
+  except Exception as e:
+    return jsonify({'success': False, 'error': str(e)})
 
 
 @auth_blueprint.route('/new_timeframe', methods=['POST'])
@@ -194,24 +229,107 @@ def create_agent_copy():
 @survey_blueprint.route('/survey/create', methods=['GET', 'POST'])
 @login_required
 def create_survey():
+  agents_data = current_user.agents_data or []
+
+  if not agents_data:
+    base_agents_files = ['agents.json'
+                         ]  # Add more files in the future if needed
+    return render_template('add_base_agents.html',
+                           base_agents_files=base_agents_files)
+
   if request.method == 'POST':
+    selected_file = request.form.get('selected_file', default_agents_json_path)
     survey_name = request.form.get('survey_name')
-    selected_agent_ids = request.form.getlist('selected_agents')
-    selected_agents_data = [
-        agent for agent in current_user.agents_data
-        if str(agent['id']) in selected_agent_ids
+    logger.info(
+        f"User {user_id} is creating survey '{survey_name}' with file '{selected_file}'."
+    )
+
+    # Adjusted to handle the case when selected_file is 'agents.json' or the default path
+    if selected_file == 'agents.json' or selected_file == default_agents_json_path:
+      file_path = default_agents_json_path
+    else:
+      file_path = os.path.join(copies_dir, os.path.basename(selected_file))
+
+    try:
+      with open(file_path, 'r') as f:
+        agents = json.load(f)
+      logger.info(
+          f"Loaded agents from '{file_path}'. Total agents loaded: {len(agents)}"
+      )
+    except Exception as e:
+      logger.error(
+          f"Failed to load agents for user {user_id} from '{file_path}': {e}")
+      flash(
+          'There was an error loading the selected agent file. Please try again.'
+      )
+      return redirect(url_for('survey_blueprint.create_survey'))
+
+    selected_agents = request.form.getlist('selected_agents')
+    logger.info(
+        f"Selected agents: {selected_agents}")  # Log the selected agents
+
+    survey_agents = [
+        agent for agent in agents if str(agent['id']) in selected_agents
     ]
+    logger.info(f"Survey agents: {survey_agents}")  # Log the survey agents
+
+    logger.info(
+        f"Selected {len(survey_agents)} agents for survey '{survey_name}'.")
+
+    # Create survey folder and selected_agents.json
+    survey_folder = os.path.join(
+        user_dir, 'surveys', f"{survey_name}_{random.randint(100000, 999999)}")
+    os.makedirs(survey_folder, exist_ok=True)
+    selected_agents_file = os.path.join(survey_folder, 'selected_agents.json')
+    with open(selected_agents_file, 'w') as f:
+      json.dump(survey_agents, f)
+    logger.info(
+        f"Created survey folder '{survey_folder}' and saved selected agents.")
+
+    # Copy photos to a new subfolder within the survey folder
+    photos_subfolder = os.path.join(survey_folder, 'pics')
+    os.makedirs(photos_subfolder, exist_ok=True)
+    logger.info(f"Created photos subfolder at '{photos_subfolder}'.")
+
+    for agent in survey_agents:
+      try:
+        old_photo_path = agent['photo_path']
+        photo_filename = os.path.basename(old_photo_path)
+        new_photo_path = os.path.join('surveys',
+                                      os.path.basename(survey_folder), 'pics',
+                                      photo_filename)
+        shutil.copy(os.path.join(user_dir, old_photo_path),
+                    os.path.join(photos_subfolder, photo_filename))
+        survey_id = os.path.basename(survey_folder)
+        agent['photo_path'] = url_for('survey_blueprint.serve_survey_image',
+                                      survey_id=survey_id,
+                                      filename=photo_filename)
+
+        logger.info(
+            f"Copied photo '{photo_filename}' for agent '{agent['id']}' to '{new_photo_path}'."
+        )
+      except Exception as e:
+        logger.error(f"Failed to copy photo for agent '{agent['id']}': {e}")
+
+    # Save the updated paths back to selected_agents.json
+    with open(selected_agents_file, 'w') as f:
+      json.dump(survey_agents, f)
+    logger.info("Updated agent photo paths in 'selected_agents.json'.")
 
     new_survey = Survey(name=survey_name,
                         user_id=current_user.id,
-                        survey_data=selected_agents_data)
+                        agents_file=selected_agents_file)
     db.session.add(new_survey)
     db.session.commit()
+    logger.info(
+        f"Successfully created survey '{survey_name}' with ID {new_survey.id} for user {user_id}."
+    )
 
     return redirect(
-        url_for('survey_blueprint.survey_form', survey_id=new_survey.id))
+        url_for('survey_blueprint.survey_form',
+                survey_id=new_survey.id,
+                survey_agents=survey_agents))
   else:
-    agents_data = current_user.agents_data
     return render_template('meeting1.html', agents=agents_data)
 
 
@@ -311,7 +429,14 @@ def results(survey_id):
 @dashboard_blueprint.route('/dashboard')
 @login_required
 def dashboard():
-  agents_data = current_user.agents_data
+  agents_data = current_user.agents_data or []
+
+  if not agents_data:
+    base_agents_files = ['agents.json'
+                         ]  # Add more files in the future if needed
+    return render_template('add_base_agents.html',
+                           base_agents_files=base_agents_files)
+
   agent_copies = [
       agent for agent in agents_data if 'is_copy' in agent and agent['is_copy']
   ]
@@ -321,6 +446,10 @@ def dashboard():
     if survey.survey_data:
       for agent_data in survey.survey_data:
         survey_results.append((survey.name, agent_data['id']))
+
+  # Update the photo_path to use the base64-encoded image
+  for agent in agents_data:
+    agent['photo_path'] = agent['photo_path'].replace('agents/pics/', '')
 
   return render_template('dashboard.html',
                          agents=agents_data,
