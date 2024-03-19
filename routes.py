@@ -174,29 +174,26 @@ def new_agent_copy():
 @auth_blueprint.route('/add_base_agents', methods=['POST'])
 @login_required
 def add_base_agents():
-  base_agents_file = request.form.get('base_agents_file', 'agents.json')
-  base_agents_path = os.path.join('agents', base_agents_file)
+    try:
+        base_agents_path = os.path.join('agents', 'agents.json')
+        with open(base_agents_path, 'r') as file:
+            base_agents_data = json.load(file)
 
-  try:
-    with open(base_agents_path, 'r') as file:
-      base_agents_data = json.load(file)
+        for agent in base_agents_data:
+            photo_path = agent['photo_path']
+            photo_filename = os.path.basename(photo_path)
+            image_path = os.path.join('agents', 'pics', photo_filename)
 
-    for agent in base_agents_data:
-      photo_path = agent['photo_path']
-      photo_filename = os.path.basename(photo_path)
-      image_path = os.path.join('agents', 'pics', photo_filename)
+            with open(image_path, 'rb') as image_file:
+                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            agent['photo_path'] = f"data:image/jpeg;base64,{encoded_string}"
 
-      with open(image_path, 'rb') as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-        agent['photo_path'] = f"data:image/jpeg;base64,{encoded_string}"
+        current_user.agents_data = base_agents_data
+        db.session.commit()
 
-    current_user.agents_data = base_agents_data
-    db.session.commit()
-
-    return jsonify({'success': True})
-  except Exception as e:
-    return jsonify({'success': False, 'error': str(e)})
-
+        return redirect(url_for('index'))
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 @auth_blueprint.route('/new_timeframe', methods=['POST'])
 @login_required
