@@ -34,58 +34,90 @@
       }
     </style>
   </head>
-  <body>
-    {% include 'header.html' %}
-    <div class="flex-grow">
-      <main class="flex-1">
-        <div class="container mx-auto px-4 mt-16">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-white rounded-lg shadow-lg p-6">
-              <h2 class="text-2xl font-bold mb-4">Synths</h2>
-              <a
-                href="{{ url_for('dashboard_blueprint.dashboard') }}"
-                class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-              >
-                Base Synths
-              </a>
-              <a
-                href="{{ url_for('profile_blueprint.create_new_agent') }}"
-                class="block bg-blue-500 mt-4 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-              >
-                New Base Synth
-              </a>
-            </div>
-            {% if not agent_copies %}
-            <div class="bg-white rounded-lg shadow-lg p-6">
-              {% include 'add_base_agents.html' %}
-              </div>
-            </div>
-            {% endif %}
-            
-            <div class="bg-white rounded-lg shadow-lg p-6">
-              <h2 class="text-2xl font-bold mb-4">Times</h2>
-              <a
-                href="{{ url_for('auth_blueprint.new_agent_copy') }}"
-                class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition duration-300 mb-4"
-              >
-                New Timeframe
-              </a>
-              <a
-                href="{{ url_for('survey_blueprint.create_survey') }}"
-                class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition duration-300 mb-4"
-              >
-                New Meeting
-              </a>
-            </div>
-            <div class="bg-white rounded-lg shadow-lg p-6">
-              <h2 class="text-2xl font-bold mb-4">Tools</h2>
-              <a
-                href="/help"
-                class="block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300"
-                >Help</a
-              >
-            </div>
-          </div>
+                              <body>
+                                <div
+                                  id="loadingPlaceholder"
+                                  style="
+                                    position: fixed;
+                                    top: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    height: 100%;
+                                    background: white;
+                                    z-index: 1000;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                  "
+                                >
+                                  <img
+                                    id="loading"
+                                    src="static/loading.gif"
+                                    style="max-width: 60px"
+                                    alt="Loading"
+                                  />
+                                </div>
+                                {% include 'header.html' %}
+                                <div class="flex-grow">
+                                  <main class="flex-1">
+                                    <div class="container mx-auto px-4 mt-16">
+                                      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                        <div class="bg-white rounded-lg shadow-lg p-6">
+                                          <h2 class="text-2xl font-bold mb-4">Synths</h2>
+                                          {% if current_user.agents_data %}
+                                            <div class="flex justify-center flex-wrap mt-4">
+                                              {% for agent in current_user.agents_data %}
+                                                <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}" class="group relative mx-2 mb-4">
+                                                  <img src="{{ agent.photo_path }}" alt="{{ agent.id }}" class="w-12 h-12 rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out">
+                                                  <div class="absolute top-0 left-0 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out">
+                                                    <div class="absolute inset-0 bg-black opacity-75 rounded-full"></div>
+                                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-xs text-center">
+                                                      <span class="font-bold">{{ agent.id }}</span>
+                                                      <span>{{ agent.jobtitle }}</span>
+                                                    </div>
+                                                  </div>
+                                                </a>
+                                              {% endfor %}
+                                            </div>
+                                          <a
+                                            href="{{ url_for('dashboard_blueprint.dashboard') }}"
+                                            class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+                                          >
+                                          Dashboard
+                                          </a>
+                                          {% else %}
+                                            <div>
+                                              <form action="{{ url_for('auth_blueprint.add_base_agents') }}" method="post">
+                                                <button type="submit" class="block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded">Add Base Agents</button>
+                                              </form>
+                                            </div>
+                                          {% endif %}
+                                        </div>
+                            
+                  <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4">Times</h2>
+                    <a
+                      href="{{ url_for('auth_blueprint.new_agent_copy') }}"
+                      class="block bg-blue-900 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition duration-300 mb-4"
+                    >
+                      New Timeframe
+                    </a>
+                    <a
+                      href="{{ url_for('survey_blueprint.create_survey') }}"
+                      class="block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300mb-4"
+                    >
+                      New Meeting
+                    </a>
+                  </div>
+                  <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4">Tools</h2>
+                    <a
+                      href="/help"
+                      class="block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300"
+                      >Help</a
+                    >
+                  </div>
+                </div>
           <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
             <h2 class="text-2xl font-bold mb-4">Timeframes</h2>
             <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -131,4 +163,17 @@
     </div>
     {% include 'footer.html' %}
   </body>
+  
+<script>
+  window.onload = function () {
+    var loadingPlaceholder = document.getElementById("loadingPlaceholder");
+    if (loadingPlaceholder) {
+      loadingPlaceholder.style.opacity = "0";
+      setTimeout(function () {
+        loadingPlaceholder.style.display = "none";
+      }, 600);
+    }
+  };
+</script>
 </html>
+
