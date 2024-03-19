@@ -424,28 +424,19 @@ def results(survey_id):
 @login_required
 def dashboard():
     timeframe_id = request.args.get('timeframe_id')
-    
+
     if timeframe_id:
         timeframe = Timeframe.query.get(timeframe_id)
         if timeframe and timeframe.user_id == current_user.id:
-            agents_data = timeframe.agents_data
+            agents = timeframe.agents_data
         else:
             abort(404)
     else:
-        agents_data = current_user.agents_data or []
+        agents = current_user.agents_data or []
 
-    for survey in current_user.surveys:
-        if survey.survey_data:
-            for agent_data in survey.survey_data:
-                survey_results.append((survey.name, agent_data['id']))
-    
-    # Update the photo_path to use the base64-encoded image
-    for agent in agents_data:
-        agent['photo_path'] = agent['photo_path'].replace('agents/pics/', '')
-    
-    return render_template('dashboard.html',
-                           agents=agents_data,
-                           survey_results=survey_results)
+    timeframes = current_user.timeframes
+
+    return render_template('dashboard.html', agents=agents, timeframes=timeframes)
   
 
 @survey_blueprint.route('/survey/results/<int:survey_id>')
