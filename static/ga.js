@@ -4,5 +4,6 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
+  // Wrap secrets.GTAG in quotes to ensure proper JavaScript string syntax
   gtag('config', '{{ secrets.GTAG }}');
 </script>

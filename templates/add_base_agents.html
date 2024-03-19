@@ -1,0 +1,66 @@
+<!-- templates/add_base_agents.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Base Agents</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#addBaseAgentsForm').submit(function(e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: "{{ url_for('auth_blueprint.add_base_agents') }}",
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            $('#message').text('Base agents added successfully. Reloading page in 5 seconds...');
+                            var countdown = 5;
+                            var countdownTimer = setInterval(function() {
+                                countdown--;
+                                $('#message').text('Base agents added successfully. Reloading page in ' + countdown + ' seconds...');
+                                if (countdown === 0) {
+                                    clearInterval(countdownTimer);
+                                    location.reload();
+                                }
+                            }, 1000);
+                        } else {
+                            $('#message').text('Error adding base agents: ' + response.error);
+                        }
+                    },
+                    error: function() {
+                        $('#message').text('Error adding base agents. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body class="bg-gray-100">
+    {% include 'header.html' %}
+    <div class="container mx-auto mt-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Add Base Agents</h2>
+            <p class="mb-4">You don't have any base agents. Please select a file to add base agents:</p>
+            <form id="addBaseAgentsForm">
+                <div class="mb-4">
+                    <label for="base_agents_file" class="block text-gray-700 font-bold mb-2">Base Agents File:</label>
+                    <select id="base_agents_file" name="base_agents_file" class="w-full p-2 border border-gray-300 rounded">
+                        {% for file in base_agents_files %}
+                            <option value="{{ file }}">{{ file }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Base Agents</button>
+            </form>
+            <p id="message" class="mt-4"></p>
+        </div>
+    </div>
+    \
+</body>
+</html>
