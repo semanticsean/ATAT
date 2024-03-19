@@ -78,10 +78,6 @@ def home():
   if current_user.is_authenticated:
     agents_content = json.dumps(
         current_user.agents_data) if current_user.agents_data else None
-    agent_copies = [
-        agent for agent in (current_user.agents_data or [])
-        if 'is_copy' in agent and agent['is_copy']
-    ]
     survey_results = []
     for survey in current_user.surveys:
       if survey.survey_data:
@@ -89,12 +85,11 @@ def home():
           survey_results.append((survey.name, agent_data['id']))
   else:
     agents_content = None
-    agent_copies = []
+    
     survey_results = []
 
   return render_template('index.html',
-                         agents_content=agents_content,
-                         agent_copies=agent_copies,
+                         agents_content=agents_content,x2
                          survey_results=survey_results)
 
 
