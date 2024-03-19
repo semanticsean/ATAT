@@ -82,16 +82,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
     <script>
                   function loadResults() {
-                  console.log("Loading results...");
-                  $.get("{{ url_for('survey_blueprint.get_results', survey_id=survey.id) }}", function(data) {
-                      console.log("Received data:", data);
-                      if (data.length > 0) {
-                          var resultsContainer = $('#results-container');
-                          resultsContainer.empty();
+        console.log("Loading results...");
+        $.get(
+            "{{ url_for('survey_blueprint.public_survey_data', public_url=survey.public_url) }}",
+            function (data) {
+                console.log("Received data:", data);
+                if (data.length > 0) {
+                    var resultsContainer = $("#results-container");
+                    resultsContainer.empty();
 
-                          data.forEach(function(agent) {
-                              var agentHtml = `
-                                  <div class="bg-white shadow-xl rounded-lg mb-8 sm:max-w-full lg:max-w-1/2">
+                    data.forEach(function (agent) {
+                        var agentHtml = `
+                            <div class="bg-white shadow-xl rounded-lg mb-8 sm:max-w-full lg:max-w-1/2">
   <div class="flex flex-col md:flex-row items-center bg-gradient-to-r from-gray-200 to-gray-250 rounded-t-lg px-6 py-4">
     <img src="${agent.photo_path}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0 md:mr-12">
     <div class="text-center md:text-left">
@@ -123,16 +125,16 @@
           <p class="text-gray-700 md:text-xl text-lg">${questionText}</p>
         </div>
 
-        <!-- Answer Bubble -->
-        
+       <!-- Answer Bubble -->
 <div class="w-full bg-gray-200 rounded-lg rounded-bl-none shadow mb-4 p-4 -mr-12 text-right justify-right float-right">
-  <div class="mb-2">
-    <img src="${agent.photo_path}" alt="Agent Profile" class="md:w-12 md:h-12 h-8 w-8 rounded-full mr-2 float-right">
-    <h4 class="text-xl md:text-2xl font-bold text-gray-900 mr-6 mt-1 pr-12">${agent.id}</h4>
+  <div class="w-full bg-gray-200 rounded-lg rounded-bl-none shadow mb-4 p-4 -mr-12">
+    <div class="flex items-center mb-2">
+      <img src="${agent.photo_path}" alt="Agent Profile" class="md:w-12 md:h-12 h-8 w-8 rounded-full mr-2">
+      <h4 class="text-xl md:text-2xl font-bold text-gray-900 mr-6 mt-1 pr-12">${agent.id}</h4>
+    </div>
+    <div class="text-lg md:text-xl font-bold text-gray-900 mt-8">${extractValue(answer)}</div>
   </div>
-  <p class="text-lg md:text-xl font-bold text-gray-900 mt-8">${extractValue(answer)}</p>
 </div>
-      </div>
     </div>
   </div>
 </div>
@@ -299,6 +301,31 @@ function createChart(data) {
           resultsContainer.append(agentHtml);
       });
 
+      function parseJsonAnswer(answer) {
+        try {
+          const parsedAnswer = JSON.parse(answer);
+          return createNestedHtml(parsedAnswer);
+        } catch (error) {
+          return answer;
+        }
+      }
+
+      function createNestedHtml(data, level = 0) {
+        if (typeof data === 'object' && data !== null) {
+          let html = '<ul class="ml-' + (level * 4) + '">';
+          for (const key in data) {
+            html += '<li>';
+            html += '<strong>' + key + ':</strong> ';
+            html += createNestedHtml(data[key], level + 1);
+            html += '</li>';
+          }
+          html += '</ul>';
+          return html;
+        } else {
+          return data;
+        }
+      }
+
       
     </script>
     <style>
@@ -321,10 +348,10 @@ function createChart(data) {
                       <span class="ml-2">Make survey results public</span>
                     </label>
                   </div>
-                  {% for agent_data in results %}
-                  <div class="mb-8">
-                    <h3 class="text-lg font-semibold mb-2">{{ agent_data.id }}</h3>
-                    <img src="{{ url_for('serve_image', filename=agent_data.photo_path) }}" alt="Agent Photo" class="w-32 h-32 rounded-full mb-4">
+                    {% for agent_data in results %}
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-2">{{ agent_data.id }}</h3>
+                        <img src="{{ agent_data.photo_path }}" alt="Agent Photo" class="w-32 h-32 rounded-full mb-4">
                     <ul>
                       {% for question_id, response in agent_data.responses.items() %}
                       <li class="mb-2">
@@ -392,15 +419,7 @@ function createChart(data) {
           }
 
             function extractValue(answer) {
-              // Regular expression to match JSON-like string
-              const jsonRegex = /\{[\s]*["']?(\w+)["']?[\s]*:[\s]*["']?([^"']+)["']?[\s]*\}/;
-
-              const match = answer.match(jsonRegex);
-              if (match && match[2]) {
-                return match[2]; // Return the captured value
-              }
-
-              return answer; // Return the original answer if no match found
+              return parseJsonAnswer(answer);
             }
             
           </script>
