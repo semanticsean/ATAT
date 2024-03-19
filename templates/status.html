@@ -1,0 +1,17 @@
+<!-- templates/status.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Status</title>
+</head>
+<body>
+   {% include 'header.html' %}
+    <h1>Email Server Status</h1>
+    <p>Status: <span id="status-indicator" style="color: {{ 'green' if status == 'working' else 'red' }}">{{ status }}</span></p>
+
+    <h2>Database Information</h2>
+    <p>Number of Agents: {{ num_agents }}</p>
+    <p>User Token Balance: {{ user_tokens }}</p>
+   {% include 'footer.html' %}
+</body>
+</html>

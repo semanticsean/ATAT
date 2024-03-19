@@ -865,3 +865,6 @@ class EmailClient:
       print(
           f"Email sent with Thread ID: {x_gm_thrid}, Subject: {subject}, Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
       )
+
+  def is_running(self):
+    return self.check_imap_connection()
