@@ -478,47 +478,13 @@ def show_survey_results(survey_id):
 @profile_blueprint.route('/profile')
 @login_required
 def profile():
-  agents_file = request.args.get('agents_file',
-                                 'agents.json')  # Default to 'agents.json'
-  agent_id = request.args.get('agent_id')
+    agent_id = request.args.get('agent_id')
+    agents_data = current_user.agents_data or []
 
-  agents_dir = os.path.join(current_user.folder_path, 'agents')
-  copies_dir = os.path.join(agents_dir, 'copies')
-  page_view = PageView(page='/profile')
-  db.session.add(page_view)
-  db.session.commit()
+    agent = get_agent_by_id(agents_data, agent_id)
+    prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents_data, agent)
 
-  logger.info(
-      f"Accessing profile with agents_file: {agents_file} and agent_id: {agent_id}"
-  )
-
-  # Corrected the logic for determining the file path
-  if agents_file == 'agents.json':
-    agents_file_path = os.path.join(
-        agents_dir, agents_file)  # For the main agents.json file
-  else:
-    # Correctly form the path for copies, avoiding duplication of 'agents/copies/'
-    agents_file_path = os.path.join(
-        copies_dir,
-        os.path.basename(agents_file))  # Only use the basename for copies
-
-  agent_copies = get_agent_copies(copies_dir)
-  agents, _ = load_agents(agents_file_path)
-
-  agent = get_agent_by_id(agents, agent_id)
-  prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents, agent)
-
-  # Pass the correct file path or identifier as needed for AJAX or other calls
-  agents_file_for_ui = 'agents.json' if agents_file == 'agents.json' else os.path.basename(
-      agents_file)
-
-  return render_template('profile.html',
-                         agent=agent,
-                         agents_file=agents_file_for_ui,
-                         agent_copies=agent_copies,
-                         prev_agent_id=prev_agent_id,
-                         next_agent_id=next_agent_id)
-
+    return render_template('profile.html', agent=agent, prev_agent_id=prev_agent_id, next_agent_id=next_agent_id)
 
 def get_agent_copies(copies_dir):
   if os.path.isdir(copies_dir):
@@ -550,19 +516,17 @@ def load_agents(agents_file_path):
 
 def get_agent_by_id(agents, agent_id):
   if agent_id:
-    return next((a for a in agents if a['id'] == agent_id), None)
+      return next((a for a in agents if a['id'] == agent_id), None)
   return None
-
 
 def get_prev_next_agent_ids(agents, agent):
   if agent:
-    agent_index = agents.index(agent)
-    prev_agent_id = agents[agent_index - 1]['id'] if agent_index > 0 else None
-    next_agent_id = agents[agent_index +
-                           1]['id'] if agent_index < len(agents) - 1 else None
+      agent_index = agents.index(agent)
+      prev_agent_id = agents[agent_index - 1]['id'] if agent_index > 0 else None
+      next_agent_id = agents[agent_index + 1]['id'] if agent_index < len(agents) - 1 else None
   else:
-    prev_agent_id = None
-    next_agent_id = None
+      prev_agent_id = None
+      next_agent_id = None
   return prev_agent_id, next_agent_id
 
 
@@ -761,3 +725,34 @@ def create_new_agent():
         url_for('profile_blueprint.profile', agent_id=new_agent_data['id']))
 
   return render_template('new_agent.html')
+
+@profile_blueprint.route('/edit_agent/<agent_id>', methods=['GET', 'POST'])
+@login_required
+def edit_agent(agent_id):
+    agents_data = current_user.agents_data or []
+    agent = get_agent_by_id(agents_data, agent_id)
+
+    if request.method == 'POST':
+        # Update the agent data based on the form submission
+        agent['persona'] = request.form.get('persona')
+        agent['summary'] = request.form.get('summary')
+        agent['keywords'] = request.form.get('keywords').split(',')
+        agent['image_prompt'] = request.form.get('image_prompt')
+        agent['relationships'] = json.loads(request.form.get('relationships'))
+        db.session.commit()
+        return redirect(url_for('profile_blueprint.profile', agent_id=agent_id))
+
+    return render_template('edit_agent.html', agent=agent)
+
+@profile_blueprint.route('/delete_agent/<agent_id>', methods=['POST'])
+@login_required
+def delete_agent(agent_id):
+    agents_data = current_user.agents_data or []
+    agent = get_agent_by_id(agents_data, agent_id)
+
+    if agent:
+        agents_data.remove(agent)
+        db.session.commit()
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False, 'error': 'Agent not found'})
