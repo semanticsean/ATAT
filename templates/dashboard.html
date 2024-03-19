@@ -102,127 +102,63 @@
         />
       </div>
       <div class="text-center md:absolute md:top-6 md:left-4 mx-auto">
-        <img
-          src="{{ url_for('static', filename='logo.png') }}"
-          alt="Company Logo"
-          class="mx-auto w-32"
-        />
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo" class="mx-auto w-32" />
       </div>
       <div class="container mx-auto mt-2 mb-2">
         <div class="font-bold mb-2 text-center text-3xl mt-6 md:mt-12">
           Synthetics (AIs)
         </div>
         <div class="text-center">
-          {% if not agents %}
-          <a
-            href="{{ url_for('auth_blueprint.add_base_agents') }}"
-            class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded mt-4"
-            >Add Base Agents</a
-          >
+          {% if not timeframes %}
+            <a href="{{ url_for('auth_blueprint.new_agent_copy') }}" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded mt-4">Create New Timeframe</a>
           {% else %}
-          <h3 class="font-bold mb-2 text-xl text-gray-400 mt-4 md:mt-4">
-            Base Agents
-          </h3>
-          <div class="flex justify-center mt-4">
-            {% for agent in agents[:12] %}
-            <a
-              href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}"
-              class="group relative mx-2"
-            >
-              <img
-                src="{{ agent.photo_path }}"
-                alt="{{ agent.id }}"
-                class="w-12 h-12 rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out"
-              />
-              <div
-                class="absolute top-0 left-0 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out"
-              >
-                <div
-                  class="absolute inset-0 bg-black opacity-75 rounded-full"
-                ></div>
-                <div
-                  class="absolute inset-0 flex flex-col items-center justify-center text-white text-xs text-center"
-                >
-                  <span class="font-bold">{{ agent.id }}</span>
-                  <span>{{ agent.jobtitle }}</span>
-                </div>
-              </div>
-            </a>
-            {% endfor %}
-          </div>
+            <h3 class="font-bold mb-2 text-xl text-gray-400 mt-4 md:mt-4">
+              Timeframes
+            </h3>
+            <div class="flex justify-center mt-4">
+              {% for timeframe in timeframes %}
+                <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="group relative mx-2">
+                  <div class="w-12 h-12 rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out flex items-center justify-center">
+                    <span class="text-sm font-bold">{{ timeframe.name }}</span>
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
           {% endif %}
         </div>
       </div>
       <div class="max-w-6xl mx-auto my-4">
         <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6">
           {% for agent in agents %}
-          <div
-            class="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden"
-          >
-            <img
-              src="{{ agent.photo_path }}"
-              alt="Agent Photo"
-              class="w-full object-cover"
-              style="height: 250px; object-fit: cover"
-            />
-            <div class="flex-grow p-4 flex flex-col justify-between">
-              <div class="p-6">
-                <div class="flex flex-col items-start">
-                  <a
-                    href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}"
-                    class="mb-4 inline-block bg-black hover:bg-blue-500 text-white text-sm py-2 px-4 rounded"
-                    >View Profile / Edit</a
-                  >
-                  <h3 class="text-xl font-semibold mb-1">{{ agent.id }}</h3>
-                  <h4 class="text-md text-gray-500 mb-3">
-                    {{ agent.jobtitle }}
-                  </h4>
-                  <p class="mb-4">{{ agent.summary }}</p>
-                </div>
-                <div class="mt-4 flex flex-wrap gap-2">
-                  {% if not agent_copies %}
-                  <a
-                    href="mailto:{{ agent.email }}"
-                    class="inline-block bg-gray-700 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded text-center"
-                    style="flex: 1 1 30%"
-                    >Email</a
-                  >
-                  <button
-                    id="copyEmail{{ agent.id }}"
-                    class="inline-block bg-gray-500 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded"
-                    data-original-text="Copy Email Address"
-                    onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')"
-                    style="flex: 1 1 30%"
-                  >
-                    Copy Email
-                  </button>
-                  <button
-                    id="copyShortcode{{ agent.id }}"
-                    class="inline-block bg-gray-300 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded"
-                    onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')"
-                    style="flex: 1 1 30%"
-                  >
-                    Copy Shortcode
-                  </button>
-                  {% else %}
-                  <a
-                    href="{{ url_for('survey_blueprint.create_survey') }}"
-                    class="inline-block bg-black hover:bg-blue-500 text-white text-sm py-2 px-4 rounded"
-                    style="flex: 1 1 100%"
-                    >Start Meeting</a
-                  >
-                  {% endif %}
+            <div class="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+              <img src="{{ agent.photo_path }}" alt="Agent Photo" class="w-full object-cover" style="height: 250px; object-fit: cover" />
+              <div class="flex-grow p-4 flex flex-col justify-between">
+                <div class="p-6">
+                  <div class="flex flex-col items-start">
+                    <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}" class="mb-4 inline-block bg-black hover:bg-blue-500 text-white text-sm py-2 px-4 rounded">View Profile / Edit</a>
+                    <h3 class="text-xl font-semibold mb-1">{{ agent.id }}</h3>
+                    <h4 class="text-md text-gray-500 mb-3">{{ agent.jobtitle }}</h4>
+                    <p class="mb-4">{{ agent.summary }}</p>
+                  </div>
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    <a href="mailto:{{ agent.email }}" class="inline-block bg-gray-700 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded text-center" style="flex: 1 1 30%">Email</a>
+                    <button id="copyEmail{{ agent.id }}" class="inline-block bg-gray-500 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')" style="flex: 1 1 30%">
+                      Copy Email
+                    </button>
+                    <button id="copyShortcode{{ agent.id }}" class="inline-block bg-gray-300 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')" style="flex: 1 1 30%">
+                      Copy Shortcode
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           {% endfor %}
         </div>
       </div>
-    </main>
-    <div id="footer-push"></div>
-    {% include 'footer.html' %}
-    <script>
+      </main>
+      <div id="footer-push"></div>
+      {% include 'footer.html' %}
+      <script>
       window.onload = function () {
         var loadingPlaceholder = document.getElementById("loadingPlaceholder");
         if (loadingPlaceholder) {
