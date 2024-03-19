@@ -386,3 +386,32 @@ Contact
 For any inquiries or feedback, please contact us at info@semanticlife.com.
 
 Enjoy using the Semantic Life - AI Agent Dashboard to unlock the potential of AI agents and gain valuable insights!
+
+
+# update user tokens 
+Open a terminal or command prompt and navigate to your project directory.
+Run the following command to start the Flask shell:flas
+
+
+flask shell
+### In the Flask shell, import the necessary models and database instance:
+
+from models import User, db
+
+###  Replace 'username' with the actual username of the user you want to add tokens to.
+
+user = User.query.filter_by(username='username').first()
+
+### Add tokens to the user's account:
+
+user.token_balance = 1000  
+
+db.session.commit()
+
+print(user.token_balance)
+
+exit()
+
+
+flask db migrate -m "Added user credits"
+flask db upgrade 
