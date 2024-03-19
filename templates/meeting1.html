@@ -51,6 +51,8 @@
           </div>
           <div class="mb-8">
             <h2 class="text-xl font-bold mb-2">Select Synths</h2>
+            {% if not agent_copies %}Base Agents{% else %}{% include
+            'add_base_agents.html' %}{{ agent_copies[0].name }}{% endif %}
             <div id="agent-list">
               <div class="mb-4 flex justify-between">
                 <button type="button" id="select-all" class="px-4 py-2 text-sm md:px-6 md:py-3 bg-gray-400 text-white rounded-lg hover:bg-green-600">Select All</button>
