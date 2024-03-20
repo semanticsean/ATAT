@@ -12,6 +12,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from logging.handlers import RotatingFileHandler
+from flask_images import Images
 
 from abe_gpt import generate_new_agent
 
@@ -148,25 +149,18 @@ def sanitize_filename(filename):
   clean_filename = clean_filename.strip('_')
   return clean_filename
 
+    
 
 @auth_blueprint.route('/images/<filename>')
 @login_required
 def serve_image(filename):
-  image_data = current_user.images_data.get(filename)
-  if image_data:
-    return Response(base64.b64decode(image_data), mimetype='image/png')
-  else:
-    return abort(404)
+    image_data = current_user.images_data.get(filename)
+    if image_data:
+        return Response(base64.b64decode(image_data), mimetype='image/png')
+    else:
+        return abort(404)
 
-
-@auth_blueprint.route('/new_agent_copy')
-@login_required
-def new_agent_copy():
-    base_agents = current_user.agents_data or []
-    timeframes = current_user.timeframes
-    return render_template('new_timeframe.html', base_agents=base_agents, timeframes=timeframes)
-
-
+  
 @auth_blueprint.route('/add_base_agents', methods=['POST'])
 @login_required
 def add_base_agents():
@@ -182,55 +176,27 @@ def add_base_agents():
 
             with open(image_path, 'rb') as image_file:
                 encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-            agent['photo_path'] = f"data:image/jpeg;base64,{encoded_string}"
+            agent['photo_path'] = url_for('auth_blueprint.serve_image', filename=photo_filename)
+
+            current_user.images_data[photo_filename] = encoded_string
 
         current_user.agents_data = base_agents_data
         db.session.commit()
 
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-@auth_blueprint.route('/new_timeframe', methods=['POST'])
-@login_required
-def create_agent_copy():
-  if current_user.credits is None or current_user.credits <= 0:
-      flash("You don't have enough credits. Please contact the admin to add more credits.")
-      return redirect(url_for('home'))
-  agents_data = current_user.agents_data
-  selected_agent_ids = request.form.getlist('selected_agents')
-  selected_agents_data = [
-      agent for agent in agents_data if str(agent['id']) in selected_agent_ids
-  ]
-
-  form_data = request.form.to_dict()
-  form_data.pop('selected_agents', None)
-  
-  payload = {
-      "agents_data": selected_agents_data,
-      "instructions": form_data,
-      "timeframe_name": form_data["name"]
-  }
-  
-  new_timeframe_id = abe_gpt.process_agents(payload, current_user)
-
-  updated_agents = abe_gpt.process_agents(payload, current_user)
-    
-  logger.info(f"Creating new timeframe: {payload['timeframe_name']}")
-  new_timeframe = Timeframe(name=payload["timeframe_name"], user_id=current_user.id, agents_data=updated_agents)
-  db.session.add(new_timeframe)
-  db.session.commit()
-  logger.info(f"New timeframe created: {new_timeframe.id}")
-
-  return redirect(url_for('dashboard_blueprint.dashboard'))
 
 
 @survey_blueprint.route('/survey/create', methods=['GET', 'POST'])
 @login_required
 def create_survey():
   if current_user.credits is None or current_user.credits <= 0:
-      flash("You don't have enough credits. Please contact the admin to add more credits.")
-      return redirect(url_for('home'))
+    flash(
+        "You don't have enough credits. Please contact the admin to add more credits."
+    )
+    return redirect(url_for('home'))
   agents_data = current_user.agents_data or []
 
   if not agents_data:
@@ -432,24 +398,22 @@ def results(survey_id):
 @login_required
 def dashboard():
     timeframe_id = request.args.get('timeframe_id')
-
+    
     if timeframe_id:
         timeframe = Timeframe.query.get(timeframe_id)
         if timeframe and timeframe.user_id == current_user.id:
-            agents = timeframe.agents_data
-            logger.info(f"Loaded agents from timeframe: {timeframe.id}")
+            agents_data = timeframe.agents_data
         else:
-            logger.warning(f"Timeframe not found or not accessible: {timeframe_id}")
             abort(404)
     else:
-        agents = current_user.agents_data or []
+        agents_data = current_user.agents_data or []
         logger.info("Loaded base agents")
 
     timeframes = current_user.timeframes
     logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
 
     return render_template('dashboard.html', agents=agents, timeframes=timeframes)
-  
+
 
 @survey_blueprint.route('/survey/results/<int:survey_id>')
 @login_required
@@ -475,10 +439,16 @@ def profile():
     agent_id = request.args.get('agent_id')
     agents_data = current_user.agents_data or []
 
+    for agent in agents_data:
+        agent['photo_path'] = url_for('auth_blueprint.serve_image', filename=agent['photo_path'].split('/')[-1])
+
     agent = get_agent_by_id(agents_data, agent_id)
     prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents_data, agent)
 
-    return render_template('profile.html', agent=agent, prev_agent_id=prev_agent_id, next_agent_id=next_agent_id)
+    return render_template('profile.html',
+                           agent=agent,
+                           prev_agent_id=prev_agent_id,
+                           next_agent_id=next_agent_id)
 
 
 # Update load_agents function to accept the direct file path
@@ -498,35 +468,40 @@ def load_agents(agents_file_path):
 
   return agents, agents_file_path
 
+
 @auth_blueprint.route('/timeframes/<int:timeframe_id>/agents')
 @login_required
 def get_timeframe_agents(timeframe_id):
-    timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe and timeframe.user_id == current_user.id:
-        agents_data = timeframe.agents_data
-        return jsonify(agents_data)
-    else:
-        return jsonify([])
+  timeframe = Timeframe.query.get(timeframe_id)
+  if timeframe and timeframe.user_id == current_user.id:
+    agents_data = timeframe.agents_data
+    return jsonify(agents_data)
+  else:
+    return jsonify([])
+
 
 @auth_blueprint.route('/base_agents')
 @login_required
 def get_base_agents():
-    base_agents = current_user.agents_data or []
-    return jsonify(base_agents)
+  base_agents = current_user.agents_data or []
+  return jsonify(base_agents)
+
 
 def get_agent_by_id(agents, agent_id):
   if agent_id:
-      return next((a for a in agents if a['id'] == agent_id), None)
+    return next((a for a in agents if a['id'] == agent_id), None)
   return None
+
 
 def get_prev_next_agent_ids(agents, agent):
   if agent:
-      agent_index = agents.index(agent)
-      prev_agent_id = agents[agent_index - 1]['id'] if agent_index > 0 else None
-      next_agent_id = agents[agent_index + 1]['id'] if agent_index < len(agents) - 1 else None
+    agent_index = agents.index(agent)
+    prev_agent_id = agents[agent_index - 1]['id'] if agent_index > 0 else None
+    next_agent_id = agents[agent_index +
+                           1]['id'] if agent_index < len(agents) - 1 else None
   else:
-      prev_agent_id = None
-      next_agent_id = None
+    prev_agent_id = None
+    next_agent_id = None
   return prev_agent_id, next_agent_id
 
 
@@ -713,8 +688,10 @@ def start_route():
 @login_required
 def create_new_agent():
   if current_user.credits is None or current_user.credits <= 0:
-      flash("You don't have enough credits. Please contact the admin to add more credits.")
-      return redirect(url_for('home'))
+    flash(
+        "You don't have enough credits. Please contact the admin to add more credits."
+    )
+    return redirect(url_for('home'))
   if request.method == 'POST':
     agent_name = request.form['agent_name']
     agent_name = re.sub(r'[^a-zA-Z0-9\s]', '', agent_name).replace(' ', '_')
@@ -729,43 +706,109 @@ def create_new_agent():
 
   return render_template('new_agent.html')
 
+
 @profile_blueprint.route('/edit_agent/<agent_id>', methods=['GET', 'POST'])
 @login_required
 def edit_agent(agent_id):
-    agents_data = current_user.agents_data or []
-    agent = get_agent_by_id(agents_data, agent_id)
+  agents_data = current_user.agents_data or []
+  agent = get_agent_by_id(agents_data, agent_id)
 
-    if request.method == 'POST':
-        # Update the agent data based on the form submission
-        agent['persona'] = request.form.get('persona')
-        agent['summary'] = request.form.get('summary')
-        agent['keywords'] = request.form.get('keywords').split(',')
-        agent['image_prompt'] = request.form.get('image_prompt')
-        agent['relationships'] = json.loads(request.form.get('relationships'))
-        db.session.commit()
-        return redirect(url_for('profile_blueprint.profile', agent_id=agent_id))
+  if request.method == 'POST':
+    # Update the agent data based on the form submission
+    agent['persona'] = request.form.get('persona')
+    agent['summary'] = request.form.get('summary')
+    agent['keywords'] = request.form.get('keywords').split(',')
+    agent['image_prompt'] = request.form.get('image_prompt')
+    agent['relationships'] = json.loads(request.form.get('relationships'))
+    db.session.commit()
+    return redirect(url_for('profile_blueprint.profile', agent_id=agent_id))
 
-    return render_template('edit_agent.html', agent=agent)
+  return render_template('edit_agent.html', agent=agent)
+
 
 @profile_blueprint.route('/delete_agent/<agent_id>', methods=['POST'])
 @login_required
 def delete_agent(agent_id):
-    agents_data = current_user.agents_data or []
-    agent = get_agent_by_id(agents_data, agent_id)
+  agents_data = current_user.agents_data or []
+  agent = get_agent_by_id(agents_data, agent_id)
 
-    if agent:
-        agents_data.remove(agent)
-        db.session.commit()
-        return jsonify({'success': True})
-    else:
-        return jsonify({'success': False, 'error': 'Agent not found'})
-
+  if agent:
+    agents_data.remove(agent)
+    db.session.commit()
+    return jsonify({'success': True})
+  else:
+    return jsonify({'success': False, 'error': 'Agent not found'})
 
 
 @profile_blueprint.route('/status')
 @login_required
 def status():
-    email_status = 'working' if email_client.is_running() else 'error'
-    num_agents = len(current_user.agents_data)
-    user_credits = current_user.credits  
-    return render_template('status.html', status=email_status, num_agents=num_agents, user_credits=user_credits)
+  email_status = 'working' if email_client.is_running() else 'error'
+  num_agents = len(current_user.agents_data)
+  user_credits = current_user.credits
+  return render_template('status.html',
+                         status=email_status,
+                         num_agents=num_agents,
+                         user_credits=user_credits)
+
+
+@auth_blueprint.route('/new_timeframe', methods=['GET', 'POST'])
+@login_required
+def create_timeframe():
+    logging.info("Handling POST request in create_timeframe route")
+    if request.method == 'POST':
+        if current_user.credits is None or current_user.credits <= 0:
+            flash("You don't have enough credits. Please contact the admin to add more credits.")
+            return redirect(url_for('home'))
+
+        agents_data = current_user.agents_data
+        selected_agent_ids = request.form.getlist('selected_agents')
+        selected_agents_data = [agent for agent in agents_data if str(agent['id']) in selected_agent_ids]
+
+        form_data = request.form.to_dict()
+        form_data.pop('selected_agents', None)
+
+        payload = {
+            "agents_data": selected_agents_data,
+            "instructions": form_data,
+            "timeframe_name": form_data["name"]
+        }
+
+        try:
+            logging.info("Calling process_agents function")
+            new_timeframe_id = abe_gpt.process_agents(payload, current_user)
+            logging.info(f"New timeframe created with ID: {new_timeframe_id}")
+            return redirect(url_for('auth_blueprint.timeframe_progress', timeframe_id=new_timeframe_id))
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error occurred while processing agents: {str(e)}")
+            flash(f"An error occurred while processing agents: {str(e)}")
+            
+            return redirect(url_for('auth_blueprint.create_timeframe'))
+    else:
+        logger.info('Accessing new timeframe page')
+        base_agents = current_user.agents_data or []
+        timeframes = current_user.timeframes
+
+        logger.info(f'Base agents count: {len(base_agents)}')
+        logger.info(f'Timeframes count: {len(timeframes)}')
+
+        return render_template('new_timeframe.html', base_agents=base_agents, timeframes=timeframes)
+
+
+@auth_blueprint.route('/timeframe_progress/<int:timeframe_id>')
+@login_required
+def timeframe_progress(timeframe_id):
+    logging.info(f"Accessing timeframe_progress route with timeframe_id: {timeframe_id}")
+    timeframe = Timeframe.query.get(timeframe_id)
+    if timeframe and timeframe.user_id == current_user.id:
+        logging.info("Timeframe found and belongs to the current user")
+        if len(timeframe.agents_data) == len(current_user.agents_data):
+            logging.info("All agents processed, redirecting to dashboard")
+            return redirect(url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id))
+        else:
+            logging.info("Rendering timeframe_progress.html template")
+            return render_template('timeframe_progress.html', timeframe=timeframe)
+    else:
+        logging.warning("Timeframe not found or doesn't belong to the current user")
+        abort(404)

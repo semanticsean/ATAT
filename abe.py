@@ -14,6 +14,7 @@ from models import User, Survey, Timeframe
 import start
 from routes import auth_blueprint, survey_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint
 from werkzeug.utils import secure_filename
+from flask_images import Images
 
 def configure_logging():
     if not os.path.exists('logs'):
@@ -29,6 +30,11 @@ def configure_logging():
     logging.getLogger().setLevel(logging.DEBUG)
 
 app = Flask(__name__)
+images = Images(app)
+
+# Initialize Flask-Images
+images.init_app(app)
+  
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY', 'default_secret_key')
 
 configure_logging()
@@ -68,9 +74,30 @@ app.register_blueprint(dashboard_blueprint)
 app.register_blueprint(profile_blueprint)
 app.register_blueprint(start_blueprint)
 
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+def custom_img_filter(photo_path, size='48x48'):
+    # Your filter logic here
+    pass
+app.jinja_env.filters['img'] = custom_img_filter
+
+
+@app.context_processor
+def inject_images():
+    return dict(images=images)
+
+@app.context_processor
+def inject_secrets():
+    def get_secret(name):
+        # Fetches and returns the secret by name from environment variables
+        return os.environ.get(name)
+
+    return dict(get_secret=get_secret)
+
 
 @app.route('/')
 def home():
@@ -88,6 +115,7 @@ def home():
 
     timeframes = current_user.timeframes if current_user.is_authenticated else []
     logger.info(f"Timeframes for user {current_user.id if current_user.is_authenticated else 'anonymous'}: {timeframes}")
+    
     return render_template('index.html', agents_content=agents_content, survey_results=survey_results, timeframes=timeframes)
 
 @app.route('/agents/pics/<filename>')
@@ -105,5 +133,8 @@ def serve_agent_image(filename):
     else:
         return abort(404)
 
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+
