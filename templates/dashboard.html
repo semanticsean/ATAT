@@ -108,13 +108,24 @@
         <div class="font-bold mb-2 text-center text-3xl mt-6 md:mt-12">
           Synthetics (AIs)
         </div>
-      <div class="text-center">
+        <div class="text-center">
           {% if not timeframes %}
-            <a href="{{ url_for('auth_blueprint.new_agent_copy') }}" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded mt-4">Create New Timeframe</a>
+          <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded mt-4">Create New Timeframe</a>
           {% else %}
             <h3 class="font-bold mb-2 text-xl text-gray-400 mt-4 md:mt-4">
               Timeframes
             </h3>
+          <div class="timeframe-selection">
+            <label for="timeframe">Select Timeframe:</label>
+            <select id="timeframe" onchange="loadTimeframe(this.value)">
+              <option value="">Main Agents</option>
+              {% for timeframe in current_user.timeframes %}
+                <option value="{{ timeframe.id }}" {% if timeframe.id == request.args.get('timeframe_id')|int %}selected{% endif %}>
+                  {{ timeframe.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
             <div class="flex justify-center mt-4">
               {% for timeframe in timeframes %}
                 <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="group relative mx-2">
@@ -180,6 +191,11 @@
         });
         logoElement.style.cursor = "pointer";
       });
+    </script>
+    <script>
+      function loadTimeframe(timeframeId) {
+        window.location.href = "{{ url_for('dashboard_blueprint.dashboard') }}" + (timeframeId ? "?timeframe_id=" + timeframeId : "");
+      }
     </script>
   </body>
 </html>

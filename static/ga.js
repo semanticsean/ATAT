@@ -1,9 +1,8 @@
-<script async src="https://www.googletagmanager.com/gtag/js?id={{ secrets.GTAG }}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  // Wrap secrets.GTAG in quotes to ensure proper JavaScript string syntax
-  gtag('config', '{{ secrets.GTAG }}');
-</script>
+// Updated content of static/ga.js
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+// Assuming secrets.GTAG is replaced with the actual Google Analytics ID before this file is served
+gtag('config', '{{ secrets.GTAG }}');

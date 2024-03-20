@@ -415,3 +415,7 @@ exit()
 
 flask db migrate -m "Added user credits"
 flask db upgrade 
+
+
+# back date required for: 
+pip install 'itsdangerous<2.0'

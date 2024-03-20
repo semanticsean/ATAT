@@ -61,7 +61,7 @@
     >
       <img
         id="loading"
-        src="static/loading.gif"
+        src="{{ url_for('static', filename='loading.gif') }}"
         style="max-width: 180px"
         alt="Loading"
       />
@@ -85,14 +85,10 @@
                   Important: don't refresh the page.
                 </div>
               </div>
-              <form
-                action="{{ url_for('auth_blueprint.create_agent_copy') }}"
-                method="post"
-              >
+              
+              <form action="{{ url_for('auth_blueprint.create_timeframe') }}" method="post">
                 <div class="mb-4">
-                  <label for="name" class="block text-lg md:text-xl font-bold"
-                    >Name this Timeframe:</label
-                  >
+                  <label for="name" class="block text-lg md:text-xl font-bold">Name this Timeframe:</label>
                   <input
                     type="text"
                     id="name"
@@ -104,8 +100,7 @@
                   <label
                     for="instruction1"
                     class="block text-sm font-bold text-gray-700"
-                    >Describe the timepoint, including year:</label
-                  >
+                  >Describe the timepoint, including year:</label>
                   <textarea
                     id="instruction1"
                     name="instruction1"
@@ -118,8 +113,7 @@
                   <label
                     for="instruction2"
                     class="block text-sm font-bold text-gray-700"
-                    >Describe the setting, including place:</label
-                  >
+                  >Describe the setting, including place:</label>
                   <textarea
                     id="instruction2"
                     name="instruction2"
@@ -131,8 +125,7 @@
                   <label
                     for="instruction3"
                     class="block text-sm font-bold text-gray-700"
-                    >Describe the 'plot' and other context:</label
-                  >
+                  >Describe the 'plot' and other context:</label>
                   <textarea
                     id="instruction3"
                     name="instruction3"
@@ -140,55 +133,32 @@
                     class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-sm"
                   ></textarea>
                 </div>
+
                 <div class="mb-8">
-                <h2 class="text-lg md:text-xl font-bold mb-2">Select Synths:</h2>
-                <div class="mb-4">
-                  <label for="timeframe" class="block text-sm font-bold text-gray-700">Select Timeframe:</label>
-                  <select id="timeframe" name="timeframe" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-sm">
-                    <option value="">Base Agents</option>
-                    {% for timeframe in current_user.timeframes %}
-                      <option value="{{ timeframe.id }}">{{ timeframe.name }}</option>
+                  <h2 class="text-lg md:text-xl font-bold mb-2">Select Synths:</h2>
+                  <div id="agent-list">
+                    {% for agent in base_agents %}
+                      <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
+                        <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden">
+                        <img src="{{ agent.photo_path|img(size='48x48') }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
+                        <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-md">
+                          <div class="text-lg md:text-xl font-bold mb-2">{{ agent.id }}</div>
+                          <div class="mb-2">{{ agent.jobtitle }}</div>
+                          <div class="mb-2">{{ agent.summary }}</div>
+                        </label>
+                      </div>
                     {% endfor %}
-                  </select>
-                </div>
-                <div id="agent-list">
-                  <div class="mb-4 flex justify-between">
-                    <button type="button" id="select-all" class="px-4 py-2 text-sm md:px-6 md:py-3 bg-gray-400 text-white rounded-lg hover:bg-green-600">Select All</button>
-                    <button type="button" id="clear-all" class="px-2 py-1 text-sm md:px-2 md:py-1 bg-gray-200 text-white rounded-lg hover:bg-red-600">Clear All</button>
                   </div>
-                  <div id="agent-list-content">
-                    {% if base_agents %}
-                      {% for agent in base_agents %}
-                        <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
-                          <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden">
-                          <img src="{{ agent.photo_path }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
-                          <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-md">
-                            <div class="text-lg md:text-xl font-bold mb-2">{{ agent.id }}</div>
-                            <div class="mb-2">{{ agent.jobtitle }}</div>
-                            <div class="mb-2">{{ agent.summary }}</div>
-                          </label>
-                        </div>
-                      {% endfor %}
-                    {% else %}
-                      <p>No agents available.</p>
-                    {% endif %}
-                  </div>
-                </div>              
                 </div>
-                <button
-                  type="submit"
-                  class="px-4 py-2 md:px-6 md:py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 w-full text-sm md:text-md"
-                >
+                <button type="submit" class="px-4 py-2 md:px-6 md:py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 w-full text-sm md:text-md">
                   Render Timeframe
                 </button>
-                <div class="text-center">
-                  <img
-                    id="loading"
-                    src="{{ url_for('static', filename='loading.gif') }}"
-                    style="display: none; margin-top: 10px; max-width: 60px"
-                    alt="Loading"
-                  />
-                </div>
+                <img
+                  id="loadingOnSubmit"
+                  src="{{ url_for('static', filename='loading.gif') }}"
+                  style="display: none; margin-top: 10px; max-width: 60px"
+                  alt="Loading"
+                />
               </form>
             </div>
           </div>
@@ -199,7 +169,6 @@
     {% include 'footer.html' %}
 
     <script>
-
       window.onload = function () {
         var loadingPlaceholder = document.getElementById("loadingPlaceholder");
         if (loadingPlaceholder) {
@@ -209,30 +178,19 @@
           }, 600);
         }
       };
-      
-      document.addEventListener("DOMContentLoaded", function () {
-        const form = document.querySelector("form");
-        const loading = document.getElementById("loading");
-
-        form.addEventListener("submit", function (e) {
-          const filenameInput = document.getElementById("filename");
-          filenameInput.value = filenameInput.value.replace(/\s+/g, "_");
-
-          loading.style.display = "block";
-        });
-      });
 
       document.addEventListener("DOMContentLoaded", function () {
         const form = document.querySelector("form");
-        const loading = document.getElementById("loading");
+        const loadingOnSubmit = document.getElementById("loadingOnSubmit");
         const agentItems = document.querySelectorAll(".agent-item");
-        const selectAllButton = document.getElementById("select-all");
-        const clearAllButton = document.getElementById("clear-all");
         const checkboxes = document.querySelectorAll('input[type="checkbox"]');
 
         // Form submit event
         form.addEventListener("submit", function (e) {
-          // Code for handling the submit event
+          // Show the loading GIF when the form is being submitted
+          if (loadingOnSubmit) {
+            loadingOnSubmit.style.display = "block";
+          }
         });
 
         // Individual agent item click event
@@ -249,87 +207,6 @@
             }
           });
         });
-
-        // Select All button click event
-        selectAllButton.addEventListener("click", function (e) {
-          e.preventDefault(); // Prevent default button click behavior
-          checkboxes.forEach((checkbox) => {
-            checkbox.checked = true;
-            checkbox.closest(".agent-item").classList.add("selected");
-          });
-        });
-
-        // Clear All button click event
-        clearAllButton.addEventListener("click", function (e) {
-          e.preventDefault(); // Prevent default button click behavior
-          checkboxes.forEach((checkbox) => {
-            checkbox.checked = false;
-            checkbox.closest(".agent-item").classList.remove("selected");
-          });
-        });
-      });
-    // Timeframe selection change event
-      document.getElementById('timeframe').addEventListener('change', function (e) {
-        const timeframeId = e.target.value;
-        const agentListContent = document.getElementById('agent-list-content');
-
-        // Clear the existing agent list
-        agentListContent.innerHTML = '';
-
-        if (timeframeId) {
-          // Load agents from the selected timeframe
-          fetch(`/timeframes/${timeframeId}/agents`)
-            .then(response => response.json())
-            .then(agents => {
-              if (agents.length > 0) {
-                agents.forEach(agent => {
-                  const agentItem = `
-                    <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="${agent.id}">
-                      <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden">
-                      <img src="${agent.photo_path}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
-                      <label for="agent-${agent.id}" class="text-gray-700 text-sm md:text-md">
-                        <div class="text-lg md:text-xl font-bold mb-2">${agent.id}</div>
-                        <div class="mb-2">${agent.jobtitle}</div>
-                        <div class="mb-2">${agent.summary}</div>
-                      </label>
-                    </div>
-                  `;
-                  agentListContent.innerHTML += agentItem;
-                });
-              } else {
-                agentListContent.innerHTML = '<p>No agents available.</p>';
-              }
-            })
-            .catch(error => {
-              console.error('Error loading agents:', error);
-            });        } else {
-          // Load base agents
-          fetch('/base_agents')
-            .then(response => response.json())
-            .then(agents => {
-              if (agents.length > 0) {
-                agents.forEach(agent => {
-                  const agentItem = `
-                    <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="${agent.id}">
-                      <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden">
-                      <img src="${agent.photo_path}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
-                      <label for="agent-${agent.id}" class="text-gray-700 text-sm md:text-md">
-                        <div class="text-lg md:text-xl font-bold mb-2">${agent.id}</div>
-                        <div class="mb-2">${agent.jobtitle}</div>
-                        <div class="mb-2">${agent.summary}</div>
-                      </label>
-                    </div>
-                  `;
-                  agentListContent.innerHTML += agentItem;
-                });
-              } else {
-                agentListContent.innerHTML = '<p>No agents available.</p>';
-              }
-            })
-            .catch(error => {
-              console.error('Error loading base agents:', error);
-            });
-        }
       });
     </script>
   </body>
