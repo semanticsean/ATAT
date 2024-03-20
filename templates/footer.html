@@ -22,53 +22,10 @@
         >
       </div>
     </div>
-    <div class="mt-4">
-      <h4 class="text-lg font-bold mb-2">Menu</h4>
-      <ul class="space-y-2">
-        <li><a href="/" class="text-blue-500 hover:text-blue-600">Home</a></li>
-        <li>
-          <a href="/help" class="text-blue-500 hover:text-blue-600">Help</a>
-        </li>
-        <li>
-          <a
-            href="{{ url_for('auth_blueprint.new_agent_copy') }}"
-            class="text-blue-500 hover:text-blue-600"
-            >New Timeframe</a
-          >
-        </li>
-        <li>
-          <a
-            href="{{ url_for('survey_blueprint.create_survey') }}"
-            class="text-blue-500 hover:text-blue-600"
-            >New Meeting</a
-          >
-        </li>
-      </ul>
-    </div>
+    
   </div>
 </div>
 
-<div
-  id="banner"
-  class="fixed bottom-0 left-0 right-0 bg-orange-500 text-white py-2 px-4 flex justify-between items-center"
->
-  <p class="text-sm">This is a closeable banner.</p>
-  <button
-    id="close-banner"
-    class="text-white hover:text-gray-200 focus:outline-none"
-  >
-    <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
-      <path d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  </button>
-</div>
 
-<script>
-  document
-    .getElementById("close-banner")
-    .addEventListener("click", function () {
-      document.getElementById("banner").style.display = "none";
-    });
-</script>
-
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ get_secret('GTAG') }}"></script>
 <script src="static/ga.js"></script>

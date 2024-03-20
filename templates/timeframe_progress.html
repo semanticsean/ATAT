@@ -1,0 +1,30 @@
+<!-- templates/timeframe_progress.html -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeframe Progress</title>
+    <script>
+        function refreshPage() {
+            location.reload();
+        }
+        setInterval(refreshPage, 5000); // Refresh every 5 seconds
+    </script>
+</head>
+<body>
+    <h1>Timeframe Progress</h1>
+    <p>Processing agents for timeframe: {{ timeframe.name }}</p>
+    <ul>
+        {% for agent in timeframe.agents_data %}
+            <li>{{ agent.id }} - Processed</li>
+        {% endfor %}
+    </ul>
+    <p>Automatically refreshing...</p>
+    {% if timeframe.agents_data|length == current_user.agents_data|length %}
+        <script>
+            window.location.href = "{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}";
+        </script>
+    {% endif %}
+</body>
+</html>
