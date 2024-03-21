@@ -60,23 +60,20 @@ def process_agents(payload, current_user):
         max_retries = 12
         retry_delay = 5
         retry_count = 0
-        logging.info(f"Current token balance before API call: {current_user.credits}")
+        logging.info(f"Current credit balance before API call: {current_user.credits}")
 
         while retry_count < max_retries:
             try:
-                if current_user.credits is None or current_user.credits <= 0:
-                    raise Exception("Out of credits, please add more")
+                if current_user.credits is None or current_user.credits < 5:
+                    raise Exception("Insufficient credits, please add more")
 
                 response = client.chat.completions.create(**agent_payload)
-                tokens_used = response.usage.total_tokens
 
                 # Deduct credits based on the API call
                 if agent_payload["model"].startswith("gpt-4"):
-                    credits_used = tokens_used * 10  # Deduct 10 credits per token for GPT-4 models
-                elif agent_payload["model"].startswith("dall-e"):
-                    credits_used = 10  # Deduct a fixed amount of 10 credits for DALL-E models
+                    credits_used = 5  # Deduct 5 credits for GPT-4 models
                 else:
-                    credits_used = tokens_used  # Deduct 1 credit per token for other models
+                    raise ValueError(f"Unexpected model: {agent_payload['model']}")
 
                 current_user.credits -= credits_used
                 db.session.commit()
@@ -107,8 +104,7 @@ def process_agents(payload, current_user):
         photo_filename = updated_agent_data['photo_path'].split('/')[-1]
         image_data = current_user.images_data.get(photo_filename) if current_user.images_data else None
 
-        logging.info(f"Tokens used in the API call: {tokens_used}")
-        logging.info(f"Current token balance after API call: {current_user.credits}")
+        logging.info(f"Current credit balance after API call: {current_user.credits}")
 
         if image_data:
             vision_payload = {
@@ -133,18 +129,12 @@ def process_agents(payload, current_user):
             retry_count = 0
             while retry_count < max_retries:
                 try:
-                    if current_user.credits is None or current_user.credits <= 0:
-                        raise Exception("Out of credits, please add more")
+                    if current_user.credits is None or current_user.credits < 10:
+                        raise Exception("Insufficient credits, please add more")
                     vision_response = client.chat.completions.create(**vision_payload)
-                    tokens_used = vision_response.usage.total_tokens
 
                     # Deduct credits based on the API call
-                    if vision_payload["model"].startswith("gpt-4"):
-                        credits_used = tokens_used * 10  # Deduct 10 credits per token for GPT-4 models
-                    elif vision_payload["model"].startswith("dall-e"):
-                        credits_used = 10  # Deduct a fixed amount of 10 credits for DALL-E models
-                    else:
-                        credits_used = tokens_used  # Deduct 1 credit per token for other models
+                    credits_used = 10  # Deduct 10 credits for image calls
 
                     current_user.credits -= credits_used
                     db.session.commit()
@@ -178,8 +168,8 @@ def process_agents(payload, current_user):
         retry_count = 0
         while retry_count < max_retries:
             try:
-                if current_user.credits is None or current_user.credits <= 0:
-                    raise Exception("Out of credits, please add more")
+                if current_user.credits is None or current_user.credits < 10:
+                    raise Exception("Insufficient credits, please add more")
                 dalle_response = client.images.generate(
                     model="dall-e-3",
                     prompt=dalle_prompt,
@@ -187,7 +177,7 @@ def process_agents(payload, current_user):
                     size="1024x1024",
                     n=1,
                 )
-                current_user.credits -= 10  # Deduct a fixed amount of 10 credits for DALL-E models
+                current_user.credits -= 10  # Deduct 10 credits for DALL-E models
                 db.session.commit()
                 break
             except APIError as e:
@@ -225,9 +215,9 @@ def process_agents(payload, current_user):
     new_timeframe = Timeframe(name=payload["timeframe_name"], user_id=current_user.id, agents_data=updated_agents)
     db.session.add(new_timeframe)
     db.session.commit()
-    
-    
-    return new_timeframe.id
+
+    logging.info(f"New timeframe created: {new_timeframe}")
+    return new_timeframe
 
 
 
@@ -279,19 +269,13 @@ def conduct_survey(payload, current_user):
         retry_count = 0
         while retry_count < max_retries:
           try:
-            if current_user.credits is None or current_user.credits <= 0:
-              raise Exception("Out of credits, please add more")
+            if current_user.credits is None or current_user.credits < 1:
+              raise Exception("Insufficient credits, please add more")
 
             response = client.chat.completions.create(**agent_payload)
-            tokens_used = response.usage.total_tokens
 
             # Deduct credits based on the API call
-            if agent_payload["model"].startswith("gpt-4"):
-              credits_used = tokens_used * 10  # Deduct 10 credits per token for GPT-4 models
-            elif agent_payload["model"].startswith("dall-e"):
-              credits_used = 10  # Deduct a fixed amount of 10 credits for DALL-E models
-            else:
-              credits_used = tokens_used  # Deduct 1 credit per token for other models
+            credits_used = 1  # Deduct 1 credit for gpt-3.5-turbo models
 
             current_user.credits -= credits_used
             db.session.commit()
@@ -331,19 +315,13 @@ def conduct_survey(payload, current_user):
       retry_count = 0
       while retry_count < max_retries:
         try:
-          if current_user.credits is None or current_user.credits <= 0:
-            raise Exception("Out of credits, please add more")
+          if current_user.credits is None or current_user.credits < 1:
+            raise Exception("Insufficient credits, please add more")
 
           response = client.chat.completions.create(**agent_payload)
-          tokens_used = response.usage.total_tokens
 
           # Deduct credits based on the API call
-          if agent_payload["model"].startswith("gpt-4"):
-            credits_used = tokens_used * 10  # Deduct 10 credits per token for GPT-4 models
-          elif agent_payload["model"].startswith("dall-e"):
-            credits_used = 10  # Deduct a fixed amount of 10 credits for DALL-E models
-          else:
-            credits_used = tokens_used  # Deduct 1 credit per token for other models
+          credits_used = 1  # Deduct 1 credit for gpt-3.5-turbo models
 
           current_user.credits -= credits_used
           db.session.commit()
@@ -373,21 +351,16 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
 
   # Prepare the API payload for the new agent
   agent_payload = {
-      "model":
-      "gpt-4-turbo-preview",
+      "model": "gpt-4-turbo-preview",
       "response_format": {
           "type": "json_object"
       },
       "messages": [{
-          "role":
-          "system",
-          "content":
-          f"You are a helpful assistant designed to generate a new agent data in JSON format based on the following instructions:\n{json.load(open('abe/abe-instructions.json'))['new_agent_json_instructions']} /n /n Relationships must be a list of dictionaries, each representing a unique relationship with detailed attributes (name, job, relationship_description, summary, common_interactions)"
+          "role": "system",
+          "content": f"You are a helpful assistant designed to generate a new agent data in JSON format based on the following instructions:\n{json.load(open('abe/abe-instructions.json'))['new_agent_json_instructions']} /n /n Relationships must be a list of dictionaries, each representing a unique relationship with detailed attributes (name, job, relationship_description, summary, common_interactions)"
       }, {
-          "role":
-          "user",
-          "content":
-          f"Agent Name: {agent_name}\nJob Title: {jobtitle}\nAgent Description: {agent_description}\n\nPlease generate the new agent data in JSON format without including the id, jobtitle, email, unique_id, timestamp, or photo_path fields."
+          "role": "user",
+          "content": f"Agent Name: {agent_name}\nJob Title: {jobtitle}\nAgent Description: {agent_description}\n\nPlease generate the new agent data in JSON format without including the id, jobtitle, email, unique_id, timestamp, or photo_path fields."
       }]
   }
 
@@ -396,40 +369,34 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
   retry_delay = 5
   retry_count = 0
   while retry_count < max_retries:
-    try:
-      if current_user.credits is None or current_user.credits <= 0:
-        raise Exception("Out of credits, please add more")
+      try:
+          if current_user.credits is None or current_user.credits < 5:
+              raise Exception("Insufficient credits, please add more")
 
-      response = client.chat.completions.create(**agent_payload)
-      tokens_used = response.usage.total_tokens
+          response = client.chat.completions.create(**agent_payload)
 
-      # Deduct credits based on the API call
-      if agent_payload["model"].startswith("gpt-4"):
-        credits_used = tokens_used * 10  # Deduct 10 credits per token for GPT-4 models
-      elif agent_payload["model"].startswith("dall-e"):
-        credits_used = 10  # Deduct a fixed amount of 10 credits for DALL-E models
-      else:
-        credits_used = tokens_used  # Deduct 1 credit per token for other models
+          # Deduct credits based on the API call
+          credits_used = 5  # Deduct 5 credits for gpt-4-turbo-preview models
 
-      current_user.credits -= credits_used
-      db.session.commit()
-      break
-    except APIError as e:
-      logging.error(f"OpenAI API error: {e}")
-      retry_count += 1
-      if retry_count < max_retries:
-        time.sleep(retry_delay)
-        retry_delay *= 2
-      else:
-        raise e
+          current_user.credits -= credits_used
+          db.session.commit()
+          break
+      except APIError as e:
+          logging.error(f"OpenAI API error: {e}")
+          retry_count += 1
+          if retry_count < max_retries:
+              time.sleep(retry_delay)
+              retry_delay *= 2
+          else:
+              raise e
 
   # Check if the response is valid JSON
   if response.choices[0].finish_reason == "stop":
-    new_agent_data = json.loads(response.choices[0].message.content)
+      new_agent_data = json.loads(response.choices[0].message.content)
   else:
-    raise ValueError(
-        f"Incomplete or invalid JSON response: {response.choices[0].message.content}"
-    )
+      raise ValueError(
+          f"Incomplete or invalid JSON response: {response.choices[0].message.content}"
+      )
 
   new_agent_data = {
       'id': agent_name,
@@ -452,28 +419,28 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
   retry_delay = 5
   retry_count = 0
   while retry_count < max_retries:
-    try:
-      if current_user.credits is None or current_user.credits <= 0:
-        raise Exception("Out of credits, please add more")
+      try:
+          if current_user.credits is None or current_user.credits < 10:
+              raise Exception("Insufficient credits, please add more")
 
-      dalle_response = client.images.generate(
-          model="dall-e-3",
-          prompt=dalle_prompt,
-          quality="standard",
-          size="1024x1024",
-          n=1,
-      )
-      current_user.credits -= 10  # Deduct a fixed amount of 10 credits for DALL-E models
-      db.session.commit()
-      break
-    except APIError as e:
-      logging.error(f"OpenAI API error: {e}")
-      retry_count += 1
-      if retry_count < max_retries:
-        time.sleep(retry_delay)
-        retry_delay *= 2
-      else:
-        raise e
+          dalle_response = client.images.generate(
+              model="dall-e-3",
+              prompt=dalle_prompt,
+              quality="standard",
+              size="1024x1024",
+              n=1,
+          )
+          current_user.credits -= 10  # Deduct 10 credits for DALL-E models
+          db.session.commit()
+          break
+      except APIError as e:
+          logging.error(f"OpenAI API error: {e}")
+          retry_count += 1
+          if retry_count < max_retries:
+              time.sleep(retry_delay)
+              retry_delay *= 2
+          else:
+              raise e
 
   image_url = dalle_response.data[0].url
   logging.info(f"Generated image URL: {image_url}")
@@ -491,7 +458,7 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
 
   # Add the new agent data to the user's agents_data
   if current_user.agents_data is None:
-    current_user.agents_data = []
+      current_user.agents_data = []
 
   current_user.agents_data.append(new_agent_data)
   db.session.commit()

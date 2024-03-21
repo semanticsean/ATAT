@@ -115,23 +115,19 @@ def register():
 @auth_blueprint.route('/user', methods=['GET', 'POST'])
 @login_required
 def update_profile():
-  if request.method == 'POST':
-    current_user.username = request.form['username']
-    current_user.email = request.form.get('email')
-    password = request.form.get('password')
-    if password:
-      current_user.password_hash = generate_password_hash(password)
-
-    db.session.commit()
-    flash('Your profile was updated successfully!')
-
-    page_view = PageView(page='/user')
-    db.session.add(page_view)
-    db.session.commit()
-
-    return redirect(url_for('auth_blueprint.update_profile'))
-
-  return render_template('user.html')
+    if request.method == 'POST':
+        current_user.username = request.form['username']
+        current_user.email = request.form.get('email')
+        password = request.form.get('password')
+        if password:
+            current_user.password_hash = generate_password_hash(password)
+        db.session.commit()
+        flash('Your profile was updated successfully!')
+        page_view = PageView(page='/user')
+        db.session.add(page_view)
+        db.session.commit()
+        return redirect(url_for('auth_blueprint.update_profile'))
+    return render_template('user.html')
 
 
 @auth_blueprint.route('/help')
@@ -752,7 +748,9 @@ def status():
 def create_timeframe():
     logging.info("Handling POST request in create_timeframe route")
     if request.method == 'POST':
+        logging.info("Inside POST block")
         if current_user.credits is None or current_user.credits <= 0:
+            logging.info("User has insufficient credits")
             flash("You don't have enough credits. Please contact the admin to add more credits.")
             return redirect(url_for('home'))
 
@@ -771,14 +769,16 @@ def create_timeframe():
 
         try:
             logging.info("Calling process_agents function")
-            new_timeframe_id = abe_gpt.process_agents(payload, current_user)
-            logging.info(f"New timeframe created with ID: {new_timeframe_id}")
-            return redirect(url_for('auth_blueprint.timeframe_progress', timeframe_id=new_timeframe_id))
+            new_timeframe = abe_gpt.process_agents(payload, current_user)
+            logging.info(f"New timeframe object received: {new_timeframe}")
+            db.session.add(new_timeframe)
+            db.session.commit()
+            logging.info(f"New timeframe created with ID: {new_timeframe.id}")
+            return redirect(url_for('auth_blueprint.timeframe_progress', timeframe_id=new_timeframe.id))
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error occurred while processing agents: {str(e)}")
             flash(f"An error occurred while processing agents: {str(e)}")
-            
             return redirect(url_for('auth_blueprint.create_timeframe'))
     else:
         logger.info('Accessing new timeframe page')
