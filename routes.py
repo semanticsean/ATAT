@@ -388,7 +388,7 @@ def results(survey_id):
 @login_required
 def dashboard():
     timeframe_id = request.args.get('timeframe_id')
-    
+
     if timeframe_id:
         timeframe = Timeframe.query.get(timeframe_id)
         if timeframe and timeframe.user_id == current_user.id:
@@ -399,10 +399,14 @@ def dashboard():
         agents_data = current_user.agents_data or []
         logger.info("Loaded base agents")
 
+    # Fetch the base64-encoded image data for each agent
+    for agent in agents_data:
+        agent['image_data'] = current_user.images_data.get(agent['photo_path'].split('/')[-1], '')
+
     timeframes = current_user.timeframes
     logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
 
-    return render_template('dashboard.html', agents=agents, timeframes=timeframes)
+    return render_template('dashboard.html', agents=agents_data, timeframes=timeframes)
 
 
 @survey_blueprint.route('/survey/results/<int:survey_id>')

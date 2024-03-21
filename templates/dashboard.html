@@ -138,11 +138,15 @@
           {% endif %}
         </div>
       </div>
-      <div class="max-w-6xl mx-auto my-4">
-        <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6">
-          {% for agent in agents %}
-            <div class="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
-              <img src="{{ agent.photo_path }}" alt="Agent Photo" class="w-full object-cover" style="height: 250px; object-fit: cover" />
+              <div class="max-w-6xl mx-auto my-4">
+                <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6">
+                  {% for agent in agents %}
+                    <div class="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                      <img src="data:image/png;base64,{{ agent.image_data }}"
+                           onerror="this.src='static/loading.gif'; this.onerror=null;"
+                           alt="Agent Photo"
+                           class="w-full object-cover"
+                           style="height: 250px; object-fit: cover" />
               <div class="flex-grow p-4 flex flex-col justify-between">
                 <div class="p-6">
                   <div class="flex flex-col items-start">
