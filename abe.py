@@ -3,8 +3,9 @@
 import logging
 import glob
 import os
+import base64
 import json
-from flask import Flask, render_template, send_from_directory, abort, send_file
+from flask import Flask, render_template, send_from_directory, abort, send_file, url_for, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, login_required
 from flask_migrate import Migrate
@@ -15,6 +16,8 @@ import start
 from routes import auth_blueprint, survey_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint
 from werkzeug.utils import secure_filename
 from flask_images import Images
+
+
 
 def configure_logging():
     if not os.path.exists('logs'):
@@ -80,10 +83,8 @@ app.register_blueprint(start_blueprint)
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-def custom_img_filter(photo_path, size='48x48'):
-    # Your filter logic here
-    pass
-app.jinja_env.filters['img'] = custom_img_filter
+
+
 
 
 @app.context_processor
@@ -118,21 +119,29 @@ def home():
     
     return render_template('index.html', agents_content=agents_content, survey_results=survey_results, timeframes=timeframes)
 
-@app.route('/agents/pics/<filename>')
-@login_required
-def serve_agent_image(filename):
-    # Ensure the filename is safe and ends with .png
-    if ".." in filename or filename.startswith(
-            "/") or not filename.endswith(".png"):
-        return abort(404)
-    user_dir = current_user.folder_path
-    image_path = os.path.join(user_dir, 'agents', 'pics', filename)
-    if os.path.exists(image_path):
-        return send_from_directory(os.path.join(user_dir, 'agents', 'pics'),
-                                   filename)
-    else:
-        return abort(404)
 
+@app.route('/images/<filename>')
+def serve_image(filename):
+    user_id = current_user.id
+    user = User.query.get(user_id)
+    if user.images_data is None:
+        abort(404)
+    image_data = user.images_data.get(filename)
+    if image_data:
+        return Response(base64.b64decode(image_data), mimetype='image/png')
+    else:
+        abort(404)
+
+
+def custom_img_filter(photo_path, size='48x48'):
+  # Extract the filename from the photo_path
+  filename = os.path.basename(photo_path)
+
+  # Generate the URL for the image using the appropriate route
+  image_url = url_for('serve_image', filename=filename)
+
+  # Return the HTML img tag with the image URL and size
+  return f'<img src="{image_url}" alt="{filename}" width="{size.split("x")[0]}" height="{size.split("x")[1]}">'
 
 
 if __name__ == '__main__':
