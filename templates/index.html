@@ -107,11 +107,12 @@
                 >
                   <button
                     type="submit"
-                    class="block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
+                    class="block bg-gray-400 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
                   >
                     Add Base Agents
                   </button>
                 </form>
+                <p class="my-4 text-sm">May take several minutes</p>
               </div>
               {% endif %}
             </div>
@@ -181,14 +182,26 @@
   </body>
 
   <script>
-    window.onload = function () {
-      var loadingPlaceholder = document.getElementById("loadingPlaceholder");
-      if (loadingPlaceholder) {
-        loadingPlaceholder.style.opacity = "0";
-        setTimeout(function () {
-          loadingPlaceholder.style.display = "none";
-        }, 600);
+      // This function hides the loading placeholder
+      function hideLoading() {
+          var loadingPlaceholder = document.getElementById("loadingPlaceholder");
+          if (loadingPlaceholder) {
+              loadingPlaceholder.style.opacity = "0";
+              setTimeout(function () {
+                  loadingPlaceholder.style.display = "none";
+              }, 600); // A smooth fade out transition
+          }
       }
-    };
+
+      window.onload = function () {
+          hideLoading(); // Hide loading image after initial page load
+      };
+
+      $(document).ready(function() {
+          $('form').submit(function() {
+              // Show loading image on form submit (Optional: if you want to show loading on form submit again)
+              $('#loadingPlaceholder').css({'display': 'flex', 'opacity': '1'});
+          });
+      });
   </script>
 </html>
