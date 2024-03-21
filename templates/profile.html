@@ -39,7 +39,10 @@
           <div class="bg-white rounded-lg shadow-md">
             <div class="flex flex-col md:flex-row">
               <div class="md:w-1/2">
-                <img src="{{ agent.photo_path }}" alt="Agent Photo" class="w-full h-auto rounded-t-lg md:rounded-l-lg md:rounded-tr-none">
+                <img src="data:image/png;base64,{{ agent.image_data }}"
+                   onerror="this.src='static/loading.gif'; this.onerror=null;"
+                   alt="Agent Photo"
+                   class="w-full h-auto rounded-t-lg md:rounded-l-lg md:rounded-tr-none">
               </div>
               <div class="md:w-1/2 p-6">
                 <div class="mb-2">
