@@ -3,12 +3,14 @@ from models import db, User
 import os
 
 app = Flask(__name__)
+
 database_url = os.environ.get('DATABASE_URL')
 if database_url and database_url.startswith("postgres://"):
   app.config['SQLALCHEMY_DATABASE_URI'] = database_url.replace(
       "postgres://", "postgresql://", 1)
 else:
   raise ValueError('Invalid or missing DATABASE_URL')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -17,7 +19,6 @@ db.init_app(app)
 def main():
   with app.app_context():
     users = User.query.all()
-
     print("Available users:")
     for index, user in enumerate(users, start=1):
       print(f"{index}. {user.username}")
@@ -37,11 +38,11 @@ def main():
 
       selected_user = users[user_index]
       print(f"Selected user: {selected_user.username}")
-      print(f"Current token balance: {selected_user.credits}")
+      print(f"Current credit balance: {selected_user.credits}")
 
       while True:
         update_choice = input(
-            "Update tokens? (Enter a number or 'q' to quit): ")
+            "Update credits? (Enter a number or 'q' to quit): ")
         if update_choice.lower() == 'q':
           break
 
@@ -56,7 +57,7 @@ def main():
         selected_user.credits = new_balance
         db.session.commit()
         print(
-            f"Updated {selected_user.username}'s token balance to {new_balance} tokens."
+            f"Updated {selected_user.username}'s credit balance to {new_balance} credits."
         )
         break
 
