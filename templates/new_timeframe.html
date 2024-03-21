@@ -66,6 +66,13 @@
         alt="Loading"
       />
     </div>
+    <div id="insufficientCreditsOverlay" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50" style="display: none;">
+      <div class="bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-4">Insufficient Credits</h2>
+        <p class="mb-4">You don't have enough credits to create a new timeframe. Please top up your credits to continue.</p>
+        <button id="topUpButton" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Top Up Credits</button>
+      </div>
+    </div>
     {% include 'header.html' %}
     <main class="flex-grow">
       <div class="container mx-auto px-4 py-8 mt-12">
@@ -86,7 +93,7 @@
                 </div>
               </div>
               
-              <form action="{{ url_for('auth_blueprint.create_timeframe') }}" method="post">
+                <form action="{{ url_for('auth_blueprint.create_timeframe') }}" method="post">
                 <div class="mb-4">
                   <label for="name" class="block text-lg md:text-xl font-bold">Name this Timeframe:</label>
                   <input
@@ -134,22 +141,22 @@
                   ></textarea>
                 </div>
 
-                <div class="mb-8">
-                  <h2 class="text-lg md:text-xl font-bold mb-2">Select Synths:</h2>
-                  <div id="agent-list">
-                    {% for agent in base_agents %}
-                      <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
-                        <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden">
-                        <img src="{{ agent.photo_path|img(size='48x48') }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
-                        <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-md">
-                          <div class="text-lg md:text-xl font-bold mb-2">{{ agent.id }}</div>
-                          <div class="mb-2">{{ agent.jobtitle }}</div>
-                          <div class="mb-2">{{ agent.summary }}</div>
-                        </label>
-                      </div>
-                    {% endfor %}
+                  <div class="mb-8">
+                    <h2 class="text-lg md:text-xl font-bold mb-2">Select Synths:</h2>
+                    <div id="agent-list">
+                      {% for agent in base_agents %}
+                        <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
+                          <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden">
+                          <img src="data:image/png;base64,{{ current_user.images_data.get(agent.photo_path.split('/')[-1], '') }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
+                          <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-md">
+                            <div class="text-lg md:text-xl font-bold mb-2">{{ agent.id }}</div>
+                            <div class="mb-2">{{ agent.jobtitle }}</div>
+                            <div class="mb-2">{{ agent.summary }}</div>
+                          </label>
+                        </div>
+                      {% endfor %}
+                    </div>
                   </div>
-                </div>
                 <button type="submit" class="px-4 py-2 md:px-6 md:py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 w-full text-sm md:text-md">
                   Render Timeframe
                 </button>
@@ -185,15 +192,49 @@
         const agentItems = document.querySelectorAll(".agent-item");
         const checkboxes = document.querySelectorAll('input[type="checkbox"]');
 
-        // Form submit event
+        // Check if the user has insufficient credits
+        {% if current_user.credits is none or current_user.credits <= 0 %}
+          const insufficientCreditsOverlay = document.getElementById("insufficientCreditsOverlay");
+          const topUpButton = document.getElementById("topUpButton");
+
+          // Show the insufficient credits overlay
+          insufficientCreditsOverlay.style.display = "flex";
+
+          // Add click event listener to the top-up button
+          topUpButton.addEventListener("click", function () {
+            // Redirect the user to the /user page
+            window.location.href = "{{ url_for('auth_blueprint.update_profile') }}";
+          });
+        {% endif %}
+
+        // Modify the form submit event to log data to the console
         form.addEventListener("submit", function (e) {
+          e.preventDefault(); // Prevent the default form submission
+
+          const formData = new FormData(form);
+          const payload = {};
+          for (let [key, value] of formData.entries()) {
+            if(payload.hasOwnProperty(key)) {
+              if(!Array.isArray(payload[key])) {
+                payload[key] = [payload[key]];
+              }
+              payload[key].push(value);
+            } else {
+              payload[key] = value;
+            }
+          }
+
+          console.log("Form payload to be sent to process_agents via create_timeframe:", payload);
+
           // Show the loading GIF when the form is being submitted
           if (loadingOnSubmit) {
             loadingOnSubmit.style.display = "block";
           }
+
+          form.submit(); // Now submit the form programmatically
         });
 
-        // Individual agent item click event
+        // Your existing code for handling agent item clicks
         agentItems.forEach((item) => {
           item.addEventListener("click", function (e) {
             // Prevent form from submitting if the form is clicked
@@ -209,5 +250,6 @@
         });
       });
     </script>
+
   </body>
 </html>
