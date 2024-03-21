@@ -429,11 +429,12 @@ def profile():
     agent_id = request.args.get('agent_id')
     agents_data = current_user.agents_data or []
 
-    for agent in agents_data:
-        agent['photo_path'] = url_for('auth_blueprint.serve_image', filename=agent['photo_path'].split('/')[-1])
-
     agent = get_agent_by_id(agents_data, agent_id)
     prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents_data, agent)
+
+    if agent:
+        # Fetch the base64-encoded image data from the images_data attribute
+        agent['image_data'] = current_user.images_data.get(agent['photo_path'].split('/')[-1], '')
 
     return render_template('profile.html',
                            agent=agent,
