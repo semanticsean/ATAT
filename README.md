@@ -419,3 +419,109 @@ flask db upgrade
 
 # back date required for: 
 pip install 'itsdangerous<2.0'
+
+
+
+
+Certainly! Here's a technical description of the app for another AI:
+
+The Semantic Life app is a web-based application built using the Flask web framework in Python. It allows users to create and manage AI agents, conduct surveys, and generate timeframes based on user-defined instructions.
+
+The app follows a blueprint architecture, where different parts of the application are separated into individual blueprints, such as auth_blueprint, survey_blueprint, dashboard_blueprint, and profile_blueprint. Each blueprint handles specific routes and functionality related to its purpose.
+
+The app uses a PostgreSQL database to store user information, agent data, surveys, and timeframes. The database models are defined using Flask-SQLAlchemy, an extension that provides ORM (Object-Relational Mapping) capabilities for interacting with the database.
+
+User authentication is implemented using Flask-Login, which handles user registration, login, and session management. Users can register an account, log in, and update their profile information.
+
+The app integrates with the OpenAI API to generate agent data and conduct surveys. It uses the abe_gpt module to process agent data and generate responses based on user-defined instructions. The abe_gpt module communicates with the OpenAI API to generate agent data, modify agent attributes, and generate survey responses.
+
+The app allows users to create and manage AI agents. Users can add base agents, create new agents, edit agent attributes, and delete agents. Agent data is stored in the database and can be retrieved and updated as needed.
+
+Users can also create surveys and conduct meetings with the AI agents. Surveys are created by selecting agents and defining questions. The app uses the abe_gpt module to generate survey responses based on the selected agents and user-defined instructions. Survey results are stored in the database and can be viewed by the user.
+
+Timeframes are another feature of the app, allowing users to create modified versions of the base agents based on specific instructions and context. Users can select agents, provide instructions, and generate a new timeframe with the modified agents. Timeframe data is stored in the database and can be accessed and managed by the user.
+
+The app utilizes various Flask extensions and libraries to enhance its functionality. Flask-Images is used for image handling and processing, although its usage in the current code needs to be cleaned up and fixed. Flask-Migrate is used for database migrations, allowing easy management of database schema changes.
+
+The app's frontend is built using HTML templates and styled with Tailwind CSS. The templates are rendered using Jinja2, a templating engine that allows dynamic content generation. JavaScript is used for client-side interactivity and AJAX requests.
+
+Error handling and logging are implemented throughout the app to catch and handle exceptions gracefully. The app logs relevant information and errors for debugging and monitoring purposes.
+
+Overall, the Semantic Life app provides a platform for users to create, manage, and interact with AI agents, conduct surveys, and generate timeframes based on user-defined instructions. It leverages the Flask web framework, PostgreSQL database, and OpenAI API to deliver its functionality.
+
+
+# schema 
+
+ table_schema |   table_name    |  column_name  |          data_type          
+--------------+-----------------+---------------+-----------------------------
+ public       | alembic_version | version_num   | character varying
+ public       | page_view       | id            | integer
+ public       | page_view       | page          | character varying
+ public       | page_view       | timestamp     | timestamp without time zone
+ public       | survey          | id            | integer
+ public       | survey          | name          | character varying
+ public       | survey          | user_id       | integer
+ public       | survey          | is_public     | boolean
+ public       | survey          | public_url    | character varying
+ public       | survey          | survey_data   | json
+ public       | timeframe       | id            | integer
+ public       | timeframe       | name          | character varying
+ public       | timeframe       | user_id       | integer
+ public       | timeframe       | agents_data   | json
+ public       | user            | id            | integer
+ public       | user            | username      | character varying
+ public       | user            | email         | character varying
+ public       | user            | password_hash | character varying
+ public       | user            | agents_data   | json
+ public       | user            | images_data   | json
+ public       | user            | credits       | integer
+(21 rows)
+
+
+
+
+# helpful 
+
+SELECT credits FROM user WHERE username = 'the_username';
+
+
+
+-----------------------
+
+SELECT
+    table_schema,
+    table_name,
+    column_name,
+    data_type
+FROM
+    information_schema.columns
+WHERE
+    table_schema NOT IN ('information_schema', 'pg_catalog')
+ORDER BY
+    table_schema,
+    table_name,
+    ordinal_position;
+
+
+
+
+
+    ----------
+
+
+    check images 
+
+    SELECT
+      agent.value->>'id' AS agent_id,
+      agent.value->>'photo_path' AS photo_path,
+      LENGTH(COALESCE(u.images_data->>(agent.value->>'photo_path'), '')) AS image_length,
+      CASE
+        WHEN LENGTH(COALESCE(u.images_data->>(agent.value->>'photo_path'), '')) > 0
+        THEN 'Present'
+        ELSE 'Missing'
+      END AS image_status
+    FROM
+      "user" u,
+      json_array_elements(u.agents_data) AS agent
+    WHERE
+      u.id = 12;
