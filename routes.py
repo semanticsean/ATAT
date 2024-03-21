@@ -148,20 +148,23 @@ def sanitize_filename(filename):
   clean_filename = clean_filename.strip('_')
   return clean_filename
 
-    
 @auth_blueprint.route('/add_base_agents', methods=['POST'])
 @login_required
 def add_base_agents():
+    logging.info("Starting to add base agents")
     try:
         base_agents_path = os.path.join('agents', 'agents.json')
+        logging.info(f"Reading base agents from {base_agents_path}")
         with open(base_agents_path, 'r') as file:
             base_agents_data = json.load(file)
 
         current_user.images_data = {}  # Initialize images_data as an empty dictionary
+        logging.info("Initialized images_data as an empty dictionary")
 
         for agent in base_agents_data:
             photo_filename = os.path.basename(agent['photo_path'])
             image_path = os.path.join('agents', 'pics', photo_filename)
+            logging.info(f"Processing image {photo_filename}")
 
             with open(image_path, 'rb') as image_file:
                 encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
@@ -169,9 +172,11 @@ def add_base_agents():
 
         current_user.agents_data = base_agents_data
         db.session.commit()
+        logging.info("Successfully added base agents and committed to the database")
 
         return redirect(url_for('home'))
     except Exception as e:
+        logging.error(f"Failed to add base agents due to an exception: {str(e)}", exc_info=True)
         return jsonify({'success': False, 'error': str(e)})
 
 @survey_blueprint.route('/survey/create', methods=['GET', 'POST'])
