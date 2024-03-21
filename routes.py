@@ -84,33 +84,32 @@ def login():
 
   return render_template('login.html')
 
-
 @auth_blueprint.route('/register', methods=['GET', 'POST'])
 def register():
-  if request.method == 'POST':
-    username = request.form['username']
-    password = request.form['password']
-    email = request.form.get('email')  # Retrieve email from form data
-    user = User.query.filter_by(username=username).first()
-    if user:
-      flash('Username already exists')
-      return redirect(url_for('auth_blueprint.register'))
-    # Check if email already exists
-    email_exists = User.query.filter_by(email=email).first()
-    if email_exists:
-      flash('Email already registered')
-      return redirect(url_for('auth_blueprint.register'))
-    new_user = User(username=username, email=email)
-    new_user.set_password(password)
-    new_user.create_user_folder()
-    db.session.add(new_user)
-    db.session.commit()
-    page_view = PageView(page='/register')
-    db.session.add(page_view)
-    db.session.commit()
-    return redirect(url_for('auth_blueprint.login'))
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form.get('email')  # Retrieve email from form data
+        user = User.query.filter_by(username=username).first()
+        if user:
+            flash('Username already exists')
+            return redirect(url_for('auth_blueprint.register'))
+        # Check if email already exists
+        email_exists = User.query.filter_by(email=email).first()
+        if email_exists:
+            flash('Email already registered')
+            return redirect(url_for('auth_blueprint.register'))
+        new_user = User(username=username, email=email)
+        new_user.set_password(password)
+        new_user.create_user_data()  # Call create_user_data instead of create_user_folder
+        db.session.add(new_user)
+        db.session.commit()
+        page_view = PageView(page='/register')
+        db.session.add(page_view)
+        db.session.commit()
+        return redirect(url_for('auth_blueprint.login'))
 
-  return render_template('register.html')
+    return render_template('register.html')
 
 
 @auth_blueprint.route('/user', methods=['GET', 'POST'])
@@ -150,17 +149,6 @@ def sanitize_filename(filename):
   return clean_filename
 
     
-
-@auth_blueprint.route('/images/<filename>')
-@login_required
-def serve_image(filename):
-    image_data = current_user.images_data.get(filename)
-    if image_data:
-        return Response(base64.b64decode(image_data), mimetype='image/png')
-    else:
-        return abort(404)
-
-  
 @auth_blueprint.route('/add_base_agents', methods=['POST'])
 @login_required
 def add_base_agents():
@@ -169,15 +157,14 @@ def add_base_agents():
         with open(base_agents_path, 'r') as file:
             base_agents_data = json.load(file)
 
+        current_user.images_data = {}  # Initialize images_data as an empty dictionary
+
         for agent in base_agents_data:
-            photo_path = agent['photo_path']
-            photo_filename = os.path.basename(photo_path)
+            photo_filename = os.path.basename(agent['photo_path'])
             image_path = os.path.join('agents', 'pics', photo_filename)
 
             with open(image_path, 'rb') as image_file:
                 encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-            agent['photo_path'] = url_for('auth_blueprint.serve_image', filename=photo_filename)
-
             current_user.images_data[photo_filename] = encoded_string
 
         current_user.agents_data = base_agents_data
@@ -186,8 +173,6 @@ def add_base_agents():
         return redirect(url_for('home'))
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
-
-
 
 @survey_blueprint.route('/survey/create', methods=['GET', 'POST'])
 @login_required
@@ -812,3 +797,7 @@ def timeframe_progress(timeframe_id):
     else:
         logging.warning("Timeframe not found or doesn't belong to the current user")
         abort(404)
+
+
+
+
