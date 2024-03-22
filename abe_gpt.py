@@ -7,9 +7,10 @@ import time
 import uuid
 import datetime
 import os
-from models import db, User, Survey
+from models import db, User, Survey, Timeframe
 from openai import OpenAI, APIError
 from flask import url_for
+
 
 
 client = OpenAI()
@@ -163,13 +164,15 @@ def process_agents(payload, current_user):
         logging.info(f"DALL-E prompt: {dalle_prompt}")
 
         # DALL-E - Generate new profile picture
-        max_retries = 12
-        retry_delay = 5
+        max_retries = 1
+        retry_delay = 30
         retry_count = 0
         while retry_count < max_retries:
             try:
                 if current_user.credits is None or current_user.credits < 10:
                     raise Exception("Insufficient credits, please add more")
+                
+                logging.info(f"Sending DALL-E request with prompt: {dalle_prompt}")
                 dalle_response = client.images.generate(
                     model="dall-e-3",
                     prompt=dalle_prompt,
@@ -188,20 +191,30 @@ def process_agents(payload, current_user):
                     retry_delay *= 2
                 else:
                     raise e
-
+            except Exception as e:
+                logging.error(f"Error occurred while generating DALL-E image: {e}")
+                raise e
+        
+        if dalle_response is None:
+            logging.error("Failed to generate DALL-E image after multiple retries")
+            raise Exception("Failed to generate DALL-E image")
+        
         image_url = dalle_response.data[0].url
         logging.info(f"Generated image URL: {image_url}")
-
+        
         new_photo_filename = f"{agent['id']}_iteration_{len(current_user.images_data)+1}.png"
         logging.info(f"New photo filename: {new_photo_filename}")
-
-        img_data = requests.get(image_url).content
-        encoded_string = base64.b64encode(img_data).decode('utf-8')
-        current_user.images_data[new_photo_filename] = encoded_string
-        db.session.commit()
-
-        updated_agent_data['photo_path'] = url_for('auth_blueprint.serve_image', filename=new_photo_filename)
-
+        
+        try:
+            img_data = requests.get(image_url).content
+            encoded_string = base64.b64encode(img_data).decode('utf-8')
+            current_user.images_data[new_photo_filename] = encoded_string
+            db.session.commit()
+        except Exception as e:
+            logging.error(f"Error occurred while saving image data: {e}")
+            raise e
+        
+        updated_agent_data['photo_path'] = new_photo_filename
         logging.info(f"Updated photo path: {updated_agent_data['photo_path']}")
 
         # Add back the modified_id field
