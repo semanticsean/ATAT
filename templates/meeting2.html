@@ -44,7 +44,7 @@
     <div class="container mx-auto px-4 py-8 mt-12">
       <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
         <h1 class="text-3xl font-bold mb-4">Meeting Conversation Starters</h1>
-        <form id="meetingForm" action="{{ url_for('survey_blueprint.meeting_form', meeting_id=meeting.id) }}" method="post">
+        <form id="meetingForm" action="{{ url_for('meeting_blueprint.meeting_form', meeting_id=meeting.id) }}" method="post">
           <!-- ... (selected synths and predefined questions remain the same) ... -->
           <div id="questionsContainer">
             <!-- Additional questions will be added here dynamically -->

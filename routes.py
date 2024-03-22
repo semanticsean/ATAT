@@ -43,7 +43,7 @@ ALLOWED_EXTENSIONS = {'txt', 'doc', 'rtf', 'md', 'pdf'}
 auth_blueprint = Blueprint('auth_blueprint',
                            __name__,
                            template_folder='templates')
-survey_blueprint = Blueprint('survey_blueprint',
+meeting_blueprint = Blueprint('meeting_blueprint',
                              __name__,
                              template_folder='templates')
 
@@ -178,7 +178,7 @@ def add_base_agents():
 
 
 
-@survey_blueprint.route('/meeting/create', methods=['GET', 'POST'])
+@meeting_blueprint.route('/meeting/create', methods=['GET', 'POST'])
 @login_required
 def create_meeting():
     if request.method == 'POST':
@@ -196,27 +196,27 @@ def create_meeting():
                     agents_data = timeframe.agents_data
                 else:
                     flash('Invalid timeframe selected.')
-                    return redirect(url_for('survey_blueprint.create_meeting'))
+                    return redirect(url_for('meeting_blueprint.create_meeting'))
             except (IndexError, ValueError):
                 flash('Invalid agent source format.')
-                return redirect(url_for('survey_blueprint.create_meeting'))
+                return redirect(url_for('meeting_blueprint.create_meeting'))
 
         selected_agents = [agent for agent in agents_data if str(agent['id']) in selected_agent_ids]
 
         if not selected_agents:
             flash('No agents selected.')
-            return redirect(url_for('survey_blueprint.create_meeting'))
+            return redirect(url_for('meeting_blueprint.create_meeting'))
 
         new_meeting = Meeting(name=meeting_name, user_id=current_user.id, meeting_data=selected_agents)
         db.session.add(new_meeting)
         db.session.commit()
 
-        return redirect(url_for('survey_blueprint.meeting_form', meeting_id=new_meeting.id))
+        return redirect(url_for('meeting_blueprint.meeting_form', meeting_id=new_meeting.id))
     else:
         return render_template('meeting1.html')
 
 
-@survey_blueprint.route('/surveys/<path:survey_id>/pics/<filename>')
+@meeting_blueprint.route('/surveys/<path:survey_id>/pics/<filename>')
 @login_required
 def serve_survey_image(survey_id, filename):
   user_dir = current_user.folder_path
@@ -227,7 +227,7 @@ def serve_survey_image(survey_id, filename):
     abort(404)
 
 
-@survey_blueprint.route('/meeting/<int:meeting_id>', methods=['GET', 'POST'])
+@meeting_blueprint.route('/meeting/<int:meeting_id>', methods=['GET', 'POST'])
 @login_required
 def meeting_form(meeting_id):
     meeting = Meeting.query.get_or_404(meeting_id)
@@ -258,12 +258,12 @@ def meeting_form(meeting_id):
         meeting.meeting_data = selected_agents_data
         db.session.commit()
 
-        return redirect(url_for('survey_blueprint.meeting_results', meeting_id=meeting.id))
+        return redirect(url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id))
     else:
         agents_data = meeting.meeting_data
         return render_template('meeting2.html', meeting=meeting, agents=agents_data)
 
-@survey_blueprint.route('/meeting/<int:meeting_id>/results', methods=['GET', 'POST'])
+@meeting_blueprint.route('/meeting/<int:meeting_id>/results', methods=['GET', 'POST'])
 @login_required
 def meeting_results(meeting_id):
     meeting = Meeting.query.get_or_404(meeting_id)
@@ -286,7 +286,7 @@ def meeting_results(meeting_id):
     return render_template('results.html', meeting=meeting, results=meeting_data)
 
 
-@survey_blueprint.route('/survey/<int:survey_id>/results')
+@meeting_blueprint.route('/survey/<int:survey_id>/results')
 @login_required
 def results(survey_id):
   survey = Survey.query.get_or_404(survey_id)
@@ -334,7 +334,7 @@ def dashboard():
     return render_template('dashboard.html', agents=agents_data, timeframes=timeframes)
 
 
-@survey_blueprint.route('/survey/results/<int:survey_id>')
+@meeting_blueprint.route('/survey/results/<int:survey_id>')
 @login_required
 def show_survey_results(survey_id):
   survey = Survey.query.get_or_404(survey_id)
@@ -409,7 +409,6 @@ def get_timeframe_agents():
 def get_main_agents():
     main_agents = current_user.agents_data or []
     return jsonify(main_agents)
-
 
 
 def get_agent_by_id(agents, agent_id):
@@ -489,7 +488,7 @@ def extract_questions_from_form(form_data):
   return questions
 
 
-@survey_blueprint.route('/public/meeting/<public_url>')
+@meeting_blueprint.route('/public/meeting/<public_url>')
 def public_meeting_results(public_url):
     meeting = Meeting.query.filter_by(public_url=public_url).first()
 
@@ -500,7 +499,7 @@ def public_meeting_results(public_url):
 
 
 
-@survey_blueprint.route('/public/meeting/<public_url>/data')
+@meeting_blueprint.route('/public/meeting/<public_url>/data')
 def public_meeting_data(public_url):
     meeting = Meeting.query.filter_by(public_url=public_url).first()
 
@@ -515,7 +514,7 @@ def public_meeting_data(public_url):
     return jsonify(meeting_data)
 
 
-@survey_blueprint.route('/public/survey/<public_url>/data')
+@meeting_blueprint.route('/public/survey/<public_url>/data')
 def public_survey_data(public_url):
   survey = Survey.query.filter_by(public_url=public_url).first()
 
@@ -531,7 +530,7 @@ def public_survey_data(public_url):
   return jsonify(survey_data)
 
 
-@survey_blueprint.route('/public/survey/<public_url>/pics/<filename>')
+@meeting_blueprint.route('/public/survey/<public_url>/pics/<filename>')
 def public_survey_image(public_url, filename):
   survey = Survey.query.filter_by(public_url=public_url).first()
 
@@ -743,24 +742,4 @@ def timeframe_progress(timeframe_id):
         abort(404)
 
 
-@auth_blueprint.route('/get_main_agents')
-@login_required
-def get_main_agents():
-    main_agents = current_user.agents_data or []
-    return jsonify(main_agents)
 
-
-
-@auth_blueprint.route('/get_timeframe_agents')
-@login_required
-def get_timeframe_agents():
-    timeframes = current_user.timeframes
-    timeframe_agents = []
-
-    for timeframe in timeframes:
-        for agent in timeframe.agents_data:
-            agent['timeframe_id'] = timeframe.id
-            agent['timeframe_name'] = timeframe.name
-            timeframe_agents.append(agent)
-
-    return jsonify(timeframe_agents)
