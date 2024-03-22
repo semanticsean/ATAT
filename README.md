@@ -455,6 +455,12 @@ Overall, the Semantic Life app provides a platform for users to create, manage, 
  table_schema |   table_name    |  column_name  |          data_type          
 --------------+-----------------+---------------+-----------------------------
  public       | alembic_version | version_num   | character varying
+ public       | meeting         | id            | integer
+ public       | meeting         | name          | character varying
+ public       | meeting         | user_id       | integer
+ public       | meeting         | meeting_data  | json
+ public       | meeting         | is_public     | boolean
+ public       | meeting         | public_url    | character varying
  public       | page_view       | id            | integer
  public       | page_view       | page          | character varying
  public       | page_view       | timestamp     | timestamp without time zone
@@ -475,8 +481,6 @@ Overall, the Semantic Life app provides a platform for users to create, manage, 
  public       | user            | agents_data   | json
  public       | user            | images_data   | json
  public       | user            | credits       | integer
-(21 rows)
-
 
 
 
