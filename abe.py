@@ -11,9 +11,9 @@ from flask_login import LoginManager, current_user, login_required
 from flask_migrate import Migrate
 from datetime import datetime
 from extensions import db, login_manager
-from models import User, Survey, Timeframe, Meeting
+from models import User, Timeframe, Meeting
 import start
-from routes import auth_blueprint, survey_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint
+from routes import auth_blueprint, meeting_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint
 from werkzeug.utils import secure_filename
 from flask_images import Images
 
@@ -38,7 +38,7 @@ images = Images(app)
 
 # Initialize Flask-Images
 images.init_app(app)
-  
+
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY', 'default_secret_key')
 
 configure_logging()
@@ -46,11 +46,12 @@ configure_logging()
 logger = logging.getLogger(__name__)
 
 database_url = os.environ.get('DATABASE_URL')
-if database_url and database_url.startswith("postgres://"):
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_url.replace(
-        "postgres://", "postgresql://", 1)
+if database_url:
+    corrected_url = database_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = corrected_url
 else:
-    raise ValueError('Invalid or missing DATABASE_URL')
+    raise ValueError('Missing DATABASE_URL')
+
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
@@ -73,7 +74,7 @@ app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.DEBUG)
 
 app.register_blueprint(auth_blueprint)
-app.register_blueprint(survey_blueprint)
+app.register_blueprint(meeting_blueprint)
 app.register_blueprint(dashboard_blueprint)
 app.register_blueprint(profile_blueprint)
 app.register_blueprint(start_blueprint)
@@ -106,11 +107,6 @@ def home():
     if current_user.is_authenticated:
         agents_content = json.dumps(
             current_user.agents_data) if current_user.agents_data else None
-        survey_results = []
-        for survey in current_user.surveys:
-            if survey.survey_data:
-                for agent_data in survey.survey_data:
-                    survey_results.append((survey.name, agent_data['id']))
         meeting_results = []
         for meeting in current_user.meetings:
             if meeting.meeting_data:
@@ -118,13 +114,12 @@ def home():
                     meeting_results.append((meeting.name, agent_data['id']))
     else:
         agents_content = None
-        survey_results = []
         meeting_results = []
 
     timeframes = current_user.timeframes if current_user.is_authenticated else []
     logger.info(f"Timeframes for user {current_user.id if current_user.is_authenticated else 'anonymous'}: {timeframes}")
 
-    return render_template('index.html', agents_content=agents_content, survey_results=survey_results, meeting_results=meeting_results, timeframes=timeframes)
+    return render_template('index.html', agents_content=agents_content, meeting_results=meeting_results, timeframes=timeframes)
 
 
 
@@ -141,7 +136,6 @@ def serve_image(filename):
         abort(404)
 
 
-
 def custom_img_filter(photo_path, size='48x48'):
   # Extract the filename from the photo_path
   filename = os.path.basename(photo_path)
@@ -155,4 +149,3 @@ def custom_img_filter(photo_path, size='48x48'):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
