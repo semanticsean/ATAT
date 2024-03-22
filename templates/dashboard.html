@@ -143,7 +143,6 @@
                   {% for agent in agents %}
                     <div class="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
                       <img src="data:image/png;base64,{{ agent.image_data }}"
-                           onerror="this.src='static/loading.gif'; this.onerror=null;"
                            alt="Agent Photo"
                            class="w-full object-cover"
                            style="height: 250px; object-fit: cover" />

@@ -175,7 +175,7 @@ def process_agents(payload, current_user):
                 logging.info(f"Sending DALL-E request with prompt: {dalle_prompt}")
                 dalle_response = client.images.generate(
                     model="dall-e-3",
-                    prompt=dalle_prompt,
+                    prompt=dalle_prompt[:5000],
                     quality="standard",
                     size="1024x1024",
                     n=1,
@@ -234,7 +234,7 @@ def process_agents(payload, current_user):
 
 
 
-def conduct_survey(payload, current_user):
+def conduct_meeting(payload, current_user):
   agents_data = payload["agents_data"]
   questions = payload["questions"]
   form_llm_instructions = payload.get("llm_instructions", "")
@@ -242,118 +242,107 @@ def conduct_survey(payload, current_user):
 
   # Load instructions from abe/abe-instructions.json
   with open("abe/abe-instructions.json", "r") as file:
-    abe_instructions = json.load(file)
-    question_instructions = abe_instructions.get("question_instructions", "")
+      abe_instructions = json.load(file)
+      question_instructions = abe_instructions.get("question_instructions", "")
 
   # Combine form-provided llm_instructions with question_instructions
-  llm_instructions_combined = f"{question_instructions} {form_llm_instructions}".strip(
-  )
+  llm_instructions_combined = f"{question_instructions} {form_llm_instructions}".strip()
 
-  survey_responses = []
+  meeting_responses = []
 
   for agent in agents_data:
-    agent_response = {}
-    agent_response["id"] = agent["id"]
-    agent_response["email"] = agent["email"]
-    agent_response["questions"] = questions
+      agent_response = {}
+      agent_response["id"] = agent["id"]
+      agent_response["email"] = agent["email"]
+      agent_response["questions"] = questions
 
-    if request_type == "iterative":
-      responses = {}
-      for question_id, question_data in questions.items():
-        question_text = question_data["text"]
-        agent_payload = {
-            "model":
-            "gpt-3.5-turbo",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": question_instructions
-                },
-                {
-                    "role":
-                    "user",
-                    "content":
-                    f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nQuestion: {question_text}\n{llm_instructions_combined}\nPlease respond in JSON format."
-                },
-            ],
-        }
-        max_retries = 12
-        retry_delay = 5
-        retry_count = 0
-        while retry_count < max_retries:
-          try:
-            if current_user.credits is None or current_user.credits < 1:
-              raise Exception("Insufficient credits, please add more")
+      if request_type == "iterative":
+          responses = {}
+          for question_id, question_text in questions.items():
+              agent_payload = {
+                  "model": "gpt-3.5-turbo",
+                  "messages": [
+                      {
+                          "role": "system",
+                          "content": question_instructions
+                      },
+                      {
+                          "role": "user",
+                          "content": f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nQuestion: {question_text}\n{llm_instructions_combined}\nPlease respond in JSON format."
+                      },
+                  ],
+              }
+              max_retries = 12
+              retry_delay = 5
+              retry_count = 0
+              while retry_count < max_retries:
+                  try:
+                      if current_user.credits is None or current_user.credits < 1:
+                          raise Exception("Insufficient credits, please add more")
 
-            response = client.chat.completions.create(**agent_payload)
+                      response = client.chat.completions.create(**agent_payload)
 
-            # Deduct credits based on the API call
-            credits_used = 1  # Deduct 1 credit for gpt-3.5-turbo models
+                      # Deduct credits based on the API call
+                      credits_used = 1  # Deduct 1 credit for gpt-3.5-turbo models
 
-            current_user.credits -= credits_used
-            db.session.commit()
-            break
-          except APIError as e:
-            logging.error(f"OpenAI API error: {e}")
-            retry_count += 1
-            if retry_count < max_retries:
-              time.sleep(retry_delay)
-              retry_delay *= 2
-            else:
-              raise e
-        responses[question_id] = response.choices[0].message.content.strip()
-    else:
-      questions_text = "\n".join([
-          f"Question {question_id}: {question_data['text']}"
-          for question_id, question_data in questions.items()
-      ])
-      agent_payload = {
-          "model":
-          "gpt-3.5-turbo",
-          "messages": [
-              {
-                  "role": "system",
-                  "content": question_instructions
-              },
-              {
-                  "role":
-                  "user",
-                  "content":
-                  f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nPlease answer the following questions:\n{questions_text}\n{llm_instructions_combined}\nProvide your responses in JSON format."
-              },
-          ],
-      }
-      max_retries = 12
-      retry_delay = 5
-      retry_count = 0
-      while retry_count < max_retries:
-        try:
-          if current_user.credits is None or current_user.credits < 1:
-            raise Exception("Insufficient credits, please add more")
+                      current_user.credits -= credits_used
+                      db.session.commit()
+                      break
+                  except APIError as e:
+                      logging.error(f"OpenAI API error: {e}")
+                      retry_count += 1
+                      if retry_count < max_retries:
+                          time.sleep(retry_delay)
+                          retry_delay *= 2
+                      else:
+                          raise e
+              responses[question_id] = response.choices[0].message.content.strip()
+      else:
+          questions_text = "\n".join([f"Question {question_id}: {question_text}" for question_id, question_text in questions.items()])
+          agent_payload = {
+              "model": "gpt-3.5-turbo",
+              "messages": [
+                  {
+                      "role": "system",
+                      "content": question_instructions
+                  },
+                  {
+                      "role": "user",
+                      "content": f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nPlease answer the following questions:\n{questions_text}\n{llm_instructions_combined}\nProvide your responses in JSON format."
+                  },
+              ],
+          }
+          max_retries = 12
+          retry_delay = 5
+          retry_count = 0
+          while retry_count < max_retries:
+              try:
+                  if current_user.credits is None or current_user.credits < 1:
+                      raise Exception("Insufficient credits, please add more")
 
-          response = client.chat.completions.create(**agent_payload)
+                  response = client.chat.completions.create(**agent_payload)
 
-          # Deduct credits based on the API call
-          credits_used = 1  # Deduct 1 credit for gpt-3.5-turbo models
+                  # Deduct credits based on the API call
+                  credits_used = 1  # Deduct 1 credit for gpt-3.5-turbo models
 
-          current_user.credits -= credits_used
-          db.session.commit()
-          break
-        except APIError as e:
-          logging.error(f"OpenAI API error: {e}")
-          retry_count += 1
-          if retry_count < max_retries:
-            time.sleep(retry_delay)
-            retry_delay *= 2
-          else:
-            raise e
+                  current_user.credits -= credits_used
+                  db.session.commit()
+                  break
+              except APIError as e:
+                  logging.error(f"OpenAI API error: {e}")
+                  retry_count += 1
+                  if retry_count < max_retries:
+                      time.sleep(retry_delay)
+                      retry_delay *= 2
+                  else:
+                      raise e
 
-      responses = json.loads(response.choices[0].message.content.strip())
+          responses = json.loads(response.choices[0].message.content.strip())
 
-    agent_response["responses"] = responses
-    survey_responses.append(agent_response)
+      agent_response["responses"] = responses
+      meeting_responses.append(agent_response)
 
-  return survey_responses
+  return meeting_responses
 
 
 def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
@@ -425,7 +414,7 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
 
   # DALL-E - Generate profile picture for the new agent
   image_prompt = new_agent_data.get('image_prompt', '')
-  dalle_prompt = f"{image_prompt}"
+  dalle_prompt = f"{image_prompt[:5000]}"
 
   # DALL-E - Generate profile picture
   max_retries = 12
@@ -438,7 +427,7 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
 
           dalle_response = client.images.generate(
               model="dall-e-3",
-              prompt=dalle_prompt,
+              prompt=dalle_prompt[:5000],
               quality="standard",
               size="1024x1024",
               n=1,

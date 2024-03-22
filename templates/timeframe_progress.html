@@ -1,28 +1,65 @@
 <!-- templates/timeframe_progress.html -->
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timeframe Progress</title>
-    
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .refresh-spinner {
+            border-top-color: #3498db;
+            animation: spin 1s infinite linear;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
-<body>
-    <h1>Timeframe Progress</h1>
-    <p>Processing agents for timeframe: {{ timeframe.name }}</p>
-  <ul>
-    {% for agent in timeframe.agents_data %}
-      <li>
-        <img src="data:image/png;base64,{{ current_user.images_data.get(agent.photo_path.split('/')[-1], '') }}" alt="{{ agent.id }}" width="48" height="48">
-        {{ agent.id }} - Processed
-      </li>
-    {% endfor %}
-  </ul>
-    <p>Automatically refreshing...</p>
+<body class="bg-gray-100 h-full">
+    {% include 'header.html' %}
+
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-4">Timeframe Progress</h1>
+        <p class="text-lg mb-8">Processing agents for timeframe: {{ timeframe.name }}</p>
+
+        <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {% for agent in timeframe.agents_data %}
+            <li class="bg-white p-4 rounded-lg shadow-md flex items-center">
+                <img src="data:image/png;base64,{{ current_user.images_data.get(agent.photo_path, '') }}" alt="{{ agent.id }}" class="w-12 h-12 rounded-full mr-4">
+                <div>
+                    <p class="font-bold">{{ agent.id }}</p>
+                    <p class="text-green-500">Processed</p>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="mt-8 flex items-center">
+            <div class="refresh-spinner border-4 border-gray-300 border-solid rounded-full w-6 h-6 mr-2"></div>
+            <p>Automatically refreshing...</p>
+        </div>
+    </main>
+
+    {% include 'footer.html' %}
+
     {% if timeframe.agents_data|length == current_user.agents_data|length %}
-        <script>
-            window.location.href = "{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}";
-        </script>
+    <script>
+        window.location.href = "{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}";
+    </script>
+    {% else %}
+    <script>
+        // Refresh the page every 5 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 5000);
+    </script>
     {% endif %}
 </body>
 </html>
