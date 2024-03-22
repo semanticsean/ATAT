@@ -529,3 +529,10 @@ ORDER BY
       json_array_elements(u.agents_data) AS agent
     WHERE
       u.id = 12;
+
+
+
+
+------ 
+
+admin.py standalone adds credits 
