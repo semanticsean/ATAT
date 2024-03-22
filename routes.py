@@ -177,7 +177,6 @@ def add_base_agents():
         return jsonify({'success': False, 'error': str(e)})
 
 
-
 @meeting_blueprint.route('/meeting/create', methods=['GET', 'POST'])
 @login_required
 def create_meeting():
@@ -207,7 +206,7 @@ def create_meeting():
             flash('No agents selected.')
             return redirect(url_for('meeting_blueprint.create_meeting'))
 
-        new_meeting = Meeting(name=meeting_name, user_id=current_user.id, meeting_data=selected_agents)
+        new_meeting = Meeting(name=meeting_name, user_id=current_user.id, agents=selected_agents)
         db.session.add(new_meeting)
         db.session.commit()
 
@@ -240,7 +239,7 @@ def meeting_form(meeting_id):
         llm_instructions = request.form.get('llm_instructions', '')
         request_type = request.form.get('request_type', 'iterative')
 
-        selected_agents_data = [agent for agent in meeting.meeting_data if str(agent['id']) in selected_agent_ids]
+        selected_agents_data = [agent for agent in meeting.agents if str(agent['id']) in selected_agent_ids]
 
         payload = {
             "agents_data": selected_agents_data,
@@ -251,17 +250,20 @@ def meeting_form(meeting_id):
 
         meeting_responses = abe_gpt.conduct_meeting(payload, current_user)
 
+        answers = {}
         for agent_data, response in zip(selected_agents_data, meeting_responses):
-            agent_data['responses'] = response['responses']
-            agent_data['questions'] = questions
+            answers[agent_data['id']] = response['responses']
 
-        meeting.meeting_data = selected_agents_data
+        meeting.agents = selected_agents_data
+        meeting.questions = questions
+        meeting.answers = answers
         db.session.commit()
 
         return redirect(url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id))
     else:
-        agents_data = meeting.meeting_data
+        agents_data = meeting.agents
         return render_template('meeting2.html', meeting=meeting, agents=agents_data)
+
 
 @meeting_blueprint.route('/meeting/<int:meeting_id>/results', methods=['GET', 'POST'])
 @login_required
@@ -269,8 +271,6 @@ def meeting_results(meeting_id):
     meeting = Meeting.query.get_or_404(meeting_id)
     if meeting.user_id != current_user.id:
         abort(403)
-
-    meeting_data = meeting.meeting_data
 
     if request.method == 'POST':
         is_public = request.form.get('is_public') == 'on'
@@ -282,31 +282,12 @@ def meeting_results(meeting_id):
             meeting.public_url = None
 
         db.session.commit()
-
-    return render_template('results.html', meeting=meeting, results=meeting_data)
-
-
-@meeting_blueprint.route('/survey/<int:survey_id>/results')
-@login_required
-def results(survey_id):
-  survey = Survey.query.get_or_404(survey_id)
-  if survey.user_id != current_user.id:
-    abort(403)
-
-  survey_data = survey.survey_data
-
-  if request.method == 'POST':
-    is_public = request.form.get('is_public') == 'on'
-    survey.is_public = is_public
-
-    if is_public and not survey.public_url:
-      survey.public_url = str(uuid.uuid4())
-    elif not is_public:
-      survey.public_url = None
-
-    db.session.commit()
-
-  return render_template('results.html', survey=survey, results=survey_data)
+  
+    prev_meeting = Meeting.query.filter(Meeting.user_id == current_user.id, Meeting.id < meeting.id).order_by(Meeting.id.desc()).first()
+    next_meeting = Meeting.query.filter(Meeting.user_id == current_user.id, Meeting.id > meeting.id).order_by(Meeting.id).first()
+  
+    return render_template('results.html', meeting=meeting, is_public=meeting.is_public, prev_meeting=prev_meeting, next_meeting=next_meeting)  
+  
 
 
 @dashboard_blueprint.route('/dashboard')
@@ -333,23 +314,6 @@ def dashboard():
 
     return render_template('dashboard.html', agents=agents_data, timeframes=timeframes)
 
-
-@meeting_blueprint.route('/survey/results/<int:survey_id>')
-@login_required
-def show_survey_results(survey_id):
-  survey = Survey.query.get_or_404(survey_id)
-  page_view = PageView(page='/show_survey_results')
-  db.session.add(page_view)
-  db.session.commit()
-  # Debugging: Print or log the survey object to ensure it has a filename attribute
-  print("Survey filename:",
-        survey.filename)  # Adjust according to your actual data structure
-  if not hasattr(survey, 'filename'):
-    # If the survey object doesn't have a filename attribute, handle the case appropriately
-    print("Survey object does not have a filename attribute.")
-    # Set a default filename or adjust your handling as needed
-    survey.filename = 'default_filename'
-  return render_template('results.html', survey=survey)
 
 
 @profile_blueprint.route('/profile')
@@ -498,7 +462,6 @@ def public_meeting_results(public_url):
     return render_template('public_results.html', meeting=meeting)
 
 
-
 @meeting_blueprint.route('/public/meeting/<public_url>/data')
 def public_meeting_data(public_url):
     meeting = Meeting.query.filter_by(public_url=public_url).first()
@@ -506,9 +469,14 @@ def public_meeting_data(public_url):
     if not meeting or not meeting.is_public:
         abort(404)
 
-    meeting_data = meeting.meeting_data
+    meeting_data = {
+        'name': meeting.name,
+        'agents': meeting.agents,
+        'questions': meeting.questions,
+        'answers': meeting.answers
+    }
 
-    for agent in meeting_data:
+    for agent in meeting_data['agents']:
         agent['photo_path'] = url_for('serve_image', filename=agent['photo_path'].split('/')[-1])
 
     return jsonify(meeting_data)

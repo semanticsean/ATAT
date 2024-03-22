@@ -1,11 +1,12 @@
+<!-- templates/results.html -->
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meeting Results</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meeting Results</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+  <style>
   canvas {
     width: 100% !important;
     height: auto !important;
@@ -53,354 +54,89 @@
     }
   }
 </style>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
-<script>
-  function loadResults() {
-    console.log("Loading results...");
-    {% if is_public %}
-      $.get("{{ url_for('meeting_blueprint.public_meeting_data', public_url=meeting.public_url) }}", function(data) {
-        console.log("Received data:", data);
-        if (data.length > 0) {
-          var resultsContainer = $("#results-container");
-          resultsContainer.empty();
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-          data.forEach(function (agent) {
-            var agentHtml = `
-              <div class="bg-white shadow-xl rounded-lg mb-8 sm:max-w-full lg:max-w-1/2">
-                <div class="flex flex-col md:flex-row items-center bg-gradient-to-r from-gray-200 to-gray-250 rounded-t-lg px-6 py-4">
-                  <img src="${agent.photo_path}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0 md:mr-12">
-                  <div class="text-center md:text-left">
-                    <h3 class="text-2xl font-bold text-black mb-4">Synth: ${agent.id || 'Unknown'}</h3>
-                    <div class="max-w-xl break-words"><p class="text-black font-md md:font-xl mb-4">${agent.summary}</p></div>
-                    <button onclick="window.location.href='mailto:` + agent.email + `'" class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded">` + agent.email + `</button>
-                  </div>
-                </div>
-                <div class="px-6 py-4">
-                  <h3 class="text-2xl font-bold text-black mb-4">Responses</h3>
-                  <div class="bg-gray-300 rounded-lg p-4">
-                    ${agent.responses ? Object.entries(agent.responses).map(function([questionId, answer]) {
-                      var questionText = agent.questions && agent.questions[questionId] ? agent.questions[questionId] : 'Unknown';
-                      return `
-                        <div class="mb-6">
-                          <div class="flex bg-white rounded-lg p-4 shadow-md">
-                            <div class="mx-auto px-4 sm:px-6 lg:px-8 w-full md:w-1/2">
-                              <div class="mx-auto">
-                                <div class="w-full bg-gray-100 rounded-lg rounded-br-none shadow mb-4 p-4 md:-ml-12">
-                                  <h4 class="text-lg md:text-2xl font-bold text-gray-400 mb-2">You</h4>
-                                  <div class="text-lg md:text-xl text-gray-700 italic">Question / Talking Point: ${questionId}</div>
-                                  <p class="text-gray-700 md:text-xl text-lg">${questionText}</p>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-lg rounded-bl-none shadow mb-4 p-4 -mr-12">
-                                  <div class="flex items-center mb-2">
-                                    <img src="${agent.photo_path}" alt="Agent Profile" class="md:w-12 md:h-12 h-8 w-8 rounded-full mr-2">
-                                    <h4 class="text-xl md:text-2xl font-bold text-gray-900 mr-6 mt-1 pr-12">${agent.id}</h4>
-                                  </div>
-                                  <div class="text-lg md:text-xl font-bold text-gray-900 mt-8">${extractValue(answer)}</div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      `;
-                    }).join('') : '<p class="text-gray-700">No responses available</p>'}
-                  </div>
-                </div>
-              </div>
-            `;
-            resultsContainer.append(agentHtml);
-          });
-
-          // Add table header
-          var tableHtml = `
-            <div class="bg-white p-6 rounded-lg shadow my-6" id="raw-data">
-              <div class="table-responsive">
-                <div class="block md:hidden p-4 text-center text-gray-600 bg-gray-100 rounded-lg">
-                  <h2 class="text-2xl text-black font-bold mb-6">Raw Data</h2>
-                  <p>The full table is available on wider screens.</p>
-                  <button id="download-csv" class="mt-6 px-6 py-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-opacity-50 mb-4">Download CSV</button>
-                </div>
-                <div class="hidden md:block bg-white p-6 rounded-lg shadow my-6" id="raw-data">
-                  <h2 class="text-2xl text-black font-bold mb-6">Raw Data</h2>
-                  <table class="table-auto w-full sortable">
-                    <thead>
-                      <button id="download-csv" class="mt-6 px-6 py-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-opacity-50 float-right -mt-14 mb-6">Download CSV</button>
-                      <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                        <th class="py-3 px-6 text-left cursor-pointer">Agent ID</th>
-                        <th class="py-3 px-6 text-left cursor-pointer">Agent Email</th>
-                        <th class="py-3 px-6 text-left cursor-pointer">Question ID</th>
-                        <th class="py-3 px-6 text-left cursor-pointer">Question Text</th>
-                        <th class="py-3 px-6 text-left cursor-pointer">Answer</th>
-                      </tr>
-                    </thead>
-                    <tbody class="text-gray-600 text-sm font-light">
-          `;
-
-          data.forEach(function(agent) {
-            Object.entries(agent.responses).forEach(function([questionId, answer]) {
-              var questionText = agent.questions && agent.questions[questionId] ? agent.questions[questionId] : 'Unknown';
-              // Add row to table
-              tableHtml += `
-                <tr class="border-b border-gray-200 hover:bg-gray-100">
-                  <td class="py-3 px-6 text-left whitespace-nowrap">${agent.id}</td>
-                  <td class="py-3 px-6 text-left">${agent.email}</td>
-                  <td class="py-3 px-6 text-left">${questionId}</td>
-                  <td class="py-3 px-6 text-left">${questionText}</td>
-                  <td class="py-3 px-6 text-left">${answer}</td>
-                </tr>
-              `;
-            });
-          });
-
-          // Close table tag
-          tableHtml += '</tbody></table></div></div>';
-          // Append table to results container
-          resultsContainer.append(tableHtml);
-
-          // Call function to create chart
-          createChart(data);
-        }
-      }
-    );
-  }
-
-  // Function to create a chart
-  function createChart(data) {
-    var questionCounts = {};
-    data.forEach(function(agent) {
-      Object.entries(agent.responses).forEach(function([questionId, answer]) {
-        if (!questionCounts[questionId]) {
-          questionCounts[questionId] = {};
-        }
-        if (!questionCounts[questionId][answer]) {
-          questionCounts[questionId][answer] = 0;
-        }
-        questionCounts[questionId][answer]++;
-      });
-    });
-
-    var ctx = document.getElementById('chart').getContext('2d');
-
-    // Define an array of colors
-    var colors = ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)'];
-
-    var myChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'Response Count',
-          data: [],
-          backgroundColor: [], // Dynamic colors
-          borderColor: [], // Dynamic border colors
-          borderWidth: 1
-        }]
-      },
-      options: {
-        plugins: {
-          datalabels: {
-            align: 'end',
-            anchor: 'end'
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              stepSize: 1
-            }
-          }
-        }
-      }
-    });
-
-    var questionDropdown = $('#question-dropdown');
-    questionDropdown.empty();
-    Object.keys(questionCounts).forEach(function(questionId) {
-      questionDropdown.append($('<option>', {
-        value: questionId,
-        text: 'Question / Talking Point' + questionId
-      }));
-    });
-
-    function updateChart() {
-      var selectedQuestion = questionDropdown.val();
-      var answerCounts = questionCounts[selectedQuestion];
-      myChart.data.labels = Object.keys(answerCounts);
-      myChart.data.datasets[0].data = Object.values(answerCounts);
-
-      // Assign a color to each answer
-      myChart.data.datasets[0].backgroundColor = Object.keys(answerCounts).map((_, index) => colors[index % colors.length]);
-      myChart.data.datasets[0].borderColor = Object.keys(answerCounts).map((_, index) => colors[index % colors.length].replace('0.2', '1')); // Make border color slightly darker
-
-      myChart.update();
-    }
-
-    questionDropdown.on('change', updateChart);
-    updateChart();
-  }
-
-  $(document).ready(function() {
-    loadResults();
-    $(".sortable").tablesorter();
-  });
-
-  data.forEach(function(agent) {
-    var agentHtml = `
-      <!-- other HTML content -->
-
-      <!-- Corrected Email button using JavaScript concatenation -->
-      <button onclick="window.location.href='mailto:` + agent.email + `'" class="bg-gray-500 hover:bg-blue-500 text-white py-2 px-4 rounded">` + agent.email + `</button>
-
-      <!-- Corrected Copy Email button -->
-      <button id="copyEmail` + agent.id + `" class="inline-block bg-gray-500 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" data-original-text="Copy Email Address" onclick="copyToClipboard('` + agent.email + `', 'copyEmail` + agent.id + `')" style="flex: 1 1 30%;">Copy Email</button>
-
-      <!-- other HTML content -->
-    `;
-    resultsContainer.append(agentHtml);
-  });
-
-  function parseJsonAnswer(answer) {
-    try {
-      const parsedAnswer = JSON.parse(answer);
-      return createNestedHtml(parsedAnswer);
-    } catch (error) {
-      return answer;
-    }
-  }
-
-  function createNestedHtml(data, level = 0) {
-    if (typeof data === 'object' && data !== null) {
-      let html = '<ul class="ml-' + (level * 4) + '">';
-      for (const key in data) {
-        html += '<li>';
-        html += '<strong>' + key + ':</strong> ';
-        html += createNestedHtml(data[key], level + 1);
-        html += '</li>';
-      }
-      html += '</ul>';
-      return html;
-    } else {
-      return data;
-    }
-  }
-</script>
+ 
+</head>
 </head>
 <body class="bg-gray-100">
-{% include 'header.html' %}
-<div class="container mx-auto py-8">
-  <h1 class="text-3xl font-bold mb-4">Meeting Results</h1>
-  <div class="bg-white shadow-md rounded-lg overflow-hidden">
-    <div class="px-4 py-5 sm:p-6">
-      <h2 class="text-xl font-semibold mb-4">{{ meeting.name }}</h2>
-  <div class="mb-4">
-    <label for="is_public" class="inline-flex items-center">
-      <input type="checkbox" id="is_public" name="is_public" {% if meeting.is_public %}checked{% endif %} onchange="togglePublicUrl()">
-      <span class="ml-2">Make meeting results public</span>
-    </label>
-  </div>
+  {% include 'header.html' %}
+  <div class="container mx-auto py-8">
+    <h1 class="text-3xl font-bold mb-4">{{ meeting.name }}</h1>
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="mb-4">
+          <label for="is_public" class="inline-flex items-center">
+            <input type="checkbox" id="is_public" name="is_public" {% if meeting.is_public %}checked{% endif %} onchange="togglePublicUrl()">
+            <span class="ml-2">Make meeting results public</span>
+          </label>
+        </div>
+        <div id="public-url-section" class="mb-4" style="display: none;">
+          <label for="public-url" class="block text-sm font-medium text-gray-700">Public URL:</label>
+          <div class="mt-1 flex rounded-md shadow-sm">
+            <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+              {{ request.host_url }}
+            </span>
+            <input type="text" name="public-url" id="public-url" class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300" value="{{ meeting.public_url }}" readonly>
+          </div>
+        </div>
+        <h2 class="text-xl font-semibold mb-4">Questions:</h2>
+        <ul class="mb-8">
+          {% for question_id, question_data in meeting.questions.items() %}
+            <li>{{ question_data['text'] }}</li>
+          {% endfor %}
+        </ul>
 
-  <div id="public-url-section" class="mb-4" style="display: none;">
-    <label for="public-url" class="block text-sm font-medium text-gray-700">Public URL:</label>
-    <div class="mt-1 flex rounded-md shadow-sm">
-      <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-        {{ request.host_url }}
-      </span>
-      <input type="text" name="public-url" id="public-url" class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300" value="{{ meeting.public_url }}" readonly>
+        {% for agent in meeting.agents %}
+          <div class="bg-white shadow-xl rounded-lg mb-8">
+            <div class="flex flex-col md:flex-row items-center bg-gradient-to-r from-gray-200 to-gray-250 rounded-t-lg px-6 py-4">
+              <img src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0 md:mr-12">
+              <div class="text-center md:text-left">
+                <h3 class="text-2xl font-bold text-black mb-4">Synth: {{ agent.id }}</h3>
+                <div class="max-w-xl break-words"><p class="text-black font-md md:font-xl mb-4">{{ agent.summary }}</p></div>
+              </div>
+            </div>
+            <div class="px-6 py-4">
+              <h3 class="text-2xl font-bold text-black mb-4">Responses:</h3>
+              {% for question_id, answer in meeting.answers[agent.id].items() %}
+                <div class="mb-6">
+                  <p class="text-gray-700 font-bold mb-2">{{ meeting.questions[question_id]['text'] }}</p>
+                  <div class="text-lg md:text-xl font-bold text-gray-900">{{ answer|safe }}</div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
-{% include 'footer.html' %}
+  {% include 'footer.html' %}
 
-      <script>
-        function togglePublicUrl() {
-          var isPublicCheckbox = document.getElementById('is_public');
-          var publicUrlSection = document.getElementById('public-url-section');
+  <script>
+    function togglePublicUrl() {
+      var isPublicCheckbox = document.getElementById('is_public');
+      var publicUrlSection = document.getElementById('public-url-section');
+      if (isPublicCheckbox.checked) {
+        publicUrlSection.style.display = 'block';
+      } else {
+        publicUrlSection.style.display = 'none';
+      }
+    }
+    togglePublicUrl();
 
-          if (isPublicCheckbox.checked) {
-            publicUrlSection.style.display = 'block';
-          } else {
-            publicUrlSection.style.display = 'none';
+    $(document).ready(function() {
+      $('#is_public').on('change', function() {
+        var isPublic = $(this).is(':checked');
+        $.ajax({
+          url: '{{ url_for("meeting_blueprint.meeting_results", meeting_id=meeting.id) }}',
+          method: 'POST',
+          data: { is_public: isPublic },
+          success: function(response) {
+            togglePublicUrl();
           }
-        }
-
-        // Call the function on page load to set the initial state
-        togglePublicUrl();
-      </script>
-      
-      <script>
-        document.getElementById('download-csv').addEventListener('click', function() {
-          function escapeCSVField(field) {
-            if (field == null || field == undefined) {
-              return '';
-            }
-            // Convert the field to a string (in case it's a number or a boolean), escape quotes, and wrap in quotes.
-            return '"' + field.toString().replace(/"/g, '""') + '"';
-          }
-
-          var csvContent = 'data:text/csv;charset=utf-8,';
-          csvContent += 'Agent ID,Agent Email,Question ID,Question Text,Answer\n';
-
-          var results = {{ results|tojson }};
-          results.forEach(function(agent) {
-            if (agent.responses) {
-              Object.entries(agent.responses).forEach(function([questionId, answer]) {
-                var questionText = agent.questions && agent.questions[questionId] ? agent.questions[questionId] : 'Unknown';
-                var row = [
-                  escapeCSVField(agent.id),
-                  escapeCSVField(agent.email),
-                  escapeCSVField(questionId),
-                  escapeCSVField(questionText),
-                  escapeCSVField(answer)
-                ].join(',');
-                csvContent += row + '\n';
-              });
-            }
-          });
-
-          var encodedUri = encodeURI(csvContent);
-          var link = document.createElement('a');
-          link.setAttribute('href', encodedUri);
-          link.setAttribute('download', 'meeting_results.csv');
-          document.body.appendChild(link);
-          link.click();
         });
-      </script>
-
-      <script>
-        function copyPublicUrl() {
-          var publicUrlElement = document.getElementById('public-url');
-          var tempInput = document.createElement('input');
-          tempInput.value = publicUrlElement.href;
-          document.body.appendChild(tempInput);
-          tempInput.select();
-          document.execCommand('copy');
-          document.body.removeChild(tempInput);
-          alert('Public URL copied to clipboard!');
-        }
-
-        function extractValue(answer) {
-          return parseJsonAnswer(answer);
-        }
-
-        $(document).ready(function() {
-          loadResults();
-          $(".sortable").tablesorter();
-
-          // Event listener for public/private toggle
-          $('#is_public').on('change', function() {
-            var isPublic = $(this).is(':checked');
-            $.ajax({
-              url: '{{ url_for("meeting_blueprint.meeting_results", meeting_id=meeting.id) }}',
-              method: 'POST',
-              data: { is_public: isPublic },
-              success: function(response) {
-                togglePublicUrl();
-              }
-            });
-          });
-        });
-      </script>
-      </body>
-      </html>
+      });
+    });
+  </script>
+</body>
+</html>
