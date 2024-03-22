@@ -58,6 +58,8 @@ db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth_blueprint.login'
+
+
 migrate = Migrate(app, db)
 
 logs_directory = 'logs'
@@ -101,7 +103,6 @@ def inject_secrets():
 
     return dict(get_secret=get_secret)
 
-
 @app.route('/')
 def home():
     if current_user.is_authenticated:
@@ -109,8 +110,8 @@ def home():
             current_user.agents_data) if current_user.agents_data else None
         meeting_results = []
         for meeting in current_user.meetings:
-            if meeting.meeting_data:
-                for agent_data in meeting.meeting_data:
+            if meeting.agents and meeting.questions and meeting.answers:
+                for agent_data in meeting.agents:
                     meeting_results.append((meeting.name, agent_data['id']))
     else:
         agents_content = None
@@ -120,7 +121,6 @@ def home():
     logger.info(f"Timeframes for user {current_user.id if current_user.is_authenticated else 'anonymous'}: {timeframes}")
 
     return render_template('index.html', agents_content=agents_content, meeting_results=meeting_results, timeframes=timeframes)
-
 
 
 @app.route('/images/<filename>')
