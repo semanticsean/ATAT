@@ -12,6 +12,8 @@ class User(UserMixin, db.Model):
   agents_data = db.Column(db.JSON)
   images_data = db.Column(db.JSON, default={})
   credits = db.Column(db.Integer)
+  meetings = db.relationship('Meeting', backref='creator', lazy=True)
+  
 
   def set_password(self, password):
       self.password_hash = generate_password_hash(password)
@@ -61,5 +63,3 @@ class Meeting(db.Model):
   meeting_data = db.Column(db.JSON)
   is_public = db.Column(db.Boolean, default=False)
   public_url = db.Column(db.String(255), unique=True)
-
-  user = db.relationship('User', backref=db.backref('meetings', lazy=True))
