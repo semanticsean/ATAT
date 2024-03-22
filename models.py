@@ -52,3 +52,14 @@ class Timeframe(db.Model):
   user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
   agents_data = db.Column(db.JSON)
   user = db.relationship('User', backref=db.backref('timeframes', lazy=True))
+
+
+class Meeting(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String(100), nullable=False)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+  meeting_data = db.Column(db.JSON)
+  is_public = db.Column(db.Boolean, default=False)
+  public_url = db.Column(db.String(255), unique=True)
+
+  user = db.relationship('User', backref=db.backref('meetings', lazy=True))
