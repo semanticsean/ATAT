@@ -123,7 +123,7 @@
                 
               </a>
               <a
-                href="{{ url_for('survey_blueprint.create_meeting') }}"
+                href="{{ url_for('meeting_blueprint.create_meeting') }}"
                 class="mt-4 block bg-gray-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
               >
                 New Meeting
@@ -158,7 +158,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               {% for meeting in current_user.meetings %}
               <a
-                href="{{ url_for('survey_blueprint.meeting_results', meeting_id=meeting.id) }}"
+                href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}"
                 class="block bg-blue-100 text-blue-800 font-bold py-4 px-6 rounded hover:bg-blue-200 transition duration-300 text-center"
               >
                 {{ meeting.name }}

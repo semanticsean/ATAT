@@ -93,7 +93,7 @@
        function loadResults() {
         console.log("Loading results...");
         $.get(
-          "{{ url_for('survey_blueprint.public_survey_data', public_url=survey.public_url) }}",
+          "{{ url_for('meeting_blueprint.public_survey_data', public_url=survey.public_url) }}",
           function (data) {
             console.log("Received data:", data);
             if (data.length > 0) {
@@ -104,7 +104,7 @@
                 var agentHtml = `
                   <div class="bg-white shadow-xl rounded-lg mb-8 sm:max-w-full lg:max-w-1/2">
                     <div class="flex flex-col md:flex-row items-center bg-gradient-to-r from-gray-200 to-gray-250 rounded-t-lg px-6 py-4">
-                      <img src="{{ url_for('survey_blueprint.public_survey_image', public_url=survey.public_url, filename=agent.photo_path) }}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0 md:mr-12">
+                      <img src="{{ url_for('meeting_blueprint.public_survey_image', public_url=survey.public_url, filename=agent.photo_path) }}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0 md:mr-12">
                       <div class="text-center md:text-left">
                         <h3 class="text-2xl font-bold text-black mb-4">Synth: ${agent.id || "Unknown"}</h3>
                         <div class="max-w-xl break-words"><p class="text-black mb-4">${agent.summary}</p></div>
@@ -134,7 +134,7 @@
                                             </div>
                                             <div class="w-full bg-gray-200 rounded-lg rounded-bl-none shadow mb-4 p-4 -mr-12">
                                               <div class="flex items-center mb-2">
-                                                <img src="{{ url_for('survey_blueprint.public_survey_image', public_url=survey.public_url, filename=agent.photo_path) }}" alt="Agent Profile" class="md:w-12 md:h-12 h-8 w-8 rounded-full mr-2">
+                                                <img src="{{ url_for('meeting_blueprint.public_survey_image', public_url=survey.public_url, filename=agent.photo_path) }}" alt="Agent Profile" class="md:w-12 md:h-12 h-8 w-8 rounded-full mr-2">
                                                 <h4 class="text-md md:text-xl font-bold text-gray-900">${agent.id}</h4>
                                               </div>
                                               <p class="text-md md:text-lg text-gray-900">${answer}</p>
@@ -393,7 +393,7 @@
     $('#is_public').on('change', function() {
       var isPublic = $(this).is(':checked');
       $.ajax({
-        url: '{{ url_for("survey_blueprint.meeting_results", meeting_id=meeting.id) }}',
+        url: '{{ url_for("meeting_blueprint.meeting_results", meeting_id=meeting.id) }}',
         method: 'POST',
         data: { is_public: isPublic },
         success: function(response) {

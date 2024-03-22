@@ -61,7 +61,7 @@
   function loadResults() {
     console.log("Loading results...");
     {% if is_public %}
-      $.get("{{ url_for('survey_blueprint.public_meeting_data', public_url=meeting.public_url) }}", function(data) {
+      $.get("{{ url_for('meeting_blueprint.public_meeting_data', public_url=meeting.public_url) }}", function(data) {
         console.log("Received data:", data);
         if (data.length > 0) {
           var resultsContainer = $("#results-container");
@@ -392,7 +392,7 @@
           $('#is_public').on('change', function() {
             var isPublic = $(this).is(':checked');
             $.ajax({
-              url: '{{ url_for("survey_blueprint.meeting_results", meeting_id=meeting.id) }}',
+              url: '{{ url_for("meeting_blueprint.meeting_results", meeting_id=meeting.id) }}',
               method: 'POST',
               data: { is_public: isPublic },
               success: function(response) {
