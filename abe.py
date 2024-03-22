@@ -11,11 +11,12 @@ from flask_login import LoginManager, current_user, login_required
 from flask_migrate import Migrate
 from datetime import datetime
 from extensions import db, login_manager
-from models import User, Survey, Timeframe
+from models import User, Survey, Timeframe, Meeting
 import start
 from routes import auth_blueprint, survey_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint
 from werkzeug.utils import secure_filename
 from flask_images import Images
+
 
 
 
@@ -110,14 +111,21 @@ def home():
             if survey.survey_data:
                 for agent_data in survey.survey_data:
                     survey_results.append((survey.name, agent_data['id']))
+        meeting_results = []
+        for meeting in current_user.meetings:
+            if meeting.meeting_data:
+                for agent_data in meeting.meeting_data:
+                    meeting_results.append((meeting.name, agent_data['id']))
     else:
         agents_content = None
         survey_results = []
+        meeting_results = []
 
     timeframes = current_user.timeframes if current_user.is_authenticated else []
     logger.info(f"Timeframes for user {current_user.id if current_user.is_authenticated else 'anonymous'}: {timeframes}")
-    
-    return render_template('index.html', agents_content=agents_content, survey_results=survey_results, timeframes=timeframes)
+
+    return render_template('index.html', agents_content=agents_content, survey_results=survey_results, meeting_results=meeting_results, timeframes=timeframes)
+
 
 
 @app.route('/images/<filename>')
@@ -131,6 +139,7 @@ def serve_image(filename):
         return Response(base64.b64decode(image_data), mimetype='image/png')
     else:
         abort(404)
+
 
 
 def custom_img_filter(photo_path, size='48x48'):

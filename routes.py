@@ -3,7 +3,7 @@ import os, json, random, re, glob, shutil, bleach, logging, uuid
 import abe_gpt
 import start
 import base64
-from models import db, User, Survey, Timeframe
+from models import db, User, Survey, Timeframe, Meeting
 
 import email_client
 
@@ -79,8 +79,8 @@ def login():
     login_user(user)
     return redirect(url_for('home'))
 
-  page_view = PageView(page='/login')
-  db.session.add(page_view)
+#  page_view = PageView(page='/login')
+ # db.session.add(page_view)
   db.session.commit()
 
   return render_template('login.html')
@@ -176,116 +176,44 @@ def add_base_agents():
         logging.error(f"Failed to add base agents due to an exception: {str(e)}", exc_info=True)
         return jsonify({'success': False, 'error': str(e)})
 
-@survey_blueprint.route('/survey/create', methods=['GET', 'POST'])
+
+
+@survey_blueprint.route('/meeting/create', methods=['GET', 'POST'])
 @login_required
-def create_survey():
-  if current_user.credits is None or current_user.credits <= 0:
-    flash(
-        "You don't have enough credits. Please contact the admin to add more credits."
-    )
-    return redirect(url_for('home'))
-  agents_data = current_user.agents_data or []
+def create_meeting():
+    if request.method == 'POST':
+        meeting_name = request.form.get('meeting_name')
+        agent_source = request.form.get('agent_source')
+        selected_agent_ids = request.form.getlist('selected_agents')
 
-  if not agents_data:
-    base_agents_files = ['agents.json'
-                         ]  # Add more files in the future if needed
-    return render_template('add_base_agents.html',
-                           base_agents_files=base_agents_files)
+        if agent_source == 'main_agents':
+            agents_data = current_user.agents_data
+        else:
+            try:
+                timeframe_id = int(agent_source.split('_')[1])
+                timeframe = Timeframe.query.get(timeframe_id)
+                if timeframe and timeframe.user_id == current_user.id:
+                    agents_data = timeframe.agents_data
+                else:
+                    flash('Invalid timeframe selected.')
+                    return redirect(url_for('survey_blueprint.create_meeting'))
+            except (IndexError, ValueError):
+                flash('Invalid agent source format.')
+                return redirect(url_for('survey_blueprint.create_meeting'))
 
-  if request.method == 'POST':
-    selected_file = request.form.get('selected_file', default_agents_json_path)
-    survey_name = request.form.get('survey_name')
-    logger.info(
-        f"User {user_id} is creating survey '{survey_name}' with file '{selected_file}'."
-    )
+        selected_agents = [agent for agent in agents_data if str(agent['id']) in selected_agent_ids]
 
-    # Adjusted to handle the case when selected_file is 'agents.json' or the default path
-    if selected_file == 'agents.json' or selected_file == default_agents_json_path:
-      file_path = default_agents_json_path
+        if not selected_agents:
+            flash('No agents selected.')
+            return redirect(url_for('survey_blueprint.create_meeting'))
+
+        new_meeting = Meeting(name=meeting_name, user_id=current_user.id, meeting_data=selected_agents)
+        db.session.add(new_meeting)
+        db.session.commit()
+
+        return redirect(url_for('survey_blueprint.meeting_form', meeting_id=new_meeting.id))
     else:
-      file_path = os.path.join(copies_dir, os.path.basename(selected_file))
-
-    try:
-      with open(file_path, 'r') as f:
-        agents = json.load(f)
-      logger.info(
-          f"Loaded agents from '{file_path}'. Total agents loaded: {len(agents)}"
-      )
-    except Exception as e:
-      logger.error(
-          f"Failed to load agents for user {user_id} from '{file_path}': {e}")
-      flash(
-          'There was an error loading the selected agent file. Please try again.'
-      )
-      return redirect(url_for('survey_blueprint.create_survey'))
-
-    selected_agents = request.form.getlist('selected_agents')
-    logger.info(
-        f"Selected agents: {selected_agents}")  # Log the selected agents
-
-    survey_agents = [
-        agent for agent in agents if str(agent['id']) in selected_agents
-    ]
-    logger.info(f"Survey agents: {survey_agents}")  # Log the survey agents
-
-    logger.info(
-        f"Selected {len(survey_agents)} agents for survey '{survey_name}'.")
-
-    # Create survey folder and selected_agents.json
-    survey_folder = os.path.join(
-        user_dir, 'surveys', f"{survey_name}_{random.randint(100000, 999999)}")
-    os.makedirs(survey_folder, exist_ok=True)
-    selected_agents_file = os.path.join(survey_folder, 'selected_agents.json')
-    with open(selected_agents_file, 'w') as f:
-      json.dump(survey_agents, f)
-    logger.info(
-        f"Created survey folder '{survey_folder}' and saved selected agents.")
-
-    # Copy photos to a new subfolder within the survey folder
-    photos_subfolder = os.path.join(survey_folder, 'pics')
-    os.makedirs(photos_subfolder, exist_ok=True)
-    logger.info(f"Created photos subfolder at '{photos_subfolder}'.")
-
-    for agent in survey_agents:
-      try:
-        old_photo_path = agent['photo_path']
-        photo_filename = os.path.basename(old_photo_path)
-        new_photo_path = os.path.join('surveys',
-                                      os.path.basename(survey_folder), 'pics',
-                                      photo_filename)
-        shutil.copy(os.path.join(user_dir, old_photo_path),
-                    os.path.join(photos_subfolder, photo_filename))
-        survey_id = os.path.basename(survey_folder)
-        agent['photo_path'] = url_for('survey_blueprint.serve_survey_image',
-                                      survey_id=survey_id,
-                                      filename=photo_filename)
-
-        logger.info(
-            f"Copied photo '{photo_filename}' for agent '{agent['id']}' to '{new_photo_path}'."
-        )
-      except Exception as e:
-        logger.error(f"Failed to copy photo for agent '{agent['id']}': {e}")
-
-    # Save the updated paths back to selected_agents.json
-    with open(selected_agents_file, 'w') as f:
-      json.dump(survey_agents, f)
-    logger.info("Updated agent photo paths in 'selected_agents.json'.")
-
-    new_survey = Survey(name=survey_name,
-                        user_id=current_user.id,
-                        agents_file=selected_agents_file)
-    db.session.add(new_survey)
-    db.session.commit()
-    logger.info(
-        f"Successfully created survey '{survey_name}' with ID {new_survey.id} for user {user_id}."
-    )
-
-    return redirect(
-        url_for('survey_blueprint.survey_form',
-                survey_id=new_survey.id,
-                survey_agents=survey_agents))
-  else:
-    return render_template('meeting1.html', agents=agents_data)
+        return render_template('meeting1.html')
 
 
 @survey_blueprint.route('/surveys/<path:survey_id>/pics/<filename>')
@@ -299,63 +227,63 @@ def serve_survey_image(survey_id, filename):
     abort(404)
 
 
-@survey_blueprint.route('/survey/<int:survey_id>', methods=['GET', 'POST'])
+@survey_blueprint.route('/meeting/<int:meeting_id>', methods=['GET', 'POST'])
 @login_required
-def survey_form(survey_id):
-  survey = Survey.query.get_or_404(survey_id)
-  if survey.user_id != current_user.id:
-    abort(403)
+def meeting_form(meeting_id):
+    meeting = Meeting.query.get_or_404(meeting_id)
+    if meeting.user_id != current_user.id:
+        abort(403)
 
-  if request.method == 'POST':
-    questions = extract_questions_from_form(request.form)
-    selected_agent_ids = request.form.getlist('selected_agents')
-    llm_instructions = request.form.get('llm_instructions', '')
-    request_type = request.form.get('request_type', 'iterative')
+    if request.method == 'POST':
+        questions = extract_questions_from_form(request.form)
+        selected_agent_ids = request.form.getlist('selected_agents')
+        llm_instructions = request.form.get('llm_instructions', '')
+        request_type = request.form.get('request_type', 'iterative')
 
-    selected_agents_data = [
-        agent for agent in survey.survey_data
-        if str(agent['id']) in selected_agent_ids
-    ]
+        selected_agents_data = [agent for agent in meeting.meeting_data if str(agent['id']) in selected_agent_ids]
 
-    payload = {
-        "agents_data": selected_agents_data,
-        "questions": questions,
-        "llm_instructions": llm_instructions,
-        "request_type": request_type,
-    }
+        payload = {
+            "agents_data": selected_agents_data,
+            "questions": questions,
+            "llm_instructions": llm_instructions,
+            "request_type": request_type,
+        }
 
-    survey_responses = abe_gpt.conduct_survey(payload, current_user)
+        meeting_responses = abe_gpt.conduct_meeting(payload, current_user)
 
-    for agent_data, response in zip(selected_agents_data, survey_responses):
-      agent_data['responses'] = response['responses']
-      agent_data['questions'] = questions
+        for agent_data, response in zip(selected_agents_data, meeting_responses):
+            agent_data['responses'] = response['responses']
+            agent_data['questions'] = questions
 
-    survey.survey_data = selected_agents_data
-    db.session.commit()
+        meeting.meeting_data = selected_agents_data
+        db.session.commit()
 
-    return redirect(url_for('survey_blueprint.results', survey_id=survey.id))
-  else:
-    agents_data = survey.survey_data
-    return render_template('meeting2.html', survey=survey, agents=agents_data)
+        return redirect(url_for('survey_blueprint.meeting_results', meeting_id=meeting.id))
+    else:
+        agents_data = meeting.meeting_data
+        return render_template('meeting2.html', meeting=meeting, agents=agents_data)
 
-
-@survey_blueprint.route('/survey/<int:survey_id>/get_results')
+@survey_blueprint.route('/meeting/<int:meeting_id>/results', methods=['GET', 'POST'])
 @login_required
-def get_results(survey_id):
-  survey = Survey.query.get_or_404(survey_id)
-  if survey.user_id != current_user.id:
-    abort(403)
+def meeting_results(meeting_id):
+    meeting = Meeting.query.get_or_404(meeting_id)
+    if meeting.user_id != current_user.id:
+        abort(403)
 
-  results_files = glob.glob(
-      os.path.join(os.path.dirname(survey.agents_file),
-                   'selected_agents_results*.json'))
-  results = []
-  for file in results_files:
-    with open(file, 'r') as f:
-      results.extend(
-          json.load(f))  # Extend the results array with data from each file
+    meeting_data = meeting.meeting_data
 
-  return jsonify(results)
+    if request.method == 'POST':
+        is_public = request.form.get('is_public') == 'on'
+        meeting.is_public = is_public
+
+        if is_public and not meeting.public_url:
+            meeting.public_url = str(uuid.uuid4())
+        elif not is_public:
+            meeting.public_url = None
+
+        db.session.commit()
+
+    return render_template('results.html', meeting=meeting, results=meeting_data)
 
 
 @survey_blueprint.route('/survey/<int:survey_id>/results')
@@ -461,22 +389,27 @@ def load_agents(agents_file_path):
   return agents, agents_file_path
 
 
-@auth_blueprint.route('/timeframes/<int:timeframe_id>/agents')
+@auth_blueprint.route('/get_timeframe_agents')
 @login_required
-def get_timeframe_agents(timeframe_id):
-  timeframe = Timeframe.query.get(timeframe_id)
-  if timeframe and timeframe.user_id == current_user.id:
-    agents_data = timeframe.agents_data
-    return jsonify(agents_data)
-  else:
-    return jsonify([])
+def get_timeframe_agents():
+    timeframes = current_user.timeframes
+    timeframe_agents = []
+
+    for timeframe in timeframes:
+        for agent in timeframe.agents_data:
+            agent['timeframe_id'] = timeframe.id
+            agent['timeframe_name'] = timeframe.name
+            timeframe_agents.append(agent)
+
+    return jsonify(timeframe_agents)
 
 
-@auth_blueprint.route('/base_agents')
+@auth_blueprint.route('/get_main_agents')
 @login_required
-def get_base_agents():
-  base_agents = current_user.agents_data or []
-  return jsonify(base_agents)
+def get_main_agents():
+    main_agents = current_user.agents_data or []
+    return jsonify(main_agents)
+
 
 
 def get_agent_by_id(agents, agent_id):
@@ -556,30 +489,30 @@ def extract_questions_from_form(form_data):
   return questions
 
 
-@survey_blueprint.route('/public/survey/<public_url>')
-def public_survey_results(public_url):
-  survey = Survey.query.filter_by(public_url=public_url).first()
+@survey_blueprint.route('/public/meeting/<public_url>')
+def public_meeting_results(public_url):
+    meeting = Meeting.query.filter_by(public_url=public_url).first()
 
-  if not survey or not survey.is_public:
-    abort(404)
+    if not meeting or not meeting.is_public:
+        abort(404)
 
-  return render_template('public_results.html', survey=survey)
+    return render_template('public_results.html', meeting=meeting)
 
 
-@survey_blueprint.route('/public_folder_name')
-def public_folder_name():
-  # Logic to determine survey and foldername...
-  survey = get_survey()  # Hypothetical function to get a Survey object
-  foldername = calculate_foldername(
-      survey)  # Hypothetical function to determine foldername
 
-  page_view = PageView(page='/public_folder_name')
-  db.session.add(page_view)
-  db.session.commit()
+@survey_blueprint.route('/public/meeting/<public_url>/data')
+def public_meeting_data(public_url):
+    meeting = Meeting.query.filter_by(public_url=public_url).first()
 
-  return render_template('public_results.html',
-                         survey=survey,
-                         foldername=foldername)
+    if not meeting or not meeting.is_public:
+        abort(404)
+
+    meeting_data = meeting.meeting_data
+
+    for agent in meeting_data:
+        agent['photo_path'] = url_for('serve_image', filename=agent['photo_path'].split('/')[-1])
+
+    return jsonify(meeting_data)
 
 
 @survey_blueprint.route('/public/survey/<public_url>/data')
@@ -810,5 +743,24 @@ def timeframe_progress(timeframe_id):
         abort(404)
 
 
+@auth_blueprint.route('/get_main_agents')
+@login_required
+def get_main_agents():
+    main_agents = current_user.agents_data or []
+    return jsonify(main_agents)
 
 
+
+@auth_blueprint.route('/get_timeframe_agents')
+@login_required
+def get_timeframe_agents():
+    timeframes = current_user.timeframes
+    timeframe_agents = []
+
+    for timeframe in timeframes:
+        for agent in timeframe.agents_data:
+            agent['timeframe_id'] = timeframe.id
+            agent['timeframe_name'] = timeframe.name
+            timeframe_agents.append(agent)
+
+    return jsonify(timeframe_agents)

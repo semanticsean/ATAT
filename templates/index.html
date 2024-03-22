@@ -123,7 +123,7 @@
                 
               </a>
               <a
-                href="{{ url_for('survey_blueprint.create_survey') }}"
+                href="{{ url_for('survey_blueprint.create_meeting') }}"
                 class="mt-4 block bg-gray-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
               >
                 New Meeting
@@ -140,10 +140,10 @@
           </div>
           <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
             <h2 class="text-2xl font-bold mb-4">Timeframes</h2>
-            <ul>
+            <ul class="list-disc list-inside">
               {% for timeframe in timeframes %}
-                <li>
-                  <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}">
+                <li class="mb-2">
+                  <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="text-blue-600 hover:text-blue-800">
                     {{ timeframe.name }}
                   </a>
                 </li>
@@ -155,20 +155,18 @@
           </div>
           <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
             <h2 class="text-2xl font-bold mb-4">Meetings</h2>
-            <ul class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {% for survey in surveys %}
-              <li>
-                <a
-                  href="{{ url_for('survey_blueprint.results', survey_id=survey.id) }}"
-                  class="block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300"
-                >
-                  {{ survey.name }}
-                </a>
-              </li>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {% for meeting in current_user.meetings %}
+              <a
+                href="{{ url_for('survey_blueprint.meeting_results', meeting_id=meeting.id) }}"
+                class="block bg-blue-100 text-blue-800 font-bold py-4 px-6 rounded hover:bg-blue-200 transition duration-300 text-center"
+              >
+                {{ meeting.name }}
+              </a>
               {% endfor %}
-            </ul>
-            {% if not surveys %}
-            <p class="text-gray-600">
+            </div>
+            {% if not current_user.meetings %}
+            <p class="text-gray-600 mt-4">
               No meetings yet. You must create a timeframe before you can create
               a meeting.
             </p>
@@ -204,4 +202,4 @@
           });
       });
   </script>
-</html>
+</html>n

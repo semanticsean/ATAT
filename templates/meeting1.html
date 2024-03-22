@@ -1,42 +1,38 @@
-<!-- templates/meeting1.html -->
 <!DOCTYPE html>
 <html lang="en" class="h-full">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Create Survey</title>
-          <style>
-            html, body {
-              height: 100%;
-              margin: 0;
-            }
-            #content {
-              min-height: 100%;
-              /* Equal to footer height */
-              margin-bottom: -4rem; 
-            }
-            #footer-push {
-              height: 16rem; 
-              /* Equal to footer height */
-            }
-            footer {
-              height: 4rem;
-              /* Other styling */
-            }
-            .agent-item {
-              cursor: pointer;
-            }
-            .agent-item.selected {
-              background-color: #d3e1ff;
-            }
-            .agent-item:hover {
-              background-color: #e9f0ff;
-            }
-          </style>
-          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
-          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        </head>
-        <body class="bg-blue-50 h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Meeting</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    #content {
+      min-height: 100%;
+      margin-bottom: -4rem;
+    }
+    #footer-push {
+      height: 16rem;
+    }
+    footer {
+      height: 4rem;
+    }
+    .agent-item {
+      cursor: pointer;
+    }
+    .agent-item.selected {
+      background-color: #d3e1ff;
+    }
+    .agent-item:hover {
+      background-color: #e9f0ff;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-blue-50 h-full">
   {% include 'header.html' %}
   <main class="flex-grow">
     <div class="container mx-auto px-4 py-8 mt-12">
@@ -44,15 +40,20 @@
       <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
         <h1 class="text-2xl font-bold mb-2">Make a Meeting</h1>
         <h2 class="italic">1 credit per question or discussion point per synth.</h2>
-        <form action="{{ url_for('survey_blueprint.create_survey') }}" method="post" class="mb-8">
+        <form action="{{ url_for('survey_blueprint.create_meeting') }}" method="post" class="mb-8">
           <div class="mb-4">
-            <label for="survey_name" class="block text-xl font-bold mb-2 mt-4">Meeting Name:</label>
-            <input type="text" id="survey_name" name="survey_name" value="default_name" required class="w-full px-3 py-text-xl font-bold mb-2 border rounded-lg focus:outline-none">
+            <label for="meeting_name" class="block text-xl font-bold mb-2 mt-4">Meeting Name:</label>
+            <input type="text" id="meeting_name" name="meeting_name" value="default_name" required class="w-full px-3 py-text-xl font-bold mb-2 border rounded-lg focus:outline-none">
           </div>
           <div class="mb-8">
             <h2 class="text-xl font-bold mb-2">Select Synths</h2>
-            <!-- {% if not agent_copies %}Base Agents{% else %}{% include
-            'add_base_agents.html' %}{{ agent_copies[0].name }}{% endif %} -->
+            <div class="mb-4">
+              <label for="agent_source" class="block text-gray-700 font-bold mb-2">Agent Source:</label>
+              <select id="agent_source" name="agent_source" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
+                <option value="main_agents">Main Agents</option>
+                <option value="timeframes">Timeframes</option>
+              </select>
+            </div>
             <div id="agent-list">
               <div class="mb-4 flex justify-between">
                 <button type="button" id="select-all" class="px-4 py-2 text-sm md:px-6 md:py-3 bg-gray-400 text-white rounded-lg hover:bg-green-600">Select All</button>
@@ -68,157 +69,113 @@
   </main>
   <div id="footer-push"></div>
   {% include 'footer.html' %}
-          <script>
-            $(document).ready(function() {
-              console.log("Document ready. Initializing event handlers...");
-              var selectedAgents = []; // Initialize an empty array to keep track of selected agents
-              
-              // Event handler for file buttons
-              $('.file-button').click(function() {
-                var selectedFile = $(this).data('file');
-                console.log("File button clicked. Selected file: ", selectedFile);
-                $('#selected_file').val(selectedFile);
-                loadAgents(selectedFile);
-              });
+  <script>
+    $(document).ready(function() {
+      console.log("Document ready. Initializing event handlers...");
+      var selectedAgents = [];
 
-              // Update the form submission event listener
-              $('form').on('submit', function(e) {
-                  // Set the value of each selected agent's checkbox to "on"
-                  selectedAgents.forEach(function(agentId) {
-                      $(`input[type="checkbox"][value="${agentId}"]`).prop('checked', true);
-                  });
-              });
-              
-              // Event handler for "Select All" button
-              $(document).on('click', '#select-all', function() {
-                console.log("'Select All' button clicked. Selecting all agents.");
-                $('.agent-item').each(function() {
-                  var agentId = $(this).data('agent-id');
-                  $(this).addClass('selected');
-                  addAgentToSelection(agentId);
-                });
-              });
-              
-              // Event handler for "Clear All" button
-              $(document).on('click', '#clear-all', function() {
-                console.log("'Clear All' button clicked. Clearing all agent selections.");
-                $('.agent-item').each(function() {
-                  var agentId = $(this).data('agent-id');
-                  $(this).removeClass('selected');
-                  removeAgentFromSelection(agentId);
-                });
-              });
-              
-              // Event handler for individual agent item clicks
-              $(document).on('click', '.agent-item', function(e) {
-                e.preventDefault();
-                if (e.target !== $(this).find('input[type="checkbox"]')[0]) {
-                  var agentId = $(this).data('agent-id');
-                  
-                  $(this).toggleClass('selected');
-                  if ($(this).hasClass('selected')) {
-                    addAgentToSelection(agentId);
-                  } else {
-                    removeAgentFromSelection(agentId);
-                  }
-                }
-              });
-              
-              // Adds an agent ID to the selection array
-              function addAgentToSelection(agentId) {
-                if (!selectedAgents.includes(agentId)) {
-                  selectedAgents.push(agentId);
-                  console.log(`Agent ${agentId} added to selection.`);
-                }
-              }
-              
-              // Removes an agent ID from the selection array
-              function removeAgentFromSelection(agentId) {
-                const index = selectedAgents.indexOf(agentId);
-                if (index > -1) {
-                  selectedAgents.splice(index, 1);
-                  console.log(`Agent ${agentId} removed from selection.`);
-                }
-              }
-              
-              // Load agents based on the selected file
-                    function loadAgents(file) {
-                    console.log("Loading agents for file: ", file);
-                    var endpoint;
+      // Event handler for agent source selection
+      $('#agent_source').change(function() {
+        var agentSource = $(this).val();
+        loadAgents(agentSource);
+      });
 
-                    // Check if the file is the default agents.json or from the copies directory
-                    if (file === '{{ user_dir }}/agents/agents.json' || file === 'agents.json') {
-                        // Directly request the user-specific agents.json
-                        endpoint = '{{ url_for("auth_blueprint.serve_agents_json") }}';
-                    } else {
-                        // Adjust the endpoint for agent copies
-                        var basename = file.split('/').pop(); // Extracts the last part after '/'
-                        endpoint = '/agents/copies/' + basename;
-                    }
+      // Event handler for "Select All" button
+      $(document).on('click', '#select-all', function() {
+        console.log("'Select All' button clicked. Selecting all agents.");
+        $('.agent-item').each(function() {
+          var agentId = $(this).data('agent-id');
+          $(this).addClass('selected');
+          addAgentToSelection(agentId);
+        });
+      });
 
-                    console.log("Endpoint for loading agents: ", endpoint);
-                    $.getJSON(endpoint, function(data) {
-                      console.log("Received agent data: ", data);
-                      var agentList = $('#agent-list');
-                      agentList.empty();
-                      data.forEach(function(agent) {
-                          var photoPath = `/${agent.photo_path}`;
-                          var agentItem = `
-                            <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="${agent.id}">
-                              <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden">
-                              <img src="${photoPath}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
-                              <label for="agent-${agent.id}" class="text-gray-700 text-sm md:text-md">
-                                <div class="text-lg md:text-xl font-bold mb-2">${agent.id}</div>
-                                <div class="mb-2">${agent.jobtitle}</div>
-                                <div class="mb-2">${agent.summary}</div>
-                              </label>
-                            </div>
-                          `;
-                          agentList.append(agentItem);
-                      });
-                  }).fail(function(jqXHR, textStatus, errorThrown) {
-                    console.error("Failed to load agents: " + textStatus + ", " + errorThrown);
-                });
-              }
+      // Event handler for "Clear All" button
+      $(document).on('click', '#clear-all', function() {
+        console.log("'Clear All' button clicked. Clearing all agent selections.");
+        $('.agent-item').each(function() {
+          var agentId = $(this).data('agent-id');
+          $(this).removeClass('selected');
+          removeAgentFromSelection(agentId);
+        });
+      });
 
-            });
-          </script>
-          <script>
+      // Event handler for individual agent item clicks
+      $(document).on('click', '.agent-item', function(e) {
+        e.preventDefault();
+        if (e.target !== $(this).find('input[type="checkbox"]')[0]) {
+          var agentId = $(this).data('agent-id');
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.querySelector('form');
-                const loading = document.getElementById('loading');
+          $(this).toggleClass('selected');
+          if ($(this).hasClass('selected')) {
+            addAgentToSelection(agentId);
+          } else {
+            removeAgentFromSelection(agentId);
+          }
+        }
+      });
 
-                form.addEventListener('submit', function(e) {
-                    const filenameInput = document.getElementById('filename');
-                    filenameInput.value = filenameInput.value.replace(/\s+/g, '_');
-                    $('#selected_agents').val(selectedAgents.join(','));
-                    loading.style.display = 'block';
-                });
-            });
+      // Adds an agent ID to the selection array
+      function addAgentToSelection(agentId) {
+        if (!selectedAgents.includes(agentId)) {
+          selectedAgents.push(agentId);
+          console.log(`Agent ${agentId} added to selection.`);
+        }
+      }
 
+      // Removes an agent ID from the selection array
+      function removeAgentFromSelection(agentId) {
+        const index = selectedAgents.indexOf(agentId);
+        if (index > -1) {
+          selectedAgents.splice(index, 1);
+          console.log(`Agent ${agentId} removed from selection.`);
+        }
+      }
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.querySelector('form');
-                const loading = document.getElementById('loading');
-                const agentItems = document.querySelectorAll('.agent-item');
+      // Load agents based on the selected agent source
+      function loadAgents(agentSource) {
+        console.log("Loading agents for source: ", agentSource);
+        var endpoint;
 
-                // Individual agent item click event
-                agentItems.forEach(item => {
-                    item.addEventListener('click', function(e) {
-                        // Prevent form from submitting if the form is clicked
-                        e.preventDefault();
+        if (agentSource === 'main_agents') {
+          endpoint = '{{ url_for("auth_blueprint.get_main_agents") }}';
+        } else if (agentSource.startsWith('timeframe_')) {
+          endpoint = '{{ url_for("auth_blueprint.get_timeframe_agents") }}';
+        }
 
-                        // Check the clicked element is not the checkbox itself
-                        if (e.target !== this.querySelector('input[type="checkbox"]')) {
-                            const checkbox = this.querySelector('input[type="checkbox"]');
-                            checkbox.checked = !checkbox.checked;
-                            this.classList.toggle('selected', checkbox.checked);
-                        }
-                    });
-                });
+        console.log("Endpoint for loading agents: ", endpoint);
+        $.getJSON(endpoint, function(data) {
+          console.log("Received agent data: ", data);
+          var agentList = $('#agent-list');
+          agentList.empty();
+          data.forEach(function(agent) {
+            var photoPath = `/${agent.photo_path}`;
+            var agentItem = `
+              <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="${agent.id}">
+                <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden">
+                <img src="${photoPath}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
+                <label for="agent-${agent.id}" class="text-gray-700 text-sm md:text-md">
+                  <div class="text-lg md:text-xl font-bold mb-2">${agent.id}</div>
+                  <div class="mb-2">${agent.jobtitle}</div>
+                  <div class="mb-2">${agent.summary}</div>
+                </label>
+              </div>
+            `;
+            agentList.append(agentItem);
+          });
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+          console.error("Failed to load agents: " + textStatus + ", " + errorThrown);
+        });
+      }
 
-            });
-          </script>
-        </body>
-      </html>
+      // Load Main Agents by default
+      loadAgents('main_agents');
+
+      // Update the form submission event listener
+      $('form').on('submit', function(e) {
+        $('#selected_agents').val(selectedAgents.join(','));
+      });
+    });
+  </script>
+</body>
+</html>
