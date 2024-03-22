@@ -308,6 +308,7 @@
         </a>
       </div>
     </div>
+    {% if is_public %}
 
         <main class="flex flex-col justify-between min-h-screen">
           <div class="container mx-auto px-4 py-8 mt-12">
@@ -377,7 +378,29 @@
 
       <div id="footer-push"></div>
     </main>
+    {% else %}
+    <p>This meeting is not publicly accessible.</p>
+    {% endif %}
 
     {% include 'footer.html' %}
   </body>
+  <script>
+    $(document).ready(function() {
+    loadResults();
+    $(".sortable").tablesorter();
+
+    // Event listener for public/private toggle
+    $('#is_public').on('change', function() {
+      var isPublic = $(this).is(':checked');
+      $.ajax({
+        url: '{{ url_for("survey_blueprint.meeting_results", meeting_id=meeting.id) }}',
+        method: 'POST',
+        data: { is_public: isPublic },
+        success: function(response) {
+          togglePublicUrl();
+        }
+      });
+    });
+  });
+  </script>
 </html>
