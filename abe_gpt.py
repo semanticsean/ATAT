@@ -297,6 +297,7 @@ def conduct_meeting(payload, current_user):
                       else:
                           raise e
               responses[question_id] = response.choices[0].message.content.strip()
+
       else:
           questions_text = "\n".join([f"Question {question_id}: {question_text}" for question_id, question_text in questions.items()])
           agent_payload = {
