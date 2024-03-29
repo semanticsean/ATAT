@@ -233,8 +233,8 @@ def process_agents(payload, current_user):
     return new_timeframe
 
 
-
 def conduct_meeting(payload, current_user):
+  logging.info("Entering conduct_meeting function")
   agents_data = payload["agents_data"]
   questions = payload["questions"]
   form_llm_instructions = payload.get("llm_instructions", "")
@@ -248,6 +248,11 @@ def conduct_meeting(payload, current_user):
   # Combine form-provided llm_instructions with question_instructions
   llm_instructions_combined = f"{question_instructions} {form_llm_instructions}".strip()
 
+  logging.info(f"Agents data: {agents_data}")
+  logging.info(f"Questions: {questions}")
+  logging.info(f"LLM instructions: {llm_instructions_combined}")
+  logging.info(f"Request type: {request_type}")
+
   meeting_responses = []
 
   for agent in agents_data:
@@ -255,6 +260,8 @@ def conduct_meeting(payload, current_user):
       agent_response["id"] = agent["id"]
       agent_response["email"] = agent["email"]
       agent_response["questions"] = questions
+
+      logging.info(f"Processing agent: {agent['id']}")
 
       if request_type == "iterative":
           responses = {}
@@ -280,7 +287,9 @@ def conduct_meeting(payload, current_user):
                       if current_user.credits is None or current_user.credits < 1:
                           raise Exception("Insufficient credits, please add more")
 
+                      logging.info(f"Sending request to OpenAI API for agent: {agent['id']}, question: {question_id}")
                       response = client.chat.completions.create(**agent_payload)
+                      logging.info(f"Received response from OpenAI API for agent: {agent['id']}, question: {question_id}")
 
                       # Deduct credits based on the API call
                       credits_used = 1  # Deduct 1 credit for gpt-3.5-turbo models
@@ -321,7 +330,9 @@ def conduct_meeting(payload, current_user):
                   if current_user.credits is None or current_user.credits < 1:
                       raise Exception("Insufficient credits, please add more")
 
+                  logging.info(f"Sending request to OpenAI API for agent: {agent['id']}")
                   response = client.chat.completions.create(**agent_payload)
+                  logging.info(f"Received response from OpenAI API for agent: {agent['id']}")
 
                   # Deduct credits based on the API call
                   credits_used = 1  # Deduct 1 credit for gpt-3.5-turbo models
@@ -342,7 +353,9 @@ def conduct_meeting(payload, current_user):
 
       agent_response["responses"] = responses
       meeting_responses.append(agent_response)
+      logging.info(f"Processed agent: {agent['id']}")
 
+  logging.info(f"Meeting responses: {meeting_responses}")
   return meeting_responses
 
 

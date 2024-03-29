@@ -45,7 +45,8 @@
       <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
         <h1 class="text-3xl font-bold mb-4">Meeting Conversation Starters</h1>
         <form id="meetingForm" action="{{ url_for('meeting_blueprint.meeting_form', meeting_id=meeting.id) }}" method="post">
-          <!-- ... (selected synths and predefined questions remain the same) ... -->
+          
+         
           <div id="questionsContainer">
             <!-- Additional questions will be added here dynamically -->
           </div>
@@ -63,6 +64,9 @@
               <option value="whole">Whole</option>
             </select>
           </div>
+          {% for agent in agents %}
+            <input type="hidden" name="selected_agents" value="{{ agent['id'] }}">
+          {% endfor %}
           <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Submit Meeting</button>
         </form>
       </div>
