@@ -133,13 +133,14 @@
       }
 
       // Load agents based on the selected agent source
+      // Load agents based on the selected agent source
       function loadAgents(agentSource) {
         console.log("Loading agents for source: ", agentSource);
         var endpoint;
 
         if (agentSource === 'main_agents') {
           endpoint = '{{ url_for("auth_blueprint.get_main_agents") }}';
-        } else if (agentSource.startsWith('timeframe_')) {
+        } else if (agentSource === 'timeframes') {
           endpoint = '{{ url_for("auth_blueprint.get_timeframe_agents") }}';
         }
 
@@ -153,7 +154,8 @@
             var agentItem = `
               <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="${agent.id}">
                 <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden">
-                <img src="${photoPath}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
+                <img src="data:image/png;base64,${agent.image_data}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
+                
                 <label for="agent-${agent.id}" class="text-gray-700 text-sm md:text-md">
                   <div class="text-lg md:text-xl font-bold mb-2">${agent.id}</div>
                   <div class="mb-2">${agent.jobtitle}</div>

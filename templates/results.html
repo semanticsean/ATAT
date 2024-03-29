@@ -6,137 +6,154 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meeting Results</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
-  <style>
-  canvas {
-    width: 100% !important;
-    height: auto !important;
-    max-height: 400px;
-  }
-  html, body {
-    height: 100%;
-    margin: 0;
-  }
-  #content {
-    min-height: 100%;
-    margin-bottom: -4rem;
-  }
-  #footer-push {
-    height: 4rem;
-  }
-  footer {
-    height: 4rem;
-  }
-  :target {
-    scroll-margin-top: 200px;
-  }
-  *, *:before, *:after {
-    box-sizing: border-box;
-  }
-  .table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .table-responsive table {
-    width: 100%;
-    min-width: 600px;
-    border-collapse: collapse;
-  }
-  .table-responsive th,
-  .table-responsive td {
-    white-space: nowrap;
-    padding: 0.5rem;
-  }
-  @media screen and (max-width: 640px) {
-    .table-responsive th,
-    .table-responsive td {
-      padding: 0.2rem;
+    <style>
+      canvas {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 400px;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+      #content {
+        min-height: 100%;
+        margin-bottom: -4rem;
+      }
+      #footer-push {
+        height: 4rem;
+      }
+      footer {
+        height: 4rem;
+      }
+      :target {
+        scroll-margin-top: 200px;
+      }
+      *, *:before, *:after {
+        box-sizing: border-box;
+      }
+      .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .table-responsive table {
+        width: 100%;
+        min-width: 600px;
+        border-collapse: collapse;
+      }
+      .table-responsive th,
+      .table-responsive td {
+        white-space: nowrap;
+        padding: 0.5rem;
+      }
+      @media screen and (max-width: 640px) {
+        .table-responsive th,
+        .table-responsive td {
+          padding: 0.2rem;
+        }
+      }
+    
+    .question {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.5rem;
     }
-  }
-</style>
+    .answer {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a202c;
+    }
+  </style>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
- 
 </head>
-</head>
-<body class="bg-gray-100">
-  {% include 'header.html' %}
-  <div class="container mx-auto py-8">
-    <h1 class="text-3xl font-bold mb-4">{{ meeting.name }}</h1>
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-      <div class="px-4 py-5 sm:p-6">
-        <div class="mb-4">
-          <label for="is_public" class="inline-flex items-center">
-            <input type="checkbox" id="is_public" name="is_public" {% if meeting.is_public %}checked{% endif %} onchange="togglePublicUrl()">
-            <span class="ml-2">Make meeting results public</span>
-          </label>
-        </div>
-        <div id="public-url-section" class="mb-4" style="display: none;">
-          <label for="public-url" class="block text-sm font-medium text-gray-700">Public URL:</label>
-          <div class="mt-1 flex rounded-md shadow-sm">
-            <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-              {{ request.host_url }}
-            </span>
-            <input type="text" name="public-url" id="public-url" class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300" value="{{ meeting.public_url }}" readonly>
-          </div>
-        </div>
-        <h2 class="text-xl font-semibold mb-4">Questions:</h2>
-        <ul class="mb-8">
-          {% for question_id, question_data in meeting.questions.items() %}
-            <li>{{ question_data['text'] }}</li>
-          {% endfor %}
-        </ul>
-
-        {% for agent in meeting.agents %}
-          <div class="bg-white shadow-xl rounded-lg mb-8">
-            <div class="flex flex-col md:flex-row items-center bg-gradient-to-r from-gray-200 to-gray-250 rounded-t-lg px-6 py-4">
-              <img src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0 md:mr-12">
-              <div class="text-center md:text-left">
-                <h3 class="text-2xl font-bold text-black mb-4">Synth: {{ agent.id }}</h3>
-                <div class="max-w-xl break-words"><p class="text-black font-md md:font-xl mb-4">{{ agent.summary }}</p></div>
+          <body class="bg-gray-100">
+            {% include 'header.html' %}
+            <div class="container mx-auto py-8">
+              <h1 class="text-3xl font-bold mb-4">{{ meeting.name }}</h1>
+              <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:p-6">
+                  <div class="mb-4">
+                    <label for="is_public" class="inline-flex items-center">
+                      <input type="checkbox" id="is_public" name="is_public" {% if meeting.is_public %}checked{% endif %} onchange="togglePublicUrl()">
+                      <span class="ml-2">Make meeting results public</span>
+                    </label>
+                  </div>
+                  <div id="public-url-section" class="mb-4" style="display: none;">
+                    <label for="public-url" class="block text-sm font-medium text-gray-700">Public URL:</label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                      <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                        {{ request.host_url }}
+                      </span>
+                      <input type="text" name="public-url" id="public-url" class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300" value="{{ meeting.public_url }}" readonly>
+                    </div>
+                  </div>
+          {% for agent in meeting.agents %}
+            <div class="bg-white shadow-xl rounded-lg mb-8">
+              <div class="flex flex-col md:flex-row items-center bg-gradient-to-r from-gray-200 to-gray-250 rounded-t-lg px-6 py-4">
+                <img src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0 md:mr-12">
+                <div class="text-center md:text-left">
+                  <h3 class="text-2xl font-bold text-black mb-4">{{ agent.id }}</h3>
+                  <p class="text-gray-700 mb-2">{{ agent.summary }}</p>
+                  <p class="text-gray-600">Keywords: {{ agent.keywords|join(', ') }}</p>
+                </div>
+              </div>
+              <div class="px-6 py-4">
+                <h3 class="text-xl font-bold text-black mb-4">Responses:</h3>
+                {% if meeting.answers[agent.id] %}
+                  {% for question_id, answer in meeting.answers[agent.id].items() %}
+                    <div class="mb-6">
+                      {% if meeting.questions and meeting.questions[question_id] %}
+                        <p class="question">{{ meeting.questions[question_id]['text'] }}</p>
+                      {% else %}
+                        <p class="question">Question {{ question_id }}</p>
+                      {% endif %}
+                      <div class="answer">{{ answer|safe }}</div>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <p class="text-gray-600">No responses available for this agent.</p>
+                {% endif %}
               </div>
             </div>
-            <div class="px-6 py-4">
-              <h3 class="text-2xl font-bold text-black mb-4">Responses:</h3>
-              {% for question_id, answer in meeting.answers[agent.id].items() %}
-                <div class="mb-6">
-                  <p class="text-gray-700 font-bold mb-2">{{ meeting.questions[question_id]['text'] }}</p>
-                  <div class="text-lg md:text-xl font-bold text-gray-900">{{ answer|safe }}</div>
-                </div>
-              {% endfor %}
-            </div>
-          </div>
-        {% endfor %}
+          {% endfor %}
+        </div>
       </div>
     </div>
-  </div>
-  {% include 'footer.html' %}
+    {% include 'footer.html' %}
 
-  <script>
-    function togglePublicUrl() {
-      var isPublicCheckbox = document.getElementById('is_public');
-      var publicUrlSection = document.getElementById('public-url-section');
-      if (isPublicCheckbox.checked) {
-        publicUrlSection.style.display = 'block';
-      } else {
-        publicUrlSection.style.display = 'none';
-      }
-    }
-    togglePublicUrl();
-
-    $(document).ready(function() {
-      $('#is_public').on('change', function() {
-        var isPublic = $(this).is(':checked');
-        $.ajax({
-          url: '{{ url_for("meeting_blueprint.meeting_results", meeting_id=meeting.id) }}',
-          method: 'POST',
-          data: { is_public: isPublic },
-          success: function(response) {
-            togglePublicUrl();
+    <script>
+      function togglePublicUrl() {
+        var isPublicCheckbox = document.getElementById('is_public');
+        var publicUrlSection = document.getElementById('public-url-section');
+        if (isPublicCheckbox && publicUrlSection) {
+          if (isPublicCheckbox.checked) {
+            publicUrlSection.style.display = 'block';
+          } else {
+            publicUrlSection.style.display = 'none';
           }
-        });
+        }
+      }
+
+      $(document).ready(function() {
+        var isPublicCheckbox = document.getElementById('is_public');
+        if (isPublicCheckbox) {
+          togglePublicUrl();
+
+          $('#is_public').on('change', function() {
+            var isPublic = $(this).is(':checked');
+            $.ajax({
+              url: '{{ url_for("meeting_blueprint.meeting_results", meeting_id=meeting.id) }}',
+              method: 'POST',
+              data: { is_public: isPublic },
+              success: function(response) {
+                togglePublicUrl();
+              }
+            });
+          });
+        }
       });
-    });
-  </script>
+    </script>
 </body>
 </html>
