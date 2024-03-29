@@ -536,3 +536,27 @@ ORDER BY
 ------ 
 
 admin.py standalone adds credits 
+
+
+
+
+----- 
+
+# find meeting info by id 
+
+SELECT 
+    m.id AS meeting_id,
+    m.name AS meeting_name,
+    m.agents AS meeting_agents,
+    m.questions AS meeting_questions,
+    m.answers AS meeting_answers,
+    m.is_public AS meeting_is_public,
+    m.public_url AS meeting_public_url,
+    u.id AS user_id,
+    u.username AS user_username,
+    u.email AS user_email
+FROM 
+    meeting AS m
+    JOIN "user" AS u ON m.user_id = u.id
+WHERE 
+    m.id = 24;

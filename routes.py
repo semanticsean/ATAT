@@ -44,8 +44,8 @@ auth_blueprint = Blueprint('auth_blueprint',
                            __name__,
                            template_folder='templates')
 meeting_blueprint = Blueprint('meeting_blueprint',
-                             __name__,
-                             template_folder='templates')
+                              __name__,
+                              template_folder='templates')
 
 dashboard_blueprint = Blueprint('dashboard_blueprint',
                                 __name__,
@@ -79,56 +79,59 @@ def login():
     login_user(user)
     return redirect(url_for('home'))
 
+
 #  page_view = PageView(page='/login')
- # db.session.add(page_view)
+# db.session.add(page_view)
   db.session.commit()
 
   return render_template('login.html')
 
+
 @auth_blueprint.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        email = request.form.get('email')  # Retrieve email from form data
-        user = User.query.filter_by(username=username).first()
-        if user:
-            flash('Username already exists')
-            return redirect(url_for('auth_blueprint.register'))
-        # Check if email already exists
-        email_exists = User.query.filter_by(email=email).first()
-        if email_exists:
-            flash('Email already registered')
-            return redirect(url_for('auth_blueprint.register'))
-        new_user = User(username=username, email=email)
-        new_user.set_password(password)
-        new_user.create_user_data()  # Call create_user_data instead of create_user_folder
-        db.session.add(new_user)
-        db.session.commit()
-        page_view = PageView(page='/register')
-        db.session.add(page_view)
-        db.session.commit()
-        return redirect(url_for('auth_blueprint.login'))
+  if request.method == 'POST':
+    username = request.form['username']
+    password = request.form['password']
+    email = request.form.get('email')  # Retrieve email from form data
+    user = User.query.filter_by(username=username).first()
+    if user:
+      flash('Username already exists')
+      return redirect(url_for('auth_blueprint.register'))
+    # Check if email already exists
+    email_exists = User.query.filter_by(email=email).first()
+    if email_exists:
+      flash('Email already registered')
+      return redirect(url_for('auth_blueprint.register'))
+    new_user = User(username=username, email=email)
+    new_user.set_password(password)
+    new_user.create_user_data(
+    )  # Call create_user_data instead of create_user_folder
+    db.session.add(new_user)
+    db.session.commit()
+    page_view = PageView(page='/register')
+    db.session.add(page_view)
+    db.session.commit()
+    return redirect(url_for('auth_blueprint.login'))
 
-    return render_template('register.html')
+  return render_template('register.html')
 
 
 @auth_blueprint.route('/user', methods=['GET', 'POST'])
 @login_required
 def update_profile():
-    if request.method == 'POST':
-        current_user.username = request.form['username']
-        current_user.email = request.form.get('email')
-        password = request.form.get('password')
-        if password:
-            current_user.password_hash = generate_password_hash(password)
-        db.session.commit()
-        flash('Your profile was updated successfully!')
-        page_view = PageView(page='/user')
-        db.session.add(page_view)
-        db.session.commit()
-        return redirect(url_for('auth_blueprint.update_profile'))
-    return render_template('user.html')
+  if request.method == 'POST':
+    current_user.username = request.form['username']
+    current_user.email = request.form.get('email')
+    password = request.form.get('password')
+    if password:
+      current_user.password_hash = generate_password_hash(password)
+    db.session.commit()
+    flash('Your profile was updated successfully!')
+    page_view = PageView(page='/user')
+    db.session.add(page_view)
+    db.session.commit()
+    return redirect(url_for('auth_blueprint.update_profile'))
+  return render_template('user.html')
 
 
 @auth_blueprint.route('/help')
@@ -145,36 +148,40 @@ def sanitize_filename(filename):
   clean_filename = clean_filename.strip('_')
   return clean_filename
 
+
 @auth_blueprint.route('/add_base_agents', methods=['POST'])
 @login_required
 def add_base_agents():
-    logging.info("Starting to add base agents")
-    try:
-        base_agents_path = os.path.join('agents', 'agents.json')
-        logging.info(f"Reading base agents from {base_agents_path}")
-        with open(base_agents_path, 'r') as file:
-            base_agents_data = json.load(file)
+  logging.info("Starting to add base agents")
+  try:
+    base_agents_path = os.path.join('agents', 'agents.json')
+    logging.info(f"Reading base agents from {base_agents_path}")
+    with open(base_agents_path, 'r') as file:
+      base_agents_data = json.load(file)
 
-        current_user.images_data = {}  # Initialize images_data as an empty dictionary
-        logging.info("Initialized images_data as an empty dictionary")
+    current_user.images_data = {
+    }  # Initialize images_data as an empty dictionary
+    logging.info("Initialized images_data as an empty dictionary")
 
-        for agent in base_agents_data:
-            photo_filename = os.path.basename(agent['photo_path'])
-            image_path = os.path.join('agents', 'pics', photo_filename)
-            logging.info(f"Processing image {photo_filename}")
+    for agent in base_agents_data:
+      photo_filename = os.path.basename(agent['photo_path'])
+      image_path = os.path.join('agents', 'pics', photo_filename)
+      logging.info(f"Processing image {photo_filename}")
 
-            with open(image_path, 'rb') as image_file:
-                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-            current_user.images_data[photo_filename] = encoded_string
+      with open(image_path, 'rb') as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+      current_user.images_data[photo_filename] = encoded_string
 
-        current_user.agents_data = base_agents_data
-        db.session.commit()
-        logging.info("Successfully added base agents and committed to the database")
+    current_user.agents_data = base_agents_data
+    db.session.commit()
+    logging.info(
+        "Successfully added base agents and committed to the database")
 
-        return redirect(url_for('home'))
-    except Exception as e:
-        logging.error(f"Failed to add base agents due to an exception: {str(e)}", exc_info=True)
-        return jsonify({'success': False, 'error': str(e)})
+    return redirect(url_for('home'))
+  except Exception as e:
+    logging.error(f"Failed to add base agents due to an exception: {str(e)}",
+                  exc_info=True)
+    return jsonify({'success': False, 'error': str(e)})
 
 
 @meeting_blueprint.route('/surveys/<path:survey_id>/pics/<filename>')
@@ -191,110 +198,125 @@ def serve_survey_image(survey_id, filename):
 @meeting_blueprint.route('/meeting/<int:meeting_id>', methods=['GET', 'POST'])
 @login_required
 def meeting_form(meeting_id):
-    meeting = Meeting.query.get_or_404(meeting_id)
-    if meeting.user_id != current_user.id:
-        abort(403)
+  meeting = Meeting.query.get_or_404(meeting_id)
+  if meeting.user_id != current_user.id:
+    abort(403)
 
-    if request.method == 'POST':
-        questions = extract_questions_from_form(request.form)
-        selected_agent_ids = request.form.getlist('selected_agents')
-        llm_instructions = request.form.get('llm_instructions', '')
-        request_type = request.form.get('request_type', 'iterative')
+  if request.method == 'POST':
+    questions = extract_questions_from_form(request.form)
+    selected_agent_ids = request.form.getlist('selected_agents')
+    llm_instructions = request.form.get('llm_instructions', '')
+    request_type = request.form.get('request_type', 'iterative')
 
-        selected_agents_data = [agent for agent in meeting.agents if str(agent['id']) in selected_agent_ids]
+    selected_agents_data = [
+        agent for agent in meeting.agents
+        if str(agent['id']) in selected_agent_ids
+    ]
 
-        payload = {
-            "agents_data": selected_agents_data,
-            "questions": questions,
-            "llm_instructions": llm_instructions,
-            "request_type": request_type,
-        }
+    payload = {
+        "agents_data": selected_agents_data,
+        "questions": questions,
+        "llm_instructions": llm_instructions,
+        "request_type": request_type,
+    }
 
-        meeting_responses = abe_gpt.conduct_meeting(payload, current_user)
+    meeting_responses = abe_gpt.conduct_meeting(payload, current_user)
 
-        answers = {}
-        for agent_data, response in zip(selected_agents_data, meeting_responses):
-            answers[agent_data['id']] = response['responses']
+    answers = {}
+    for agent_data, response in zip(selected_agents_data, meeting_responses):
+      answers[agent_data['id']] = response['responses']
 
-        meeting.agents = selected_agents_data
-        meeting.questions = questions
-        meeting.answers = answers
-        db.session.commit()
+    meeting.agents = selected_agents_data
+    meeting.questions = questions
+    meeting.answers = answers
+    db.session.commit()
 
-        return redirect(url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id))
-    else:
-        agents_data = meeting.agents
-        return render_template('meeting2.html', meeting=meeting, agents=agents_data)
+    return redirect(
+        url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id))
+  else:
+    agents_data = meeting.agents
+    return render_template('meeting2.html', meeting=meeting, agents=agents_data)
 
 
-@meeting_blueprint.route('/meeting/<int:meeting_id>/results', methods=['GET', 'POST'])
+@meeting_blueprint.route('/meeting/<int:meeting_id>/results',
+                         methods=['GET', 'POST'])
 @login_required
 def meeting_results(meeting_id):
-    meeting = Meeting.query.get_or_404(meeting_id)
-    if meeting.user_id != current_user.id:
-        abort(403)
+  meeting = Meeting.query.get_or_404(meeting_id)
+  if meeting.user_id != current_user.id:
+    abort(403)
 
-    if request.method == 'POST':
-        is_public = request.form.get('is_public') == 'on'
-        meeting.is_public = is_public
+  if request.method == 'POST':
+    is_public = request.form.get('is_public') == 'on'
+    meeting.is_public = is_public
 
-        if is_public and not meeting.public_url:
-            meeting.public_url = str(uuid.uuid4())
-        elif not is_public:
-            meeting.public_url = None
+    if is_public and not meeting.public_url:
+      meeting.public_url = str(uuid.uuid4())
+    elif not is_public:
+      meeting.public_url = None
 
-        db.session.commit()
-  
-    prev_meeting = Meeting.query.filter(Meeting.user_id == current_user.id, Meeting.id < meeting.id).order_by(Meeting.id.desc()).first()
-    next_meeting = Meeting.query.filter(Meeting.user_id == current_user.id, Meeting.id > meeting.id).order_by(Meeting.id).first()
-  
-    return render_template('results.html', meeting=meeting, is_public=meeting.is_public, prev_meeting=prev_meeting, next_meeting=next_meeting)
-  
+    db.session.commit()
+
+  prev_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
+                                      Meeting.id < meeting.id).order_by(
+                                          Meeting.id.desc()).first()
+  next_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
+                                      Meeting.id > meeting.id).order_by(
+                                          Meeting.id).first()
+
+  return render_template('results.html',
+                         meeting=meeting,
+                         is_public=meeting.is_public,
+                         prev_meeting=prev_meeting,
+                         next_meeting=next_meeting)
 
 
 @dashboard_blueprint.route('/dashboard')
 @login_required
 def dashboard():
-    timeframe_id = request.args.get('timeframe_id')
+  timeframe_id = request.args.get('timeframe_id')
 
-    if timeframe_id:
-        timeframe = Timeframe.query.get(timeframe_id)
-        if timeframe and timeframe.user_id == current_user.id:
-            agents_data = timeframe.agents_data
-        else:
-            abort(404)
+  if timeframe_id:
+    timeframe = Timeframe.query.get(timeframe_id)
+    if timeframe and timeframe.user_id == current_user.id:
+      agents_data = timeframe.agents_data
     else:
-        agents_data = current_user.agents_data or []
-        logger.info("Loaded base agents")
+      abort(404)
+  else:
+    agents_data = current_user.agents_data or []
+    logger.info("Loaded base agents")
 
-    # Fetch the base64-encoded image data for each agent
-    for agent in agents_data:
-        agent['image_data'] = current_user.images_data.get(agent['photo_path'].split('/')[-1], '')
+  # Fetch the base64-encoded image data for each agent
+  for agent in agents_data:
+    agent['image_data'] = current_user.images_data.get(
+        agent['photo_path'].split('/')[-1], '')
 
-    timeframes = current_user.timeframes
-    logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
+  timeframes = current_user.timeframes
+  logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
 
-    return render_template('dashboard.html', agents=agents_data, timeframes=timeframes)
-
+  return render_template('dashboard.html',
+                         agents=agents_data,
+                         timeframes=timeframes)
 
 
 @profile_blueprint.route('/profile')
 @login_required
 def profile():
-    agent_id = request.args.get('agent_id')
-    agents_data = current_user.agents_data or []
+  agent_id = request.args.get('agent_id')
+  agents_data = current_user.agents_data or []
 
-    agent = get_agent_by_id(agents_data, agent_id)
-    prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents_data, agent)
+  agent = get_agent_by_id(agents_data, agent_id)
+  prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents_data, agent)
 
-    if agent:
-        # Fetch the base64-encoded image data from the images_data attribute
-        agent['image_data'] = current_user.images_data.get(agent['photo_path'].split('/')[-1], '')
+  if agent:
+    # Fetch the base64-encoded image data from the images_data attribute
+    agent['image_data'] = current_user.images_data.get(
+        agent['photo_path'].split('/')[-1], '')
 
-    return render_template('profile.html',
-                           agent=agent,
-                           prev_agent_id=prev_agent_id,
-                           next_agent_id=next_agent_id)
+  return render_template('profile.html',
+                         agent=agent,
+                         prev_agent_id=prev_agent_id,
+                         next_agent_id=next_agent_id)
 
 
 # Update load_agents function to accept the direct file path
@@ -318,83 +340,102 @@ def load_agents(agents_file_path):
 @auth_blueprint.route('/get_main_agents')
 @login_required
 def get_main_agents():
-    logger.info(f"Retrieving main agents for user: {current_user.id}")
-    main_agents = current_user.agents_data or []
-    for agent in main_agents:
-        photo_path = agent['photo_path'].split('/')[-1]
-        logger.debug(f"Retrieving image data for agent: {agent['id']}, photo_path: {photo_path}")
-        agent['image_data'] = current_user.images_data.get(photo_path, '')
-    logger.info(f"Retrieved {len(main_agents)} main agents for user: {current_user.id}")
-    return jsonify(main_agents)
+  logger.info(f"Retrieving main agents for user: {current_user.id}")
+  main_agents = current_user.agents_data or []
+  for agent in main_agents:
+    photo_path = agent['photo_path'].split('/')[-1]
+    logger.debug(
+        f"Retrieving image data for agent: {agent['id']}, photo_path: {photo_path}"
+    )
+    agent['image_data'] = current_user.images_data.get(photo_path, '')
+  logger.info(
+      f"Retrieved {len(main_agents)} main agents for user: {current_user.id}")
+  return jsonify(main_agents)
+
 
 @auth_blueprint.route('/get_timeframe_agents')
 @login_required
 def get_timeframe_agents():
-    logger.info(f"Retrieving timeframe agents for user: {current_user.id}")
-    timeframes = current_user.timeframes
-    timeframe_agents = []
+  logger.info(f"Retrieving timeframe agents for user: {current_user.id}")
+  timeframes = current_user.timeframes
+  timeframe_agents = []
 
-    for timeframe in timeframes:
-        logger.debug(f"Processing timeframe: {timeframe.id}")
-        for agent in timeframe.agents_data:
-            photo_path = agent['photo_path'].split('/')[-1]
-            logger.debug(f"Retrieving image data for agent: {agent['id']}, photo_path: {photo_path}")
-            agent['timeframe_id'] = timeframe.id
-            agent['timeframe_name'] = timeframe.name
-            agent['image_data'] = current_user.images_data.get(photo_path, '')
-            timeframe_agents.append(agent)
-            logger.debug(f"Added agent: {agent['id']} to timeframe_agents")
+  for timeframe in timeframes:
+    logger.debug(f"Processing timeframe: {timeframe.id}")
+    for agent in timeframe.agents_data:
+      photo_path = agent['photo_path'].split('/')[-1]
+      logger.debug(
+          f"Retrieving image data for agent: {agent['id']}, photo_path: {photo_path}"
+      )
+      agent['timeframe_id'] = timeframe.id
+      agent['timeframe_name'] = timeframe.name
+      agent['image_data'] = current_user.images_data.get(photo_path, '')
+      timeframe_agents.append(agent)
+      logger.debug(f"Added agent: {agent['id']} to timeframe_agents")
 
-    logger.info(f"Retrieved {len(timeframe_agents)} timeframe agents for user: {current_user.id}")
-    return jsonify(timeframe_agents)
+  logger.info(
+      f"Retrieved {len(timeframe_agents)} timeframe agents for user: {current_user.id}"
+  )
+  return jsonify(timeframe_agents)
+
 
 @meeting_blueprint.route('/meeting/create', methods=['GET', 'POST'])
 @login_required
 def create_meeting():
-    logger.info(f"Creating meeting for user: {current_user.id}")
-    if request.method == 'POST':
-        meeting_name = request.form.get('meeting_name')
-        agent_source = request.form.get('agent_source')
-        selected_agent_ids = request.form.getlist('selected_agents')
-        logger.debug(f"Meeting name: {meeting_name}, Agent source: {agent_source}, Selected agent IDs: {selected_agent_ids}")
+  logger.info(f"Creating meeting for user: {current_user.id}")
+  if request.method == 'POST':
+    meeting_name = request.form.get('meeting_name')
+    agent_source = request.form.get('agent_source')
+    selected_agent_ids = request.form.get('selected_agents', '').split(',')
+    logger.debug(
+        f"Meeting name: {meeting_name}, Agent source: {agent_source}, Selected agent IDs: {selected_agent_ids}"
+    )
 
-        if agent_source == 'main_agents':
-            agents_data = current_user.agents_data
-            logger.debug("Using main agents as the agent source")
-        else:
-            try:
-                timeframe_id = int(agent_source.split('_')[1])
-                timeframe = Timeframe.query.get(timeframe_id)
-                logger.debug(f"Using timeframe {timeframe_id} as the agent source")
-                if timeframe and timeframe.user_id == current_user.id:
-                    agents_data = timeframe.agents_data
-                else:
-                    logger.warning(f"Invalid timeframe selected: {timeframe_id}")
-                    flash('Invalid timeframe selected.')
-                    return redirect(url_for('meeting_blueprint.create_meeting'))
-            except (IndexError, ValueError):
-                logger.error("Invalid agent source format")
-                flash('Invalid agent source format.')
-                return redirect(url_for('meeting_blueprint.create_meeting'))
-
-        selected_agents = [agent for agent in agents_data if str(agent['id']) in selected_agent_ids]
-        logger.debug(f"Selected agents: {selected_agents}")
-
-        if not selected_agents:
-            logger.warning("No agents selected")
-            flash('No agents selected.')
-            return redirect(url_for('meeting_blueprint.create_meeting'))
-
-        new_meeting = Meeting(name=meeting_name, user_id=current_user.id, agents=selected_agents)
-        db.session.add(new_meeting)
-        db.session.commit()
-        logger.info(f"Created new meeting with ID: {new_meeting.id} for user: {current_user.id}")
-
-        return redirect(url_for('meeting_blueprint.meeting_form', meeting_id=new_meeting.id))
+    if agent_source == 'main_agents':
+      agents_data = current_user.agents_data
+      logger.debug("Using main agents as the agent source")
     else:
-        logger.debug("Rendering meeting1.html template")
-        return render_template('meeting1.html')
-      
+      try:
+        timeframe_id = int(agent_source.split('_')[1])
+        timeframe = Timeframe.query.get(timeframe_id)
+        logger.debug(f"Using timeframe {timeframe_id} as the agent source")
+        if timeframe and timeframe.user_id == current_user.id:
+          agents_data = timeframe.agents_data
+        else:
+          logger.warning(f"Invalid timeframe selected: {timeframe_id}")
+          flash('Invalid timeframe selected.')
+          return redirect(url_for('meeting_blueprint.create_meeting'))
+      except (IndexError, ValueError):
+        logger.error("Invalid agent source format")
+        flash('Invalid agent source format.')
+        return redirect(url_for('meeting_blueprint.create_meeting'))
+
+    selected_agents = [
+        agent for agent in agents_data
+        if str(agent['id']) in selected_agent_ids
+    ]
+    logger.debug(f"Selected agents: {selected_agents}")
+
+    if not selected_agents:
+      logger.warning("No agents selected")
+      flash('No agents selected.')
+      return redirect(url_for('meeting_blueprint.create_meeting'))
+
+    new_meeting = Meeting(name=meeting_name,
+                          user_id=current_user.id,
+                          agents=selected_agents)
+    db.session.add(new_meeting)
+    db.session.commit()
+    logger.info(
+        f"Created new meeting with ID: {new_meeting.id} for user: {current_user.id}"
+    )
+
+    return redirect(
+        url_for('meeting_blueprint.meeting_form', meeting_id=new_meeting.id))
+  else:
+    logger.debug("Rendering meeting1.html template")
+    return render_template('meeting1.html')
+
 
 def get_agent_by_id(agents, agent_id):
   if agent_id:
@@ -475,32 +516,33 @@ def extract_questions_from_form(form_data):
 
 @meeting_blueprint.route('/public/meeting/<public_url>')
 def public_meeting_results(public_url):
-    meeting = Meeting.query.filter_by(public_url=public_url).first()
+  meeting = Meeting.query.filter_by(public_url=public_url).first()
 
-    if not meeting or not meeting.is_public:
-        abort(404)
+  if not meeting or not meeting.is_public:
+    abort(404)
 
-    return render_template('public_results.html', meeting=meeting)
+  return render_template('public_results.html', meeting=meeting)
 
 
 @meeting_blueprint.route('/public/meeting/<public_url>/data')
 def public_meeting_data(public_url):
-    meeting = Meeting.query.filter_by(public_url=public_url).first()
+  meeting = Meeting.query.filter_by(public_url=public_url).first()
 
-    if not meeting or not meeting.is_public:
-        abort(404)
+  if not meeting or not meeting.is_public:
+    abort(404)
 
-    meeting_data = {
-        'name': meeting.name,
-        'agents': meeting.agents,
-        'questions': meeting.questions,
-        'answers': meeting.answers
-    }
+  meeting_data = {
+      'name': meeting.name,
+      'agents': meeting.agents,
+      'questions': meeting.questions,
+      'answers': meeting.answers
+  }
 
-    for agent in meeting_data['agents']:
-        agent['photo_path'] = url_for('serve_image', filename=agent['photo_path'].split('/')[-1])
+  for agent in meeting_data['agents']:
+    agent['photo_path'] = url_for('serve_image',
+                                  filename=agent['photo_path'].split('/')[-1])
 
-    return jsonify(meeting_data)
+  return jsonify(meeting_data)
 
 
 @meeting_blueprint.route('/public/survey/<public_url>/data')
@@ -542,7 +584,7 @@ def logout():
   response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
   response.headers['Pragma'] = 'no-cache'
   response.headers['Expires'] = '0'
-  page_view = PageView(page='/logout')
+  page_view = PageView(page='/')
   db.session.add(page_view)
   db.session.commit()
   return response
@@ -668,67 +710,76 @@ def status():
 @auth_blueprint.route('/new_timeframe', methods=['GET', 'POST'])
 @login_required
 def create_timeframe():
-    logging.info("Handling POST request in create_timeframe route")
-    if request.method == 'POST':
-        logging.info("Inside POST block")
-        if current_user.credits is None or current_user.credits <= 0:
-            logging.info("User has insufficient credits")
-            flash("You don't have enough credits. Please contact the admin to add more credits.")
-            return redirect(url_for('home'))
+  logging.info("Handling POST request in create_timeframe route")
+  if request.method == 'POST':
+    logging.info("Inside POST block")
+    if current_user.credits is None or current_user.credits <= 0:
+      logging.info("User has insufficient credits")
+      flash(
+          "You don't have enough credits. Please contact the admin to add more credits."
+      )
+      return redirect(url_for('home'))
 
-        agents_data = current_user.agents_data
-        selected_agent_ids = request.form.getlist('selected_agents')
-        selected_agents_data = [agent for agent in agents_data if str(agent['id']) in selected_agent_ids]
+    agents_data = current_user.agents_data
+    selected_agent_ids = request.form.getlist('selected_agents')
+    selected_agents_data = [
+        agent for agent in agents_data
+        if str(agent['id']) in selected_agent_ids
+    ]
 
-        form_data = request.form.to_dict()
-        form_data.pop('selected_agents', None)
+    form_data = request.form.to_dict()
+    form_data.pop('selected_agents', None)
 
-        payload = {
-            "agents_data": selected_agents_data,
-            "instructions": form_data,
-            "timeframe_name": form_data["name"]
-        }
+    payload = {
+        "agents_data": selected_agents_data,
+        "instructions": form_data,
+        "timeframe_name": form_data["name"]
+    }
 
-        try:
-            logging.info("Calling process_agents function")
-            new_timeframe = abe_gpt.process_agents(payload, current_user)
-            logging.info(f"New timeframe object received: {new_timeframe}")
-            db.session.add(new_timeframe)
-            db.session.commit()
-            logging.info(f"New timeframe created with ID: {new_timeframe.id}")
-            return redirect(url_for('auth_blueprint.timeframe_progress', timeframe_id=new_timeframe.id))
-        except Exception as e:
-            db.session.rollback()
-            logging.error(f"Error occurred while processing agents: {str(e)}")
-            flash(f"An error occurred while processing agents: {str(e)}")
-            return redirect(url_for('auth_blueprint.create_timeframe'))
-    else:
-        logger.info('Accessing new timeframe page')
-        base_agents = current_user.agents_data or []
-        timeframes = current_user.timeframes
+    try:
+      logging.info("Calling process_agents function")
+      new_timeframe = abe_gpt.process_agents(payload, current_user)
+      logging.info(f"New timeframe object received: {new_timeframe}")
+      db.session.add(new_timeframe)
+      db.session.commit()
+      logging.info(f"New timeframe created with ID: {new_timeframe.id}")
+      return redirect(
+          url_for('auth_blueprint.timeframe_progress',
+                  timeframe_id=new_timeframe.id))
+    except Exception as e:
+      db.session.rollback()
+      logging.error(f"Error occurred while processing agents: {str(e)}")
+      flash(f"An error occurred while processing agents: {str(e)}")
+      return redirect(url_for('auth_blueprint.create_timeframe'))
+  else:
+    logger.info('Accessing new timeframe page')
+    base_agents = current_user.agents_data or []
+    timeframes = current_user.timeframes
 
-        logger.info(f'Base agents count: {len(base_agents)}')
-        logger.info(f'Timeframes count: {len(timeframes)}')
+    logger.info(f'Base agents count: {len(base_agents)}')
+    logger.info(f'Timeframes count: {len(timeframes)}')
 
-        return render_template('new_timeframe.html', base_agents=base_agents, timeframes=timeframes)
+    return render_template('new_timeframe.html',
+                           base_agents=base_agents,
+                           timeframes=timeframes)
 
 
 @auth_blueprint.route('/timeframe_progress/<int:timeframe_id>')
 @login_required
 def timeframe_progress(timeframe_id):
-    logging.info(f"Accessing timeframe_progress route with timeframe_id: {timeframe_id}")
-    timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe and timeframe.user_id == current_user.id:
-        logging.info("Timeframe found and belongs to the current user")
-        if len(timeframe.agents_data) == len(current_user.agents_data):
-            logging.info("All agents processed, redirecting to dashboard")
-            return redirect(url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id))
-        else:
-            logging.info("Rendering timeframe_progress.html template")
-            return render_template('timeframe_progress.html', timeframe=timeframe)
+  logging.info(
+      f"Accessing timeframe_progress route with timeframe_id: {timeframe_id}")
+  timeframe = Timeframe.query.get(timeframe_id)
+  if timeframe and timeframe.user_id == current_user.id:
+    logging.info("Timeframe found and belongs to the current user")
+    if len(timeframe.agents_data) == len(current_user.agents_data):
+      logging.info("All agents processed, redirecting to dashboard")
+      return redirect(
+          url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id))
     else:
-        logging.warning("Timeframe not found or doesn't belong to the current user")
-        abort(404)
-
-
-
+      logging.info("Rendering timeframe_progress.html template")
+      return render_template('timeframe_progress.html', timeframe=timeframe)
+  else:
+    logging.warning(
+        "Timeframe not found or doesn't belong to the current user")
+    abort(404)
