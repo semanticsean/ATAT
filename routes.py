@@ -3,27 +3,19 @@ import os, json, random, re, glob, shutil, bleach, logging, uuid
 import abe_gpt
 import start
 import base64
-from models import db, User, Survey, Timeframe, Meeting
 
+from models import db, User, Survey, Timeframe, Meeting
+from abe_gpt import generate_new_agent
 import email_client
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from models import User, Survey, db
-from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, send_file, make_response, Response
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, send_file, make_response, Response, abort
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from logging.handlers import RotatingFileHandler
-
-from abe_gpt import generate_new_agent
-
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-
-limiter = Limiter(
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"]
-)
-
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,13 +32,13 @@ AGENTS_JSON_PATH = os.path.join('agents', 'agents.json')
 IMAGES_BASE_PATH = os.path.join('agents', 'pics')
 AGENTS_BASE_PATH = 'agents'
 SURVEYS_BASE_PATH = 'surveys'
+UPLOAD_FOLDER = 'agents/new_agent_files'
+ALLOWED_EXTENSIONS = {'txt', 'doc', 'rtf', 'md', 'pdf'}
 
+#BLUEPRINTS
 start_blueprint = Blueprint('start_blueprint',
                             __name__,
                             template_folder='templates')
-
-UPLOAD_FOLDER = 'agents/new_agent_files'
-ALLOWED_EXTENSIONS = {'txt', 'doc', 'rtf', 'md', 'pdf'}
 
 auth_blueprint = Blueprint('auth_blueprint',
                            __name__,
@@ -62,6 +54,10 @@ dashboard_blueprint = Blueprint('dashboard_blueprint',
 profile_blueprint = Blueprint('profile_blueprint',
                               __name__,
                               template_folder='templates')
+
+#API LIMITER
+limiter = Limiter(key_func=get_remote_address,
+                  default_limits=["200 per day", "50 per hour"])
 
 
 class PageView(db.Model):
@@ -243,7 +239,9 @@ def meeting_form(meeting_id):
         url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id))
   else:
     agents_data = meeting.agents
-    return render_template('meeting2.html', meeting=meeting, agents=agents_data)
+    return render_template('meeting2.html',
+                           meeting=meeting,
+                           agents=agents_data)
 
 
 @meeting_blueprint.route('/meeting/<int:meeting_id>/results',
@@ -364,22 +362,26 @@ def get_main_agents():
 @auth_blueprint.route('/get_timeframe_agents')
 @login_required
 def get_timeframe_agents():
-    logger.info(f"Retrieving timeframe agents for user: {current_user.id}")
-    timeframes = current_user.timeframes
-    timeframe_agents = []
+  logger.info(f"Retrieving timeframe agents for user: {current_user.id}")
+  timeframes = current_user.timeframes
+  timeframe_agents = []
 
-    for timeframe in timeframes:
-        logger.debug(f"Processing timeframe: {timeframe.id}")
-        for agent in timeframe.agents_data:
-            photo_filename = agent['photo_path'].split('/')[-1]
-            agent['timeframe_id'] = timeframe.id
-            agent['timeframe_name'] = timeframe.name
-            agent['image_data'] = current_user.images_data.get(f"timeframe_{timeframe.id}_{photo_filename}", '')
-            timeframe_agents.append(agent)
-            logger.debug(f"Added agent: {agent['id']} to timeframe_agents")
+  for timeframe in timeframes:
+    logger.debug(f"Processing timeframe: {timeframe.id}")
+    for agent in timeframe.agents_data:
+      photo_filename = agent['photo_path'].split('/')[-1]
+      agent['timeframe_id'] = timeframe.id
+      agent['timeframe_name'] = timeframe.name
+      agent['image_data'] = current_user.images_data.get(
+          f"timeframe_{timeframe.id}_{photo_filename}", '')
+      timeframe_agents.append(agent)
+      logger.debug(f"Added agent: {agent['id']} to timeframe_agents")
 
-    logger.info(f"Retrieved {len(timeframe_agents)} timeframe agents for user: {current_user.id}")
-    return jsonify(timeframe_agents)
+  logger.info(
+      f"Retrieved {len(timeframe_agents)} timeframe agents for user: {current_user.id}"
+  )
+  return jsonify(timeframe_agents)
+
 
 @meeting_blueprint.route('/meeting/create', methods=['GET', 'POST'])
 @login_required
@@ -766,73 +768,86 @@ def create_timeframe():
                            timeframes=timeframes)
 
 
-@auth_blueprint.route('/timeframe_progress/<int:timeframe_id>')
+@auth_blueprint.route('/timeframe_progress/<int:timeframe_id>',
+                      methods=['GET'])
 @login_required
 def timeframe_progress(timeframe_id):
-  logging.info(
-      f"Accessing timeframe_progress route with timeframe_id: {timeframe_id}")
   timeframe = Timeframe.query.get(timeframe_id)
   if timeframe and timeframe.user_id == current_user.id:
-    logging.info("Timeframe found and belongs to the current user")
-    if len(timeframe.agents_data) == len(current_user.agents_data):
-      logging.info("All agents processed, redirecting to dashboard")
-      return redirect(
-          url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id))
+    processed_count = len(timeframe.agents_data)
+    total_count = len(current_user.agents_data)
+
+    if processed_count == total_count:
+      status = 'complete'
     else:
-      logging.info("Rendering timeframe_progress.html template")
-      return render_template('timeframe_progress.html', timeframe=timeframe)
+      status = 'in_progress'
+
+    agents = []
+    for agent in timeframe.agents_data:
+      agent_data = {'id': agent['id'], 'photo_path': agent['photo_path']}
+      agents.append(agent_data)
+
+    response_data = {
+        'status': status,
+        'processed_count': processed_count,
+        'total_count': total_count,
+        'agents': agents
+    }
+
+    return jsonify(response_data)
   else:
-    logging.warning(
-        "Timeframe not found or doesn't belong to the current user")
     abort(404)
 
 
 # API KEYS #########
 
-# routes.py
-...
+
 @auth_blueprint.route('/users/generate_api_key', methods=['POST'])
 @login_required
 def generate_api_key():
-    # Generate and return API key
-    token = current_user.generate_api_key()
-    db.session.commit()
-    flash('API Key generated successfully!', 'success')
-    return redirect(url_for('auth_blueprint.update_profile'))
+  # Generate and return API key
+  token = current_user.generate_api_key()
+  db.session.commit()
+  flash('API Key generated successfully!', 'success')
+  return redirect(url_for('auth_blueprint.update_profile'))
+
 
 @auth_blueprint.route('/users/verify_password', methods=['POST'])
 @login_required
 def verify_password():
-    password = request.form.get('password')
-    if current_user.check_password(password):
-        # Return API key(s) if password verification succeeds
-        api_keys = [api_key.key for api_key in current_user.api_keys]
-        return jsonify({'success': True, 'api_keys': api_keys})
-    else:
-        # Handle failed password verification
-        return jsonify({'success': False, 'message': 'Incorrect password'}), 401
+  password = request.form.get('password')
+  if current_user.check_password(password):
+    # Return API key(s) if password verification succeeds
+    api_keys = [api_key.key for api_key in current_user.api_keys]
+    return jsonify({'success': True, 'api_keys': api_keys})
+  else:
+    # Handle failed password verification
+    return jsonify({'success': False, 'message': 'Incorrect password'}), 401
+
 
 def verify_api_key(request):
-    api_key = request.headers.get('Authorization')
-    if api_key:
-        api_key = APIKey.query.filter_by(key=api_key).first()
-        if api_key and api_key.owner.credits > 0:
-            api_key.owner.credits -= 1
-            db.session.commit()
-            return api_key.owner
-    return None
+  api_key = request.headers.get('Authorization')
+  if api_key:
+    api_key = APIKey.query.filter_by(key=api_key).first()
+    if api_key and api_key.owner.credits > 0:
+      api_key.owner.credits -= 1
+      db.session.commit()
+      return api_key.owner
+  return None
+
 
 @auth_blueprint.before_request
 def before_request_func():
-    current_user = verify_api_key(request)
-    if not current_user and request.path.startswith('/api/'):
-        return jsonify({'error': 'Unauthorized or insufficient credits'}), 401
+  current_user = verify_api_key(request)
+  if not current_user and request.path.startswith('/api/'):
+    return jsonify({'error': 'Unauthorized or insufficient credits'}), 401
+
 
 @auth_blueprint.route('/api/agents', methods=['GET'])
 @limiter.limit("10 per minute")
 def get_agents():
-    # Assuming the agents.json data is per-user and stored in the database for simplicity
-    agents_data = current_user.agents_data
-    if agents_data:
-        return jsonify(agents_data), 200
-    return jsonify({'error': 'No agents data found'}), 404
+  # Assuming the agents.json data is per-user and stored in the database for simplicity
+  agents_data = current_user.agents_data
+  if agents_data:
+    return jsonify(agents_data), 200
+  return jsonify({'error': 'No agents data found'}), 404

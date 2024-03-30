@@ -39,10 +39,7 @@
           <div class="bg-white rounded-lg shadow-md">
             <div class="flex flex-col md:flex-row">
               <div class="md:w-1/2">
-                <img src="data:image/png;base64,{{ agent.image_data }}"
-                   onerror="this.src='static/loading.gif'; this.onerror=null;"
-                   alt="Agent Photo"
-                   class="w-full h-auto rounded-t-lg md:rounded-l-lg md:rounded-tr-none">
+                <img src="{{ custom_image_filter(agent.photo_path, '64x64') }}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0 md:mr-12">
               </div>
               <div class="md:w-1/2 p-6">
                 <div class="mb-2">
