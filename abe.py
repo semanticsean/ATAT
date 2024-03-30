@@ -81,13 +81,18 @@ app.register_blueprint(start_blueprint)
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-
-
-
-
 @app.context_processor
 def inject_images():
-    return dict(images=images)
+    def custom_image_filter(photo_path, size='48x48'):
+        # Extract the filename from the photo_path
+        filename = os.path.basename(photo_path)
+
+        # Generate the URL for the image using the appropriate route
+        image_url = url_for('serve_image', filename=filename)
+
+        return image_url
+
+    return dict(custom_image_filter=custom_image_filter)
 
 @app.context_processor
 def inject_secrets():
