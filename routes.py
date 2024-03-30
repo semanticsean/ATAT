@@ -19,6 +19,11 @@ from abe_gpt import generate_new_agent
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -831,4 +836,3 @@ def get_agents():
     if agents_data:
         return jsonify(agents_data), 200
     return jsonify({'error': 'No agents data found'}), 404
-...
