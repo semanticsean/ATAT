@@ -14,14 +14,6 @@ domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com')
 company_name = os.environ.get('COMPANY_NAME')
 
 
-limiter = Limiter(
-    app,
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"]
-)
-
-
-
 def run_flask_app():
     # Start the Flask app without the reloader
     abe.app.run(host='0.0.0.0', port=81, use_reloader=False)
