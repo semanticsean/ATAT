@@ -201,20 +201,21 @@ def process_agents(payload, current_user):
         
         image_url = dalle_response.data[0].url
         logging.info(f"Generated image URL: {image_url}")
-        
+  
         new_photo_filename = f"{agent['id']}_iteration_{len(current_user.images_data)+1}.png"
         logging.info(f"New photo filename: {new_photo_filename}")
-        
+  
         try:
             img_data = requests.get(image_url).content
             encoded_string = base64.b64encode(img_data).decode('utf-8')
-            current_user.images_data[new_photo_filename] = encoded_string
+            current_user.images_data[f"timeframe_{new_timeframe.id}_{new_photo_filename}"] = encoded_string
             db.session.commit()
         except Exception as e:
             logging.error(f"Error occurred while saving image data: {e}")
             raise e
-        
-        updated_agent_data['photo_path'] = new_photo_filename
+  
+        updated_agent_data['photo_path'] = f"timeframe_{new_timeframe.id}_{new_photo_filename}"
+        logging.info(f"Updated photo path: {updated_agent_data['photo_path']}")
         logging.info(f"Updated photo path: {updated_agent_data['photo_path']}")
 
         # Add back the modified_id field

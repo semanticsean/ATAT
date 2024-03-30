@@ -15,8 +15,6 @@ from models import User, Timeframe, Meeting
 import start
 from routes import auth_blueprint, meeting_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint
 from werkzeug.utils import secure_filename
-from flask_images import Images
-
 
 
 
@@ -34,10 +32,6 @@ def configure_logging():
     logging.getLogger().setLevel(logging.DEBUG)
 
 app = Flask(__name__)
-images = Images(app)
-
-# Initialize Flask-Images
-images.init_app(app)
 
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY', 'default_secret_key')
 

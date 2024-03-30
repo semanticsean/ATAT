@@ -13,9 +13,12 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from logging.handlers import RotatingFileHandler
-from flask_images import Images
 
 from abe_gpt import generate_new_agent
+
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -356,28 +359,22 @@ def get_main_agents():
 @auth_blueprint.route('/get_timeframe_agents')
 @login_required
 def get_timeframe_agents():
-  logger.info(f"Retrieving timeframe agents for user: {current_user.id}")
-  timeframes = current_user.timeframes
-  timeframe_agents = []
+    logger.info(f"Retrieving timeframe agents for user: {current_user.id}")
+    timeframes = current_user.timeframes
+    timeframe_agents = []
 
-  for timeframe in timeframes:
-    logger.debug(f"Processing timeframe: {timeframe.id}")
-    for agent in timeframe.agents_data:
-      photo_path = agent['photo_path'].split('/')[-1]
-      logger.debug(
-          f"Retrieving image data for agent: {agent['id']}, photo_path: {photo_path}"
-      )
-      agent['timeframe_id'] = timeframe.id
-      agent['timeframe_name'] = timeframe.name
-      agent['image_data'] = current_user.images_data.get(photo_path, '')
-      timeframe_agents.append(agent)
-      logger.debug(f"Added agent: {agent['id']} to timeframe_agents")
+    for timeframe in timeframes:
+        logger.debug(f"Processing timeframe: {timeframe.id}")
+        for agent in timeframe.agents_data:
+            photo_filename = agent['photo_path'].split('/')[-1]
+            agent['timeframe_id'] = timeframe.id
+            agent['timeframe_name'] = timeframe.name
+            agent['image_data'] = current_user.images_data.get(f"timeframe_{timeframe.id}_{photo_filename}", '')
+            timeframe_agents.append(agent)
+            logger.debug(f"Added agent: {agent['id']} to timeframe_agents")
 
-  logger.info(
-      f"Retrieved {len(timeframe_agents)} timeframe agents for user: {current_user.id}"
-  )
-  return jsonify(timeframe_agents)
-
+    logger.info(f"Retrieved {len(timeframe_agents)} timeframe agents for user: {current_user.id}")
+    return jsonify(timeframe_agents)
 
 @meeting_blueprint.route('/meeting/create', methods=['GET', 'POST'])
 @login_required
@@ -783,3 +780,55 @@ def timeframe_progress(timeframe_id):
     logging.warning(
         "Timeframe not found or doesn't belong to the current user")
     abort(404)
+
+
+# API KEYS #########
+
+# routes.py
+...
+@auth_blueprint.route('/users/generate_api_key', methods=['POST'])
+@login_required
+def generate_api_key():
+    # Generate and return API key
+    token = current_user.generate_api_key()
+    db.session.commit()
+    flash('API Key generated successfully!', 'success')
+    return redirect(url_for('auth_blueprint.update_profile'))
+
+@auth_blueprint.route('/users/verify_password', methods=['POST'])
+@login_required
+def verify_password():
+    password = request.form.get('password')
+    if current_user.check_password(password):
+        # Return API key(s) if password verification succeeds
+        api_keys = [api_key.key for api_key in current_user.api_keys]
+        return jsonify({'success': True, 'api_keys': api_keys})
+    else:
+        # Handle failed password verification
+        return jsonify({'success': False, 'message': 'Incorrect password'}), 401
+
+def verify_api_key(request):
+    api_key = request.headers.get('Authorization')
+    if api_key:
+        api_key = APIKey.query.filter_by(key=api_key).first()
+        if api_key and api_key.owner.credits > 0:
+            api_key.owner.credits -= 1
+            db.session.commit()
+            return api_key.owner
+    return None
+
+@auth_blueprint.before_request
+def before_request_func():
+    current_user = verify_api_key(request)
+    if not current_user and request.path.startswith('/api/'):
+        return jsonify({'error': 'Unauthorized or insufficient credits'}), 401
+
+@auth_blueprint.route('/api/agents', methods=['GET'])
+@limiter.limit("10 per minute")
+def get_agents():
+    # Assuming the agents.json data is per-user and stored in the database for simplicity
+    agents_data = current_user.agents_data
+    if agents_data:
+        return jsonify(agents_data), 200
+    return jsonify({'error': 'No agents data found'}), 404
+...
