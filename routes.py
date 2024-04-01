@@ -767,20 +767,28 @@ def create_timeframe():
     }
 
     try:
-      logging.info("Calling process_agents function")
-      new_timeframe = abe_gpt.process_agents(payload, current_user)
-      logging.info(f"New timeframe object received: {new_timeframe}")
-      db.session.add(new_timeframe)
-      db.session.commit()
-      logging.info(f"New timeframe created with ID: {new_timeframe.id}")
-      return redirect(
-          url_for('auth_blueprint.timeframe_progress',
-                  timeframe_id=new_timeframe.id))
+        logging.info("Calling process_agents function")
+        new_timeframe = abe_gpt.process_agents(payload, current_user)
+        logging.info(f"New timeframe object received: {new_timeframe}")
+        db.session.add(new_timeframe)
+        db.session.commit()
+        logging.info(f"New timeframe created with ID: {new_timeframe.id}")
+
+        # Wait for the agent images to be generated and saved to the database
+        while True:
+            db.session.refresh(new_timeframe)
+            if all(agent.get('photo_path') for agent in new_timeframe.agents_data):
+                break
+            logging.info("Waiting for agent images to be generated...")
+            time.sleep(1)
+
+        return redirect(url_for('dashboard_blueprint.dashboard', timeframe_id=new_timeframe.id))
+
     except Exception as e:
-      db.session.rollback()
-      logging.error(f"Error occurred while processing agents: {str(e)}")
-      flash(f"An error occurred while processing agents: {str(e)}", "error")
-      return redirect(url_for('auth_blueprint.create_timeframe'))
+        db.session.rollback()
+        logging.error(f"Error occurred while processing agents: {str(e)}")
+        flash(f"An error occurred while processing agents: {str(e)}", "error")
+        return redirect(url_for('auth_blueprint.create_timeframe'))
   else:
     logger.info('Accessing new timeframe page')
     base_agents = current_user.agents_data or []
@@ -794,51 +802,7 @@ def create_timeframe():
                            timeframes=timeframes)
 
 
-@auth_blueprint.route('/timeframe_progress/<int:timeframe_id>', methods=['GET'])
-@login_required
-def timeframe_progress(timeframe_id):
-    logger.info(f"Request received to get progress for timeframe ID: {timeframe_id} by user ID: {current_user.id}")
 
-    timeframe = Timeframe.query.get(timeframe_id)
-    if not timeframe:
-        logger.warning(f"Timeframe ID: {timeframe_id} not found for user ID: {current_user.id}")
-        abort(404)
-
-    if timeframe.user_id != current_user.id:
-        logger.error(f"User ID: {current_user.id} attempted to access timeframe ID: {timeframe_id} belonging to another user")
-        abort(403)
-
-    if not timeframe.agents_data:
-        logger.info(f"No agents found for timeframe ID: {timeframe_id}")
-        return jsonify({
-            'status': 'no_agents',
-            'message': 'No agents found for this timeframe.'
-        })
-
-    processed_count = len(timeframe.agents_data)
-    total_count = len(current_user.agents_data)
-
-    if processed_count == total_count:
-        status = 'complete'
-    else:
-        status = 'in_progress'
-
-    logger.debug(f"Timeframe ID: {timeframe_id}, Status: {status}, Processed: {processed_count}, Total: {total_count}")
-
-    agents = []
-    for agent in timeframe.agents_data:
-        agent_data = {'id': agent['id'], 'photo_path': agent['photo_path']}
-        agents.append(agent_data)
-
-    response_data = {
-        'status': status,
-        'processed_count': processed_count,
-        'total_count': total_count,
-        'agents': agents
-    }
-
-    logger.info(f"Successfully generated progress response for timeframe ID: {timeframe_id}")
-    return jsonify(response_data)
 
 # API KEYS #########
 
