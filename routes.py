@@ -794,41 +794,40 @@ def create_timeframe():
                            timeframes=timeframes)
 
 
-@auth_blueprint.route('/timeframe_progress/<int:timeframe_id>',
-                      methods=['GET'])
+@auth_blueprint.route('/timeframe_progress/<int:timeframe_id>', methods=['GET'])
 @login_required
 def timeframe_progress(timeframe_id):
-  timeframe = Timeframe.query.get(timeframe_id)
-  if timeframe and timeframe.user_id == current_user.id:
-    if not timeframe.agents_data:
-      return jsonify({
-          'status': 'no_agents',
-          'message': 'No agents found for this timeframe.'
-      })
+    timeframe = Timeframe.query.get(timeframe_id)
+    if timeframe and timeframe.user_id == current_user.id:
+        if not timeframe.agents_data:
+            return jsonify({
+                'status': 'no_agents',
+                'message': 'No agents found for this timeframe.'
+            })
 
-    processed_count = len(timeframe.agents_data)
-    total_count = len(current_user.agents_data)
+        processed_count = len(timeframe.agents_data)
+        total_count = len(current_user.agents_data)
 
-    if processed_count == total_count:
-      status = 'complete'
+        if processed_count == total_count:
+            status = 'complete'
+        else:
+            status = 'in_progress'
+
+        agents = []
+        for agent in timeframe.agents_data:
+            agent_data = {'id': agent['id'], 'photo_path': agent['photo_path']}
+            agents.append(agent_data)
+
+        response_data = {
+            'status': status,
+            'processed_count': processed_count,
+            'total_count': total_count,
+            'agents': agents
+        }
+
+        return jsonify(response_data)
     else:
-      status = 'in_progress'
-
-    agents = []
-    for agent in timeframe.agents_data:
-      agent_data = {'id': agent['id'], 'photo_path': agent['photo_path']}
-      agents.append(agent_data)
-
-    response_data = {
-        'status': status,
-        'processed_count': processed_count,
-        'total_count': total_count,
-        'agents': agents
-    }
-
-    return jsonify(response_data)
-  else:
-    abort(404)
+        abort(404)
 
 
 # API KEYS #########

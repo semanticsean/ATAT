@@ -52,18 +52,18 @@
         id="agent-list"
       >
         {% for agent in timeframe.agents_data %}
-        <li class="bg-white p-4 rounded-lg shadow-md flex items-center">
-          {% set thumbnail_key = agent.photo_path.split('/')[-1] + '_thumbnail' %}
-          {% if thumbnail_key in current_user.thumbnail_images_data %}
-            <img src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}" alt="{{ agent.id }}" class="w-12 h-12 rounded-full mr-4" />
-          {% else %}
-            <div class="w-12 h-12 rounded-full bg-gray-200 mr-4"></div>
-          {% endif %}
-          <div>
-            <p class="font-bold">{{ agent.id }}</p>
-            <p class="text-green-500">Processed</p>
-          </div>
-        </li>
+          <li class="bg-white p-4 rounded-lg shadow-md flex items-center">
+            {% set thumbnail_key = agent.photo_path.split('/')[-1] + '_thumbnail' %}
+            {% if thumbnail_key in current_user.thumbnail_images_data %}
+              <img src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}" alt="{{ agent.id }}" class="w-12 h-12 rounded-full mr-4" />
+            {% else %}
+              <div class="w-12 h-12 rounded-full bg-gray-200 mr-4"></div>
+            {% endif %}
+            <div>
+              <p class="font-bold">{{ agent.id }}</p>
+              <p class="text-green-500">Processed</p>
+            </div>
+          </li>
         {% endfor %}
       </ul>
       <div class="mt-8 flex items-center" id="loading-status">
