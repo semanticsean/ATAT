@@ -147,7 +147,7 @@
                       {% for agent in base_agents %}
                         <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
                           <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden">
-                          <img src="data:image/png;base64,{{ current_user.images_data.get(agent.photo_path.split('/')[-1], '') }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
+                          <img src="{{ custom_image_filter(agent.photo_path, '48x48') }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
                           <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-md">
                             <div class="text-lg md:text-xl font-bold mb-2">{{ agent.id }}</div>
                             <div class="mb-2">{{ agent.jobtitle }}</div>

@@ -102,72 +102,70 @@
         />
       </div>
       <div class="text-center md:absolute md:top-6 md:left-4 mx-auto">
-        <img src="{{ custom_image_filter(agent.photo_path, '250x250') }}" alt="Agent Photo" class="w-full object-cover" style="height: 250px; object-fit: cover" />
       </div>
-      <div class="container mx-auto mt-2 mb-2">
-        <div class="font-bold mb-2 text-center text-3xl mt-6 md:mt-12">
-          Synthetics (AIs)
+    <div class="container mx-auto mt-2 mb-2">
+      <div class="font-bold mb-2 text-center text-3xl mt-6 md:mt-12">
+        Synthetics (AIs)
+      </div>
+      <div class="text-center">
+        {% if not timeframes %}
+        <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded mt-4">Create New Timeframe</a>
+        {% else %}
+          <h3 class="font-bold mb-2 text-xl text-gray-400 mt-4 md:mt-4">
+            Timeframes
+          </h3>
+        <div class="timeframe-selection">
+          <label for="timeframe">Select Timeframe:</label>
+          <select id="timeframe" onchange="loadTimeframe(this.value)">
+            <option value="">Main Agents</option>
+            {% for timeframe in current_user.timeframes %}
+              <option value="{{ timeframe.id }}" {% if timeframe.id == request.args.get('timeframe_id')|int %}selected{% endif %}>
+                {{ timeframe.name }}
+              </option>
+            {% endfor %}
+          </select>
         </div>
-        <div class="text-center">
-          {% if not timeframes %}
-          <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded mt-4">Create New Timeframe</a>
-          {% else %}
-            <h3 class="font-bold mb-2 text-xl text-gray-400 mt-4 md:mt-4">
-              Timeframes
-            </h3>
-          <div class="timeframe-selection">
-            <label for="timeframe">Select Timeframe:</label>
-            <select id="timeframe" onchange="loadTimeframe(this.value)">
-              <option value="">Main Agents</option>
-              {% for timeframe in current_user.timeframes %}
-                <option value="{{ timeframe.id }}" {% if timeframe.id == request.args.get('timeframe_id')|int %}selected{% endif %}>
-                  {{ timeframe.name }}
-                </option>
-              {% endfor %}
-            </select>
+          <div class="flex justify-center mt-4">
+            {% for timeframe in timeframes %}
+              <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="group relative mx-2">
+                <div class="w-12 h-12 rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out flex items-center justify-center">
+                  <span class="text-sm font-bold">{{ timeframe.name }}</span>
+                </div>
+              </a>
+            {% endfor %}
           </div>
-            <div class="flex justify-center mt-4">
-              {% for timeframe in timeframes %}
-                <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="group relative mx-2">
-                  <div class="w-12 h-12 rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out flex items-center justify-center">
-                    <span class="text-sm font-bold">{{ timeframe.name }}</span>
-                  </div>
-                </a>
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
+        {% endif %}
       </div>
-              <div class="max-w-6xl mx-auto my-4">
-                <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6">
-                  {% for agent in agents %}
-                    <div class="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
-                      <img src="{{ custom_image_filter(agent.photo_path, '250x250') }}" alt="Agent Photo" class="w-full object-cover" style="height: 250px; object-fit: cover" />
-              <div class="flex-grow p-4 flex flex-col justify-between">
-                <div class="p-6">
-                  <div class="flex flex-col items-start">
-                    <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}" class="mb-4 inline-block bg-black hover:bg-blue-500 text-white text-sm py-2 px-4 rounded">View Profile / Edit</a>
-                    <h3 class="text-xl font-semibold mb-1">{{ agent.id }}</h3>
-                    <h4 class="text-md text-gray-500 mb-3">{{ agent.jobtitle }}</h4>
-                    <p class="mb-4">{{ agent.summary }}</p>
+    </div>
+      <div class="max-w-6xl mx-auto my-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {% if agents %}
+            {% for agent in agents %}
+              <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="relative">
+                  <img src="{{ custom_image_filter(agent.photo_path, '400x400') }}" alt="Agent Photo" class="w-full h-96 object-cover">
+                  <div class="absolute bottom-0 left-0 right-0 px-4 py-2 bg-gradient-to-t from-black to-transparent text-white">
+                    <h3 class="text-2xl font-bold">{{ agent.id }}</h3>
                   </div>
+                </div>
+                <div class="p-6">
+                  <p class="text-gray-700 mb-2">{{ agent.summary }}</p>
+                  <p class="text-gray-600">Keywords: {{ agent.keywords|join(', ') }}</p>
                   <div class="mt-4 flex flex-wrap gap-2">
-                    <a href="mailto:{{ agent.email }}" class="inline-block bg-gray-700 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded text-center" style="flex: 1 1 30%">Email</a>
-                    <button id="copyEmail{{ agent.id }}" class="inline-block bg-gray-500 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" data-original-text="Copy Email Address" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')" style="flex: 1 1 30%">
-                      Copy Email
-                    </button>
-                    <button id="copyShortcode{{ agent.id }}" class="inline-block bg-gray-300 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')" style="flex: 1 1 30%">
-                      Copy Shortcode
-                    </button>
+                    <a href="mailto:{{ agent.email }}" class="inline-block bg-gray-700 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded">Email</a>
+                    <button id="copyEmail{{ agent.id }}" class="inline-block bg-gray-500 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" data-original-text="Copy Email" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email</button>
+                    <button id="copyShortcode{{ agent.id }}" class="inline-block bg-gray-300 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
                   </div>
                 </div>
               </div>
-            </div>
-          {% endfor %}
+            {% endfor %}
+          {% else %}
+            <p>No agents found.</p>
+          {% endif %}
         </div>
       </div>
-      </main>
-      <div id="footer-push"></div>
+    </main>
+    <div id="footer-push"></div>
       {% include 'footer.html' %}
       <script>
       window.onload = function () {
@@ -179,11 +177,7 @@
           }, 600);
         }
       };
-      document
-        .getElementById("close-shortcodes")
-        .addEventListener("click", function () {
-          document.getElementById("shortcodes-section").style.display = "none";
-        });
+  
       document.addEventListener("DOMContentLoaded", function () {
         var logoElement = document.querySelector('img[alt="Company Logo"]');
         logoElement.addEventListener("click", function () {
