@@ -53,7 +53,7 @@ def generate_log(username=None):
 
     log_lines.append("\n")
 
-  log_file_name = f"db_log{'_' + username if username else ''}.txt"
+  log_file_name = f"db__log{'_' + username if username else ''}.txt"
   with open(log_file_name, 'w') as log_file:
     log_file.write('\n'.join(log_lines))
 

@@ -203,29 +203,32 @@ def process_agents(payload, current_user):
         
         image_url = dalle_response.data[0].url
         logging.info(f"Generated image URL: {image_url}")
-  
+    
         new_photo_filename = f"{agent['id']}_iteration_{len(current_user.images_data)+1}.png"
         logging.info(f"New photo filename: {new_photo_filename}")
-  
+    
         try:
             img_data = requests.get(image_url).content
             encoded_string = base64.b64encode(img_data).decode('utf-8')
             current_user.images_data[f"timeframe_{new_timeframe.id}_{new_photo_filename}"] = encoded_string
+    
+            # Generate thumbnail image
+            thumbnail_size = (200, 200)
+            img = Image.open(BytesIO(img_data))
+            img.thumbnail(thumbnail_size)
+            thumbnail_buffer = BytesIO()
+            img.save(thumbnail_buffer, format='PNG')
+            thumbnail_data = thumbnail_buffer.getvalue()
+            thumbnail_encoded_string = base64.b64encode(thumbnail_data).decode('utf-8')
+            current_user.images_data[f"timeframe_{new_timeframe.id}_{new_photo_filename}_thumbnail"] = thumbnail_encoded_string
+    
             db.session.commit()
         except Exception as e:
             logging.error(f"Error occurred while saving image data: {e}")
             raise e
-  
+    
         updated_agent_data['photo_path'] = f"timeframe_{new_timeframe.id}_{new_photo_filename}"
         logging.info(f"Updated photo path: {updated_agent_data['photo_path']}")
-        logging.info(f"Updated photo path: {updated_agent_data['photo_path']}")
-
-        # Add back the modified_id field
-        if 'id' in updated_agent_data:
-            updated_agent_data['modified_id'] = updated_agent_data['id']
-
-        updated_agents.append(updated_agent_data)
-        logging.info(f"Updated agent data: {updated_agent_data}")
 
 
     new_timeframe.agents_data = updated_agents
