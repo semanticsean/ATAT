@@ -10,6 +10,8 @@ import os
 from models import db, User, Survey, Timeframe
 from openai import OpenAI, APIError
 from flask import url_for
+from PIL import Image
+from io import BytesIO
 
 client = OpenAI()
 openai_api_key = os.environ['OPENAI_API_KEY']
@@ -220,7 +222,7 @@ def process_agents(payload, current_user):
             img.save(thumbnail_buffer, format='PNG')
             thumbnail_data = thumbnail_buffer.getvalue()
             thumbnail_encoded_string = base64.b64encode(thumbnail_data).decode('utf-8')
-            current_user.images_data[f"timeframe_{new_timeframe.id}_{new_photo_filename}_thumbnail"] = thumbnail_encoded_string
+            current_user.thumbnail_images_data[f"timeframe_{new_timeframe.id}_{new_photo_filename}"] = thumbnail_encoded_string
     
             db.session.commit()
         except Exception as e:
@@ -471,6 +473,18 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
   img_data = requests.get(image_url).content
   encoded_string = base64.b64encode(img_data).decode('utf-8')
   current_user.images_data[new_photo_filename] = encoded_string
+  db.session.commit()
+
+  # Generate thumbnail image
+  thumbnail_size = (200, 200)
+  img = Image.open(BytesIO(img_data))
+  img.thumbnail(thumbnail_size)
+  thumbnail_buffer = BytesIO()
+  img.save(thumbnail_buffer, format='PNG')
+  thumbnail_data = thumbnail_buffer.getvalue()
+  thumbnail_encoded_string = base64.b64encode(thumbnail_data).decode('utf-8')
+  current_user.thumbnail_images_data[new_photo_filename] = thumbnail_encoded_string
+
   db.session.commit()
 
   new_agent_data['photo_path'] = f"/images/{new_photo_filename}"
