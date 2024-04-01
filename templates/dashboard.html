@@ -1,195 +1,70 @@
 <!-- templates/dashboard.html -->
 <!doctype html>
 <html lang="en" class="h-full">
-  <head>
-    <meta property="og:title" content="" />
-    <meta property="og:description" content="" />
-    <meta property="og:image" content="" />
-    <meta property="og:url" content="" />
-    <meta name="twitter:card" content="" />
-    <meta name="twitter:title" content="" />
-    <meta name="twitter:description" content="" />
-    <meta name="twitter:image" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      .content-container {
-        min-height: calc(100vh - var(--header-footer-height));
-        padding-bottom: 4rem;
-      }
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-      }
-      #content {
-        min-height: 100%;
-        margin-bottom: -4rem;
-      }
-      #footer-push {
-        height: 4rem;
-      }
-      footer {
-        height: 4rem;
-      }
-    </style>
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
-    <title>Semantic Life Dashboard</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <script>
-      function copyToClipboard(text, buttonId) {
-        navigator.clipboard.writeText(text).then(function() {
-          var button = document.getElementById(buttonId);
-          button.style.backgroundColor = "#4CAF50";
-          button.innerText = "Copied";
-          setTimeout(function() {
-            button.style.backgroundColor = "";
-            button.innerText = button.getAttribute("data-original-text");
-          }, 2000);
-        }).catch(function(error) {
-          console.error('Error copying text: ', error);
-        });
-        function loadWebCopy() {
-          fetch('{{ url_for('static', filename='content.json') }}')
-            .then(response => response.json())
-            .then(data => {
-              const webCopy = data.web_copy;
-              document.getElementById('webCopyContainer').innerText = webCopy;
-            })
-            .catch(error => console.error('Error loading web copy:', error));
-        }
-      }
-    </script>
-  </head>
-  <body class="flex flex-col h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 h-full">
     {% include 'header.html' %}
-    <main class="flex-grow content-container">
-      <button
-        id="close-banner"
-        class="text-white hover:text-gray-200 focus:outline-none"
-      >
-        <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
-          <path
-            d="M18.364 5.636l-3.536 3.536L18.364 5.636zM5.636 18.364l3.536-3.536L5.636 18.364z"
-          ></path>
-          <path
-            d="M18.364 18.364l-3.536-3.536 3.536 3.536zM5.636 5.636l3.536 3.536L5.636 5.636z"
-          ></path>
-        </svg>
-      </button>
-      <div
-        id="loadingPlaceholder"
-        style="
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: white;
-          z-index: 1000;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        "
-      >
-        <img
-          id="loading"
-          src="static/loading.gif"
-          style="max-width: 180px"
-          alt="Loading"
-        />
-      </div>
-      <div class="text-center md:absolute md:top-6 md:left-4 mx-auto">
-      </div>
-    <div class="container mx-auto mt-2 mb-2">
-      <div class="font-bold mb-2 text-center text-3xl mt-6 md:mt-12">
-        Synthetics (AIs)
-      </div>
-      <div class="text-center">
-        {% if not timeframes %}
-        <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded mt-4">Create New Timeframe</a>
-        {% else %}
-          <h3 class="font-bold mb-2 text-xl text-gray-400 mt-4 md:mt-4">
-            Timeframes
-          </h3>
-        <div class="timeframe-selection">
-          <label for="timeframe">Select Timeframe:</label>
-          <select id="timeframe" onchange="loadTimeframe(this.value)">
-            <option value="">Main Agents</option>
-            {% for timeframe in current_user.timeframes %}
-              <option value="{{ timeframe.id }}" {% if timeframe.id == request.args.get('timeframe_id')|int %}selected{% endif %}>
-                {{ timeframe.name }}
-              </option>
-            {% endfor %}
-          </select>
-        </div>
-          <div class="flex justify-center mt-4">
-            {% for timeframe in timeframes %}
-              <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="group relative mx-2">
-                <div class="w-12 h-12 rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out flex items-center justify-center">
-                  <span class="text-sm font-bold">{{ timeframe.name }}</span>
-                </div>
-              </a>
-            {% endfor %}
-          </div>
+
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-4">Dashboard</h1>
+
+        {% if timeframes %}
+            <div class="mb-4">
+                <label for="timeframe" class="block text-sm font-medium text-gray-700">Select Timeframe:</label>
+                <select id="timeframe" name="timeframe" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <option value="">Main Agents</option>
+                    {% for timeframe in timeframes %}
+                        <option value="{{ timeframe.id }}" {% if timeframe.id == request.args.get('timeframe_id')|int %}selected{% endif %}>{{ timeframe.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         {% endif %}
-      </div>
-    </div>
-      <div class="max-w-6xl mx-auto my-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {% if agents %}
-            {% for agent in agents %}
-              <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div class="relative">
-                  <img src="{{ custom_image_filter(agent.photo_path, '400x400') }}" alt="Agent Photo" class="w-full h-96 object-cover">
-                  <div class="absolute bottom-0 left-0 right-0 px-4 py-2 bg-gradient-to-t from-black to-transparent text-white">
-                    <h3 class="text-2xl font-bold">{{ agent.id }}</h3>
+
+      {% if agents %}
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {% for agent in agents %}
+                  <div class="bg-white rounded-lg shadow-md">
+                      <div class="p-4">
+                          <h2 class="text-xl font-bold mb-2">{{ agent.id }}</h2>
+                          {% if agent.photo_path %}
+                              {% set thumbnail_key = agent.photo_path.split('/')[-1] + '_thumbnail' %}
+                              {% if thumbnail_key in current_user.images_data %}
+                                  <img src="data:image/png;base64,{{ current_user.images_data[thumbnail_key] }}" alt="{{ agent.id }}" class="w-full h-48 object-cover mb-4">
+                              {% else %}
+                                  <div class="w-full h-48 bg-gray-200 mb-4"></div>
+                              {% endif %}
+                          {% else %}
+                              <div class="w-full h-48 bg-gray-200 mb-4"></div>
+                          {% endif %}
+                          <p class="text-gray-700">{{ agent.summary }}</p>
+                      </div>
                   </div>
-                </div>
-                <div class="p-6">
-                  <p class="text-gray-700 mb-2">{{ agent.summary }}</p>
-                  <p class="text-gray-600">Keywords: {{ agent.keywords|join(', ') }}</p>
-                  <div class="mt-4 flex flex-wrap gap-2">
-                    <a href="mailto:{{ agent.email }}" class="inline-block bg-gray-700 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded">Email</a>
-                    <button id="copyEmail{{ agent.id }}" class="inline-block bg-gray-500 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" data-original-text="Copy Email" onclick="copyToClipboard('{{ agent.email }}', 'copyEmail{{ agent.id }}')">Copy Email</button>
-                    <button id="copyShortcode{{ agent.id }}" class="inline-block bg-gray-300 hover:bg-blue-500 text-white text-sm py-2 px-4 rounded" onclick="copyToClipboard('@@({{ agent.id }})', 'copyShortcode{{ agent.id }}')">Copy Shortcode</button>
-                  </div>
-                </div>
-              </div>
-            {% endfor %}
-          {% else %}
-            <p>No agents found.</p>
-          {% endif %}
-        </div>
-      </div>
+              {% endfor %}
+          </div>
+      {% else %}
+          <p class="text-gray-500">No agents found.</p>
+      {% endif %}
     </main>
-    <div id="footer-push"></div>
-      {% include 'footer.html' %}
-      <script>
-      window.onload = function () {
-        var loadingPlaceholder = document.getElementById("loadingPlaceholder");
-        if (loadingPlaceholder) {
-          loadingPlaceholder.style.opacity = "0";
-          setTimeout(function () {
-            loadingPlaceholder.style.display = "none";
-          }, 600);
-        }
-      };
-  
-      document.addEventListener("DOMContentLoaded", function () {
-        var logoElement = document.querySelector('img[alt="Company Logo"]');
-        logoElement.addEventListener("click", function () {
-          window.location.href = "/";
-        });
-        logoElement.style.cursor = "pointer";
-      });
-    </script>
+
+    {% include 'footer.html' %}
+
     <script>
-      function loadTimeframe(timeframeId) {
-        window.location.href = "{{ url_for('dashboard_blueprint.dashboard') }}" + (timeframeId ? "?timeframe_id=" + timeframeId : "");
-      }
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeframeSelect = document.getElementById('timeframe');
+            timeframeSelect.addEventListener('change', function() {
+                const selectedTimeframeId = this.value;
+                if (selectedTimeframeId) {
+                    window.location.href = "{{ url_for('dashboard_blueprint.dashboard') }}?timeframe_id=" + selectedTimeframeId;
+                } else {
+                    window.location.href = "{{ url_for('dashboard_blueprint.dashboard') }}";
+                }
+            });
+        });
     </script>
-  </body>
+</body>
 </html>

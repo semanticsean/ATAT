@@ -71,7 +71,12 @@
                   href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}"
                   class="group relative mx-2 mb-4"
                 >
-                  <img src="{{ custom_image_filter(agent.photo_path, '12x12') }}" alt="{{ agent.id }}" class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-12 h-12 md:w-12 md:h12">
+                  {% set thumbnail_key = agent.photo_path.split('/')[-1] + '_thumbnail' %}
+                  {% if thumbnail_key in current_user.images_data %}
+                    <img src="data:image/png;base64,{{ current_user.images_data[thumbnail_key] }}" alt="{{ agent.id }}" class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-12 h-12 md:w-12 md:h12">
+                  {% else %}
+                    <div class="w-12 h-12 md:w-12 md:h-12 rounded-full bg-gray-200"></div>
+                  {% endif %}
 
                   <div
                     class="absolute top-0 left-0 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out"
