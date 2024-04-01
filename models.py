@@ -13,6 +13,7 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(256))
     agents_data = db.Column(db.JSON)
     images_data = db.Column(db.JSON, default={})
+    thumbnail_images_data = db.Column(db.JSON, default={})
     credits = db.Column(db.Integer)
     meetings = db.relationship('Meeting', backref='creator', lazy=True)
     credits = db.Column(db.Integer, default=0)

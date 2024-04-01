@@ -31,13 +31,16 @@
                   <div class="bg-white rounded-lg shadow-md">
                       <div class="p-4">
                           <h2 class="text-xl font-bold mb-2">{{ agent.id }}</h2>
-                          {% if agent.photo_path %}
-                              {% set thumbnail_key = agent.photo_path.split('/')[-1] + '_thumbnail' %}
-                              {% if thumbnail_key in current_user.images_data %}
-                                  <img src="data:image/png;base64,{{ current_user.images_data[thumbnail_key] }}" alt="{{ agent.id }}" class="w-full h-48 object-cover mb-4">
-                              {% else %}
-                                  <div class="w-full h-48 bg-gray-200 mb-4"></div>
-                              {% endif %}
+                        {% if agent.photo_path %}
+                          {% set thumbnail_key = agent.photo_path.split('/')[-1] + '_thumbnail' %}
+                          {% if thumbnail_key in current_user.thumbnail_images_data %}
+                            <img src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}" alt="{{ agent.id }}" class="w-full h-48 object-cover mb-4">
+                          {% else %}
+                            <div class="w-full h-48 bg-gray-200 mb-4"></div>
+                          {% endif %}
+                        {% else %}
+                          <div class="w-full h-48 bg-gray-200 mb-4"></div>
+                        {% endif %}
                           {% else %}
                               <div class="w-full h-48 bg-gray-200 mb-4"></div>
                           {% endif %}

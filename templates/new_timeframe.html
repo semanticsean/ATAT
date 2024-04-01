@@ -148,8 +148,8 @@
                         <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
                           <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden">
                           {% set thumbnail_key = agent.photo_path.split('/')[-1] + '_thumbnail' %}
-                          {% if thumbnail_key in current_user.images_data %}
-                            <img src="data:image/png;base64,{{ current_user.images_data[thumbnail_key] }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
+                          {% if thumbnail_key in current_user.thumbnail_images_data %}
+                            <img src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
                           {% else %}
                             <div class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full bg-gray-200 -ml-2 mr-4"></div>
                           {% endif %}
