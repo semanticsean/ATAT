@@ -1,0 +1,451 @@
+Generating log for all users
+
+User ID: 6
+Username: realityinspector29
+Email: sean.mcdonald@hey.com
+Credits: 1000
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 0
+Number of Images: 0
+
+
+User ID: 7
+Username: realityinspector37
+Email: sean@semantic-life.com
+Credits: 1000
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 0
+Number of Images: 0
+
+
+User ID: 8
+Username: realityinspector38
+Email: sean+1@semantic-life.com
+Credits: 1000
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 0
+Number of Images: 0
+
+
+User ID: 9
+Username: realityinspector39
+Email: sean+2@semantic-life.com
+Credits: 1000
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 0
+Number of Images: 0
+
+
+User ID: 10
+Username: realityinspector40
+Email: sean+4@semantic-life.com
+Credits: 1000
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 0
+Number of Images: 0
+
+
+User ID: 11
+Username: realityinspector41
+Email: sean+6@semantic-life.com
+Credits: 1000
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 0
+Number of Images: 0
+
+
+User ID: 1
+Username: realityinspector1
+Email: default1@email.com
+Credits: 1000
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 0
+Number of Images: 0
+
+
+User ID: 2
+Username: realityinspector24
+Email: default2@email.com
+Credits: 1000
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 0
+Number of Images: 0
+
+
+User ID: 4
+Username: realityinspector27
+Email: default4@email.com
+Credits: 1000
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 0
+Number of Images: 0
+
+
+User ID: 5
+Username: realityinspector28
+Email: default5@email.com
+Credits: 1000
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 0
+Number of Images: 0
+
+
+User ID: 12
+Username: realityinspector42
+Email: sean+42@semantic-life.com
+Credits: -28280
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 15
+Number of Images: 0
+
+
+User ID: 13
+Username: realityinspector43
+Email: sean+43@semantic-life.com
+Credits: None
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 15
+Number of Images: 15
+
+
+User ID: 14
+Username: realityinspector44
+Email: sean+44@semantic-life.com
+Credits: None
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 15
+Number of Images: 15
+
+
+User ID: 15
+Username: realityinspector45
+Email: sean+45@semantic-life.com
+Credits: None
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 15
+Number of Images: 15
+
+
+User ID: 16
+Username: realityinspector46
+Email: sean+46@semantic-life.com
+Credits: None
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 15
+Number of Images: 15
+
+
+User ID: 17
+Username: realityinspector47
+Email: sean+47@semantic-life.com
+Credits: None
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 15
+Number of Images: 15
+
+
+User ID: 18
+Username: realityinspector48
+Email: sean+48@semantic-life.com
+Credits: None
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 0
+Number of Images: 0
+
+
+User ID: 19
+Username: realityinspector49
+Email: sean+49@semantic-life.com
+Credits: None
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 15
+Number of Images: 15
+
+
+User ID: 20
+Username: realityinspector50
+Email: sean+50@semantic-life.com
+Credits: None
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 15
+Number of Images: 15
+
+
+User ID: 21
+Username: realityinspector51
+Email: sean+51@semantic-life.com
+Credits: 1231
+Number of Timeframes: 0
+Number of Meetings: 0
+Number of Agents: 15
+Number of Images: 15
+
+
+User ID: 22
+Username: realityinspector52
+Email: sean52@semantic-life.com
+Credits: 9814
+Number of Timeframes: 2
+  Timeframe ID: 1
+  Timeframe Name: test 140
+  Number of Agents: 1
+  Timeframe ID: 2
+  Timeframe Name: test 142
+  Number of Agents: 1
+Number of Meetings: 0
+Number of Agents: 15
+Number of Images: 15
+
+
+User ID: 24
+Username: realityinspector61
+Email: sean+61@semantic-life.com
+Credits: 974
+Number of Timeframes: 1
+  Timeframe ID: 4
+  Timeframe Name: test 143
+  Number of Agents: 1
+Number of Meetings: 1
+  Meeting ID: 1
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 0
+  Number of Answers: 0
+Number of Agents: 1
+Number of Images: 1
+
+
+User ID: 25
+Username: realityinspector62
+Email: sean+62@semantic-life.com
+Credits: 959
+Number of Timeframes: 1
+  Timeframe ID: 5
+  Timeframe Name: tet2
+  Number of Agents: 1
+Number of Meetings: 7
+  Meeting ID: 2
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 0
+  Number of Answers: 0
+  Meeting ID: 3
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 0
+  Number of Answers: 0
+  Meeting ID: 4
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 0
+  Number of Answers: 0
+  Meeting ID: 5
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 0
+  Number of Answers: 0
+  Meeting ID: 6
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 0
+  Number of Answers: 0
+  Meeting ID: 7
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 0
+  Number of Answers: 0
+  Meeting ID: 8
+  Meeting Name: name2
+  Number of Agents: 0
+  Number of Questions: 0
+  Number of Answers: 0
+Number of Agents: 15
+Number of Images: 15
+
+
+User ID: 23
+Username: realityinspector54
+Email: sean+54@semantic-life.com
+Credits: 959
+Number of Timeframes: 1
+  Timeframe ID: 3
+  Timeframe Name: 2026
+  Number of Agents: 1
+Number of Meetings: 0
+Number of Agents: 5
+Number of Images: 5
+
+
+User ID: 26
+Username: realityinspector63
+Email: sean+63@semantic-life.com
+Credits: 803
+Number of Timeframes: 4
+  Timeframe ID: 6
+  Timeframe Name: year 2025
+  Number of Agents: 1
+  Timeframe ID: 7
+  Timeframe Name: 2026
+  Number of Agents: 0
+  Timeframe ID: 8
+  Timeframe Name: year 2027
+  Number of Agents: 0
+  Timeframe ID: 9
+  Timeframe Name: year 2029
+  Number of Agents: 1
+Number of Meetings: 24
+  Meeting ID: 9
+  Meeting Name: default_name
+  Number of Agents: 1
+  Number of Questions: 0
+  Number of Answers: 0
+  Meeting ID: 10
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 11
+  Meeting Name: 1
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 12
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 2
+  Number of Answers: 0
+  Meeting ID: 13
+  Meeting Name: 3
+  Number of Agents: 0
+  Number of Questions: 2
+  Number of Answers: 0
+  Meeting ID: 14
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 15
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 16
+  Meeting Name: default_name
+  Number of Agents: 1
+  Number of Questions: 0
+  Number of Answers: 0
+  Meeting ID: 17
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 18
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 19
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 20
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 21
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 22
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 23
+  Meeting Name: default_name2
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 24
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 25
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 2
+  Number of Answers: 0
+  Meeting ID: 26
+  Meeting Name: default_name
+  Number of Agents: 1
+  Number of Questions: 0
+  Number of Answers: 0
+  Meeting ID: 27
+  Meeting Name: default_name
+  Number of Agents: 0
+  Number of Questions: 1
+  Number of Answers: 0
+  Meeting ID: 28
+  Meeting Name: default_name2
+  Number of Agents: 1
+  Number of Questions: 1
+  Number of Answers: 1
+  Meeting ID: 29
+  Meeting Name: default_name
+  Number of Agents: 1
+  Number of Questions: 1
+  Number of Answers: 1
+  Meeting ID: 30
+  Meeting Name: default_name
+  Number of Agents: 1
+  Number of Questions: 2
+  Number of Answers: 1
+  Meeting ID: 31
+  Meeting Name: default_name
+  Number of Agents: 1
+  Number of Questions: 1
+  Number of Answers: 1
+  Meeting ID: 32
+  Meeting Name: april 1 test 1
+  Number of Agents: 1
+  Number of Questions: 1
+  Number of Answers: 1
+Number of Agents: 1
+Number of Images: 1
+
+
+User ID: 27
+Username: realityinspector64
+Email: sean+64@semantic-life.com
+Credits: 985
+Number of Timeframes: 1
+  Timeframe ID: 10
+  Timeframe Name: year 2030
+  Number of Agents: 0
+Number of Meetings: 0
+Number of Agents: 15
+Number of Images: 15
+

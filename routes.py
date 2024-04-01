@@ -17,6 +17,8 @@ from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from logging.handlers import RotatingFileHandler
 
+#LOGGING
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -27,6 +29,8 @@ logging.basicConfig(
     ])
 
 logger = logging.getLogger(__name__)
+
+#PATHS
 
 AGENTS_JSON_PATH = os.path.join('agents', 'agents.json')
 IMAGES_BASE_PATH = os.path.join('agents', 'pics')
@@ -60,10 +64,14 @@ limiter = Limiter(key_func=get_remote_address,
                   default_limits=["200 per day", "50 per hour"])
 
 
+#PAGE VIEW ANALYTICS
 class PageView(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   page = db.Column(db.String(50), nullable=False)
   timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+
+#LOGIN / AUTH
 
 
 @auth_blueprint.route('/login', methods=['GET', 'POST'])
@@ -280,29 +288,30 @@ def meeting_results(meeting_id):
 @dashboard_blueprint.route('/dashboard')
 @login_required
 def dashboard():
-  timeframe_id = request.args.get('timeframe_id')
+    timeframe_id = request.args.get('timeframe_id')
+    agents_data = []
 
-  if timeframe_id:
-    timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe and timeframe.user_id == current_user.id:
-      agents_data = timeframe.agents_data
+    if timeframe_id:
+        timeframe = Timeframe.query.get(timeframe_id)
+        if timeframe and timeframe.user_id == current_user.id:
+            agents_data = timeframe.agents_data
+        else:
+            abort(404)
     else:
-      abort(404)
-  else:
-    agents_data = current_user.agents_data or []
-    logger.info("Loaded base agents")
+        agents_data = current_user.agents_data or []
+        logger.info("Loaded base agents")
 
-  # Fetch the base64-encoded image data for each agent
-  for agent in agents_data:
-    agent['image_data'] = current_user.images_data.get(
-        agent['photo_path'].split('/')[-1], '')
+    # Fetch the base64-encoded image data for each agent
+    for agent in agents_data:
+        agent['image_data'] = current_user.images_data.get(
+            agent['photo_path'].split('/')[-1], '')
 
-  timeframes = current_user.timeframes
-  logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
+    timeframes = current_user.timeframes
+    logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
 
-  return render_template('dashboard.html',
-                         agents=agents_data,
-                         timeframes=timeframes)
+    return render_template('dashboard.html',
+                           agents=agents_data,
+                           timeframes=timeframes)
 
 
 @profile_blueprint.route('/profile')
@@ -714,9 +723,10 @@ def status():
 @auth_blueprint.route('/new_timeframe', methods=['GET', 'POST'])
 @login_required
 def create_timeframe():
-  logging.info("Handling POST request in create_timeframe route")
+  logging.info("Handling request in create_timeframe route")
   if request.method == 'POST':
     logging.info("Inside POST block")
+
     if current_user.credits is None or current_user.credits <= 0:
       logging.info("User has insufficient credits")
       flash(
@@ -724,8 +734,13 @@ def create_timeframe():
       )
       return redirect(url_for('home'))
 
-    agents_data = current_user.agents_data
     selected_agent_ids = request.form.getlist('selected_agents')
+    if not selected_agent_ids:
+      # If no agents are selected, flash a message and redirect back to the same page
+      flash("Please select at least one agent to proceed.", "warning")
+      return redirect(url_for('auth_blueprint.create_timeframe'))
+
+    agents_data = current_user.agents_data
     selected_agents_data = [
         agent for agent in agents_data
         if str(agent['id']) in selected_agent_ids
@@ -753,7 +768,7 @@ def create_timeframe():
     except Exception as e:
       db.session.rollback()
       logging.error(f"Error occurred while processing agents: {str(e)}")
-      flash(f"An error occurred while processing agents: {str(e)}")
+      flash(f"An error occurred while processing agents: {str(e)}", "error")
       return redirect(url_for('auth_blueprint.create_timeframe'))
   else:
     logger.info('Accessing new timeframe page')
@@ -774,6 +789,12 @@ def create_timeframe():
 def timeframe_progress(timeframe_id):
   timeframe = Timeframe.query.get(timeframe_id)
   if timeframe and timeframe.user_id == current_user.id:
+    if not timeframe.agents_data:
+      return jsonify({
+          'status': 'no_agents',
+          'message': 'No agents found for this timeframe.'
+      })
+
     processed_count = len(timeframe.agents_data)
     total_count = len(current_user.agents_data)
 
