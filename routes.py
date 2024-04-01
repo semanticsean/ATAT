@@ -25,7 +25,7 @@ from logging.handlers import RotatingFileHandler
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message).142s',
     handlers=[
         logging.StreamHandler(),  # Console output
         RotatingFileHandler('logs/app.log', maxBytes=10000,
@@ -797,38 +797,48 @@ def create_timeframe():
 @auth_blueprint.route('/timeframe_progress/<int:timeframe_id>', methods=['GET'])
 @login_required
 def timeframe_progress(timeframe_id):
+    logger.info(f"Request received to get progress for timeframe ID: {timeframe_id} by user ID: {current_user.id}")
+
     timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe and timeframe.user_id == current_user.id:
-        if not timeframe.agents_data:
-            return jsonify({
-                'status': 'no_agents',
-                'message': 'No agents found for this timeframe.'
-            })
-
-        processed_count = len(timeframe.agents_data)
-        total_count = len(current_user.agents_data)
-
-        if processed_count == total_count:
-            status = 'complete'
-        else:
-            status = 'in_progress'
-
-        agents = []
-        for agent in timeframe.agents_data:
-            agent_data = {'id': agent['id'], 'photo_path': agent['photo_path']}
-            agents.append(agent_data)
-
-        response_data = {
-            'status': status,
-            'processed_count': processed_count,
-            'total_count': total_count,
-            'agents': agents
-        }
-
-        return jsonify(response_data)
-    else:
+    if not timeframe:
+        logger.warning(f"Timeframe ID: {timeframe_id} not found for user ID: {current_user.id}")
         abort(404)
 
+    if timeframe.user_id != current_user.id:
+        logger.error(f"User ID: {current_user.id} attempted to access timeframe ID: {timeframe_id} belonging to another user")
+        abort(403)
+
+    if not timeframe.agents_data:
+        logger.info(f"No agents found for timeframe ID: {timeframe_id}")
+        return jsonify({
+            'status': 'no_agents',
+            'message': 'No agents found for this timeframe.'
+        })
+
+    processed_count = len(timeframe.agents_data)
+    total_count = len(current_user.agents_data)
+
+    if processed_count == total_count:
+        status = 'complete'
+    else:
+        status = 'in_progress'
+
+    logger.debug(f"Timeframe ID: {timeframe_id}, Status: {status}, Processed: {processed_count}, Total: {total_count}")
+
+    agents = []
+    for agent in timeframe.agents_data:
+        agent_data = {'id': agent['id'], 'photo_path': agent['photo_path']}
+        agents.append(agent_data)
+
+    response_data = {
+        'status': status,
+        'processed_count': processed_count,
+        'total_count': total_count,
+        'agents': agents
+    }
+
+    logger.info(f"Successfully generated progress response for timeframe ID: {timeframe_id}")
+    return jsonify(response_data)
 
 # API KEYS #########
 

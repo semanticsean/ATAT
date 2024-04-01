@@ -263,14 +263,22 @@ def process_agents(payload, current_user):
             raise e
 
         updated_agent_data['photo_path'] = f"timeframe_{new_timeframe.id}_{new_photo_filename}"
-        logging.info(
-            f"Updated photo path: {updated_agent_data['photo_path']}")
+        logging.info(f"Updated photo path: {updated_agent_data['photo_path']}")
 
         # Append the updated agent data to the updated_agents list
         updated_agents.append(updated_agent_data)
+        logging.info(f"Added updated agent data to updated_agents: {updated_agent_data}")
 
+    logging.info(f"Updated agents list: {updated_agents}")
     new_timeframe.agents_data = updated_agents
-    db.session.commit()
+
+    try:
+        db.session.commit()
+        logging.info("Successfully committed new_timeframe and updated_agents to the database")
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error occurred while committing to the database: {str(e)}")
+        raise e
 
     return new_timeframe
 
@@ -292,10 +300,10 @@ def conduct_meeting(payload, current_user):
   llm_instructions_combined = f"{question_instructions} {form_llm_instructions}".strip(
   )
 
-  logging.info(f"Agents data: {agents_data}")
-  logging.info(f"Questions: {questions}")
-  logging.info(f"LLM instructions: {llm_instructions_combined}")
-  logging.info(f"Request type: {request_type}")
+  logging.info(f"Agents data: {agents_data[:142]}")
+  logging.info(f"Questions: {questions[:142]}")
+  logging.info(f"LLM instructions: {llm_instructions_combined[:142]}")
+  logging.info(f"Request type: {request_type[:142]}")
 
   meeting_responses = []
 
@@ -414,7 +422,7 @@ def conduct_meeting(payload, current_user):
     meeting_responses.append(agent_response)
     logging.info(f"Processed agent: {agent['id']}")
 
-  logging.info(f"Meeting responses: {meeting_responses}")
+  logging.info(f"Meeting responses: {meeting_responses[:142]}")
   return meeting_responses
 
 
@@ -523,10 +531,10 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
         raise e
 
   image_url = dalle_response.data[0].url
-  logging.info(f"Generated image URL: {image_url}")
+  logging.info(f"Generated image URL: {image_url[:142]}")
 
   new_photo_filename = f"{agent_name}.png"
-  logging.info(f"New photo filename: {new_photo_filename}")
+  logging.info(f"New photo filename: {new_photo_filename[:142]}")
 
   img_data = requests.get(image_url).content
   encoded_string = base64.b64encode(img_data).decode('utf-8')
