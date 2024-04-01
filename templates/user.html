@@ -94,7 +94,7 @@
           const password = document.getElementById('password').value;
 
           // Perform AJAX POST request to verify password
-          fetch('{{ url_for("verify_password") }}', {
+          fetch('{{ url_for("auth_blueprint.verify_password") }}', {
               method: 'POST',
               body: JSON.stringify({ 'password': password }),
               headers: {
