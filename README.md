@@ -560,3 +560,24 @@ FROM
     JOIN "user" AS u ON m.user_id = u.id
 WHERE 
     m.id = 24;
+
+
+
+
+
+--------
+
+see timeframe agents 
+
+SELECT 
+  t.id AS timeframe_id,
+  t.name AS timeframe_name,
+  json_array_length(t.agents_data) AS num_agents,
+  CASE WHEN t.agents_data IS NULL THEN false ELSE true END AS agents_populated,
+  CASE WHEN u.images_data IS NULL THEN false ELSE true END AS images_populated,
+  json_agg(t.agents_data->>'id') AS agent_names
+FROM 
+  timeframe t
+  JOIN "user" u ON t.user_id = u.id
+GROUP BY
+  t.id, t.name, t.agents_data, u.images_data;

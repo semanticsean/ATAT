@@ -74,11 +74,14 @@
     </main>
     {% include 'footer.html' %}
     <script>
-      function updateProgress() {
-        $.getJSON(
-          "{{ url_for('auth_blueprint.timeframe_progress', timeframe_id=timeframe.id) }}",
-          function (data) {
-            if (data.status === "complete") {
+              function updateProgress() {
+              $.getJSON("{{ url_for('auth_blueprint.timeframe_progress', timeframe_id=timeframe.id) }}", function(data) {
+                  if (data.status === 'no_agents') {
+                      $("#loading-status").html('<p class="text-red-500">' + data.message + '</p>');
+                      setTimeout(function() {
+                          window.location.href = "{{ url_for('dashboard_blueprint.dashboard') }}";
+                      }, 2000);
+                  } else if (data.status === 'complete') {
               $("#loading-status").html(
                 '<p class="text-green-500">Processing complete!</p>',
               );

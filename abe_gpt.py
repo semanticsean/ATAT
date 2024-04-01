@@ -11,8 +11,6 @@ from models import db, User, Survey, Timeframe
 from openai import OpenAI, APIError
 from flask import url_for
 
-
-
 client = OpenAI()
 openai_api_key = os.environ['OPENAI_API_KEY']
 
@@ -23,6 +21,10 @@ def process_agents(payload, current_user):
     instructions = payload["instructions"]
 
     updated_agents = []
+
+    new_timeframe = Timeframe(name=payload["timeframe_name"], user_id=current_user.id, agents_data=[])
+    db.session.add(new_timeframe)
+    db.session.commit()
 
     for agent in agents_data:
         logging.info(f"Processing agent: {agent['id']}")
@@ -225,12 +227,10 @@ def process_agents(payload, current_user):
         updated_agents.append(updated_agent_data)
         logging.info(f"Updated agent data: {updated_agent_data}")
 
-    # Create a new timeframe and save the updated agents
-    new_timeframe = Timeframe(name=payload["timeframe_name"], user_id=current_user.id, agents_data=updated_agents)
-    db.session.add(new_timeframe)
-    db.session.commit()
 
-    logging.info(f"New timeframe created: {new_timeframe}")
+    new_timeframe.agents_data = updated_agents
+    db.session.commit()
+  
     return new_timeframe
 
 
@@ -429,7 +429,7 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
 
   # DALL-E - Generate profile picture for the new agent
   image_prompt = new_agent_data.get('image_prompt', '')
-  dalle_prompt = f"{image_prompt[:5000]}"
+  dalle_prompt = f"{image_prompt[:3000]}"
 
   # DALL-E - Generate profile picture
   max_retries = 12
