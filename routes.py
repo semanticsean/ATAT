@@ -8,6 +8,8 @@ from models import db, User, Survey, Timeframe, Meeting
 from abe_gpt import generate_new_agent
 import email_client
 
+from PIL import Image
+from io import BytesIO
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from models import User, Survey, db
@@ -16,6 +18,8 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from logging.handlers import RotatingFileHandler
+
+
 
 #LOGGING
 
@@ -164,38 +168,45 @@ def sanitize_filename(filename):
 @auth_blueprint.route('/add_base_agents', methods=['POST'])
 @login_required
 def add_base_agents():
-  logging.info("Starting to add base agents")
-  try:
-    base_agents_path = os.path.join('agents', 'agents.json')
-    logging.info(f"Reading base agents from {base_agents_path}")
-    with open(base_agents_path, 'r') as file:
-      base_agents_data = json.load(file)
+    logging.info("Starting to add base agents")
+    try:
+        base_agents_path = os.path.join('agents', 'agents.json')
+        logging.info(f"Reading base agents from {base_agents_path}")
+        with open(base_agents_path, 'r') as file:
+            base_agents_data = json.load(file)
 
-    current_user.images_data = {
-    }  # Initialize images_data as an empty dictionary
-    logging.info("Initialized images_data as an empty dictionary")
+        current_user.images_data = {}  # Initialize images_data as an empty dictionary
+        current_user.thumbnail_images_data = {}  # Initialize thumbnail_images_data as an empty dictionary
+        logging.info("Initialized images_data and thumbnail_images_data as empty dictionaries")
 
-    for agent in base_agents_data:
-      photo_filename = os.path.basename(agent['photo_path'])
-      image_path = os.path.join('agents', 'pics', photo_filename)
-      logging.info(f"Processing image {photo_filename}")
+        for agent in base_agents_data:
+            photo_filename = os.path.basename(agent['photo_path'])
+            image_path = os.path.join('agents', 'pics', photo_filename)
+            logging.info(f"Processing image {photo_filename}")
 
-      with open(image_path, 'rb') as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-      current_user.images_data[photo_filename] = encoded_string
+            with open(image_path, 'rb') as image_file:
+                img_data = image_file.read()
+                encoded_string = base64.b64encode(img_data).decode('utf-8')
+            current_user.images_data[photo_filename] = encoded_string
 
-    current_user.agents_data = base_agents_data
-    db.session.commit()
-    logging.info(
-        "Successfully added base agents and committed to the database")
+            # Generate thumbnail image
+            thumbnail_size = (200, 200)
+            img = Image.open(BytesIO(img_data))
+            img.thumbnail(thumbnail_size)
+            thumbnail_buffer = BytesIO()
+            img.save(thumbnail_buffer, format='PNG')
+            thumbnail_data = thumbnail_buffer.getvalue()
+            thumbnail_encoded_string = base64.b64encode(thumbnail_data).decode('utf-8')
+            current_user.thumbnail_images_data[photo_filename + '_thumbnail'] = thumbnail_encoded_string
 
-    return redirect(url_for('home'))
-  except Exception as e:
-    logging.error(f"Failed to add base agents due to an exception: {str(e)}",
-                  exc_info=True)
-    return jsonify({'success': False, 'error': str(e)})
+        current_user.agents_data = base_agents_data
+        db.session.commit()
+        logging.info("Successfully added base agents and committed to the database")
 
-
+        return redirect(url_for('home'))
+    except Exception as e:
+        logging.error(f"Failed to add base agents due to an exception: {str(e)}", exc_info=True)
+        return jsonify({'success': False, 'error': str(e)})
 @meeting_blueprint.route('/surveys/<path:survey_id>/pics/<filename>')
 @login_required
 def serve_survey_image(survey_id, filename):
