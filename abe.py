@@ -17,8 +17,6 @@ from routes import auth_blueprint, meeting_blueprint, dashboard_blueprint, profi
 from werkzeug.utils import secure_filename
 
 
-
-
 def configure_logging():
     if not os.path.exists('logs'):
         os.makedirs('logs')

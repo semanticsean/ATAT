@@ -14,9 +14,8 @@ class User(db.Model, UserMixin):
     agents_data = db.Column(db.JSON)
     images_data = db.Column(db.JSON, default={})
     thumbnail_images_data = db.Column(db.JSON, default={})
-    credits = db.Column(db.Integer)
+    credits = db.Column(db.Integer, default=0)  # Remove the duplicate credits attribute
     meetings = db.relationship('Meeting', backref='creator', lazy=True)
-    credits = db.Column(db.Integer, default=0)
     api_keys = db.relationship('APIKey', backref='owner', lazy='dynamic')
 
     def generate_api_key(self, expiration=None):
@@ -61,12 +60,13 @@ class Survey(db.Model):
     user = db.relationship('User', backref=db.backref('surveys', lazy=True))
 
 class Timeframe(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    agents_data = db.Column(db.JSON)
-  
-    user = db.relationship('User', backref=db.backref('timeframes', lazy=True))
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String(100), nullable=False)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+  agents_data = db.Column(db.JSON)
+  images_data = db.Column(db.JSON, default={})
+  thumbnail_images_data = db.Column(db.JSON, default={})
+  user = db.relationship('User', backref=db.backref('timeframes', lazy=True))
 
 class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)

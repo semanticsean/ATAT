@@ -22,261 +22,235 @@ def process_agents(payload, current_user):
     agents_data = payload["agents_data"]
     instructions = payload["instructions"]
 
-    updated_agents = []
-
-    new_timeframe = Timeframe(name=payload["timeframe_name"],
-                              user_id=current_user.id,
-                              agents_data=[])
-    db.session.add(new_timeframe)
-    db.session.commit()
+    new_timeframe = create_new_timeframe(payload, current_user)
 
     for agent in agents_data:
-        logging.info(f"Processing agent: {agent['id']}")
-
-        # Create a copy of the agent data
-        updated_agent_data = agent.copy()
-
-        # Remove the specified fields from the agent data
-        excluded_fields = ['id', 'email', 'unique_id', 'timestamp', 'photo_path']
-        for field in excluded_fields:
-            if field in updated_agent_data:
-                del updated_agent_data[field]
-
-        # Prepare the API payload for each agent
-        agent_payload = {
-            "model":
-            "gpt-4-turbo-preview",
-            "response_format": {
-                "type": "json_object"
-            },
-            "messages": [{
-                "role":
-                "system",
-                "content":
-                f"You are a helpful assistant designed to update agent data in JSON format based on the following instructions:\n{json.load(open('abe/abe-instructions.json'))['modify_agents_json_instructions']}"
-            }, {
-                "role":
-                "user",
-                "content":
-                f"Here is the agent data in JSON format:\n{json.dumps(updated_agent_data)}"
-            }, {
-                "role":
-                "user",
-                "content":
-                f"Please update the agent data based on the following instructions:\n{' '.join(instructions.values())}"
-            }, {
-                "role":
-                "user",
-                "content":
-                "Return the updated agent data as a JSON object."
-            }],
-        }
-
-        # Call the OpenAI API with exponential backoff and retries
-        max_retries = 12
-        retry_delay = 5
-        retry_count = 0
-        logging.info(
-            f"Current credit balance before API call: {current_user.credits}")
-
-        while retry_count < max_retries:
-            try:
-                if current_user.credits is None or current_user.credits < 5:
-                    raise Exception("Insufficient credits, please add more")
-
-                response = client.chat.completions.create(**agent_payload)
-
-                # Deduct credits based on the API call
-                if agent_payload["model"].startswith("gpt-4"):
-                    credits_used = 5  # Deduct 5 credits for GPT-4 models
-                else:
-                    raise ValueError(
-                        f"Unexpected model: {agent_payload['model']}")
-
-                current_user.credits -= credits_used
-                db.session.commit()
-                break
-            except APIError as e:
-                logging.error(f"OpenAI API error: {e}")
-                retry_count += 1
-                if retry_count < max_retries:
-                    time.sleep(retry_delay)
-                    retry_delay *= 2
-                else:
-                    raise e
-
-        # Check if the response is valid JSON
-        if response.choices[0].finish_reason == "stop":
-            updated_agent_data = json.loads(
-                response.choices[0].message.content)
-        else:
-            raise ValueError(
-                f"Incomplete or invalid JSON response: {response.choices[0].message.content}"
-            )
-
-        # Add back the excluded fields to the updated agent data
-        for field in excluded_fields:
-            if field in agent:
-                updated_agent_data[field] = agent[field]
-
-        # Vision API - Get detailed description of profile picture
-        photo_filename = updated_agent_data['photo_path'].split('/')[-1]
-        image_data = current_user.images_data.get(
-            photo_filename) if current_user.images_data else None
-
-        logging.info(
-            f"Current credit balance after API call: {current_user.credits}")
-
-        if image_data:
-            vision_payload = {
-                "model":
-                "gpt-4-vision-preview",
-                "messages": [{
-                    "role":
-                    "user",
-                    "content": [{
-                        "type":
-                        "text",
-                        "text":
-                        "Provide a very detailed description of this image with explicit instructions for how to re-create it:"
-                    }, {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{image_data}"
-                        }
-                    }]
-                }],
-            }
-
-            # Vision API - Get detailed description of profile picture
-            max_retries = 12
-            retry_delay = 5
-            retry_count = 0
-            while retry_count < max_retries:
-                try:
-                    if current_user.credits is None or current_user.credits < 10:
-                        raise Exception(
-                            "Insufficient credits, please add more")
-                    vision_response = client.chat.completions.create(
-                        **vision_payload)
-
-                    # Deduct credits based on the API call
-                    credits_used = 10  # Deduct 10 credits for image calls
-
-                    current_user.credits -= credits_used
-                    db.session.commit()
-                    break
-                except APIError as e:
-                    logging.error(f"OpenAI API error: {e}")
-                    retry_count += 1
-                    if retry_count < max_retries:
-                        time.sleep(retry_delay)
-                        retry_delay *= 2
-                    else:
-                        raise e
-
-            vision_description = vision_response.choices[0].message.content.strip(
-            )
-            logging.info(f"Vision API response: {vision_description}")
-
-            # Store vision description in agent JSON
-            updated_agent_data[
-                "vision_description_image_prompt"] = vision_description
-        else:
-            logging.warning(
-                f"Image data not found for {photo_filename}")
-
-        # DALL-E - Generate new profile picture
-        image_prompt = updated_agent_data.get('image_prompt', '')
-        max_prompt_length = 5000  # Adjust this value based on the DALL-E API's limit
-        dalle_prompt = f"{' '.join(instructions.values())} {json.load(open('abe/abe-instructions.json'))['dalle_modify_agents_instructions']} {image_prompt} {vision_description}"[:max_prompt_length]
-        updated_agent_data[
-            f"{agent['id']}_image_instructions"] = dalle_prompt
-        logging.info(f"DALL-E prompt: {dalle_prompt}")
-
-        # DALL-E - Generate new profile picture
-        max_retries = 1
-        retry_delay = 30
-        retry_count = 0
-        while retry_count < max_retries:
-            try:
-                if current_user.credits is None or current_user.credits < 10:
-                    raise Exception("Insufficient credits, please add more")
-
-                logging.info(
-                    f"Sending DALL-E request with prompt: {dalle_prompt}")
-                dalle_response = client.images.generate(
-                    model="dall-e-3",
-                    prompt=dalle_prompt[:5000],
-                    quality="standard",
-                    size="1024x1024",
-                    n=1,
-                )
-                current_user.credits -= 10  # Deduct 10 credits for DALL-E models
-                db.session.commit()
-                break
-            except APIError as e:
-                logging.error(f"OpenAI API error: {e}")
-                retry_count += 1
-                if retry_count < max_retries:
-                    time.sleep(retry_delay)
-                    retry_delay *= 2
-                else:
-                    raise e
-            except Exception as e:
-                logging.error(
-                    f"Error occurred while generating DALL-E image: {e}")
-                raise e
-
-        if dalle_response is None:
-            logging.error(
-                "Failed to generate DALL-E image after multiple retries")
-            raise Exception("Failed to generate DALL-E image")
-
-        image_url = dalle_response.data[0].url
-        logging.info(f"Generated image URL: {image_url}")
-
-        new_photo_filename = f"{agent['id']}_iteration_{len(current_user.images_data)+1}.png"
-        logging.info(f"New photo filename: {new_photo_filename}")
-
-        try:
-            img_data = requests.get(image_url).content
-            encoded_string = base64.b64encode(
-                img_data).decode('utf-8')
-            current_user.images_data[
-                f"timeframe_{new_timeframe.id}_{new_photo_filename}"] = encoded_string
-
-            # Generate thumbnail image
-            thumbnail_size = (200, 200)
-            img = Image.open(BytesIO(img_data))
-            img.thumbnail(thumbnail_size)
-            thumbnail_buffer = BytesIO()
-            img.save(thumbnail_buffer, format='PNG')
-            thumbnail_data = thumbnail_buffer.getvalue()
-            thumbnail_encoded_string = base64.b64encode(
-                thumbnail_data).decode('utf-8')
-            current_user.thumbnail_images_data[
-                f"timeframe_{new_timeframe.id}_{new_photo_filename}"] = thumbnail_encoded_string
-
-            db.session.commit()
-        except Exception as e:
-            logging.error(f"Error occurred while saving image data: {e}")
-            raise e
-
-        updated_agent_data['photo_path'] = f"timeframe_{new_timeframe.id}_{new_photo_filename}"
-        logging.info(f"Updated photo path: {updated_agent_data['photo_path']}")
-
-        # Update the agent data directly in new_timeframe.agents_data
-        agent_index = agents_data.index(agent)
-        logging.info(f"Updating agent data for: {agent['id']}")
-        new_timeframe.agents_data[agent_index] = updated_agent_data
-        logging.info(f"Agent data updated for: {agent['id']}")
+        process_single_agent(agent, instructions, new_timeframe, current_user)
 
     db.session.commit()
     logging.info("Database session committed after processing agents")
 
     return new_timeframe
 
+
+def create_new_timeframe(payload, current_user):
+    new_timeframe = Timeframe(
+        name=payload["timeframe_name"],
+        user_id=current_user.id,
+        agents_data=[],
+        images_data={},
+        thumbnail_images_data={}
+    )
+    db.session.add(new_timeframe)
+    db.session.commit()
+    return new_timeframe
+
+
+def process_single_agent(agent, instructions, new_timeframe, current_user):
+    logging.info(f"Processing agent: {agent['id']}")
+
+    updated_agent_data = prepare_agent_data(agent)
+    updated_agent_data = update_agent_data_with_openai(updated_agent_data, instructions, current_user)
+    vision_description = get_vision_description(updated_agent_data, current_user)
+    updated_agent_data["vision_description_image_prompt"] = vision_description
+    updated_agent_data = generate_new_profile_picture(updated_agent_data, instructions, new_timeframe, current_user)
+
+    new_timeframe.agents_data.append(updated_agent_data)
+    logging.info(f"Agent data updated for: {agent['id']}")
+
+    db.session.commit()
+
+
+def prepare_agent_data(agent):
+    updated_agent_data = agent.copy()
+    excluded_fields = ['id', 'email', 'unique_id', 'timestamp', 'photo_path']
+    for field in excluded_fields:
+        if field in updated_agent_data:
+            del updated_agent_data[field]
+    return updated_agent_data
+
+
+def update_agent_data_with_openai(updated_agent_data, instructions, current_user):
+    agent_payload = {
+        "model": "gpt-4-turbo-preview",
+        "response_format": {"type": "json_object"},
+        "messages": [
+            {
+                "role": "system",
+                "content": f"You are a helpful assistant designed to update agent data in JSON format based on the following instructions:\n{json.load(open('abe/abe-instructions.json'))['modify_agents_json_instructions']}"
+            },
+            {
+                "role": "user",
+                "content": f"Here is the agent data in JSON format:\n{json.dumps(updated_agent_data)}"
+            },
+            {
+                "role": "user",
+                "content": f"Please update the agent data based on the following instructions:\n{' '.join(instructions.values())}"
+            },
+            {
+                "role": "user",
+                "content": "Return the updated agent data as a JSON object."
+            }
+        ],
+    }
+
+    response = call_openai_api(agent_payload, current_user)
+    updated_agent_data = json.loads(response.choices[0].message.content)
+
+    return updated_agent_data
+
+
+def get_vision_description(updated_agent_data, current_user):
+    photo_filename = updated_agent_data['photo_path'].split('/')[-1]
+    image_data = current_user.images_data.get(photo_filename) if current_user.images_data else None
+
+    if image_data:
+        vision_payload = {
+            "model": "gpt-4-vision-preview",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Provide a very detailed description of this image with explicit instructions for how to re-create it:"
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}
+                        }
+                    ]
+                }
+            ],
+        }
+
+        vision_response = call_openai_api(vision_payload, current_user)
+        vision_description = vision_response.choices[0].message.content.strip()
+        logging.info(f"Vision API response: {vision_description}")
+    else:
+        logging.warning(f"Image data not found for {photo_filename}")
+        vision_description = ""
+
+    return vision_description
+
+
+def generate_new_profile_picture(updated_agent_data, instructions, new_timeframe, current_user):
+    image_prompt = updated_agent_data.get('image_prompt', '')
+    max_prompt_length = 5000
+    dalle_prompt = f"{' '.join(instructions.values())} {json.load(open('abe/abe-instructions.json'))['dalle_modify_agents_instructions']} {image_prompt} {updated_agent_data.get('vision_description_image_prompt', '')}"[:max_prompt_length]
+    updated_agent_data[f"{updated_agent_data['id']}_image_instructions"] = dalle_prompt
+    logging.info(f"DALL-E prompt: {dalle_prompt}")
+
+    dalle_response = call_dalle_api(dalle_prompt, current_user)
+
+    if dalle_response is None:
+        logging.warning(f"Failed to generate DALL-E image for agent {updated_agent_data['id']} after multiple retries.")
+        updated_agent_data['photo_path'] = updated_agent_data['photo_path']
+    else:
+        image_url = dalle_response.data[0].url
+        logging.info(f"Generated image URL: {image_url}")
+        new_photo_filename = f"{updated_agent_data['id']}_iteration_{len(new_timeframe.images_data)+1}.png"
+        logging.info(f"New photo filename: {new_photo_filename}")
+
+        img_data = requests.get(image_url).content
+        encoded_string = base64.b64encode(img_data).decode('utf-8')
+        new_timeframe.images_data[new_photo_filename] = encoded_string
+
+        thumbnail_encoded_string = generate_thumbnail_image(img_data)
+        new_timeframe.thumbnail_images_data[new_photo_filename] = thumbnail_encoded_string
+
+        updated_agent_data['photo_path'] = f"timeframe_{new_timeframe.id}_{new_photo_filename}"
+        logging.info(f"Updated photo path: {updated_agent_data['photo_path']}")
+
+    return updated_agent_data
+
+
+def generate_thumbnail_image(img_data):
+    thumbnail_size = (200, 200)
+    img = Image.open(BytesIO(img_data))
+    img.thumbnail(thumbnail_size)
+    thumbnail_buffer = BytesIO()
+    img.save(thumbnail_buffer, format='PNG')
+    thumbnail_data = thumbnail_buffer.getvalue()
+    thumbnail_encoded_string = base64.b64encode(thumbnail_data).decode('utf-8')
+    return thumbnail_encoded_string
+
+
+def call_openai_api(payload, current_user):
+    max_retries = 12
+    retry_delay = 5
+    retry_count = 0
+    logging.info(f"Current credit balance before API call: {current_user.credits}")
+
+    while retry_count < max_retries:
+        try:
+            if current_user.credits is None or current_user.credits < 5:
+                raise Exception("Insufficient credits, please add more")
+
+            response = client.chat.completions.create(**payload)
+
+            # Deduct credits based on the API call
+            if payload["model"].startswith("gpt-4"):
+                credits_used = 5
+            else:
+                raise ValueError(f"Unexpected model: {payload['model']}")
+
+            current_user.credits -= credits_used
+            db.session.commit()
+            break
+        except APIError as e:
+            logging.error(f"OpenAI API error: {e}")
+            retry_count += 1
+            if retry_count < max_retries:
+                time.sleep(retry_delay)
+                retry_delay *= 2
+            else:
+                raise e
+
+    logging.info(f"Current credit balance after API call: {current_user.credits}")
+    return response
+
+
+def call_dalle_api(dalle_prompt, current_user):
+    max_retries = 1
+    retry_delay = 30
+    retry_count = 0
+    dalle_response = None
+
+    while retry_count < max_retries:
+        try:
+            prompt_chunks = [dalle_prompt[i:i+2000] for i in range(0, len(dalle_prompt), 2000)]
+
+            for chunk in prompt_chunks:
+                try:
+                    dalle_response = client.images.generate(
+                        model="dall-e-3",
+                        prompt=chunk,
+                        quality="standard",
+                        size="1024x1024",
+                        n=1,
+                    )
+                    current_user.credits -= 10
+                    db.session.commit()
+                    break
+                except APIError as e:
+                    logging.error(f"OpenAI API error for chunk: {e}")
+                    logging.error(f"DALL-E prompt chunk: {chunk}")
+
+            if dalle_response is not None:
+                break
+        except APIError as e:
+            logging.error(f"OpenAI API error: {e}")
+            logging.error(f"DALL-E prompt: {dalle_prompt}")
+            retry_count += 1
+            if retry_count < max_retries:
+                time.sleep(retry_delay)
+                retry_delay *= 2
+            else:
+                logging.warning(f"Failed to generate DALL-E image due to prompt length.")
+                break
+
+    return dalle_response
 
 
 def conduct_meeting(payload, current_user):
