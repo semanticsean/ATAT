@@ -58,32 +58,28 @@
         </div>
     </div>
   
-    
-  <div class="mt-8">
+    <div class="mt-8">
       <h2 class="text-xl font-bold mb-2">API Keys</h2>
       <form action="{{ url_for('auth_blueprint.generate_api_key') }}" method="post" class="mb-4">
           <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Generate New API Key</button>
       </form>
       <button id="showApiKeys" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">View API Keys</button>
       <div id="apiKeysContainer" class="mt-4"></div>
-  </div>
-  
-  
-  
-  <div id="footer-push"></div>
-  {% include 'footer.html' %}
-  
+    </div>
 
-  <!-- Password Verification Modal -->
-  <div id="passwordModal" style="display:none;">
+    <div id="footer-push"></div>
+    {% include 'footer.html' %}
+
+    <!-- Password Verification Modal -->
+    <div id="passwordModal" style="display:none;">
       <form id="verifyPasswordForm">
           <label for="password">Enter your password to view API keys:</label>
           <input type="password" id="password" name="password" required>
           <button type="submit">Verify</button>
       </form>
-  </div>
+    </div>
 
-  <script>
+    <script>
       document.getElementById('showApiKeys').onclick = function() {
           // Display password verification modal
           document.getElementById('passwordModal').style.display = 'block';
@@ -98,8 +94,7 @@
               method: 'POST',
               body: JSON.stringify({ 'password': password }),
               headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRFToken': '{{ csrf_token() }}' // Adjust according to your CSRF token handling
+                  'Content-Type': 'application/json'
               }
           }).then(response => response.json()).then(data => {
               if(data.success) {
@@ -118,7 +113,7 @@
               }
           }).catch(error => console.error('Error:', error));
       };
-  </script>
+    </script>
 
-</body>
-</html>
+    </body>
+    </html>
