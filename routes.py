@@ -734,72 +734,66 @@ def status():
 @auth_blueprint.route('/new_timeframe', methods=['GET', 'POST'])
 @login_required
 def create_timeframe():
-  logging.info("Handling request in create_timeframe route")
-  if request.method == 'POST':
-    logging.info("Inside POST block")
+    logging.info("Handling request in create_timeframe route")
+    if request.method == 'POST':
+        logging.info("Inside POST block")
 
-    if current_user.credits is None or current_user.credits <= 0:
-      logging.info("User has insufficient credits")
-      flash(
-          "You don't have enough credits. Please contact the admin to add more credits."
-      )
-      return redirect(url_for('home'))
+        if current_user.credits is None or current_user.credits <= 0:
+            logging.info("User has insufficient credits")
+            flash(
+                "You don't have enough credits. Please contact the admin to add more credits."
+            )
+            return redirect(url_for('home'))
 
-    selected_agent_ids = request.form.getlist('selected_agents')
-    if not selected_agent_ids:
-      # If no agents are selected, flash a message and redirect back to the same page
-      flash("Please select at least one agent to proceed.", "warning")
-      return redirect(url_for('auth_blueprint.create_timeframe'))
+        selected_agent_ids = request.form.getlist('selected_agents')
+        if not selected_agent_ids:
+            # If no agents are selected, flash a message and redirect back to the same page
+            flash("Please select at least one agent to proceed.", "warning")
+            return redirect(url_for('auth_blueprint.create_timeframe'))
 
-    agents_data = current_user.agents_data
-    selected_agents_data = [
-        agent for agent in agents_data
-        if str(agent['id']) in selected_agent_ids
-    ]
+        agents_data = current_user.agents_data
+        selected_agents_data = [
+            agent for agent in agents_data
+            if str(agent['id']) in selected_agent_ids
+        ]
 
-    form_data = request.form.to_dict()
-    form_data.pop('selected_agents', None)
+        form_data = request.form.to_dict()
+        form_data.pop('selected_agents', None)
 
-    payload = {
-        "agents_data": selected_agents_data,
-        "instructions": form_data,
-        "timeframe_name": form_data["name"]
-    }
+        payload = {
+            "agents_data": selected_agents_data,
+            "instructions": form_data,
+            "timeframe_name": form_data["name"]
+        }
 
-    try:
-        logging.info("Calling process_agents function")
-        new_timeframe = abe_gpt.process_agents(payload, current_user)
-        logging.info(f"New timeframe object received: {new_timeframe}")
-        db.session.add(new_timeframe)
-        db.session.commit()
-        logging.info(f"New timeframe created with ID: {new_timeframe.id}")
+        try:
+            logging.info("Calling process_agents function")
+            new_timeframe = abe_gpt.process_agents(payload, current_user)
+            logging.info(f"New timeframe object received: {new_timeframe}")
+            db.session.add(new_timeframe)
+            db.session.commit()
+            logging.info(f"New timeframe created with ID: {new_timeframe.id}")
 
-        # Wait for the agent images to be generated and saved to the database
-        while True:
-            db.session.refresh(new_timeframe)
-            if all(agent.get('photo_path') for agent in new_timeframe.agents_data):
-                break
-            logging.info("Waiting for agent images to be generated...")
-            time.sleep(1)
+            # Redirect to the dashboard for the new timeframe
+            return redirect(url_for('dashboard_blueprint.dashboard', timeframe_id=new_timeframe.id))
 
-        return redirect(url_for('dashboard_blueprint.dashboard', timeframe_id=new_timeframe.id))
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error occurred while processing agents: {str(e)}")
+            flash(f"An error occurred while processing agents: {str(e)}", "error")
+            return redirect(url_for('auth_blueprint.create_timeframe'))
 
-    except Exception as e:
-        db.session.rollback()
-        logging.error(f"Error occurred while processing agents: {str(e)}")
-        flash(f"An error occurred while processing agents: {str(e)}", "error")
-        return redirect(url_for('auth_blueprint.create_timeframe'))
-  else:
-    logger.info('Accessing new timeframe page')
-    base_agents = current_user.agents_data or []
-    timeframes = current_user.timeframes
+    else:
+        logger.info('Accessing new timeframe page')
+        base_agents = current_user.agents_data or []
+        timeframes = current_user.timeframes
 
-    logger.info(f'Base agents count: {len(base_agents)}')
-    logger.info(f'Timeframes count: {len(timeframes)}')
+        logger.info(f'Base agents count: {len(base_agents)}')
+        logger.info(f'Timeframes count: {len(timeframes)}')
 
-    return render_template('new_timeframe.html',
-                           base_agents=base_agents,
-                           timeframes=timeframes)
+        return render_template('new_timeframe.html',
+                               base_agents=base_agents,
+                               timeframes=timeframes)
 
 
 

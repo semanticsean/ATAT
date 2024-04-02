@@ -188,7 +188,8 @@ def process_agents(payload, current_user):
 
         # DALL-E - Generate new profile picture
         image_prompt = updated_agent_data.get('image_prompt', '')
-        dalle_prompt = f"{' '.join(instructions.values())} {json.load(open('abe/abe-instructions.json'))['dalle_modify_agents_instructions']} {image_prompt} {vision_description}"
+        max_prompt_length = 5000  # Adjust this value based on the DALL-E API's limit
+        dalle_prompt = f"{' '.join(instructions.values())} {json.load(open('abe/abe-instructions.json'))['dalle_modify_agents_instructions']} {image_prompt} {vision_description}"[:max_prompt_length]
         updated_agent_data[
             f"{agent['id']}_image_instructions"] = dalle_prompt
         logging.info(f"DALL-E prompt: {dalle_prompt}")
@@ -265,20 +266,14 @@ def process_agents(payload, current_user):
         updated_agent_data['photo_path'] = f"timeframe_{new_timeframe.id}_{new_photo_filename}"
         logging.info(f"Updated photo path: {updated_agent_data['photo_path']}")
 
-        # Append the updated agent data to the updated_agents list
-        updated_agents.append(updated_agent_data)
-        logging.info(f"Added updated agent data to updated_agents: {updated_agent_data}")
+        # Update the agent data directly in new_timeframe.agents_data
+        agent_index = agents_data.index(agent)
+        logging.info(f"Updating agent data for: {agent['id']}")
+        new_timeframe.agents_data[agent_index] = updated_agent_data
+        logging.info(f"Agent data updated for: {agent['id']}")
 
-    logging.info(f"Updated agents list: {updated_agents}")
-    new_timeframe.agents_data = updated_agents
-
-    try:
-        db.session.commit()
-        logging.info("Successfully committed new_timeframe and updated_agents to the database")
-    except Exception as e:
-        db.session.rollback()
-        logging.error(f"Error occurred while committing to the database: {str(e)}")
-        raise e
+    db.session.commit()
+    logging.info("Database session committed after processing agents")
 
     return new_timeframe
 
@@ -499,7 +494,10 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
   }
 
   # DALL-E - Generate profile picture for the new agent
+  # DALL-E - Generate new profile picture
   image_prompt = new_agent_data.get('image_prompt', '')
+  dalle_prompt = f"{image_prompt[:3000]}"
+
   dalle_prompt = f"{image_prompt[:3000]}"
 
   # DALL-E - Generate profile picture

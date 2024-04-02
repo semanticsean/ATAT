@@ -15,7 +15,7 @@ from models import User, Timeframe, Meeting
 import start
 from routes import auth_blueprint, meeting_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint
 from werkzeug.utils import secure_filename
-from flask_wtf import CSRFProtect
+
 
 
 
@@ -34,7 +34,7 @@ def configure_logging():
 
 
 app = Flask(__name__)
-csrf = CSRFProtect(app)
+
 
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY', 'default_secret_key')
 
