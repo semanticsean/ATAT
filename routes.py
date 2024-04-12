@@ -19,8 +19,6 @@ from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from logging.handlers import RotatingFileHandler
 
-
-
 #LOGGING
 
 logging.basicConfig(
@@ -168,45 +166,55 @@ def sanitize_filename(filename):
 @auth_blueprint.route('/add_base_agents', methods=['POST'])
 @login_required
 def add_base_agents():
-    logging.info("Starting to add base agents")
-    try:
-        base_agents_path = os.path.join('agents', 'agents.json')
-        logging.info(f"Reading base agents from {base_agents_path}")
-        with open(base_agents_path, 'r') as file:
-            base_agents_data = json.load(file)
+  logging.info("Starting to add base agents")
+  try:
+    base_agents_path = os.path.join('agents', 'agents.json')
+    logging.info(f"Reading base agents from {base_agents_path}")
+    with open(base_agents_path, 'r') as file:
+      base_agents_data = json.load(file)
 
-        current_user.images_data = {}  # Initialize images_data as an empty dictionary
-        current_user.thumbnail_images_data = {}  # Initialize thumbnail_images_data as an empty dictionary
-        logging.info("Initialized images_data and thumbnail_images_data as empty dictionaries")
+    current_user.images_data = {
+    }  # Initialize images_data as an empty dictionary
+    current_user.thumbnail_images_data = {
+    }  # Initialize thumbnail_images_data as an empty dictionary
+    logging.info(
+        "Initialized images_data and thumbnail_images_data as empty dictionaries"
+    )
 
-        for agent in base_agents_data:
-            photo_filename = os.path.basename(agent['photo_path'])
-            image_path = os.path.join('agents', 'pics', photo_filename)
-            logging.info(f"Processing image {photo_filename}")
+    for agent in base_agents_data:
+      photo_filename = os.path.basename(agent['photo_path'])
+      image_path = os.path.join('agents', 'pics', photo_filename)
+      logging.info(f"Processing image {photo_filename}")
 
-            with open(image_path, 'rb') as image_file:
-                img_data = image_file.read()
-                encoded_string = base64.b64encode(img_data).decode('utf-8')
-            current_user.images_data[photo_filename] = encoded_string
+      with open(image_path, 'rb') as image_file:
+        img_data = image_file.read()
+        encoded_string = base64.b64encode(img_data).decode('utf-8')
+      current_user.images_data[photo_filename] = encoded_string
 
-            # Generate thumbnail image
-            thumbnail_size = (200, 200)
-            img = Image.open(BytesIO(img_data))
-            img.thumbnail(thumbnail_size)
-            thumbnail_buffer = BytesIO()
-            img.save(thumbnail_buffer, format='PNG')
-            thumbnail_data = thumbnail_buffer.getvalue()
-            thumbnail_encoded_string = base64.b64encode(thumbnail_data).decode('utf-8')
-            current_user.thumbnail_images_data[photo_filename + '_thumbnail'] = thumbnail_encoded_string
+      # Generate thumbnail image
+      thumbnail_size = (200, 200)
+      img = Image.open(BytesIO(img_data))
+      img.thumbnail(thumbnail_size)
+      thumbnail_buffer = BytesIO()
+      img.save(thumbnail_buffer, format='PNG')
+      thumbnail_data = thumbnail_buffer.getvalue()
+      thumbnail_encoded_string = base64.b64encode(thumbnail_data).decode(
+          'utf-8')
+      current_user.thumbnail_images_data[
+          photo_filename + '_thumbnail'] = thumbnail_encoded_string
 
-        current_user.agents_data = base_agents_data
-        db.session.commit()
-        logging.info("Successfully added base agents and committed to the database")
+    current_user.agents_data = base_agents_data
+    db.session.commit()
+    logging.info(
+        "Successfully added base agents and committed to the database")
 
-        return redirect(url_for('home'))
-    except Exception as e:
-        logging.error(f"Failed to add base agents due to an exception: {str(e)}", exc_info=True)
-        return jsonify({'success': False, 'error': str(e)})
+    return redirect(url_for('home'))
+  except Exception as e:
+    logging.error(f"Failed to add base agents due to an exception: {str(e)}",
+                  exc_info=True)
+    return jsonify({'success': False, 'error': str(e)})
+
+
 @meeting_blueprint.route('/surveys/<path:survey_id>/pics/<filename>')
 @login_required
 def serve_survey_image(survey_id, filename):
@@ -299,30 +307,30 @@ def meeting_results(meeting_id):
 @dashboard_blueprint.route('/dashboard')
 @login_required
 def dashboard():
-    timeframe_id = request.args.get('timeframe_id')
-    agents_data = []
+  timeframe_id = request.args.get('timeframe_id')
+  agents_data = []
 
-    if timeframe_id:
-        timeframe = Timeframe.query.get(timeframe_id)
-        if timeframe and timeframe.user_id == current_user.id:
-            agents_data = timeframe.agents_data
-        else:
-            abort(404)
+  if timeframe_id:
+    timeframe = Timeframe.query.get(timeframe_id)
+    if timeframe and timeframe.user_id == current_user.id:
+      agents_data = timeframe.agents_data
     else:
-        agents_data = current_user.agents_data or []
-        logger.info("Loaded base agents")
+      abort(404)
+  else:
+    agents_data = current_user.agents_data or []
+    logger.info("Loaded base agents")
 
-    # Fetch the base64-encoded image data for each agent
-    for agent in agents_data:
-        agent['image_data'] = current_user.images_data.get(
-            agent['photo_path'].split('/')[-1], '')
+  # Fetch the base64-encoded image data for each agent
+  for agent in agents_data:
+    agent['image_data'] = current_user.images_data.get(
+        agent['photo_path'].split('/')[-1], '')
 
-    timeframes = current_user.timeframes
-    logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
+  timeframes = current_user.timeframes
+  logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
 
-    return render_template('dashboard.html',
-                           agents=agents_data,
-                           timeframes=timeframes)
+  return render_template('dashboard.html',
+                         agents=agents_data,
+                         timeframes=timeframes)
 
 
 @profile_blueprint.route('/profile')
@@ -734,68 +742,66 @@ def status():
 @auth_blueprint.route('/new_timeframe', methods=['GET', 'POST'])
 @login_required
 def create_timeframe():
-    logging.info("Handling request in create_timeframe route")
-    if request.method == 'POST':
-        logging.info("Inside POST block")
+  logging.info("Handling request in create_timeframe route")
+  if request.method == 'POST':
+    logging.info("Inside POST block")
 
-        if current_user.credits is None or current_user.credits <= 0:
-            logging.info("User has insufficient credits")
-            flash(
-                "You don't have enough credits. Please contact the admin to add more credits."
-            )
-            return redirect(url_for('home'))
+    if current_user.credits is None or current_user.credits <= 0:
+      logging.info("User has insufficient credits")
+      flash(
+          "You don't have enough credits. Please contact the admin to add more credits."
+      )
+      return redirect(url_for('home'))
 
-        selected_agent_ids = request.form.getlist('selected_agents')
-        if not selected_agent_ids:
-            # If no agents are selected, flash a message and redirect back to the same page
-            flash("Please select at least one agent to proceed.", "warning")
-            return redirect(url_for('auth_blueprint.create_timeframe'))
+    selected_agent_ids = request.form.getlist('selected_agents')
+    if not selected_agent_ids:
+      # If no agents are selected, flash a message and redirect back to the same page
+      flash("Please select at least one agent to proceed.", "warning")
+      return redirect(url_for('auth_blueprint.create_timeframe'))
 
-        agents_data = current_user.agents_data
-        selected_agents_data = [
-            agent for agent in agents_data
-            if str(agent['id']) in selected_agent_ids
-        ]
+    agents_data = current_user.agents_data
+    selected_agents_data = [
+        agent for agent in agents_data
+        if str(agent['id']) in selected_agent_ids
+    ]
 
-        form_data = request.form.to_dict()
-        form_data.pop('selected_agents', None)
+    form_data = request.form.to_dict()
+    form_data.pop('selected_agents', None)
 
-        payload = {
-            "agents_data": selected_agents_data,
-            "instructions": form_data,
-            "timeframe_name": form_data["name"]
-        }
+    payload = {
+        "agents_data": selected_agents_data,
+        "instructions": form_data,
+        "timeframe_name": form_data["name"]
+    }
 
-        try:
-            logging.info("Calling process_agents function")
-            new_timeframe = abe_gpt.process_agents(payload, current_user)
-            logging.info(f"New timeframe object received: {new_timeframe}")
-            db.session.add(new_timeframe)
-            db.session.commit()
-            logging.info(f"New timeframe created with ID: {new_timeframe.id}")
+    try:
+        logging.info("Calling process_agents function")
+        new_timeframe = abe_gpt.process_agents(payload, current_user)
+        logging.info(f"New timeframe object received: {new_timeframe}")
 
-            # Redirect to the dashboard for the new timeframe
-            return redirect(url_for('dashboard_blueprint.dashboard', timeframe_id=new_timeframe.id))
+        logging.info(f"New timeframe created with ID: {new_timeframe.id}")
 
-        except Exception as e:
-            db.session.rollback()
-            logging.error(f"Error occurred while processing agents: {str(e)}")
-            flash(f"An error occurred while processing agents: {str(e)}", "error")
-            return redirect(url_for('auth_blueprint.create_timeframe'))
+        # Redirect to the dashboard for the new timeframe
+        return redirect(url_for('dashboard_blueprint.dashboard', timeframe_id=new_timeframe.id))
 
-    else:
-        logger.info('Accessing new timeframe page')
-        base_agents = current_user.agents_data or []
-        timeframes = current_user.timeframes
-
-        logger.info(f'Base agents count: {len(base_agents)}')
-        logger.info(f'Timeframes count: {len(timeframes)}')
-
-        return render_template('new_timeframe.html',
-                               base_agents=base_agents,
-                               timeframes=timeframes)
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error occurred while processing agents: {str(e)}")
+        flash(f"An error occurred while processing agents: {str(e)}", "error")
+        return redirect(url_for('auth_blueprint.create_timeframe'))
 
 
+  else:
+    logger.info('Accessing new timeframe page')
+    base_agents = current_user.agents_data or []
+    timeframes = current_user.timeframes
+
+    logger.info(f'Base agents count: {len(base_agents)}')
+    logger.info(f'Timeframes count: {len(timeframes)}')
+
+    return render_template('new_timeframe.html',
+                           base_agents=base_agents,
+                           timeframes=timeframes)
 
 
 # API KEYS #########
