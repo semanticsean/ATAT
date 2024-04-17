@@ -6,6 +6,7 @@ import base64
 
 from models import db, User, Survey, Timeframe, Meeting
 from abe_gpt import generate_new_agent
+from abe import login_manager
 import email_client
 
 from PIL import Image
@@ -18,6 +19,10 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from logging.handlers import RotatingFileHandler
+
+import time
+from sqlalchemy.exc import OperationalError
+
 
 #LOGGING
 
@@ -307,30 +312,33 @@ def meeting_results(meeting_id):
 @dashboard_blueprint.route('/dashboard')
 @login_required
 def dashboard():
-  timeframe_id = request.args.get('timeframe_id')
-  agents_data = []
+    timeframe_id = request.args.get('timeframe_id')
+    agents_data = []
 
-  if timeframe_id:
-    timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe and timeframe.user_id == current_user.id:
-      agents_data = timeframe.agents_data
+    if timeframe_id:
+        timeframe = Timeframe.query.get(timeframe_id)
+        if timeframe and timeframe.user_id == current_user.id:
+            agents_data = json.loads(timeframe.agents_data)
+        else:
+            abort(404)
     else:
-      abort(404)
-  else:
-    agents_data = current_user.agents_data or []
-    logger.info("Loaded base agents")
+        agents_data = current_user.agents_data or []
+        logger.info("Loaded base agents")
 
-  # Fetch the base64-encoded image data for each agent
-  for agent in agents_data:
-    agent['image_data'] = current_user.images_data.get(
-        agent['photo_path'].split('/')[-1], '')
+    # Fetch the base64-encoded image data for each agent
+    for agent in agents_data:
+        if 'photo_path' in agent:  # Check if 'photo_path' key exists
+            agent['image_data'] = current_user.images_data.get(
+                agent['photo_path'].split('/')[-1], '')
+        else:
+            agent['image_data'] = ''  # Set a default value if 'photo_path' is missing
 
-  timeframes = current_user.timeframes
-  logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
+    timeframes = current_user.timeframes
+    logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
 
-  return render_template('dashboard.html',
-                         agents=agents_data,
-                         timeframes=timeframes)
+    return render_template('dashboard.html',
+                           agents=agents_data,
+                           timeframes=timeframes)
 
 
 @profile_blueprint.route('/profile')
@@ -371,6 +379,24 @@ def load_agents(agents_file_path):
   return agents, agents_file_path
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    max_retries = 3
+    retry_delay = 1
+    retry_count = 0
+
+    while retry_count < max_retries:
+        try:
+            return User.query.get(int(user_id))
+        except OperationalError as e:
+            retry_count += 1
+            if retry_count < max_retries:
+                time.sleep(retry_delay)
+                retry_delay *= 2  # Exponential backoff
+            else:
+                raise e
+
+
 @auth_blueprint.route('/get_main_agents')
 @login_required
 def get_main_agents():
@@ -390,25 +416,26 @@ def get_main_agents():
 @auth_blueprint.route('/get_timeframe_agents')
 @login_required
 def get_timeframe_agents():
-  logger.info(f"Retrieving timeframe agents for user: {current_user.id}")
-  timeframes = current_user.timeframes
-  timeframe_agents = []
+    logger.info(f"Retrieving timeframe agents for user: {current_user.id}")
+    timeframes = current_user.timeframes
+    timeframe_agents = []
 
-  for timeframe in timeframes:
-    logger.debug(f"Processing timeframe: {timeframe.id}")
-    for agent in timeframe.agents_data:
-      photo_filename = agent['photo_path'].split('/')[-1]
-      agent['timeframe_id'] = timeframe.id
-      agent['timeframe_name'] = timeframe.name
-      agent['image_data'] = current_user.images_data.get(
-          f"timeframe_{timeframe.id}_{photo_filename}", '')
-      timeframe_agents.append(agent)
-      logger.debug(f"Added agent: {agent['id']} to timeframe_agents")
+    for timeframe in timeframes:
+        logger.debug(f"Processing timeframe: {timeframe.id}")
+        agents_data = json.loads(timeframe.agents_data)
+        images_data = json.loads(timeframe.images_data)
+        for agent in agents_data:
+            photo_filename = agent['photo_path'].split('/')[-1]
+            agent['timeframe_id'] = timeframe.id
+            agent['timeframe_name'] = timeframe.name
+            agent['image_data'] = images_data.get(photo_filename, '')
+            timeframe_agents.append(agent)
+            logger.debug(f"Added agent: {agent['id']} to timeframe_agents")
 
-  logger.info(
-      f"Retrieved {len(timeframe_agents)} timeframe agents for user: {current_user.id}"
-  )
-  return jsonify(timeframe_agents)
+    logger.info(
+        f"Retrieved {len(timeframe_agents)} timeframe agents for user: {current_user.id}"
+    )
+    return jsonify(timeframe_agents)
 
 
 @meeting_blueprint.route('/meeting/create', methods=['GET', 'POST'])
@@ -803,8 +830,6 @@ def create_timeframe():
                            base_agents=base_agents,
                            timeframes=timeframes)
 
-
-# API KEYS #########
 
 
 @auth_blueprint.route('/users/generate_api_key', methods=['POST'])
