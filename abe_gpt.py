@@ -330,7 +330,7 @@ def conduct_meeting(payload, current_user):
   )
 
   logging.info(f"Agents data: {agents_data[:142]}")
-  logging.info(f"Questions: {questions[:142]}")
+  logging.info(f"Questions: {str(questions)[:142]}")
   logging.info(f"LLM instructions: {llm_instructions_combined[:142]}")
   logging.info(f"Request type: {request_type[:142]}")
 
