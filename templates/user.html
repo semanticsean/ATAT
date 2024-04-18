@@ -26,14 +26,37 @@
     footer {
       height: 4rem;
     }
+    .api-key-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding: 5px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+    }
+
+    .copy-button {
+        background-color: #4CAF50; /* Green */
+        border: none;
+        color: white;
+        padding: 5px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
   </style>
 </head>
 <body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8 mt-18 md:mt-24">
+    <div class="container mx-auto px-4 py-8">
         {% include 'header.html' %}
-        <div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="px-6 py-4 ">
-                <h2 class="text-2xl font-bold mb-4">User Profile</h2>
+        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden mt-16">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold mb-6">User Profile</h2>
                 <form action="{{ url_for('auth_blueprint.update_profile') }}" method="post">
                     <div class="mb-4">
                         <label for="username" class="block text-gray-700 font-bold mb-2">Username:</label>
@@ -43,77 +66,63 @@
                         <label for="email" class="block text-gray-700 font-bold mb-2">Email:</label>
                         <input type="email" id="email" name="email" value="{{ current_user.email or '' }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-6">
                         <label for="password" class="block text-gray-700 font-bold mb-2">New Password:</label>
                         <input type="password" id="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-                    <div class="mb-4">
-                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Update Profile</button>
-                    </div>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Update Profile</button>
                 </form>
                 <div class="mt-8">
                     <p class="text-gray-700 font-bold">Credits: {{ current_user.credits or 0 }}</p>
                 </div>
             </div>
         </div>
-    </div>
-  
-    <div class="mt-8">
-      <h2 class="text-xl font-bold mb-2">API Keys</h2>
-      <form action="{{ url_for('auth_blueprint.generate_api_key') }}" method="post" class="mb-4">
-          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Generate New API Key</button>
-      </form>
-      <button id="showApiKeys" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">View API Keys</button>
-      <div id="apiKeysContainer" class="mt-4"></div>
-    </div>
 
-    <div id="footer-push"></div>
+        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden mt-8 mb-8">
+            <div class="p-6">
+                <h2 class="text-xl font-bold mb-4">API Keys</h2>
+                <form action="{{ url_for('auth_blueprint.generate_api_key') }}" method="post" class="mb-4">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Generate New API Key</button>
+                </form>
+                <div class="api-keys-section">
+                    <h3 class="text-lg font-semibold mb-2">Your API Keys</h3>
+                    <div id="apiKeysContainer" class="space-y-2"></div> <!-- Container to display API keys -->
+                </div>
+            </div>
+        </div>
+    </div>
     {% include 'footer.html' %}
-
-    <!-- Password Verification Modal -->
-    <div id="passwordModal" style="display:none;">
-      <form id="verifyPasswordForm">
-          <label for="password">Enter your password to view API keys:</label>
-          <input type="password" id="password" name="password" required>
-          <button type="submit">Verify</button>
-      </form>
-    </div>
-
     <script>
-      document.getElementById('showApiKeys').onclick = function() {
-          // Display password verification modal
-          document.getElementById('passwordModal').style.display = 'block';
-      };
+        // Fetch and display API keys with copy functionality
+        function fetchApiKeys() {
+            fetch('{{ url_for("auth_blueprint.get_api_keys") }}')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('apiKeysContainer');
+                    container.innerHTML = ''; // Clear previous keys
+                    data.api_keys.forEach(key => {
+                        const keyElement = document.createElement('div');
+                        keyElement.classList.add('flex', 'justify-between', 'items-center', 'p-2', 'bg-gray-100', 'rounded');
 
-      document.getElementById('verifyPasswordForm').onsubmit = function(event) {
-          event.preventDefault();
-          const password = document.getElementById('password').value;
+                        const keyDisplay = document.createElement('span');
+                        keyDisplay.textContent = key.substring(0, 12) + '***';
+                        keyElement.appendChild(keyDisplay);
 
-          // Perform AJAX POST request to verify password
-          fetch('{{ url_for("auth_blueprint.verify_password") }}', {
-              method: 'POST',
-              body: JSON.stringify({ 'password': password }),
-              headers: {
-                  'Content-Type': 'application/json'
-              }
-          }).then(response => response.json()).then(data => {
-              if(data.success) {
-                  // Display API keys
-                  const keysContainer = document.getElementById('apiKeysContainer');
-                  keysContainer.innerHTML = ''; // Clear previous contents
-                  data.api_keys.forEach(key => {
-                      const div = document.createElement('div');
-                      div.textContent = key;
-                      keysContainer.appendChild(div);
-                  });
-                  // Hide the password modal
-                  document.getElementById('passwordModal').style.display = 'none';
-              } else {
-                  alert(data.message); // Notify user of incorrect password
-              }
-          }).catch(error => console.error('Error:', error));
-      };
+                        const copyButton = document.createElement('button');
+                        copyButton.textContent = 'Copy';
+                        copyButton.classList.add('copy-button', 'bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-1', 'px-4', 'rounded');
+                        copyButton.onclick = function() {
+                            navigator.clipboard.writeText(key);
+                            alert('API Key copied to clipboard!');
+                        };
+                        keyElement.appendChild(copyButton);
+
+                        container.appendChild(keyElement);
+                    });
+                })
+                .catch(error => console.error('Error loading API keys:', error));
+        }
+        document.addEventListener('DOMContentLoaded', fetchApiKeys);
     </script>
-
-    </body>
-    </html>
+</body>
+</html>
