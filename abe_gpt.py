@@ -16,9 +16,6 @@ from io import BytesIO
 client = OpenAI()
 openai_api_key = os.environ['OPENAI_API_KEY']
 
-
-# abe_gpt.py
-
 def process_agents(payload, current_user):
     """
     Process agents based on the provided payload and update their data using OpenAI APIs.
@@ -120,10 +117,10 @@ def process_agents(payload, current_user):
 
         # Vision API - Get detailed description of profile picture
         photo_filename = updated_agent_data['photo_path'].split('/')[-1]
-        image_data = current_user.images_data.get(photo_filename) if current_user.images_data else None
-
+        image_data = json.loads(new_timeframe.images_data).get(photo_filename) if new_timeframe.images_data else None
+        
         logging.info(f"Current credit balance after API call: {current_user.credits}")
-
+        
         vision_description = ""
         if image_data:
             vision_payload = {
@@ -141,7 +138,7 @@ def process_agents(payload, current_user):
                     }]
                 }],
             }
-
+        
             # Vision API - Get detailed description of profile picture
             max_retries = 12
             retry_delay = 5
@@ -151,10 +148,10 @@ def process_agents(payload, current_user):
                     if current_user.credits is None or current_user.credits < 10:
                         raise Exception("Insufficient credits, please add more")
                     vision_response = client.chat.completions.create(**vision_payload)
-
+        
                     # Deduct credits based on the API call
                     credits_used = 10  # Deduct 10 credits for image calls
-
+        
                     current_user.credits -= credits_used
                     db.session.commit()
                     break
@@ -166,10 +163,10 @@ def process_agents(payload, current_user):
                         retry_delay *= 2
                     else:
                         raise e
-
+        
             vision_description = vision_response.choices[0].message.content.strip()
             logging.info(f"Vision API response: {vision_description[:142]}")
-
+        
             # Store vision description in agent JSON
             updated_agent_data["vision_description_image_prompt"] = vision_description
         else:
@@ -249,9 +246,9 @@ def process_agents(payload, current_user):
                 img_data = requests.get(image_url).content
                 encoded_string = base64.b64encode(img_data).decode('utf-8')
                 new_timeframe_images_data = json.loads(new_timeframe.images_data)
-                new_timeframe_images_data[f"timeframe_{new_timeframe.id}_{new_photo_filename}"] = encoded_string
+                new_timeframe_images_data[new_photo_filename] = encoded_string
                 new_timeframe.images_data = json.dumps(new_timeframe_images_data)
-
+            
                 # Generate thumbnail image
                 thumbnail_size = (200, 200)
                 img = Image.open(BytesIO(img_data))
@@ -261,14 +258,13 @@ def process_agents(payload, current_user):
                 thumbnail_data = thumbnail_buffer.getvalue()
                 thumbnail_encoded_string = base64.b64encode(thumbnail_data).decode('utf-8')
                 new_timeframe_thumbnail_images_data = json.loads(new_timeframe.thumbnail_images_data)
-                new_timeframe_thumbnail_images_data[f"timeframe_{new_timeframe.id}_{new_photo_filename}"] = thumbnail_encoded_string
+                new_timeframe_thumbnail_images_data[new_photo_filename] = thumbnail_encoded_string
                 new_timeframe.thumbnail_images_data = json.dumps(new_timeframe_thumbnail_images_data)
-
+            
                 db.session.commit()
             except Exception as e:
                 logging.error(f"Error occurred while saving image data: {e}")
                 raise e
-
             updated_agent_data['photo_path'] = f"timeframe_{new_timeframe.id}_{new_photo_filename}"
             logging.info(f"Updated photo path: {updated_agent_data['photo_path']}")
 
