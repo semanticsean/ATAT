@@ -22,6 +22,7 @@
     }
     .agent-item.selected {
       background-color: #d3e1ff;
+      border: 2px solid #3b82f6;
     }
     .agent-item:hover {
       background-color: #e9f0ff;
@@ -32,14 +33,13 @@
   {% include 'header.html' %}
   <main class="flex-grow">
     <div class="container mx-auto px-4 py-8 mt-12">
-      <div id="loading" style="display: none;">Loading...</div>
       <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
         <h1 class="text-2xl font-bold mb-2">Make a Meeting</h1>
         <h2 class="italic">1 credit per question or discussion point per synth.</h2>
         <form id="meetingForm" action="{{ url_for('meeting_blueprint.create_meeting') }}" method="post">
           <div class="mb-4">
             <label for="meeting_name" class="block text-xl font-bold mb-2 mt-4">Meeting Name:</label>
-            <input type="text" id="meeting_name" name="meeting_name" required class="w-full px-3 py-2 text-xl font-bold mb-2 border rounded-lg focus:outline-none">
+            <input type="text" id="meeting_name" name="meeting_name" required class="w-full px-3 py-2 text-xl font-bold mb-2 border rounded-lg focus:outline-none" value="Meeting {{ next_meeting_id }}">
           </div>
           <div class="mb-8">
             <h2 class="text-xl font-bold mb-2">Select Synths</h2>
@@ -49,16 +49,16 @@
                 <option value="main_agents">Main Agents</option>
                 <!-- Dynamically loaded options for timeframes -->
                 {% for timeframe in timeframes %}
-                  <option value="{{ timeframe.id }}">{{ timeframe.name }}</option>
+                  <option value="timeframe_{{ timeframe.id }}">{{ timeframe.name }}</option>
                 {% endfor %}
               </select>
             </div>
             <div id="agent-list" class="flex flex-wrap justify-between">
-              <!-- Agents will be dynamically inserted here -->
+              <div id="loading" class="text-center w-full">Loading...</div>
             </div>
             <div class="flex justify-between mt-4">
-              <button type="button" id="select-all" class="px-4 py-2 text-sm md:px-6 md:py-3 bg-gray-400 text-white rounded-lg hover:bg-green-600">Select All</button>
-              <button type="button" id="clear-all" class="px-2 py-1 text-sm md:px-2 md:py-1 bg-gray-200 text-white rounded-lg hover:bg-red-600">Clear All</button>
+              <button type="button" id="select-all" class="px-4 py-2 text-sm md:px-6 md:py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Select All</button>
+              <button type="button" id="clear-all" class="px-2 py-1 text-sm md:px-2 md:py-1 bg-red-500 text-white rounded-lg hover:bg-red-600">Clear All</button>
             </div>
           </div>
           <input type="hidden" id="selected_agents" name="selected_agents" value="">
@@ -80,13 +80,13 @@
 
       function loadAgents(agentSource) {
         $('#loading').show();
-        var endpoint = agentSource === 'main_agents' ? '{{ url_for("auth_blueprint.get_main_agents") }}' : '{{ url_for("auth_blueprint.get_timeframe_agents", timeframe_id=agentSource) }}';
-        
+        var endpoint = agentSource === 'main_agents' ? '{{ url_for("auth_blueprint.get_main_agents") }}' : '{{ url_for("auth_blueprint.get_timeframe_agents") }}?timeframe_id=' + agentSource.split('_')[1];
+
         $.getJSON(endpoint, function(data) {
           $('#agent-list').empty();
           data.forEach(function(agent) {
             var agentHTML = `<div class="agent-item bg-white shadow-md rounded-lg p-4 mb-4 flex items-center space-x-4" data-agent-id="${agent.id}">
-              <img src="${agent.photo_path || '/static/default_avatar.png'}" alt="${agent.id}" class="w-16 h-16 rounded-full">
+              <img src="data:image/png;base64,${agent.image_data}" alt="${agent.id}" class="w-16 h-16 rounded-full">
               <div class="flex-grow">
                 <h3 class="text-lg font-bold">${agent.id}</h3>
                 <p>${agent.jobtitle}</p>
@@ -102,6 +102,32 @@
       }
 
       loadAgents('main_agents'); // Load Main Agents by default
+
+      $('#agent-list').on('click', '.agent-item', function() {
+        var agentId = $(this).data('agent-id');
+        var index = selectedAgents.indexOf(agentId);
+        if (index > -1) {
+          selectedAgents.splice(index, 1);
+          $(this).removeClass('selected');
+        } else {
+          selectedAgents.push(agentId);
+          $(this).addClass('selected');
+        }
+      });
+
+      $('#select-all').on('click', function() {
+        selectedAgents = [];
+        $('.agent-item').each(function() {
+          var agentId = $(this).data('agent-id');
+          selectedAgents.push(agentId);
+          $(this).addClass('selected');
+        });
+      });
+
+      $('#clear-all').on('click', function() {
+        selectedAgents = [];
+        $('.agent-item').removeClass('selected');
+      });
 
       $('#meetingForm').on('submit', function() {
         $('#selected_agents').val(selectedAgents.join(','));

@@ -27,19 +27,21 @@
     {% if agents %}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for agent in agents %}
-          <div class="bg-white rounded-lg shadow-md">
-            <div class="p-4">
-              <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, timeframe_id=request.args.get('timeframe_id')) }}" class="no-underline text-black">
-                <h2 class="text-xl font-bold mb-2">{{ agent.id }}</h2>
-                {% if agent.get('image_data') %}
-                  <img src="data:image/png;base64,{{ agent.image_data }}" alt="{{ agent.id }}" class="w-full h-48 object-cover mb-4">
-                {% else %}
-                  <div class="w-full h-48 bg-gray-200 mb-4"></div>
-                {% endif %}
-              </a>
-              <p class="text-gray-700">{{ agent.summary }}</p>
+          {% if agent.id %}
+            <div class="bg-white rounded-lg shadow-md">
+              <div class="p-4">
+                <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, timeframe_id=request.args.get('timeframe_id')) }}" class="no-underline text-black">
+                  <h2 class="text-xl font-bold mb-2">{{ agent.id }}</h2>
+                  {% if agent.get('image_data') %}
+                    <img src="data:image/png;base64,{{ agent.image_data }}" alt="{{ agent.id }}" class="w-full h-48 object-cover mb-4">
+                  {% else %}
+                    <div class="w-full h-48 bg-gray-200 mb-4"></div>
+                  {% endif %}
+                </a>
+                <p class="text-gray-700">{{ agent.summary }}</p>
+              </div>
             </div>
-          </div>
+          {% endif %}
         {% endfor %}
       </div>
     {% else %}
