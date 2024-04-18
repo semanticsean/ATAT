@@ -276,38 +276,39 @@ def meeting_form(meeting_id):
                            agents=agents_data)
 
 
-@meeting_blueprint.route('/meeting/<int:meeting_id>/results',
-                         methods=['GET', 'POST'])
+@meeting_blueprint.route('/meeting/<int:meeting_id>/results', methods=['GET', 'POST'])
 @login_required
 def meeting_results(meeting_id):
-  meeting = Meeting.query.get_or_404(meeting_id)
-  if meeting.user_id != current_user.id:
-    abort(403)
+    meeting = Meeting.query.get_or_404(meeting_id)
+    if meeting.user_id != current_user.id:
+        abort(403)
 
-  if request.method == 'POST':
-    is_public = request.form.get('is_public') == 'on'
-    meeting.is_public = is_public
+    if request.method == 'POST':
+        is_public = request.form.get('is_public') == 'on'
+        meeting.is_public = is_public
 
-    if is_public and not meeting.public_url:
-      meeting.public_url = str(uuid.uuid4())
-    elif not is_public:
-      meeting.public_url = None
+        if is_public and not meeting.public_url:
+            # Generate a unique public URL if it doesn't exist
+            meeting.public_url = str(uuid.uuid4())
+        elif not is_public:
+            # Clear the public URL if the meeting is not public
+            meeting.public_url = None
 
-    db.session.commit()
+        db.session.commit()
 
-  prev_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
-                                      Meeting.id < meeting.id).order_by(
-                                          Meeting.id.desc()).first()
-  next_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
-                                      Meeting.id > meeting.id).order_by(
-                                          Meeting.id).first()
+    prev_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
+                                        Meeting.id < meeting.id).order_by(
+                                            Meeting.id.desc()).first()
+    next_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
+                                        Meeting.id > meeting.id).order_by(
+                                            Meeting.id).first()
 
-  return render_template('results.html',
-                         meeting=meeting,
-                         is_public=meeting.is_public,
-                         prev_meeting=prev_meeting,
-                         next_meeting=next_meeting)
-
+    return render_template('results.html',
+                           meeting=meeting,
+                           is_public=meeting.is_public,
+                           prev_meeting=prev_meeting,
+                           next_meeting=next_meeting)
+      
 
 @dashboard_blueprint.route('/dashboard')
 @login_required
@@ -582,33 +583,32 @@ def extract_questions_from_form(form_data):
 
 @meeting_blueprint.route('/public/meeting/<public_url>')
 def public_meeting_results(public_url):
-  meeting = Meeting.query.filter_by(public_url=public_url).first()
+    meeting = Meeting.query.filter_by(public_url=public_url).first()
 
-  if not meeting or not meeting.is_public:
-    abort(404)
+    if not meeting or not meeting.is_public:
+        abort(404)
 
-  return render_template('public_results.html', meeting=meeting)
+    return render_template('public_results.html', meeting=meeting)
 
 
 @meeting_blueprint.route('/public/meeting/<public_url>/data')
 def public_meeting_data(public_url):
-  meeting = Meeting.query.filter_by(public_url=public_url).first()
+    meeting = Meeting.query.filter_by(public_url=public_url).first()
 
-  if not meeting or not meeting.is_public:
-    abort(404)
+    if not meeting or not meeting.is_public:
+        abort(404)
 
-  meeting_data = {
-      'name': meeting.name,
-      'agents': meeting.agents,
-      'questions': meeting.questions,
-      'answers': meeting.answers
-  }
+    meeting_data = {
+        'name': meeting.name,
+        'agents': meeting.agents,
+        'questions': meeting.questions,
+        'answers': meeting.answers
+    }
 
-  for agent in meeting_data['agents']:
-    agent['photo_path'] = url_for('serve_image',
-                                  filename=agent['photo_path'].split('/')[-1])
+    for agent in meeting_data['agents']:
+        agent['photo_path'] = url_for('serve_image', filename=agent['photo_path'].split('/')[-1])
 
-  return jsonify(meeting_data)
+    return jsonify(meeting_data)
 
 
 @meeting_blueprint.route('/public/survey/<public_url>/data')
@@ -838,15 +838,24 @@ def create_timeframe():
                            timeframes=timeframes)
 
 
-
+# Route to generate an API key and automatically fetch all keys
 @auth_blueprint.route('/users/generate_api_key', methods=['POST'])
 @login_required
 def generate_api_key():
-  # Generate and return API key
-  token = current_user.generate_api_key()
-  db.session.commit()
-  flash('API Key generated successfully!', 'success')
-  return redirect(url_for('auth_blueprint.update_profile'))
+    token = current_user.generate_api_key()
+    if token:
+        db.session.commit()
+        flash('API Key generated successfully!', 'success')
+    else:
+        flash('Failed to generate API Key.', 'error')
+    return redirect(url_for('auth_blueprint.user_profile'))
+
+# Route to get all API keys for the current user
+@auth_blueprint.route('/users/api_keys', methods=['GET'])
+@login_required
+def get_api_keys():
+    api_keys = [api_key.key for api_key in current_user.api_keys]
+    return jsonify(api_keys=api_keys)
 
 
 @auth_blueprint.route('/users/verify_password', methods=['POST'])

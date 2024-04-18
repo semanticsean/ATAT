@@ -1,9 +1,12 @@
 import os
+import datetime
+import random
 from extensions import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous.url_safe import URLSafeSerializer as Serializer
 from flask import current_app
+
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -25,11 +28,20 @@ class User(db.Model, UserMixin):
         return folder_path
 
     def generate_api_key(self, expiration=None):
-        s = Serializer(current_app.config['SECRET_KEY'])
-        token = s.dumps({'user_id': self.id}).decode('utf-8')
-        new_key = APIKey(key=token, owner=self)
-        db.session.add(new_key)
-        return token
+      s = Serializer(current_app.config['SECRET_KEY'])
+      random_data = random.randint(1000, 9999)  # Random number for uniqueness
+      timestamp = datetime.datetime.utcnow().isoformat()  # Current timestamp
+      payload = {'user_id': self.id, 'timestamp': timestamp, 'rnd': random_data}
+      token = s.dumps(payload)  # No decoding needed
+      new_key = APIKey(key=token, owner=self)
+      try:
+          db.session.add(new_key)
+          db.session.commit()
+          return token
+      except Exception as e:
+          db.session.rollback()  # Rollback if there's an issue, such as a non-unique key
+          return None
+  
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

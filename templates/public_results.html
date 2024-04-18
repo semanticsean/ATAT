@@ -84,15 +84,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
-  </head>
-  </head>
-
- <body class="bg-gray-100">
-  {% include 'header.html' %}
-  <div class="container mx-auto py-8">
-    <h1 class="text-3xl font-bold mb-4">{{ meeting.name }}</h1>
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-      <div class="px-4 py-5 sm:p-6">
+        </head>
+        <body class="bg-gray-100">
+          {% include 'header.html' %}
+          <div class="container mx-auto py-8">
+            <h1 class="text-3xl font-bold mb-4">{{ meeting.name }}</h1>
+            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+              <div class="px-4 py-5 sm:p-6">
         <h2 class="text-xl font-semibold mb-4">Questions:</h2>
         <ul class="mb-8">
           {% for question_id, question_data in meeting.questions.items() %}
