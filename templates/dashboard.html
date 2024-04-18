@@ -33,7 +33,7 @@
                 <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, timeframe_id=request.args.get('timeframe_id')) }}" class="no-underline text-black">
                   <h2 class="text-xl font-bold mb-2">{{ agent.id }}</h2>
                   {% if agent.get('image_data') %}
-                    <img src="data:image/png;base64,{{ agent.image_data }}" alt="{{ agent.id }}" class="w-full h-48 object-cover mb-4">
+                    <img src="data:image/png;base64,{{ agent.image_data }}" alt="{{ agent.id }}" class="w-full h-72 object-cover mb-4">
                   {% else %}
                     <div class="w-full h-48 bg-gray-200 mb-4"></div>
                   {% endif %}
@@ -47,9 +47,11 @@
     {% else %}
       <p class="text-gray-500">No agents found.</p>
     {% endif %}
+
+    <div id="footer-push"></div>
+    {% include 'footer.html' %}
   </main>
 
-  {% include 'footer.html' %}
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -404,46 +404,36 @@ def load_user(user_id):
             else:
                 raise e
 
-
-@auth_blueprint.route('/get_main_agents')
+@auth_blueprint.route('/get_main_agents', methods=['GET'])
 @login_required
 def get_main_agents():
-  logger.info(f"Retrieving main agents for user: {current_user.id}")
-  main_agents = current_user.agents_data or []
-  for agent in main_agents:
-    photo_path = agent['photo_path'].split('/')[-1]
-    logger.debug(
-        f"Retrieving image data for agent: {agent['id']}, photo_path: {photo_path}"
-    )
-    agent['image_data'] = current_user.images_data.get(photo_path, '')
-  logger.info(
-      f"Retrieved {len(main_agents)} main agents for user: {current_user.id}")
-  return jsonify(main_agents)
+    logger.info(f"Retrieving main agents for user: {current_user.id}")
+    main_agents = current_user.agents_data or []
+    for agent in main_agents:
+        photo_path = agent['photo_path'].split('/')[-1]
+        agent['image_data'] = current_user.images_data.get(photo_path, '')
+    logger.info(f"Retrieved {len(main_agents)} main agents for user: {current_user.id}")
+    return jsonify(main_agents)
 
 
 @auth_blueprint.route('/get_timeframe_agents')
 @login_required
 def get_timeframe_agents():
-    logger.info(f"Retrieving timeframe agents for user: {current_user.id}")
-    timeframes = current_user.timeframes
-    timeframe_agents = []
+    timeframe_id = request.args.get('timeframe_id')
+    if not timeframe_id:
+        return jsonify({'error': 'Timeframe ID is required'}), 400
+    
+    timeframe = Timeframe.query.get(timeframe_id)
+    if not timeframe:
+        return jsonify({'error': 'Timeframe not found'}), 404
+    
+    agents_data = json.loads(timeframe.agents_data)
+    for agent in agents_data:
+        photo_path = agent['photo_path'].split('/')[-1]
+        agent['image_data'] = current_user.images_data.get(photo_path, '')
+    
+    return jsonify(agents_data)
 
-    for timeframe in timeframes:
-        logger.debug(f"Processing timeframe: {timeframe.id}")
-        agents_data = json.loads(timeframe.agents_data)
-        images_data = json.loads(timeframe.images_data)
-        for agent in agents_data:
-            photo_filename = agent['photo_path'].split('/')[-1]
-            agent['timeframe_id'] = timeframe.id
-            agent['timeframe_name'] = timeframe.name
-            agent['image_data'] = images_data.get(photo_filename, '')
-            timeframe_agents.append(agent)
-            logger.debug(f"Added agent: {agent['id']} to timeframe_agents")
-
-    logger.info(
-        f"Retrieved {len(timeframe_agents)} timeframe agents for user: {current_user.id}"
-    )
-    return jsonify(timeframe_agents)
 
 
 @meeting_blueprint.route('/meeting/create', methods=['GET', 'POST'])
