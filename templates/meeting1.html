@@ -4,17 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create Meeting</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <style>
     html, body {
       height: 100%;
       margin: 0;
     }
-    #content {
-      min-height: 100%;
-      margin-bottom: -4rem;
-    }
     #footer-push {
-      height: 16rem;
+      height: 4rem;
     }
     footer {
       height: 4rem;
@@ -29,8 +27,6 @@
       background-color: #e9f0ff;
     }
   </style>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-blue-50 h-full">
   {% include 'header.html' %}
@@ -43,8 +39,7 @@
         <form id="meetingForm" action="{{ url_for('meeting_blueprint.create_meeting') }}" method="post">
           <div class="mb-4">
             <label for="meeting_name" class="block text-xl font-bold mb-2 mt-4">Meeting Name:</label>
-            <input type="hidden" id="selected_agents" name="selected_agents" value="">
-            <input type="text" id="meeting_name" name="meeting_name" value="default_name" required class="w-full px-3 py-text-xl font-bold mb-2 border rounded-lg focus:outline-none">
+            <input type="text" id="meeting_name" name="meeting_name" required class="w-full px-3 py-2 text-xl font-bold mb-2 border rounded-lg focus:outline-none">
           </div>
           <div class="mb-8">
             <h2 class="text-xl font-bold mb-2">Select Synths</h2>
@@ -52,14 +47,18 @@
               <label for="agent_source" class="block text-gray-700 font-bold mb-2">Agent Source:</label>
               <select id="agent_source" name="agent_source" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
                 <option value="main_agents">Main Agents</option>
-                <option value="timeframes">Timeframes</option>
+                <!-- Dynamically loaded options for timeframes -->
+                {% for timeframe in timeframes %}
+                  <option value="{{ timeframe.id }}">{{ timeframe.name }}</option>
+                {% endfor %}
               </select>
             </div>
-            <div id="agent-list">
-              <div class="mb-4 flex justify-between">
-                <button type="button" id="select-all" class="px-4 py-2 text-sm md:px-6 md:py-3 bg-gray-400 text-white rounded-lg hover:bg-green-600">Select All</button>
-                <button type="button" id="clear-all" class="px-2 py-1 text-sm md:px-2 md:py-1 bg-gray-200 text-white rounded-lg hover:bg-red-600">Clear All</button>
-              </div>
+            <div id="agent-list" class="flex flex-wrap justify-between">
+              <!-- Agents will be dynamically inserted here -->
+            </div>
+            <div class="flex justify-between mt-4">
+              <button type="button" id="select-all" class="px-4 py-2 text-sm md:px-6 md:py-3 bg-gray-400 text-white rounded-lg hover:bg-green-600">Select All</button>
+              <button type="button" id="clear-all" class="px-2 py-1 text-sm md:px-2 md:py-1 bg-gray-200 text-white rounded-lg hover:bg-red-600">Clear All</button>
             </div>
           </div>
           <input type="hidden" id="selected_agents" name="selected_agents" value="">
@@ -72,110 +71,39 @@
   {% include 'footer.html' %}
   <script>
     $(document).ready(function() {
-      console.log("Document ready. Initializing event handlers...");
       var selectedAgents = [];
 
-      // Event handler for agent source selection
       $('#agent_source').change(function() {
         var agentSource = $(this).val();
         loadAgents(agentSource);
       });
 
-      // Event handler for "Select All" button
-      $(document).on('click', '#select-all', function() {
-        console.log("'Select All' button clicked. Selecting all agents.");
-        $('.agent-item').each(function() {
-          var agentId = $(this).data('agent-id');
-          $(this).addClass('selected');
-          addAgentToSelection(agentId);
-        });
-      });
-
-      // Event handler for "Clear All" button
-      $(document).on('click', '#clear-all', function() {
-        console.log("'Clear All' button clicked. Clearing all agent selections.");
-        $('.agent-item').each(function() {
-          var agentId = $(this).data('agent-id');
-          $(this).removeClass('selected');
-          removeAgentFromSelection(agentId);
-        });
-      });
-
-      // Event handler for individual agent item clicks
-      $(document).on('click', '.agent-item', function(e) {
-        e.preventDefault();
-        if (e.target !== $(this).find('input[type="checkbox"]')[0]) {
-          var agentId = $(this).data('agent-id');
-
-          $(this).toggleClass('selected');
-          if ($(this).hasClass('selected')) {
-            addAgentToSelection(agentId);
-          } else {
-            removeAgentFromSelection(agentId);
-          }
-        }
-      });
-
-      // Adds an agent ID to the selection array
-      function addAgentToSelection(agentId) {
-        if (!selectedAgents.includes(agentId)) {
-          selectedAgents.push(agentId);
-          console.log(`Agent ${agentId} added to selection.`);
-        }
-      }
-
-      // Removes an agent ID from the selection array
-      function removeAgentFromSelection(agentId) {
-        const index = selectedAgents.indexOf(agentId);
-        if (index > -1) {
-          selectedAgents.splice(index, 1);
-          console.log(`Agent ${agentId} removed from selection.`);
-        }
-      }
-
-      // Load agents based on the selected agent source
-      // Load agents based on the selected agent source
       function loadAgents(agentSource) {
-        console.log("Loading agents for source: ", agentSource);
-        var endpoint;
-
-        if (agentSource === 'main_agents') {
-          endpoint = '{{ url_for("auth_blueprint.get_main_agents") }}';
-        } else if (agentSource === 'timeframes') {
-          endpoint = '{{ url_for("auth_blueprint.get_timeframe_agents") }}';
-        }
-
-        console.log("Endpoint for loading agents: ", endpoint);
+        $('#loading').show();
+        var endpoint = agentSource === 'main_agents' ? '{{ url_for("auth_blueprint.get_main_agents") }}' : '{{ url_for("auth_blueprint.get_timeframe_agents", timeframe_id=agentSource) }}';
+        
         $.getJSON(endpoint, function(data) {
-          console.log("Received agent data: ", data);
-          var agentList = $('#agent-list');
-          agentList.empty();
+          $('#agent-list').empty();
           data.forEach(function(agent) {
-            var photoPath = `/${agent.photo_path}`;
-            var agentItem = `
-              <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="${agent.id}">
-                <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden">
-                <img src="{{ custom_image_filter('${agent.photo_path}', '28x28') }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
-                
-                <label for="agent-${agent.id}" class="text-gray-700 text-sm md:text-md">
-                  <div class="text-lg md:text-xl font-bold mb-2">${agent.id}</div>
-                  <div class="mb-2">${agent.jobtitle}</div>
-                  <div class="mb-2">${agent.summary}</div>
-                </label>
+            var agentHTML = `<div class="agent-item bg-white shadow-md rounded-lg p-4 mb-4 flex items-center space-x-4" data-agent-id="${agent.id}">
+              <img src="${agent.photo_path || '/static/default_avatar.png'}" alt="${agent.id}" class="w-16 h-16 rounded-full">
+              <div class="flex-grow">
+                <h3 class="text-lg font-bold">${agent.id}</h3>
+                <p>${agent.jobtitle}</p>
               </div>
-            `;
-            agentList.append(agentItem);
+            </div>`;
+            $('#agent-list').append(agentHTML);
           });
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-          console.error("Failed to load agents: " + textStatus + ", " + errorThrown);
+          $('#loading').hide();
+        }).fail(function() {
+          $('#loading').hide();
+          alert('Failed to load agents. Please try again.');
         });
       }
 
-      // Load Main Agents by default
-      loadAgents('main_agents');
+      loadAgents('main_agents'); // Load Main Agents by default
 
-      // Update the form submission event listener
-      $('form').on('submit', function(e) {
+      $('#meetingForm').on('submit', function() {
         $('#selected_agents').val(selectedAgents.join(','));
       });
     });
