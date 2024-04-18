@@ -1,65 +1,70 @@
 <!-- templates/dashboard.html -->
+
 <!doctype html>
 <html lang="en" class="h-full">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 h-full">
-  {% include 'header.html' %}
-  <main class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-4">Dashboard</h1>
-    {% if timeframes %}
-      <div class="mb-4">
-        <label for="timeframe" class="block text-sm font-medium text-gray-700">Select Timeframe:</label>
-        <select id="timeframe" name="timeframe" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-          <option value="">Main Agents</option>
-          {% for timeframe in timeframes %}
-            <option value="{{ timeframe.id }}" {% if timeframe.id == request.args.get('timeframe_id')|int %}selected{% endif %}>{{ timeframe.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    {% endif %}
-    {% if agents %}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {% for agent in agents %}
-          <div class="bg-white rounded-lg shadow-md">
-            <div class="p-4">
-              <h2 class="text-xl font-bold mb-2">{{ agent.id }}</h2>
-              {% if agent.photo_path %}
-                {% set thumbnail_key = agent.photo_path.split('/')[-1] + '_thumbnail' %}
-                {% if thumbnail_key in current_user.thumbnail_images_data %}
-                  <img src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}" alt="{{ agent.id }}" class="w-full h-48 object-cover mb-4">
-                {% else %}
-                  <div class="w-full h-48 bg-gray-200 mb-4"></div>
-                {% endif %}
-              {% else %}
-                <div class="w-full h-48 bg-gray-200 mb-4"></div>
-              {% endif %}
-              <p class="text-gray-700">{{ agent.summary }}</p>
+    {% include 'header.html' %}
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-4">Dashboard</h1>
+        {% if timeframes %}
+            <div class="mb-4">
+                <label for="timeframe" class="block text-sm font-medium text-gray-700">Select Timeframe:</label>
+                <select id="timeframe" name="timeframe" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <option value="">Main Agents</option>
+                    {% for timeframe in timeframes %}
+                        <option value="{{ timeframe.id }}" {% if timeframe.id == request.args.get('timeframe_id')|int %}selected{% endif %}>{{ timeframe.name }}</option>
+                    {% endfor %}
+                </select>
             </div>
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <p class="text-gray-500">No agents found.</p>
-    {% endif %}
-  </main>
-  {% include 'footer.html' %}
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const timeframeSelect = document.getElementById('timeframe');
-      timeframeSelect.addEventListener('change', function() {
-        const selectedTimeframeId = this.value;
-        if (selectedTimeframeId) {
-          window.location.href = "{{ url_for('dashboard_blueprint.dashboard') }}?timeframe_id=" + selectedTimeframeId;
-        } else {
-          window.location.href = "{{ url_for('dashboard_blueprint.dashboard') }}";
-        }
-      });
-    });
-  </script>
+        {% endif %}
+        {% if agents %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for agent in agents %}
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="p-4">
+                            <h2 class="text-xl font-bold mb-2">{{ agent.id }}</h2>
+                            {% if agent.get('photo_path') %}
+                                {% set thumbnail_key = agent['photo_path'].split('/')[-1] + '_thumbnail' %}
+                                {% if thumbnail_key in current_user.thumbnail_images_data %}
+                          {% if agent.get('image_data') %}
+                          <img src="data:image/png;base64,{{ agent.image_data }}" alt="{{ agent.id }}" class="w-full h-48 object-cover mb-4">
+                          {% else %}
+                          <div class="w-full h-48 bg-gray-200 mb-4"></div>
+                          {% endif %}
+                                {% else %}
+                                    <div class="w-full h-48 bg-gray-200 mb-4"></div>
+                                {% endif %}
+                            {% else %}
+                                <div class="w-full h-48 bg-gray-200 mb-4"></div>
+                            {% endif %}
+                            <p class="text-gray-700">{{ agent.summary }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500">No agents found.</p>
+        {% endif %}
+    </main
+    {% include 'footer.html' %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeframeSelect = document.getElementById('timeframe');
+            timeframeSelect.addEventListener('change', function() {
+                const selectedTimeframeId = this.value;
+                if (selectedTimeframeId) {
+                    window.location.href = "{{ url_for('dashboard_blueprint.dashboard') }}?timeframe_id=" + selectedTimeframeId;
+                } else {
+                    window.location.href = "{{ url_for('dashboard_blueprint.dashboard') }}";
+                }
+            });
+        });
+    </script>
 </body>
 </html>
