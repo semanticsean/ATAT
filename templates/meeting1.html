@@ -1,3 +1,4 @@
+<!-- templates/meeting1.html --> 
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -12,7 +13,7 @@
       margin: 0;
     }
     #footer-push {
-      height: 4rem;
+      height: 12rem;
     }
     footer {
       height: 4rem;
@@ -53,7 +54,7 @@
                 {% endfor %}
               </select>
             </div>
-            <div id="agent-list" class="flex flex-wrap justify-between">
+            <div id="agent-list" class="grid grid-cols-1 gap-4">
               <div id="loading" class="text-center w-full">Loading...</div>
             </div>
             <div class="flex justify-between mt-4">
@@ -62,7 +63,7 @@
             </div>
           </div>
           <input type="hidden" id="selected_agents" name="selected_agents" value="">
-          <button type="submit" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-600">Next Step</button>
+          <button type="submit" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">Next Step</button>
         </form>
       </div>
     </div>
@@ -73,35 +74,47 @@
     $(document).ready(function() {
       var selectedAgents = [];
 
-      $('#agent_source').change(function() {
-        var agentSource = $(this).val();
-        loadAgents(agentSource);
-      });
+          $('#agent_source').change(function() {
+              var source = $(this).val();
+              if (source.startsWith('timeframe_')) {
+                  var timeframeId = source.split('_')[1];
+                  loadAgents('get_timeframe_agents?timeframe_id=' + timeframeId);
+              } else {
+                  loadAgents('get_main_agents');
+              }
+          });
 
       function loadAgents(agentSource) {
-        $('#loading').show();
-        var endpoint = agentSource === 'main_agents' ? '{{ url_for("auth_blueprint.get_main_agents") }}' : '{{ url_for("auth_blueprint.get_timeframe_agents") }}?timeframe_id=' + agentSource.split('_')[1];
+          let url = '/get_main_agents'; // Default to main agents
+          if (agentSource !== 'main_agents') {
+              url = '/get_timeframe_agents?timeframe_id=' + agentSource.split('_')[1];
+          }
 
-        $.getJSON(endpoint, function(data) {
-          $('#agent-list').empty();
-          data.forEach(function(agent) {
-            var agentHTML = `<div class="agent-item bg-white shadow-md rounded-lg p-4 mb-4 flex items-center space-x-4" data-agent-id="${agent.id}">
-              <img src="data:image/png;base64,${agent.image_data}" alt="${agent.id}" class="w-16 h-16 rounded-full">
-              <div class="flex-grow">
-                <h3 class="text-lg font-bold">${agent.id}</h3>
-                <p>${agent.jobtitle}</p>
-              </div>
-            </div>`;
-            $('#agent-list').append(agentHTML);
+          $.getJSON(url, function(data) {
+              const agentList = $('#agent-list');
+              agentList.empty();
+              data.forEach(agent => {
+                  const agentHTML = `<div class="agent-item bg-white shadow-md rounded-lg p-4 flex items-center space-x-4" data-agent-id="${agent.id}">
+                    <img src="data:image/png;base64,${agent.image_data}" alt="${agent.name}" class="w-16 h-16 rounded-full">
+                    <div class="flex-grow">
+                      <h3 class="text-lg font-bold">${agent.name}</h3>
+                      <p>${agent.jobtitle}</p>
+                    </div>
+                  </div>`;
+                  agentList.append(agentHTML);
+              });
+              $('#loading').hide();
+          }).fail(function(jqXHR, textStatus, errorThrown) {
+              $('#agent-list').html(`<div>Error loading agents: ${textStatus}</div>`);
+              console.error('Error loading agents:', errorThrown);
           });
-          $('#loading').hide();
-        }).fail(function() {
-          $('#loading').hide();
-          alert('Failed to load agents. Please try again.');
-        });
       }
 
-      loadAgents('main_agents'); // Load Main Agents by default
+      // Initialize with main agents on document ready
+      $(document).ready(function() {
+          loadAgents('main_agents');
+      });
+
 
       $('#agent-list').on('click', '.agent-item', function() {
         var agentId = $(this).data('agent-id');
