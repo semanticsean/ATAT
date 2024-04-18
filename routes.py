@@ -319,19 +319,30 @@ def dashboard():
         timeframe = Timeframe.query.get(timeframe_id)
         if timeframe and timeframe.user_id == current_user.id:
             agents_data = json.loads(timeframe.agents_data)
+            logger.info(f"Loaded agents data from timeframe {timeframe_id}")
+
+            # Fetch the base64-encoded image data for each agent in the timeframe
+            images_data = json.loads(timeframe.images_data)
+            for agent in agents_data:
+                if 'photo_path' in agent:
+                    photo_filename = agent['photo_path'].split('/')[-1]
+                    agent['image_data'] = images_data.get(photo_filename, '')
+                    logger.debug(f"Fetched image data for agent {agent['id']} in timeframe {timeframe_id}")
+                else:
+                    agent['image_data'] = ''
         else:
             abort(404)
     else:
         agents_data = current_user.agents_data or []
         logger.info("Loaded base agents")
 
-    # Fetch the base64-encoded image data for each agent
-    for agent in agents_data:
-        if 'photo_path' in agent:  # Check if 'photo_path' key exists
-            agent['image_data'] = current_user.images_data.get(
-                agent['photo_path'].split('/')[-1], '')
-        else:
-            agent['image_data'] = ''  # Set a default value if 'photo_path' is missing
+        # Fetch the base64-encoded image data for each base agent
+        for agent in agents_data:
+            if 'photo_path' in agent:  # Check if 'photo_path' key exists
+                agent['image_data'] = current_user.images_data.get(
+                    agent['photo_path'].split('/')[-1], '')
+            else:
+                agent['image_data'] = ''  # Set a default value if 'photo_path' is missing
 
     timeframes = current_user.timeframes
     logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
@@ -339,7 +350,6 @@ def dashboard():
     return render_template('dashboard.html',
                            agents=agents_data,
                            timeframes=timeframes)
-
 
 @profile_blueprint.route('/profile')
 @login_required
