@@ -1,46 +1,70 @@
 <!-- templates/profile.html -->
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agent Profile</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
+  <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Agent Profile</title>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" />
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <style>
+          html, body {
+              height: 100%;
+              margin: 0;
+          }
 
-        #content {
-            min-height: 100%;
-            margin-bottom: -4rem;
-        }
+          #content {
+              min-height: 100%;
+              margin-bottom: -4rem;
+          }
 
-        #footer-push {
-            height: 4rem;
-        }
+          #footer-push {
+              height: 4rem;
+          }
 
-        footer {
-            height: 4rem;
-        }
+          footer {
+              height: 4rem;
+          }
 
-        .agent-image {
-            position: relative;
-        }
+          .agent-image {
+              position: relative;
+          }
 
-    </style>
-</head>
+          /* Updated CSS for image styles */
+          .agent-image img {
+              width: 85%; /* Width relative to parent container */
+              height: auto; /* Maintain aspect ratio */
+              border: 4px solid white;
+              margin-bottom: 16px;
+          }
+
+          @media (min-width: 768px) {
+              /* For desktop: rounded-square image style */
+              .agent-image img {
+                  border-radius: 10%; /* Slightly rounded corners for square image */
+                  width: 85%; /* Almost filling the space */
+              }
+          }
+
+          @media (max-width: 767px) {
+              /* For mobile: circular image style */
+              .agent-image img {
+                  border-radius: 50%; /* Fully rounded edges for circle */
+              }
+          }
+
+      </style>
+  </head>
 <body class="bg-blue-50">
     {% include 'header.html' %}
       <div class="container mx-auto px-4 py-8 md:mt-12 mt-6 ">
         {% if agent %}
-          <div class="bg-white rounded-lg shadow-md">
-            <div class="flex flex-col md:flex-row">
-              <div class="md:w-1/2">
-                <img src="{{ custom_image_filter(agent.photo_path, '64x64') }}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0 md:mr-12">
-              </div>
+          <div class="container mx-auto px-4 py-8 md:mt-12 mt-6 ">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="flex flex-col md:flex-row">
+                    <div class="md:w-1/2 flex justify-center items-center agent-image">
+                        <img src="{{ custom_image_filter(agent.photo_path, '256x256') }}" alt="Agent Profile" class="md:mr-12">
+                    </div>
               <div class="md:w-1/2 p-6">
                 <div class="mb-2">
                   <div class="mb-2 container mx-auto px-4 py-2 mt-2 bg-white rounded-lg shadow-md mb-4 ">
