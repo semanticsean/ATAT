@@ -71,6 +71,7 @@ def process_agents(payload, current_user):
       images_data='{}',
       thumbnail_images_data='{}'
   )
+  new_timeframe = Timeframe(name=timeframe_name, user_id=current_user.id, agents_data=json.dumps(new_agents_data), images_data=json.dumps(new_images_data), thumbnail_images_data=json.dumps(new_thumbnail_images_data))
   db.session.add(new_timeframe)
   db.session.commit()
 
