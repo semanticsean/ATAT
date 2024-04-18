@@ -48,7 +48,6 @@
               <label for="agent_source" class="block text-gray-700 font-bold mb-2">Agent Source:</label>
               <select id="agent_source" name="agent_source" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
                 <option value="main_agents">Main Agents</option>
-                <!-- Dynamically loaded options for timeframes -->
                 {% for timeframe in timeframes %}
                   <option value="timeframe_{{ timeframe.id }}">{{ timeframe.name }}</option>
                 {% endfor %}
@@ -95,9 +94,9 @@
               agentList.empty();
               data.forEach(agent => {
                   const agentHTML = `<div class="agent-item bg-white shadow-md rounded-lg p-4 flex items-center space-x-4" data-agent-id="${agent.id}">
-                    <img src="data:image/png;base64,${agent.image_data}" alt="${agent.name}" class="w-16 h-16 rounded-full">
+                    <img src="data:image/png;base64,${agent.image_data}" alt="${agent.id}" class="w-16 h-16 rounded-full">
                     <div class="flex-grow">
-                      <h3 class="text-lg font-bold">${agent.name}</h3>
+                      <h3 class="text-lg font-bold">${agent.id}</h3>
                       <p>${agent.jobtitle}</p>
                     </div>
                   </div>`;

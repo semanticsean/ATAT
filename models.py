@@ -19,6 +19,7 @@ class User(db.Model, UserMixin):
     credits = db.Column(db.Integer, default=0)
     meetings = db.relationship('Meeting', backref='creator', lazy=True)
     api_keys = db.relationship('APIKey', backref='owner', lazy='dynamic')
+    timeframes = db.relationship('Timeframe', backref='user', lazy=True)
 
     @property
     def folder_path(self):
@@ -79,7 +80,7 @@ class Timeframe(db.Model):
     agents_data = db.Column(db.Text, default='[]')
     images_data = db.Column(db.Text, default='{}')
     thumbnail_images_data = db.Column(db.Text, default='{}')
-    user = db.relationship('User', backref=db.backref('timeframes', lazy=True))
+    
 
 class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
