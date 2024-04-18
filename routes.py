@@ -325,7 +325,6 @@ def dashboard():
                 if 'photo_path' in agent:
                     photo_filename = agent['photo_path']
                     agent['image_data'] = images_data.get(photo_filename, '')
-                    # ...
                 else:
                     agent['image_data'] = ''
         else:
@@ -491,7 +490,8 @@ def create_meeting():
         url_for('meeting_blueprint.meeting_form', meeting_id=new_meeting.id))
   else:
     logger.debug("Rendering meeting1.html template")
-    return render_template('meeting1.html')
+    timeframes = current_user.timeframes
+    return render_template('meeting1.html', timeframes=timeframes)
 
 
 def get_agent_by_id(agents, agent_id):
