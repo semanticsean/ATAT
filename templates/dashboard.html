@@ -1,5 +1,3 @@
-<!-- templates/dashboard.html -->
-
 <!doctype html>
 <html lang="en" class="h-full">
 <head>
@@ -28,21 +26,19 @@
                 {% for agent in agents %}
                     <div class="bg-white rounded-lg shadow-md">
                         <div class="p-4">
-                            <h2 class="text-xl font-bold mb-2">{{ agent.id }}</h2>
-                            {% if agent.get('photo_path') %}
-                                {% set thumbnail_key = agent['photo_path'].split('/')[-1] + '_thumbnail' %}
-                                {% if thumbnail_key in current_user.thumbnail_images_data %}
-                          {% if agent.get('image_data') %}
-                          <img src="data:image/png;base64,{{ agent.image_data }}" alt="{{ agent.id }}" class="w-full h-48 object-cover mb-4">
-                          {% else %}
-                          <div class="w-full h-48 bg-gray-200 mb-4"></div>
-                          {% endif %}
+                            <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}" class="no-underline text-black">
+                                <h2 class="text-xl font-bold mb-2">{{ agent.id }}</h2>
+                                {% if agent.get('photo_path') %}
+                                    {% set thumbnail_key = agent['photo_path'].split('/')[-1] + '_thumbnail' %}
+                                    {% if thumbnail_key in current_user.thumbnail_images_data %}
+                                        <img src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}" alt="{{ agent.id }}" class="w-full h-48 object-cover mb-4">
+                                    {% else %}
+                                        <div class="w-full h-48 bg-gray-200 mb-4"></div>
+                                    {% endif %}
                                 {% else %}
                                     <div class="w-full h-48 bg-gray-200 mb-4"></div>
                                 {% endif %}
-                            {% else %}
-                                <div class="w-full h-48 bg-gray-200 mb-4"></div>
-                            {% endif %}
+                            </a>
                             <p class="text-gray-700">{{ agent.summary }}</p>
                         </div>
                     </div>
@@ -51,7 +47,7 @@
         {% else %}
             <p class="text-gray-500">No agents found.</p>
         {% endif %}
-    </main
+    </main>
     {% include 'footer.html' %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -59,7 +55,7 @@
             timeframeSelect.addEventListener('change', function() {
                 const selectedTimeframeId = this.value;
                 if (selectedTimeframeId) {
-                    window.location.href = "{{ url_for('dashboard_blueprint.dashboard') }}?timeframe_id=" + selectedTimeframeId;
+                    window.location.href = "{{ url_for('dashboard_blueprint.dashboard', timeframe_id=selectedTimeframeId) }}";
                 } else {
                     window.location.href = "{{ url_for('dashboard_blueprint.dashboard') }}";
                 }
