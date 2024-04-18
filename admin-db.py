@@ -2,6 +2,7 @@
 import os
 from abe import app, db
 from models import User, Timeframe, Meeting
+import json
 
 
 def generate_log(username=None):
@@ -23,28 +24,29 @@ def generate_log(username=None):
     log_lines.append(f"Number of Timeframes: {len(timeframes)}")
 
     for timeframe in timeframes:  # Correctly iterate over each timeframe
-        agents_data = json.loads(timeframe.agents_data) if timeframe.agents_data else []
+      agents_data = json.loads(
+          timeframe.agents_data) if timeframe.agents_data else []
 
-        for agent in agents_data:
-            log_lines.append(f"Timeframe ID: {timeframe.id}")
-            log_lines.append(f"Timeframe Name: {timeframe.name}")
+      for agent in agents_data:
+        log_lines.append(f"Timeframe ID: {timeframe.id}")
+        log_lines.append(f"Timeframe Name: {timeframe.name}")
 
-            agents_with_image = 0
-            agents_with_thumbnail = 0
-            total_agents = len(agents_data)
+        agents_with_image = 0
+        agents_with_thumbnail = 0
+        total_agents = len(agents_data)
 
-            if agents_data:
-                for agent in agents_data:
-                    photo_path = agent.get('photo_path', '')
-                    if photo_path:
-                        if user.images_data and photo_path in user.images_data:
-                            agents_with_image += 1
-                        if user.thumbnail_images_data and f"{photo_path}_thumbnail" in user.thumbnail_images_data:
-                            agents_with_thumbnail += 1
+        if agents_data:
+          for agent in agents_data:
+            photo_path = agent.get('photo_path', '')
+            if photo_path:
+              if user.images_data and photo_path in user.images_data:
+                agents_with_image += 1
+              if user.thumbnail_images_data and f"{photo_path}_thumbnail" in user.thumbnail_images_data:
+                agents_with_thumbnail += 1
 
-            log_lines.append(f" Number of Agents: {total_agents}")
-            log_lines.append(f" Agents with Image: {agents_with_image}")
-            log_lines.append(f" Agents with Thumbnail: {agents_with_thumbnail}")
+        log_lines.append(f" Number of Agents: {total_agents}")
+        log_lines.append(f" Agents with Image: {agents_with_image}")
+        log_lines.append(f" Agents with Thumbnail: {agents_with_thumbnail}")
 
     meetings = Meeting.query.filter_by(user_id=user.id).all()
     log_lines.append(f"Number of Meetings: {len(meetings)}")
