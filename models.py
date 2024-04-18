@@ -1,5 +1,4 @@
-# models.py
-
+import os
 from extensions import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -18,6 +17,13 @@ class User(db.Model, UserMixin):
     meetings = db.relationship('Meeting', backref='creator', lazy=True)
     api_keys = db.relationship('APIKey', backref='owner', lazy='dynamic')
 
+    @property
+    def folder_path(self):
+        user_folder = f"user_{self.id}"
+        folder_path = os.path.join(current_app.root_path, 'user_data', user_folder)
+        os.makedirs(folder_path, exist_ok=True)
+        return folder_path
+
     def generate_api_key(self, expiration=None):
         s = Serializer(current_app.config['SECRET_KEY'])
         token = s.dumps({'user_id': self.id}).decode('utf-8')
@@ -34,6 +40,11 @@ class User(db.Model, UserMixin):
     def create_user_data(self):
         self.agents_data = []
         self.images_data = {}
+
+        # Create user folder
+        os.makedirs(self.folder_path, exist_ok=True)
+
+# ...
 
 class APIKey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
