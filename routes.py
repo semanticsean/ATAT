@@ -275,7 +275,6 @@ def meeting_form(meeting_id):
                            meeting=meeting,
                            agents=agents_data)
 
-
 @meeting_blueprint.route('/meeting/<int:meeting_id>/results', methods=['GET', 'POST'])
 @login_required
 def meeting_results(meeting_id):
@@ -287,14 +286,18 @@ def meeting_results(meeting_id):
         is_public = request.form.get('is_public') == 'on'
         meeting.is_public = is_public
 
-        if is_public and not meeting.public_url:
-            # Generate a unique public URL if it doesn't exist
-            meeting.public_url = str(uuid.uuid4())
-        elif not is_public:
-            # Clear the public URL if the meeting is not public
+        if is_public:
+            if not meeting.public_url:
+                meeting.public_url = str(uuid.uuid4())
+                print(f"Generated public_url: {meeting.public_url}")
+            public_url = url_for('meeting_blueprint.public_meeting_results', public_url=meeting.public_url, _external=True)
+            print(f"Full public URL: {public_url}")
+        else:
             meeting.public_url = None
+            public_url = None
 
         db.session.commit()
+        return redirect(url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id))
 
     prev_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
                                         Meeting.id < meeting.id).order_by(
@@ -308,7 +311,7 @@ def meeting_results(meeting_id):
                            is_public=meeting.is_public,
                            prev_meeting=prev_meeting,
                            next_meeting=next_meeting)
-      
+
 
 @dashboard_blueprint.route('/dashboard')
 @login_required
@@ -607,7 +610,7 @@ def extract_questions_from_form(form_data):
         questions[question_id]['min'] = min_value
         questions[question_id]['max'] = max_value
   return questions
-
+  
 
 @meeting_blueprint.route('/public/meeting/<public_url>')
 def public_meeting_results(public_url):
@@ -674,7 +677,7 @@ def public_survey_image(public_url, filename):
 @login_required
 def logout():
   logout_user()
-  response = make_response(redirect('/'))
+  response = make_response(redirect('/login'))
   response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
   response.headers['Pragma'] = 'no-cache'
   response.headers['Expires'] = '0'
