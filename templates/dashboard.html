@@ -34,7 +34,7 @@
         Main Agents
       </a>
       {% if timeframes %}
-      <div class="mb-4 flex flex-wrap space-x-2">
+      <div class="mt-4 mb-4 flex flex-wrap space-x-2">
         {% for timeframe in timeframes %} {% if timeframe.agents_count > 0 %}
         <a
           href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
@@ -54,12 +54,12 @@
               class="no-underline text-black"
             >
               <h2 class="text-2xl font-bold mb-2">{{ agent.id }}   {% if timeframe %}
-              <span class="text-lg font-semibold text-gray-600"
+              <span class="text-xl font-semibold text-gray-600"
                 >({{ timeframe.name }})</span
               >
               {% endif %}</h2>
 
-              <div class="text-xl text-gray-600">{{ agent.jobtitle }}</div>
+              <div class="text-2xl font-bold text-gray-600">{{ agent.jobtitle }}</div>
               {% if agent.get('image_data') %}
               <img
                 src="data:image/png;base64,{{ agent.image_data }}"
