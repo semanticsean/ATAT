@@ -74,7 +74,7 @@
                   {% if agent.photo_path %}
                     {% set thumbnail_key = agent.photo_path.split('/')[-1] + '_thumbnail' %}
                     {% if thumbnail_key in current_user.thumbnail_images_data %}
-                      <img src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}" alt="{{ agent.id }}" class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-12 h-12 md:w-16 md:h-16 justify-left items-left">
+                      <img src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}" alt="{{ agent.id }}" class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left">
                     {% else %}
                       <div class="w-full h-48 bg-gray-200 mb-4"></div>
                     {% endif %}
@@ -83,13 +83,13 @@
                   {% endif %}
 
                   <div
-                    class="absolute top-0 left-0 w-12 h-12 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out"
+                    class="absolute top-0 left-0 w-24 h-24 md:w-32 md:h-32 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out"
                   >
                     <div
                       class="absolute inset-0 bg-black opacity-75 rounded-full"
                     ></div>
                     <div
-                      class="absolute inset-0 flex flex-col items-center justify-center text-white text-xs text-center"
+                      class="absolute inset-0 flex flex-col items-center justify-center text-white text-sm md:text-base text-center"
                     >
                       <span class="font-bold">{{ agent.id }}</span>
                       <span>{{ agent.jobtitle }}</span>
@@ -141,19 +141,24 @@
                 class="block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300"
                 >Help</a
               >
+              <a
+                href="{{ url_for('auth_blueprint.update_profile') }}"
+                class="mt-4 block bg-blue-100 text-blue-800 font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300"
+                >Account</a
+              >
             </div>
           </div>
           <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
             <h2 class="text-2xl font-bold mb-4">Timeframes</h2>
-            <ul class="list-disc list-inside">
+            <div class="flex flex-wrap gap-4">
               {% for timeframe in timeframes %}
-                <li class="mb-2">
-                  <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="text-blue-600 hover:text-blue-800">
-                    {{ timeframe.name }}
+                {% if timeframe.agents_count > 0 %}
+                  <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="inline-block bg-gray-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300">
+                    {{ timeframe.name }} ({{ timeframe.agents_count }} agents)
                   </a>
-                </li>
+                {% endif %}
               {% endfor %}
-            </ul>
+            </div>
             {% if not timeframes %}
               <p class="text-gray-600">No timeframes yet.</p>
             {% endif %}
@@ -162,12 +167,14 @@
             <h2 class="text-2xl font-bold mb-4">Meetings</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               {% for meeting in current_user.meetings %}
-              <a
-                href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}"
-                class="block bg-blue-100 text-blue-800 font-bold py-4 px-6 rounded hover:bg-blue-200 transition duration-300 text-center"
-              >
-                {{ meeting.name }}
-              </a>
+                {% if meeting.answers %}
+                  <a
+                    href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}"
+                    class="block bg-blue-100 text-blue-800 font-bold py-4 px-6 rounded hover:bg-blue-200 transition duration-300 text-center"
+                  >
+                    {{ meeting.name }} ({{ meeting.agents|length }} agents)
+                  </a>
+                {% endif %}
               {% endfor %}
             </div>
             {% if not current_user.meetings %}
@@ -207,4 +214,4 @@
           });
       });
   </script>
-</html>n
+</html>
