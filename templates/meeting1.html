@@ -31,13 +31,13 @@
   </style>
 </head>
 <body class="bg-blue-50 h-full">
-  {% include 'header.html' %}
-  <main class="flex-grow">
-    <div class="container mx-auto px-4 py-8 mt-12">
-      <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
-        <h1 class="text-2xl font-bold mb-2">Make a Meeting</h1>
-        <h2 class="italic">1 credit per question or discussion point per synth.</h2>
-        <form id="meetingForm" action="{{ url_for('meeting_blueprint.create_meeting') }}" method="post">
+{% include 'header.html' %}
+<main class="flex-grow">
+  <div class="container mx-auto px-4 py-8 mt-12">
+    <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
+      <h1 class="text-2xl font-bold mb-2">Make a Meeting</h1>
+      <h2 class="italic">1 credit per question or discussion point per synth.</h2>
+      <form id="meetingForm" action="{{ url_for('meeting_blueprint.create_meeting') }}" method="post">
           <div class="mb-4">
             <label for="meeting_name" class="block text-xl font-bold mb-2 mt-4">Meeting Name:</label>
             <input type="text" id="meeting_name" name="meeting_name" required class="w-full px-3 py-2 text-xl font-bold mb-2 border rounded-lg focus:outline-none" value="Meeting {{ next_meeting_id }}">
@@ -49,7 +49,12 @@
               <select id="agent_source" name="agent_source" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
                 <option value="main_agents">Main Agents</option>
                 {% for timeframe in timeframes %}
-                  <option value="timeframe_{{ timeframe.id }}">{{ timeframe.name }}</option>
+                {% if timeframe.agents_data %}
+                  {% set agents = timeframe.agents_data | from_json %}
+                  {% if agents | selectattr('id') | list | length > 0 %}
+                    <option value="timeframe_{{ timeframe.id }}">{{ timeframe.name }}</option>
+                  {% endif %}
+                {% endif %}
                 {% endfor %}
               </select>
             </div>
@@ -70,50 +75,56 @@
   <div id="footer-push"></div>
   {% include 'footer.html' %}
   <script>
-    $(document).ready(function() {
+      $(document).ready(function() {
       var selectedAgents = [];
 
-          $('#agent_source').change(function() {
-              var source = $(this).val();
-              if (source.startsWith('timeframe_')) {
-                  var timeframeId = source.split('_')[1];
-                  loadAgents('get_timeframe_agents?timeframe_id=' + timeframeId);
-              } else {
-                  loadAgents('get_main_agents');
-              }
-          });
-
-      function loadAgents(agentSource) {
-          let url = '/get_main_agents'; // Default to main agents
-          if (agentSource !== 'main_agents') {
-              url = '/get_timeframe_agents?timeframe_id=' + agentSource.split('_')[1];
-          }
-
-          $.getJSON(url, function(data) {
-              const agentList = $('#agent-list');
-              agentList.empty();
-              data.forEach(agent => {
-                  const agentHTML = `<div class="agent-item bg-white shadow-md rounded-lg p-4 flex items-center space-x-4" data-agent-id="${agent.id}">
-                    <img src="data:image/png;base64,${agent.image_data}" alt="${agent.id}" class="w-16 h-16 rounded-full">
-                    <div class="flex-grow">
-                      <h3 class="text-lg font-bold">${agent.id}</h3>
-                      <p>${agent.jobtitle}</p>
-                    </div>
-                  </div>`;
-                  agentList.append(agentHTML);
-              });
-              $('#loading').hide();
-          }).fail(function(jqXHR, textStatus, errorThrown) {
-              $('#agent-list').html(`<div>Error loading agents: ${textStatus}</div>`);
-              console.error('Error loading agents:', errorThrown);
-          });
-      }
-
-      // Initialize with main agents on document ready
-      $(document).ready(function() {
-          loadAgents('main_agents');
+      $('#agent_source').change(function() {
+        var source = $(this).val();
+        if (source.startsWith('timeframe_')) {
+          var timeframeId = source.split('_')[1];
+          loadAgents(timeframeId);
+        } else {
+          loadAgents();
+        }
       });
 
+      function loadAgents(timeframeId) {
+        $.ajax({
+          url: '/get_agents',
+          data: { timeframe_id: timeframeId },
+          success: function(data) {
+            const agentList = $('#agent-list');
+            agentList.empty();
+
+            if (data.agents.length === 0) {
+              agentList.html('<div>No agents found.</div>');
+            } else {
+              data.agents.forEach(agent => {
+                const agentHTML = `<div class="agent-item bg-white shadow-md rounded-lg p-4 flex items-center space-x-4" data-agent-id="${agent.id}">
+                  <img src="data:image/png;base64,${agent.image_data}" alt="${agent.id}" class="w-16 h-16 rounded-full">
+                  <div class="flex-grow">
+                    <h3 class="text-lg font-bold">${agent.id}</h3>
+                    <p>${agent.jobtitle}</p>
+                  </div>
+                </div>`;
+                agentList.append(agentHTML);
+              });
+            }
+
+            $('#loading').hide();
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            $('#agent-list').html(`<div>Error loading agents: ${textStatus}</div>`);
+            console.error('Error loading agents:', errorThrown);
+          }
+        });
+      }
+
+        // Initialize with main agents on document ready
+        $(document).ready(function() {
+          loadAgents();
+        });
+        
 
       $('#agent-list').on('click', '.agent-item', function() {
         var agentId = $(this).data('agent-id');
