@@ -456,18 +456,19 @@ def get_timeframe_agents():
     timeframe_id = request.args.get('timeframe_id')
     if not timeframe_id:
         return jsonify({'error': 'Timeframe ID is required'}), 400
-    
+
     timeframe = Timeframe.query.get(timeframe_id)
     if not timeframe:
         return jsonify({'error': 'Timeframe not found'}), 404
-    
+
     agents_data = json.loads(timeframe.agents_data)
-    for agent in agents_data:
+    valid_agents = [agent for agent in agents_data if 'id' in agent]
+
+    for agent in valid_agents:
         photo_path = agent['photo_path'].split('/')[-1]
         agent['image_data'] = current_user.images_data.get(photo_path, '')
-    
-    return jsonify(agents_data)
 
+    return jsonify(valid_agents)
 
 
 @meeting_blueprint.route('/meeting/create', methods=['GET', 'POST'])
@@ -929,11 +930,31 @@ def before_request_func():
     return jsonify({'error': 'Unauthorized or insufficient credits'}), 401
 
 
-@auth_blueprint.route('/api/agents', methods=['GET'])
-@limiter.limit("10 per minute")
+@auth_blueprint.route('/get_agents', methods=['GET'])
+@login_required
 def get_agents():
-  # Assuming the agents.json data is per-user and stored in the database for simplicity
-  agents_data = current_user.agents_data
-  if agents_data:
-    return jsonify(agents_data), 200
-  return jsonify({'error': 'No agents data found'}), 404
+    timeframe_id = request.args.get('timeframe_id')
+
+    if timeframe_id:
+        timeframe = Timeframe.query.get(timeframe_id)
+        if not timeframe or timeframe.user_id != current_user.id:
+            return jsonify({'error': 'Invalid timeframe'}), 400
+
+        agents_data = json.loads(timeframe.agents_data)
+        images_data = json.loads(timeframe.images_data)
+    else:
+        agents_data = current_user.agents_data or []
+        images_data = current_user.images_data or {}
+
+    agents = []
+    for agent in agents_data:
+        if 'id' in agent:
+            photo_filename = agent['photo_path'].split('/')[-1]
+            agent_data = {
+                'id': agent['id'],
+                'jobtitle': agent.get('jobtitle', ''),
+                'image_data': images_data.get(photo_filename, '')
+            }
+            agents.append(agent_data)
+
+    return jsonify({'agents': agents})

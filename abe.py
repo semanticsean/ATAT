@@ -5,7 +5,7 @@ import glob
 import os
 import base64
 import json
-from flask import Flask, render_template, send_from_directory, abort, send_file, url_for, Response
+from flask import Flask, render_template, send_from_directory, abort, send_file, url_for, Response, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, login_required
 from flask_migrate import Migrate
@@ -15,6 +15,7 @@ from models import User, Timeframe, Meeting
 import start
 from routes import auth_blueprint, meeting_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint
 from werkzeug.utils import secure_filename
+
 
 
 def configure_logging():
@@ -32,6 +33,8 @@ def configure_logging():
 
 
 app = Flask(__name__)
+
+
 
 
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY', 'default_secret_key')
@@ -76,7 +79,9 @@ app.register_blueprint(dashboard_blueprint)
 app.register_blueprint(profile_blueprint)
 app.register_blueprint(start_blueprint)
 
-
+@app.template_filter('from_json')
+def from_json(value):
+    return json.loads(value)
 
 @login_manager.user_loader
 def load_user(user_id):
