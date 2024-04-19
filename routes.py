@@ -298,10 +298,14 @@ def meeting_results(meeting_id):
             os.makedirs(public_folder, exist_ok=True)
             for agent in meeting.agents:
                 filename = agent['photo_path'].split('/')[-1]
-                image_data = base64.b64decode(current_user.images_data.get(filename))
-                file_path = os.path.join(public_folder, secure_filename(filename))
-                with open(file_path, 'wb') as file:
-                    file.write(image_data)
+                image_data = current_user.images_data.get(filename)
+                if image_data:
+                    image_data = base64.b64decode(image_data)
+                    file_path = os.path.join(public_folder, secure_filename(filename))
+                    with open(file_path, 'wb') as file:
+                        file.write(image_data)
+                else:
+                    logger.warning(f"Missing image data for agent: {agent['id']}")
         else:
             meeting.public_url = None
             public_url = None
