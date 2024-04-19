@@ -30,6 +30,16 @@
 <body class="bg-blue-50 min-h-screen flex flex-col">
     {% include 'header.html' %}
     <div class="container mx-auto px-4 py-8 md:mt-12 mt-6 flex-grow">
+      <div class="mb-4">
+          <h2 class="text-xl font-semibold mb-2">Agent Versions</h2>
+          <div class="flex space-x-2">
+              <a href="{{ url_for('profile_blueprint.profile', agent_id=main_agent.id) }}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Main Agent</a>
+              {% for timeframe_agent in timeframe_agents %}
+                  <a href="{{ url_for('profile_blueprint.profile', agent_id=timeframe_agent.agent.id, timeframe_id=timeframe_agent.timeframe_id) }}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">{{ timeframe_agent.timeframe_name }}</a>
+              {% endfor %}
+          </div>
+      </div>
+      
         {% if agent %}
             <div class="container mx-auto px-4 py-8 md:mt-12 mt-6">
                 <div class="bg-white rounded-lg shadow-md">
@@ -91,14 +101,14 @@
                     </div>
                 </div>
             </div>
-            <div class="container mx-auto px-4 py-4">
-                <div class="mb-2 container mx-auto px-4 py-4 mt-2 bg-white rounded-lg shadow-md">
-                    <div class="flex space-x-2 mt-1">
-                        <a href="{{ url_for('profile_blueprint.profile', agent_id=prev_agent_id, timeframe_id=request.args.get('timeframe_id')) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not prev_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not prev_agent_id %}disabled{% endif %}>Previous</a>
-                        <a href="{{ url_for('profile_blueprint.profile', agent_id=next_agent_id, timeframe_id=request.args.get('timeframe_id')) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not next_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not next_agent_id %}disabled{% endif %}>Next</a>
-                    </div>
-                </div>
-            </div>
+      <div class="container mx-auto px-4 py-4">
+          <div class="mb-2 container mx-auto px-4 py-4 mt-2 bg-white rounded-lg shadow-md">
+              <div class="flex space-x-2 mt-1">
+                  <a href="{{ url_for('profile_blueprint.profile', agent_id=prev_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not prev_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not prev_agent_id %}disabled{% endif %}>Previous</a>
+                  <a href="{{ url_for('profile_blueprint.profile', agent_id=next_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not next_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not next_agent_id %}disabled{% endif %}>Next</a>
+              </div>
+          </div>
+      </div>2
         {% else %}
             <p>Agent not found.</p>
         {% endif %}

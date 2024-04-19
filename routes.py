@@ -350,21 +350,44 @@ def dashboard():
 @profile_blueprint.route('/profile')
 @login_required
 def profile():
-  agent_id = request.args.get('agent_id')
-  agents_data = current_user.agents_data or []
+    agent_id = request.args.get('agent_id')
+    timeframe_id = request.args.get('timeframe_id')
 
-  agent = get_agent_by_id(agents_data, agent_id)
-  prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents_data, agent)
+    main_agent = get_agent_by_id(current_user.agents_data, agent_id)
+    timeframe_agents = []
 
-  if agent:
-    # Fetch the base64-encoded image data from the images_data attribute
-    agent['image_data'] = current_user.images_data.get(
-        agent['photo_path'].split('/')[-1], '')
+    for timeframe in current_user.timeframes:
+        agents_data = json.loads(timeframe.agents_data)
+        agent = next((a for a in agents_data if str(a.get('id')) == agent_id), None)
+        if agent:
+            timeframe_agents.append({
+                'timeframe_id': timeframe.id,
+                'timeframe_name': timeframe.name,
+                'agent': agent
+            })
 
-  return render_template('profile.html',
-                         agent=agent,
-                         prev_agent_id=prev_agent_id,
-                         next_agent_id=next_agent_id)
+    if timeframe_id:
+        timeframe = Timeframe.query.get(timeframe_id)
+        if timeframe and timeframe.user_id == current_user.id:
+            agents_data = json.loads(timeframe.agents_data)
+            agent = next((a for a in agents_data if str(a.get('id')) == agent_id), None)
+            if agent:
+                agent['image_data'] = current_user.images_data.get(agent['photo_path'].split('/')[-1], '')
+        else:
+            abort(404)
+    else:
+        agent = main_agent
+
+    if agent:
+        prev_agent_id, next_agent_id = get_prev_next_agent_ids(current_user.agents_data, agent)
+
+    return render_template('profile.html',
+                           agent=agent,
+                           main_agent=main_agent,
+                           timeframe_agents=timeframe_agents,
+                           timeframe_id=timeframe_id,
+                           prev_agent_id=prev_agent_id,
+                           next_agent_id=next_agent_id)
 
 
 # Update load_agents function to accept the direct file path
@@ -501,13 +524,16 @@ def get_agent_by_id(agents, agent_id):
 
 def get_prev_next_agent_ids(agents, agent):
   if agent:
-    agent_index = agents.index(agent)
-    prev_agent_id = agents[agent_index - 1]['id'] if agent_index > 0 else None
-    next_agent_id = agents[agent_index +
-                           1]['id'] if agent_index < len(agents) - 1 else None
+      agent_index = next((index for index, a in enumerate(agents) if a.get('id') == agent.get('id')), None)
+      if agent_index is not None:
+          prev_agent_id = agents[agent_index - 1].get('id', None) if agent_index > 0 else None
+          next_agent_id = agents[agent_index + 1].get('id', None) if agent_index < len(agents) - 1 else None
+      else:
+          prev_agent_id = None
+          next_agent_id = None
   else:
-    prev_agent_id = None
-    next_agent_id = None
+      prev_agent_id = None
+      next_agent_id = None
   return prev_agent_id, next_agent_id
 
 
