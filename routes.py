@@ -379,6 +379,7 @@ def profile():
         agent = main_agent
 
     if agent:
+        agent['relationships'] = get_relationships(agent)
         prev_agent_id, next_agent_id = get_prev_next_agent_ids(current_user.agents_data, agent)
 
     return render_template('profile.html',
@@ -520,6 +521,18 @@ def get_agent_by_id(agents, agent_id):
   if agent_id:
     return next((a for a in agents if a['id'] == agent_id), None)
   return None
+
+def get_relationships(agent):
+    if isinstance(agent.get('relationships'), list):
+        return agent['relationships']
+    elif isinstance(agent.get('relationships'), str):
+        try:
+            return json.loads(agent['relationships'])
+        except json.JSONDecodeError:
+            return []
+    else:
+        return []
+
 
 
 def get_prev_next_agent_ids(agents, agent):
@@ -755,7 +768,7 @@ def edit_agent(agent_id):
     agent['summary'] = request.form.get('summary')
     agent['keywords'] = request.form.get('keywords').split(',')
     agent['image_prompt'] = request.form.get('image_prompt')
-    agent['relationships'] = json.loads(request.form.get('relationships'))
+    agent['relationships'] = get_relationships(agent)
     db.session.commit()
     return redirect(url_for('profile_blueprint.profile', agent_id=agent_id))
 
