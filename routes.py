@@ -292,6 +292,16 @@ def meeting_results(meeting_id):
                 print(f"Generated public_url: {meeting.public_url}")
             public_url = url_for('meeting_blueprint.public_meeting_results', public_url=meeting.public_url, _external=True)
             print(f"Full public URL: {public_url}")
+
+            # Save the image files in the public folder
+            public_folder = 'public'
+            os.makedirs(public_folder, exist_ok=True)
+            for agent in meeting.agents:
+                filename = agent['photo_path'].split('/')[-1]
+                image_data = base64.b64decode(current_user.images_data.get(filename))
+                file_path = os.path.join(public_folder, secure_filename(filename))
+                with open(file_path, 'wb') as file:
+                    file.write(image_data)
         else:
             meeting.public_url = None
             public_url = None
@@ -311,7 +321,6 @@ def meeting_results(meeting_id):
                            is_public=meeting.is_public,
                            prev_meeting=prev_meeting,
                            next_meeting=next_meeting)
-
 
 @dashboard_blueprint.route('/dashboard')
 @login_required
