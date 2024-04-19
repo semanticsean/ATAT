@@ -143,7 +143,9 @@
         </div>
       </div>
       {% endfor %}
-
+      <button id="download-csv" class="ml-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        Download CSV
+      </button>
 
       </div>
     </div>
@@ -207,6 +209,55 @@
           });
         }
       });
-    </script>
+
+       document.getElementById('download-csv').addEventListener('click', function() {
+          var csvRows = [];
+          var filename = 'semanticlife_data_' + new Date().toISOString() + '.csv';
+
+          // Headers for CSV
+          csvRows.push(["Agent ID", "Job Title", "Question", "Response"].join(','));
+
+          {% for agent in meeting.agents %}
+          {% for question_id, answer in meeting.answers[agent.id].items() %}
+          var questionText = {% if meeting.questions and meeting.questions[question_id] %}"{{ meeting.questions[question_id]['text']|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}"{% else %}"Question {{ question_id }}"{% endif %};
+          var responseText = "{{ answer|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}";
+
+          csvRows.push([
+            "{{ agent.id|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}",
+            "{{ agent.jobtitle|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}",
+            questionText,
+            responseText
+          ].join(','));
+          {% else %}
+          // If no answers, still add the agent to the CSV.
+          csvRows.push([
+            "{{ agent.id|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}",
+            "{{ agent.jobtitle|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}",
+            "",
+            ""
+          ].join(','));
+          {% endfor %}
+          {% endfor %}
+
+          var csvString = csvRows.join('\n');
+          var blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+
+          // Create a link to download the CSV
+          var link = document.createElement('a');
+          if (link.download !== undefined) { // feature detection
+            // Browsers that support HTML5 download attribute
+            var url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }
+        });
+      </script>
+
+
+      
     </body>
     </html>
