@@ -124,23 +124,34 @@ def home():
 
 @app.route('/images/<filename>')
 def serve_image(filename):
-    user_id = current_user.id
-    user = User.query.get(user_id)
+    if current_user.is_authenticated:
+        user_id = current_user.id
+        user = User.query.get(user_id)
 
-    # Check if the image is in the user's images_data
-    if user.images_data and filename in user.images_data:
-        image_data = user.images_data.get(filename)
-        return Response(base64.b64decode(image_data), mimetype='image/png')
-
-    # Check if the image is in any of the user's timeframes
-    for timeframe in user.timeframes:
-        timeframe_images_data = json.loads(timeframe.images_data)
-        if filename in timeframe_images_data:
-            image_data = timeframe_images_data.get(filename)
+        # Check if the image is in the user's images_data
+        if user.images_data and filename in user.images_data:
+            image_data = user.images_data.get(filename)
             return Response(base64.b64decode(image_data), mimetype='image/png')
+
+        # Check if the image is in any of the user's timeframes
+        for timeframe in user.timeframes:
+            timeframe_images_data = json.loads(timeframe.images_data)
+            if filename in timeframe_images_data:
+                image_data = timeframe_images_data.get(filename)
+                return Response(base64.b64decode(image_data), mimetype='image/png')
+    else:
+        # Check if the image belongs to a public meeting
+        public_meeting = Meeting.query.filter_by(is_public=True).join(Meeting.agents).filter(Meeting.agents.any(photo_path=filename)).first()
+        if public_meeting:
+            image_data = public_meeting.images_data.get(filename)
+            if image_data:
+                return Response(base64.b64decode(image_data), mimetype='image/png')
 
     abort(404)
 
+@app.route('/public/<path:filename>')
+def serve_public_image(filename):
+    return send_from_directory('public', filename)
 
 def custom_img_filter(photo_path, size='48x48'):
   # Extract the filename from the photo_path
