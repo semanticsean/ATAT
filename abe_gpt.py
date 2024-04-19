@@ -64,16 +64,20 @@ def process_agents(payload, current_user):
   max_chatgpt_prompt_length = 4096
   max_dalle_prompt_length = 1000
 
+  new_agents_data = []
+  new_images_data = {}
+  new_thumbnail_images_data = {}
+
   new_timeframe = Timeframe(
       name=payload["timeframe_name"],
       user_id=current_user.id,
-      agents_data='[]',
-      images_data='{}',
-      thumbnail_images_data='{}'
+      agents_data=json.dumps(new_agents_data),
+      images_data=json.dumps(new_images_data),
+      thumbnail_images_data=json.dumps(new_thumbnail_images_data)
   )
-  new_timeframe = Timeframe(name=timeframe_name, user_id=current_user.id, agents_data=json.dumps(new_agents_data), images_data=json.dumps(new_images_data), thumbnail_images_data=json.dumps(new_thumbnail_images_data))
   db.session.add(new_timeframe)
   db.session.commit()
+
 
   for agent in agents_data:
       logging.info(f"Processing agent: {agent['id']}")
