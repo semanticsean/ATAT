@@ -80,7 +80,7 @@
     </head>
     <body class="bg-gray-100">
     {% include 'header.html' %}
-    <div class="container mx-auto py-8 mt-18">
+    <div class="container mx-auto py-8 mt-28 px-4 md:mt-12">
       <h1 class="text-3xl font-bold mb-4">{{ meeting.name }}</h1>
       <div class="bg-white shadow-md rounded-lg overflow-hidden">
           <div class="px-4 py-5 sm:p-6">
@@ -102,45 +102,49 @@
               <label for="public-url" class="block text-sm font-medium text-gray-700 mb-1">Public URL:</label>
               <div class="mt-1 flex rounded-md shadow-sm">
                 <input type="text" name="public-url" id="public-url" class="flex-1 min-w-0 block w-full px-3 py-2 rounded-l-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300" value="{{ request.host_url }}public/meeting/{{ meeting.public_url }}" readonly/>
-                <button type="button" class="ml-2 px-4 py-2 border border-transparent text-sm font-medium rounded-r-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" onclick="copyPublicUrl(this)">Copy</button>
-                <button type="button" class="ml-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" onclick="openPublicUrl()">Open</button>
+                <button type="button" class="ml-2 px-4 py-2 border border-transparent text-sm font-medium rounded-r-md text-white bg-black hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" onclick="copyPublicUrl(this)">Copy</button>
+                <button type="button" class="ml-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-700 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" onclick="openPublicUrl()">Open</button>
               </div>
             </div>
             {% endif %}
           </div>
         </div>
-        {% for agent in meeting.agents %}
-        <div class="bg-white shadow-xl rounded-lg mb-8">
-          <div class="flex flex-col md:flex-row bg-gradient-to-r from-gray-200 to-gray-250 rounded-t-lg px-6 py-4">
-            <div class="md:w-1/3">
-              <img src="{{ custom_image_filter(agent.photo_path, '64x64') }}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0"/>
-            </div>
-            <div class="md:w-2/3 text-center md:text-left">
-              <h3 class="text-2xl font-bold text-black mb-2">{{ agent.id }}</h3>
-              <p class="text-xl font-semibold text-gray-700 mb-4">{{ agent.jobtitle }}</p>
-              <p class="text-lg text-gray-700 mb-2">{{ agent.persona }}</p>
+      {% for agent in meeting.agents %}
+      <div class="bg-white shadow-xl rounded-lg mb-8">
+        <div class="bg-gradient-to-r from-gray-200 to-gray-250 px-6 py-4 md:flex">
+          <div class="md:w-1/4 lg:w-1/5 flex justify-center md:justify-start">
+            <img src="{{ custom_image_filter(agent.photo_path, '64x64') }}" alt="Agent Profile" class="w-16 h-16 md:w-32 md:h-32 lg:w-48 lg:h-48 rounded-full border-4 border-white"/>
+          </div>
+          <div class="md:w-3/4 lg:w-4/5 mt-4 md:mt-0">
+            <div class="text-center md:text-left">
+              <h3 class="text-2xl font-bold text-black">{{ agent.id }}</h3>
+              <p class="text-xl font-semibold text-gray-700">{{ agent.jobtitle }}</p>
+              <p class="text-lg text-gray-700">{{ agent.persona[:142] + '...' }}</p>
               <p class="text-gray-600">Keywords: {{ agent.keywords|join(', ') }}</p>
             </div>
-          </div>
-          <div class="px-6 py-4">
-            <h3 class="text-xl font-bold text-black mb-4">Responses:</h3>
-            {% if meeting.answers[agent.id] %}
-            {% for question_id, answer in meeting.answers[agent.id].items() %}
-            <div class="mb-6">
-              {% if meeting.questions and meeting.questions[question_id] %}
-              <p class="question">{{ meeting.questions[question_id]['text'] }}</p>
+            <div class="bg-gray-100 mt-4 md:mt-6 p-4 rounded-lg">
+              <h3 class="text-xl font-bold text-black mb-2">Responses:</h3>
+              {% if meeting.answers[agent.id] %}
+              {% for question_id, answer in meeting.answers[agent.id].items() %}
+              <div class="mb-4">
+                {% if meeting.questions and meeting.questions[question_id] %}
+                <p class="question font-bold">{{ meeting.questions[question_id]['text'] }}</p>
+                {% else %}
+                <p class="question font-bold">Question {{ question_id }}</p>
+                {% endif %}
+                <div class="answer text-lg">{{ answer|safe }}</div>
+              </div>
+              {% endfor %}
               {% else %}
-              <p class="question">Question {{ question_id }}</p>
+              <p class="text-gray-600">No responses available for this agent.</p>
               {% endif %}
-              <div class="answer">{{ answer|safe }}</div>
             </div>
-            {% endfor %}
-            {% else %}
-            <p class="text-gray-600">No responses available for this agent.</p>
-            {% endif %}
           </div>
         </div>
-        {% endfor %}
+      </div>
+      {% endfor %}
+
+
       </div>
     </div>
     {% include 'footer.html' %}
