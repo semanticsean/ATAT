@@ -1,6 +1,7 @@
 import os
 import datetime
 import random
+import json 
 from extensions import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -33,7 +34,7 @@ class User(db.Model, UserMixin):
       random_data = random.randint(1000, 9999)  # Random number for uniqueness
       timestamp = datetime.datetime.utcnow().isoformat()  # Current timestamp
       payload = {'user_id': self.id, 'timestamp': timestamp, 'rnd': random_data}
-      token = s.dumps(payload)  # No decoding needed
+      token = s.dumps(payload)  
       new_key = APIKey(key=token, owner=self)
       try:
           db.session.add(new_key)
@@ -57,7 +58,6 @@ class User(db.Model, UserMixin):
         # Create user folder
         os.makedirs(self.folder_path, exist_ok=True)
 
-# ...
 
 class APIKey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -80,6 +80,13 @@ class Timeframe(db.Model):
     agents_data = db.Column(db.Text, default='[]')
     images_data = db.Column(db.Text, default='{}')
     thumbnail_images_data = db.Column(db.Text, default='{}')
+
+    @property
+    def agents_count(self):
+        if self.agents_data:
+            agents = json.loads(self.agents_data)
+            return len(agents)
+        return 0
     
 
 class Meeting(db.Model):
