@@ -122,18 +122,24 @@ def home():
 
     return render_template('index.html', agents_content=agents_content, meeting_results=meeting_results, timeframes=timeframes)
 
-
 @app.route('/images/<filename>')
 def serve_image(filename):
     user_id = current_user.id
     user = User.query.get(user_id)
-    if user.images_data is None:
-        abort(404)
-    image_data = user.images_data.get(filename)
-    if image_data:
+
+    # Check if the image is in the user's images_data
+    if user.images_data and filename in user.images_data:
+        image_data = user.images_data.get(filename)
         return Response(base64.b64decode(image_data), mimetype='image/png')
-    else:
-        abort(404)
+
+    # Check if the image is in any of the user's timeframes
+    for timeframe in user.timeframes:
+        timeframe_images_data = json.loads(timeframe.images_data)
+        if filename in timeframe_images_data:
+            image_data = timeframe_images_data.get(filename)
+            return Response(base64.b64decode(image_data), mimetype='image/png')
+
+    abort(404)
 
 
 def custom_img_filter(photo_path, size='48x48'):
