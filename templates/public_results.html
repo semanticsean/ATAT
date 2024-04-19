@@ -84,13 +84,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
-        </head>
-        <body class="bg-gray-100">
-          {% include 'header.html' %}
-          <div class="container mx-auto py-8">
-            <h1 class="text-3xl font-bold mb-4">{{ meeting.name }}</h1>
-            <div class="bg-white shadow-md rounded-lg overflow-hidden">
-              <div class="px-4 py-5 sm:p-6">
+      </head>
+      <body class="bg-gray-100">
+        {% include 'header.html' %}
+        <div class="container mx-auto py-8">
+          <h1 class="text-3xl font-bold mb-4">{{ meeting.name }}</h1>
+          <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="px-4 py-5 sm:p-6">
         <h2 class="text-xl font-semibold mb-4">Questions:</h2>
         <ul class="mb-8">
           {% for question_id, question_data in meeting.questions.items() %}
@@ -101,7 +101,7 @@
         {% for agent in meeting.agents %}
           <div class="bg-white shadow-xl rounded-lg mb-8">
             <div class="flex flex-col md:flex-row items-center bg-gradient-to-r from-gray-200 to-gray-250 rounded-t-lg px-6 py-4">
-              <img src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0 md:mr-12">
+              <img src="{{ url_for('serve_public_image', filename=agent.photo_path.split('/')[-1]) }}" alt="Agent Profile" class="w-24 h-24 md:w-64 md:h-64 rounded-full border-4 border-white mb-4 md:mb-0 md:mr-12">
               <div class="text-center md:text-left">
                 <h3 class="text-2xl font-bold text-black mb-4">Synth: {{ agent.id }}</h3>
                 <div class="max-w-xl break-words"><p class="text-black font-md md:font-xl mb-4">{{ agent.summary }}</p></div>
@@ -120,6 +120,13 @@
         {% endfor %}
       </div>
     </div>
+          {% if not current_user.is_authenticated %}
+            <div class="mt-8 text-center">
+              <a href="{{ url_for('auth_blueprint.login') }}" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Sign up for Semantic Life
+              </a>
+            </div>
+          {% endif %}
   </div>
   {% include 'footer.html' %}
 </body>
