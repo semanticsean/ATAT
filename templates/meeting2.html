@@ -52,7 +52,7 @@
             <!-- Additional questions will be added here dynamically -->
           </div>
           <div class="mb-8">
-            <button type="button" onclick="addQuestion()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Add Question / Talking Point</button>
+            <button type="button" onclick="addQuestion()" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-blue-600">Add Question / Talking Point</button>
           </div>
           <div class="mb-8">
             <label for="llm_instructions" class="block text-gray-700 font-bold mb-2">Custom LLM Instructions (Optional):</label>
@@ -68,7 +68,7 @@
           {% for agent in agents %}
             <input type="hidden" name="selected_agents" value="{{ agent['id'] }}">
           {% endfor %}
-          <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">Submit Meeting</button>
+          <button type="submit" class="px-6 py-3 bg-black text-white rounded-lg hover:bg-green-600">Submit Meeting</button>
         </form>
       </div>
     </div>

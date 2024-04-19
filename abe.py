@@ -156,7 +156,13 @@ def serve_image(filename):
 
 @app.route('/public/<path:filename>')
 def serve_public_image(filename):
-    return send_from_directory('public', filename)
+    public_folder = 'public'
+    file_path = os.path.join(public_folder, filename)
+
+    if os.path.exists(file_path):
+        return send_from_directory(public_folder, filename)
+    else:
+        abort(404)
 
 def custom_img_filter(photo_path, size='48x48'):
   # Extract the filename from the photo_path
