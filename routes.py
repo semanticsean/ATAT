@@ -298,7 +298,17 @@ def meeting_results(meeting_id):
             os.makedirs(public_folder, exist_ok=True)
             for agent in meeting.agents:
                 filename = agent['photo_path'].split('/')[-1]
-                image_data = current_user.images_data.get(filename)
+                
+                # Check if the agent is from a Timeframe
+                timeframe = Timeframe.query.filter(Timeframe.agents_data.contains(json.dumps(agent))).first()
+                if timeframe:
+                    # If the agent is from a Timeframe, get the image data from the Timeframe's images_data
+                    images_data = json.loads(timeframe.images_data)
+                    image_data = images_data.get(filename)
+                else:
+                    # If the agent is a Main Agent, get the image data from the user's images_data
+                    image_data = current_user.images_data.get(filename)
+                
                 if image_data:
                     image_data = base64.b64decode(image_data)
                     file_path = os.path.join(public_folder, secure_filename(filename))
