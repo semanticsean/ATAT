@@ -474,60 +474,60 @@ def get_timeframe_agents():
 @meeting_blueprint.route('/meeting/create', methods=['GET', 'POST'])
 @login_required
 def create_meeting():
-  logger.info(f"Creating meeting for user: {current_user.id}")
-  if request.method == 'POST':
-    meeting_name = request.form.get('meeting_name')
-    agent_source = request.form.get('agent_source')
-    selected_agent_ids = request.form.get('selected_agents', '').split(',')
-    logger.debug(
-        f"Meeting name: {meeting_name}, Agent source: {agent_source}, Selected agent IDs: {selected_agent_ids}"
-    )
+    logger.info(f"Creating meeting for user: {current_user.id}")
+    if request.method == 'POST':
+        meeting_name = request.form.get('meeting_name')
+        agent_source = request.form.get('agent_source')
+        selected_agent_ids = request.form.get('selected_agents', '').split(',')
+        logger.debug(
+            f"Meeting name: {meeting_name}, Agent source: {agent_source}, Selected agent IDs: {selected_agent_ids}"
+        )
 
-    if agent_source == 'main_agents':
-      agents_data = current_user.agents_data
-      logger.debug("Using main agents as the agent source")
-    else:
-      try:
-        timeframe_id = int(agent_source.split('_')[1])
-        timeframe = Timeframe.query.get(timeframe_id)
-        logger.debug(f"Using timeframe {timeframe_id} as the agent source")
-        if timeframe and timeframe.user_id == current_user.id:
-          agents_data = timeframe.agents_data
+        if agent_source == 'main_agents':
+            agents_data = current_user.agents_data
+            logger.debug("Using main agents as the agent source")
         else:
-          logger.warning(f"Invalid timeframe selected: {timeframe_id}")
-          flash('Invalid timeframe selected.')
-          return redirect(url_for('meeting_blueprint.create_meeting'))
-      except (IndexError, ValueError):
-        logger.error("Invalid agent source format")
-        flash('Invalid agent source format.')
-        return redirect(url_for('meeting_blueprint.create_meeting'))
+            try:
+                timeframe_id = int(agent_source.split('_')[1])
+                timeframe = Timeframe.query.get(timeframe_id)
+                logger.debug(f"Using timeframe {timeframe_id} as the agent source")
+                if timeframe and timeframe.user_id == current_user.id:
+                    agents_data = json.loads(timeframe.agents_data)
+                else:
+                    logger.warning(f"Invalid timeframe selected: {timeframe_id}")
+                    flash('Invalid timeframe selected.')
+                    return redirect(url_for('meeting_blueprint.create_meeting'))
+            except (IndexError, ValueError):
+                logger.error("Invalid agent source format")
+                flash('Invalid agent source format.')
+                return redirect(url_for('meeting_blueprint.create_meeting'))
 
-    selected_agents = [
-        agent for agent in agents_data
-        if str(agent['id']) in selected_agent_ids
-    ]
-    logger.debug(f"Selected agents: {selected_agents}")
+        selected_agents = [
+            agent for agent in agents_data
+            if 'id' in agent and str(agent['id']) in selected_agent_ids
+        ]
+        logger.debug(f"Selected agents: {selected_agents}")
 
-    if not selected_agents:
-      logger.warning("No agents selected")
-      flash('No agents selected.')
-      return redirect(url_for('meeting_blueprint.create_meeting'))
+        if not selected_agents:
+            logger.warning("No agents selected")
+            flash('No agents selected.')
+            return redirect(url_for('meeting_blueprint.create_meeting'))
 
-    new_meeting = Meeting(name=meeting_name,
-                          user_id=current_user.id,
-                          agents=selected_agents)
-    db.session.add(new_meeting)
-    db.session.commit()
-    logger.info(
-        f"Created new meeting with ID: {new_meeting.id} for user: {current_user.id}"
-    )
+        new_meeting = Meeting(name=meeting_name,
+                              user_id=current_user.id,
+                              agents=selected_agents)
+        db.session.add(new_meeting)
+        db.session.commit()
+        logger.info(
+            f"Created new meeting with ID: {new_meeting.id} for user: {current_user.id}"
+        )
 
-    return redirect(
-        url_for('meeting_blueprint.meeting_form', meeting_id=new_meeting.id))
-  else:
-    logger.debug("Rendering meeting1.html template")
-    timeframes = current_user.timeframes
-    return render_template('meeting1.html', timeframes=timeframes)
+        return redirect(
+            url_for('meeting_blueprint.meeting_form', meeting_id=new_meeting.id))
+    else:
+        logger.debug("Rendering meeting1.html template")
+        timeframes = current_user.timeframes
+        return render_template('meeting1.html', timeframes=timeframes)
 
 
 def get_agent_by_id(agents, agent_id):
