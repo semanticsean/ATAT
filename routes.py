@@ -315,7 +315,8 @@ def meeting_results(meeting_id):
 def dashboard():
     timeframe_id = request.args.get('timeframe_id')
     agents_data = []
-
+    timeframe = None  # Initialize timeframe variable
+  
     if timeframe_id:
         timeframe = Timeframe.query.get(timeframe_id)
         if timeframe and timeframe.user_id == current_user.id:
@@ -344,9 +345,7 @@ def dashboard():
     timeframes = current_user.timeframes
     logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
 
-    return render_template('dashboard.html',
-                           agents=agents_data,
-                           timeframes=timeframes)
+    return render_template('dashboard.html', agents=agents_data, timeframes=timeframes, timeframe=timeframe)
 
 @profile_blueprint.route('/profile')
 @login_required

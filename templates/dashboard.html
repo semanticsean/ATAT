@@ -1,73 +1,86 @@
 <!-- templates/dashboard.html -->
 <!doctype html>
 <html lang="en" class="h-full">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 h-full">
-  {% include 'header.html' %}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .agent-item:hover {
+        background-color: #f0f0f0;
+      }
+      @media (max-width: 640px) {
+        .timeframe-btn {
+          padding: 8px 12px;
+          font-size: 12px;
+        } /* Smaller buttons on mobile */
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex flex-col">
+    {% include 'header.html' %}
 
-  <main class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-4">Dashboard</h1>
-
-    {% if timeframes %}
-      <div class="mb-4">
-        <label for="timeframe" class="block text-sm font-medium text-gray-700">Select Timeframe:</label>
-        <select id="timeframe" name="timeframe" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-          <option value="">Main Agents</option>
-          {% for timeframe in timeframes %}
-            <option value="{{ timeframe.id }}" {% if timeframe.id == request.args.get('timeframe_id')|int %}selected{% endif %}>{{ timeframe.name }}</option>
-          {% endfor %}
-        </select>
+    <main class="container mx-auto px-4 py-12 flex-grow">
+      <!-- Added more top padding -->
+      <h1 class="text-4xl font-bold mb-6 mt-12">Dashboard</h1>
+      <a
+        href="{{ url_for('dashboard_blueprint.dashboard') }}"
+        class="px-4 py-2 mb-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 timeframe-btn {% if not request.args.get('timeframe_id') %}bg-gray-700{% endif %}"
+      >
+        Main Agents
+      </a>
+      {% if timeframes %}
+      <div class="mb-4 flex flex-wrap space-x-2">
+        {% for timeframe in timeframes %} {% if timeframe.agents_count > 0 %}
+        <a
+          href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
+          class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-blue-600 timeframe-btn {% if timeframe.id == request.args.get('timeframe_id')|int %}bg-blue-700{% endif %}"
+        >
+          {{ timeframe.name }}
+        </a>
+        {% endif %} {% endfor %}
       </div>
-    {% endif %}
-
-    {% if agents %}
+      {% endif %} {% if agents %}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {% for agent in agents %}
-          {% if agent.id %}
-            <div class="bg-white rounded-lg shadow-md">
-              <div class="p-4">
-                <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, timeframe_id=request.args.get('timeframe_id')) }}" class="no-underline text-black">
-                  <h2 class="text-xl font-bold mb-2">{{ agent.id }}<div class="text-lg font-semibold text-gray-600">
-{% if timeframe.id == request.args.get('timeframe_id')|int %}selected{% endif %}>{{ timeframe.name }}</div> </h2>
-                  
-                  {% if agent.get('image_data') %}
-                    <img src="data:image/png;base64,{{ agent.image_data }}" alt="{{ agent.id }}" class="w-full h-72 object-cover mb-4">
-                  {% else %}
-                    <div class="w-full h-48 bg-gray-200 mb-4"></div>
-                  {% endif %}
-                </a>
-                <p class="text-gray-700">{{ agent.summary }}</p>
-              </div>
-            </div>
-          {% endif %}
-        {% endfor %}
+        {% for agent in agents %} {% if agent.id %}
+        <div class="bg-white rounded-lg shadow-md agent-item">
+          <div class="p-4">
+            <a
+              href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, timeframe_id=request.args.get('timeframe_id')) }}"
+              class="no-underline text-black"
+            >
+              <h2 class="text-2xl font-bold mb-2">{{ agent.id }}   {% if timeframe %}
+              <span class="text-lg font-semibold text-gray-600"
+                >({{ timeframe.name }})</span
+              >
+              {% endif %}</h2>
+
+              <div class="text-xl text-gray-600">{{ agent.jobtitle }}</div>
+              {% if agent.get('image_data') %}
+              <img
+                src="data:image/png;base64,{{ agent.image_data }}"
+                alt="{{ agent.id }}"
+                class="w-full h-72 object-cover mb-4"
+              />
+              {% else %}
+              <div class="w-full h-48 bg-gray-200 mb-4"></div>
+              {% endif %}
+            </a>
+            <p class="text-lg text-gray-700">{{ agent.summary }}</p>
+            <!-- Increased font size of summary -->
+          </div>
+        </div>
+        {% endif %} {% endfor %}
       </div>
-    {% else %}
+      {% else %}
       <p class="text-gray-500">No agents found.</p>
-    {% endif %}
+      {% endif %}
+    </main>
 
-    <div id="footer-push"></div>
     {% include 'footer.html' %}
-  </main>
-
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const timeframeSelect = document.getElementById('timeframe');
-      timeframeSelect.addEventListener('change', function() {
-        const selectedTimeframeId = this.value;
-        if (selectedTimeframeId) {
-          window.location.href = "{{ url_for('dashboard_blueprint.dashboard', timeframe_id=selectedTimeframeId) }}";
-        } else {
-          window.location.href = "{{ url_for('dashboard_blueprint.dashboard') }}";
-        }
-      });
-    });
-  </script>
-</body>
+  </body>
 </html>
