@@ -97,4 +97,4 @@ class Meeting(db.Model):
     questions = db.Column(db.JSON)
     answers = db.Column(db.JSON)
     is_public = db.Column(db.Boolean, default=False)
-    public_url = db.Column(db.String(255), unique=True)
+    public_url = db.Column(db.String(255), unique=True, nullable=True)
