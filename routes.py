@@ -393,7 +393,7 @@ def profile():
         timeframe = Timeframe.query.get(timeframe_id)
         if timeframe and timeframe.user_id == current_user.id:
             agents_data = json.loads(timeframe.agents_data)
-            agent_data = next((agent for agent in agents_data if str(agent['id']) == str(agent_id)), None)
+            agent_data = next((agent for agent in agents_data if str(agent.get('id', '')) == str(agent_id)), None)
             if agent_data:
                 agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
                 photo_filename = agent.data.get('photo_path', '').split('/')[-1]
@@ -410,7 +410,7 @@ def profile():
     else:
         agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
         if not agent:
-            agent_data = next((agent for agent in current_user.agents_data if str(agent['id']) == str(agent_id)), None)
+            agent_data = next((agent for agent in current_user.agents_data if str(agent.get('id', '')) == str(agent_id)), None)
             if agent_data:
                 agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
                 photo_filename = agent.data.get('photo_path', '').split('/')[-1]
