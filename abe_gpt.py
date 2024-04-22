@@ -7,7 +7,7 @@ import time
 import uuid
 import datetime
 import os
-from models import db, Timeframe
+from models import db, User, Survey, Timeframe, Meeting, Agent, Image
 from openai import OpenAI, APIError
 from PIL import Image
 from io import BytesIO
@@ -497,7 +497,10 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
       current_user.agents_data = []
   
   current_user.agents_data.append(new_agent_data)
+
+  new_agent = Agent(id=new_agent_data['id'], user_id=current_user.id, data=new_agent_data)
+  db.session.add(new_agent)
   db.session.commit()
   logging.info(f"Added new agent data to user's agents_data: {new_agent_data}")
   
-  return new_agent_data
+  return new_agent
