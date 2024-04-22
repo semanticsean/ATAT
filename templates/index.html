@@ -94,13 +94,16 @@
     {% include 'header.html' %}
     <div class="flex-grow">
       <main class="flex-1">
-        <div class="container mx-auto px-4 mt-16">
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-3xl font-bold mb-4">Welcome</h2>
-          <p class="mb-4 text-xl lg:w-2/3 md:w-full">
-            Welcome to your AI Agent Dashboard. Here you can manage your agents behaviors, forecast meetings, conduct surveys, and launch new timeframes for agents. See "Help" in the navigation menu for more information. We're here to help scale amazing minds, starting with you.
-          </p>
-            <div class="flex gap-4">
+        <div class="container mx-auto px-4 mt-18">
+          <div class="bg-white rounded-lg shadow-lg p-2 mb-8">
+            <h2 class="text-3xl font-bold mb-4 mt-6">Welcome</h2>
+            <p class="mb-4 text-xl lg:w-2/3 md:w-full">
+              Welcome to your Dashboard, where you can manage AI agents
+              roleplaying as synthetic people. See "Help" in the navigation menu
+              for more information. This product is designed to scale amazing
+              minds, starting with you.
+            </p>
+            <div class="flex gap-4 mt-4">
               <a
                 href="{{ url_for('meeting_blueprint.create_meeting') }}"
                 class="bg-blue-500 text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300"
@@ -199,7 +202,7 @@
                 href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}"
                 class="block bg-gray-200 text-black font-bold text-xl py-4 px-6 rounded hover:bg-blue-200 transition duration-300 text-center"
                 >{{ meeting.name }} <br /><span class="text-gray-500"
-                  >{{ meeting.agents|length }} agents</span
+                  >{{ meeting.agents|length }} synths</span
                 ></a
               >
               {% endif %} {% endfor %}
@@ -229,7 +232,7 @@
                 href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
                 class="inline-block bg-gray-200 text-xl text-black font-bold py-4 px-6 rounded hover:bg-blue-200 transition duration-300 text-center"
                 >{{ timeframe.name }} <br /><span class="text-gray-500"
-                  >{{ timeframe.agents_count }} agents</span
+                  >{{ timeframe.agents_count }} synths</span
                 ></a
               >
               {% endif %} {% endfor %}
