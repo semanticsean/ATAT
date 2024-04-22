@@ -14,6 +14,9 @@
             border: 4px solid white;
             margin-bottom: 16px;
         }
+        #footer-push {
+          height: 12rem;
+        }
         @media (min-width: 768px) {
             .agent-image img {
                 border-radius: 10%;
@@ -26,104 +29,106 @@
             }
         }
     </style>
-</head>
-<body class="bg-blue-50 min-h-screen flex flex-col">
-    {% include 'header.html' %}
-    <div class="container mx-auto px-4 py-8 md:mt-12 mt-6 flex-grow">
-        <div id="loading-overlay" class="fixed inset-0 bg-white flex items-center justify-center z-50">
-            <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." />
-        </div>
-        <div id="profile-content" style="display: none;">
-            {% if agent %}
-                <div class="container mx-auto px-4 py-8 md:mt-12 mt-6">
-                    <div class="bg-white rounded-lg shadow-md">
-                        <div class="flex flex-col md:flex-row">
-                            <div class="md:w-1/2 flex justify-center items-center agent-image">
-                                <img src="{{ custom_image_filter(agent.photo_path, '256x256') }}" alt="Agent Profile" class="md:mr-12">
-                            </div>
-                            <div class="md:w-1/2 p-6">
-                                <div class="mb-2">
-                                    <div class="mb-2 container mx-auto px-4 py-2 mt-2 bg-white rounded-lg shadow-md mb-4">
-                                        <h1 class="text-5xl font-semibold">
-                                            {{ agent.id }}
-                                            {% if timeframe %}
-                                                <span class="text-3xl font-semibold text-gray-600"> ({{ timeframe.name }})</span>
-                                            {% endif %}
-                                        </h1>
-                                        <h2 class="text-3xl font-semibold text-gray-400">{{ agent.jobtitle }}</h2>
-                                        <p class="text-gray-700">{{ agent.summary }}</p>
-                                    </div>
-                                    <div class="mb-8 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md">
-                                        <h2 class="text-xl font-semibold mb-2">Keywords</h2>
-                                        <div class="flex flex-wrap gap-2">
-                                            {% for keyword in agent.keywords %}
-                                                <span class="bg-gray-400 text-white font-bold py-2 px-4 rounded">{{ keyword }}</span>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mb-8 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md mb-4">
-                                    <h2 class="text-xl font-semibold mb-2">Actions</h2>
-                                    {% if not timeframe and main_agent.id == agent.id %}
-                                        <a href="mailto:{{ agent.email }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Email Agent</a>
-                                    {% endif %}
-                                    <a href="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Edit Agent</a>
-                                </div>
-                                <div class="mb-4 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md">
-                                    <h2 class="text-xl font-semibold mb-2">Agent Versions</h2>
-                                    <div class="flex flex-wrap gap-2">
-                                        <a href="{{ url_for('profile_blueprint.profile', agent_id=main_agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Main Agent</a>
-                                        {% for timeframe_agent in timeframe_agents %}
-                                            <a href="{{ url_for('profile_blueprint.profile', agent_id=timeframe_agent.agent.id, timeframe_id=timeframe_agent.timeframe_id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">{{ timeframe_agent.timeframe_name }}</a>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="container mx-auto px-4 py-8">
-                        <div class="mb-8 container mx-auto px-4 py-8 md:mt-12 mt-6 bg-white rounded-lg shadow-md">
-                            <h2 class="text-xl font-semibold mb-2">Persona</h2>
-                            {% set sentences = agent.persona.split('. ') %}
-                            {% for group in sentences | batch(6) %}
-                                <p class="text-gray-700 mb-4">{{ group | join('. ') }}.</p>
-                            {% endfor %}
-                        </div>
-                        <div class="mb-4 container mx-auto px-4 py-8 md:mt-12 mt-6 bg-white rounded-lg shadow-md">
-                            <h2 class="text-xl font-semibold mb-2">Image Prompt</h2>
-                            <p class="text-gray-700">{{ agent.image_prompt }}</p>
-                        </div>
-                        <div class="mb-2 container mx-auto px-4 py-8 md:mt-12 mt-6 bg-white rounded-lg shadow-md">
-                            <h2 class="text-xl font-semibold mb-2">Relationships</h2>
-                            {% if agent.relationships is mapping %}
-                                {% for relationship in agent.relationships %}
-                                    <div class="bg-gray-100 rounded-lg p-4 mb-4">
-                                        <h3 class="text-lg font-semibold mb-2">{{ relationship.name }}</h3>
-                                        <p class="text-gray-700 mb-2"><strong>Job:</strong> {{ relationship.job }}</p>
-                                        <p class="text-gray-700 mb-2"><strong>Relationship Description:</strong> {{ relationship.relationship_description }}</p>
-                                        <p class="text-gray-700"><strong>Summary:</strong> {{ relationship.summary }}</p>
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                <p class="text-gray-700">{{ agent.relationships }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <div class="container mx-auto px-4 py-4">
-                    <div class="mb-2 container mx-auto px-4 py-4 mt-2 bg-white rounded-lg shadow-md">
-                        <div class="flex space-x-2 mt-1">
-                            <a href="{{ url_for('profile_blueprint.profile', agent_id=prev_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not prev_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not prev_agent_id %}disabled{% endif %}>Previous</a>
-                            <a href="{{ url_for('profile_blueprint.profile', agent_id=next_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not next_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not next_agent_id %}disabled{% endif %}>Next</a>
-                        </div>
-                    </div>
-                </div>
-            {% else %}
-                <p>Agent not found.</p>
-            {% endif %}
-        </div>
-    </div>
-    {% include 'footer.html' %}
+  </head>
+  <body class="bg-blue-50 min-h-screen flex flex-col">
+      {% include 'header.html' %}
+      <div class="container mx-auto px-4 py-8 md:mt-12 mt-6 flex-grow">
+          <div id="loading-overlay" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+              <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." />
+          </div>
+          <div id="profile-content" style="display: none;">
+              {% if agent %}
+                  <div class="container mx-auto px-4 py-8 md:mt-12 mt-6">
+                      <div class="bg-white rounded-lg shadow-md">
+                          <div class="flex flex-col md:flex-row">
+                              <div class="md:w-1/2 flex justify-center items-center agent-image">
+                                  <img src="data:image/png;base64,{{ agent.image_data }}" alt="Agent Profile" class="md:mr-12">
+                              </div>
+                              <div class="md:w-1/2 p-6">
+                                  <div class="mb-2">
+                                      <div class="mb-2 container mx-auto px-4 py-2 mt-2 bg-white rounded-lg shadow-md mb-4">
+                                          <h1 class="text-5xl font-semibold">
+                                              {{ agent.id }}
+                                              {% if timeframe %}
+                                                  <span class="text-3xl font-semibold text-gray-600"> ({{ timeframe.name }})</span>
+                                              {% endif %}
+                                          </h1>
+                                          <h2 class="text-3xl font-semibold text-gray-400">{{ agent.jobtitle }}</h2>
+                                          <p class="text-gray-700">{{ agent.summary }}</p>
+                                      </div>
+                                      <div class="mb-8 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md">
+                                          <h2 class="text-xl font-semibold mb-2">Keywords</h2>
+                                          <div class="flex flex-wrap gap-2">
+                                              {% for keyword in agent.keywords %}
+                                                  <span class="bg-gray-400 text-white font-bold py-2 px-4 rounded">{{ keyword }}</span>
+                                              {% endfor %}
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="mb-8 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md mb-4">
+                                      <h2 class="text-xl font-semibold mb-2">Actions</h2>
+                                      {% if not timeframe and main_agent.id == agent.id %}
+                                          <a href="mailto:{{ agent.email }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Email Agent</a>
+                                      {% endif %}
+                                      <a href="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Edit Agent</a>
+                                  </div>
+                                  <div class="mb-4 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md">
+                                      <h2 class="text-xl font-semibold mb-2">Agent Versions</h2>
+                                      <div class="flex flex-wrap gap-2">
+                                          <a href="{{ url_for('profile_blueprint.profile', agent_id=main_agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Main Agent</a>
+                                          {% for timeframe_agent in timeframe_agents %}
+                                              <a href="{{ url_for('profile_blueprint.profile', agent_id=timeframe_agent.agent.id, timeframe_id=timeframe_agent.timeframe_id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">{{ timeframe_agent.timeframe_name }}</a>
+                                          {% endfor %}
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="container mx-auto px-4 py-8">
+                          <div class="mb-8 container mx-auto px-4 py-8 md:mt-12 mt-6 bg-white rounded-lg shadow-md">
+                              <h2 class="text-xl font-semibold mb-2">Persona</h2>
+                              {% set sentences = agent.persona.split('. ') %}
+                              {% for group in sentences | batch(6) %}
+                                  <p class="text-gray-700 mb-4">{{ group | join('. ') }}.</p>
+                              {% endfor %}
+                          </div>
+                          <div class="mb-4 container mx-auto px-4 py-8 md:mt-12 mt-6 bg-white rounded-lg shadow-md">
+                              <h2 class="text-xl font-semibold mb-2">Image Prompt</h2>
+                              <p class="text-gray-700">{{ agent.image_prompt }}</p>
+                          </div>
+                          <div class="mb-2 container mx-auto px-4 py-8 md:mt-12 mt-6 bg-white rounded-lg shadow-md">
+                              <h2 class="text-xl font-semibold mb-2">Relationships</h2>
+                              {% if agent.relationships is mapping %}
+                                  {% for relationship in agent.relationships %}
+                                      <div class="bg-gray-100 rounded-lg p-4 mb-4">
+                                          <h3 class="text-lg font-semibold mb-2">{{ relationship.name }}</h3>
+                                          <p class="text-gray-700 mb-2"><strong>Job:</strong> {{ relationship.job }}</p>
+                                          <p class="text-gray-700 mb-2"><strong>Relationship Description:</strong> {{ relationship.relationship_description }}</p>
+                                          <p class="text-gray-700"><strong>Summary:</strong> {{ relationship.summary }}</p>
+                                      </div>
+                                  {% endfor %}
+                              {% else %}
+                                  <p class="text-gray-700">{{ agent.relationships }}</p>
+                              {% endif %}
+                          </div>
+                      </div>
+                  </div>
+                  <div class="container mx-auto px-4 py-4">
+                      <div class="mb-2 container mx-auto px-4 py-4 mt-2 bg-white rounded-lg shadow-md">
+                          <div class="flex space-x-2 mt-1">
+                              <a href="{{ url_for('profile_blueprint.profile', agent_id=prev_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not prev_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not prev_agent_id %}disabled{% endif %}>Previous</a>
+                              <a href="{{ url_for('profile_blueprint.profile', agent_id=next_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not next_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not next_agent_id %}disabled{% endif %}>Next</a>
+                          </div>
+                      </div>
+                  </div>
+              {% else %}
+                  <p>Agent not found.</p>
+              {% endif %}
+          </div>
+      </div>
+      <div id="footer-push"></div>
+      {% include 'footer.html' %}
+    
     <script>
         $(window).on('load', function() {
             $('#loading-overlay').fadeOut(500, function() {
