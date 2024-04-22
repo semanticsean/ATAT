@@ -118,14 +118,11 @@
               Synths<span class="tooltiptext"
                 >AI-generated synthetic agents</span
               >
-            </h2>
-            {% if current_user.agents_data %}
-            <div id="agentsDisplay" class="agent-container mt-4">
-              {% for agent in current_user.agents_data %}
-              <a
-                href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}"
-                class="group relative mx-2 mb-4"
-              >
+            </h2>  
+                {% if current_user.agents_data %}
+                <div id="agentsDisplay" class="agent-container mt-4">
+                  {% for agent in current_user.agents_data %}
+                  <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}" class="group relative mx-2 mb-4">
                 {% if agent.photo_path %} {% set thumbnail_key =
                 agent.photo_path.split('/')[-1] + '_thumbnail' %} {% if
                 thumbnail_key in current_user.thumbnail_images_data %}
