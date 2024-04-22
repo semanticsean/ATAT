@@ -398,7 +398,7 @@ def profile():
                 agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
                 photo_filename = agent.data.get('photo_path', '').split('/')[-1]
                 images_data = json.loads(timeframe.images_data)
-                agent.image_data = images_data.get(photo_filename, '')
+                agent_image_data = images_data.get(photo_filename, '')
                 timeframe_agents = [{'timeframe_id': timeframe.id, 'timeframe_name': timeframe.name, 'agent': agent}]
                 main_agent = None
             else:
@@ -414,21 +414,26 @@ def profile():
             if agent_data:
                 agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
                 photo_filename = agent.data.get('photo_path', '').split('/')[-1]
-                agent.image_data = current_user.images_data.get(photo_filename, '')
+                agent_image_data = current_user.images_data.get(photo_filename, '')  # Retrieve image data from current_user.images_data
             else:
                 flash('Agent not found.', 'error')
                 return redirect(url_for('dashboard_blueprint.dashboard'))
         else:
             photo_filename = agent.data.get('photo_path', '').split('/')[-1]
-            agent.image_data = current_user.images_data.get(photo_filename, '')
+            agent_image_data = current_user.images_data.get(photo_filename, '')  # Retrieve image data from current_user.images_data
+
         main_agent = agent
         timeframe_agents = []
 
     if agent:
-        return render_template('profile.html', agent=agent, main_agent=main_agent, timeframe_agents=timeframe_agents, timeframe_id=timeframe_id)
+        logging.info(f"Agent ID: {agent_id}")
+        logging.info(f"Photo filename: {photo_filename}")
+        logging.info(f"Agent image data: {agent_image_data[:50]}...")  # Print the first 50 characters of the image data
+        return render_template('profile.html', agent=agent, agent_image_data=agent_image_data, main_agent=main_agent, timeframe_agents=timeframe_agents, timeframe_id=timeframe_id)
     else:
         flash('Agent not found.', 'error')
         return redirect(url_for('dashboard_blueprint.dashboard'))
+      
 
 # Update load_agents function to accept the direct file path
 def load_agents(agents_file_path):

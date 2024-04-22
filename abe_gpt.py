@@ -364,6 +364,12 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
   timestamp = datetime.datetime.now().isoformat()
   email = f"{agent_name.lower()}@{os.environ['DOMAIN_NAME']}"
 
+  # Check for duplicate agent IDs and append a sequential number if needed
+  agent_id = agent_name
+  counter = 1
+  while Agent.query.filter_by(id=agent_id).first():
+      agent_id = f"{agent_name}_{counter}"
+      counter += 1
   # Prepare the API payload for the new agent
   agent_payload = {
       "model":
@@ -419,7 +425,7 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
     )
 
   new_agent_data = {
-      'id': agent_name,
+      'id': agent_id,  # Use the generated agent_id with sequential number if needed
       'email': email,
       'unique_id': unique_id,
       'timestamp': timestamp,
@@ -501,6 +507,9 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
   new_agent = Agent(id=new_agent_data['id'], user_id=current_user.id, data=new_agent_data)
   db.session.add(new_agent)
   db.session.commit()
+  
   logging.info(f"Added new agent data to user's agents_data: {new_agent_data}")
+  logging.info(f"Photo filename: {photo_filename}")
+  logging.info(f"Image data stored in current_user.images_data: {current_user.images_data.get(photo_filename, '')[:50]}...")
   
   return new_agent

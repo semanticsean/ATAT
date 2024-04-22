@@ -76,7 +76,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+      background-color: rgba(0,0,0,0.9); /* Black background with opacity */
       z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
       cursor: pointer; /* Add a pointer on hover */
     }
@@ -104,7 +104,7 @@
             <h1 class="text-3xl font-bold mb-4 text-center">Create New Synth</h1>
             <form id="createAgentForm" action="{{ url_for('profile_blueprint.create_new_agent') }}" method="post">
                 <div class="mb-4">
-                    <label for="agent_name" class="block text-gray-700 font-bold mb-2">Agent Name:</label>
+                    <label for="agent_name" class="block text-gray-700 font-bold mb-2">Name:</label>
                     <input type="text" id="agent_name" name="agent_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 </div>
                 <div class="mb-4">
@@ -112,14 +112,14 @@
                     <input type="text" id="jobtitle" name="jobtitle" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 </div>
                 <div class="mb-4">
-                    <label for="agent_description" class="block text-gray-700 font-bold mb-2">Agent Description:</label>
+                    <label for="agent_description" class="block text-gray-700 font-bold mb-2">Details:</label>
                     <textarea id="agent_description" name="agent_description" rows="10" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="Describe your synth in detail." required>{{ agent_template }}</textarea>
                 </div>
                 <div class="text-center">
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Create Agent</button>
+                    <button type="submit" class="bg-black text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Render Synth</button>
                 </div>
             </form>
-          </div></div>
+          </div>
           <div id="footer-push"></div>
   {% include 'footer.html' %}
         </main>
