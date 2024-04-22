@@ -4,7 +4,7 @@ import abe_gpt
 import start
 import base64
 
-from models import db, User, Survey, Timeframe, Meeting
+from models import db, User, Survey, Timeframe, Meeting, Agent, Image
 from abe_gpt import generate_new_agent
 from abe import login_manager
 import email_client
@@ -13,7 +13,6 @@ from PIL import Image
 from io import BytesIO
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from models import db, User, Survey, Timeframe, Meeting, Agent, Image
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, send_file, make_response, Response, abort
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
@@ -383,68 +382,53 @@ def get_prev_next_agent_ids(agents, agent):
             next_agent_id = agents[agent_index + 1].id if agent_index < len(agents) - 1 else None
     return prev_agent_id, next_agent_id
 
+
 @profile_blueprint.route('/profile')
 @login_required
 def profile():
     agent_id = request.args.get('agent_id')
     timeframe_id = request.args.get('timeframe_id')
 
-    try:
-        agent_id = int(agent_id)
-    except (ValueError, TypeError):
-        flash('Invalid agent ID.', 'error')
-        return redirect(url_for('dashboard_blueprint.dashboard'))
-
     if timeframe_id:
         timeframe = Timeframe.query.get(timeframe_id)
         if timeframe and timeframe.user_id == current_user.id:
-            agent = Agent.query.filter_by(user_id=current_user.id, id=agent_id).first()
+            if agent_id:
+                try:
+                    agent_id = int(agent_id)
+                    agent = Agent.query.filter_by(user_id=current_user.id, id=agent_id).first()
+                except (ValueError, TypeError):
+                    agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
+            else:
+                agent = None
+
             if agent:
                 timeframe_agents = [{'timeframe_id': timeframe.id, 'timeframe_name': timeframe.name, 'agent': agent}]
                 main_agent = None
             else:
-                abort(404)
+                flash('Agent not found within the specified timeframe.', 'error')
+                return redirect(url_for('dashboard_blueprint.dashboard'))
         else:
-            abort(404)
+            flash('Invalid timeframe.', 'error')
+            return redirect(url_for('dashboard_blueprint.dashboard'))
     else:
-        agent = Agent.query.filter_by(user_id=current_user.id, id=agent_id).first()
-        if agent:
-            main_agent = agent
-            timeframe_agents = []
-            for timeframe in current_user.timeframes:
-                timeframe_agent = Agent.query.filter_by(user_id=current_user.id, id=agent_id).first()
-                if timeframe_agent:
-                    timeframe_agents.append({
-                        'timeframe_id': timeframe.id,
-                        'timeframe_name': timeframe.name,
-                        'agent': timeframe_agent
-                    })
+        if agent_id:
+            try:
+                agent_id = int(agent_id)
+                main_agent = Agent.query.filter_by(user_id=current_user.id, id=agent_id).first()
+            except (ValueError, TypeError):
+                main_agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
         else:
             main_agent = None
-            timeframe_agents = []
 
-    if not agent:
+        timeframe_agents = []
+
+    if main_agent or timeframe_agents:
+        return render_template('profile.html', main_agent=main_agent, timeframe_agents=timeframe_agents, timeframe_id=timeframe_id)
+    else:
         flash('Agent not found.', 'error')
         return redirect(url_for('dashboard_blueprint.dashboard'))
 
-    agent_data = agent.data
-    agent_data['relationships'] = get_relationships(agent_data)
 
-    image = Image.query.filter_by(user_id=current_user.id, filename=agent_data['photo_path'].split('/')[-1]).first()
-    if image:
-        agent_data['image_data'] = base64.b64encode(image.data).decode('utf-8')
-    else:
-        agent_data['image_data'] = ''
-
-    prev_agent_id, next_agent_id = get_prev_next_agent_ids(current_user.agents, agent)
-
-    return render_template('profile.html',
-                           agent=agent_data,
-                           main_agent=main_agent,
-                           timeframe_agents=timeframe_agents,
-                           timeframe_id=timeframe_id,
-                           prev_agent_id=prev_agent_id,
-                           next_agent_id=next_agent_id)
 # Update load_agents function to accept the direct file path
 def load_agents(agents_file_path):
   agents = []
@@ -777,23 +761,26 @@ def start_route():
 @profile_blueprint.route('/create_new_agent', methods=['GET', 'POST'])
 @login_required
 def create_new_agent():
+    logging.info("Handling request in create_new_agent route")
     if current_user.credits is None or current_user.credits <= 0:
+        logging.warning("User does not have enough credits")
         flash(
             "You don't have enough credits. Please contact the admin to add more credits."
         )
         return redirect(url_for('home'))
+
     if request.method == 'POST':
+        logging.info("Processing POST request for creating a new agent")
         agent_name = request.form['agent_name']
         agent_name = re.sub(r'[^a-zA-Z0-9\s]', '', agent_name).replace(' ', '_')
         jobtitle = request.form['jobtitle']
         agent_description = request.form['agent_description']
 
-        new_agent = abe_gpt.generate_new_agent(agent_name, jobtitle,
-                                               agent_description,
-                                               current_user)
-
-        return redirect(
-            url_for('profile_blueprint.profile', agent_id=new_agent.id))
+        logging.info(f"Creating new agent with name: {agent_name}, job title: {jobtitle}")
+        new_agent = abe_gpt.generate_new_agent(agent_name, jobtitle, agent_description, current_user)
+        logging.info(f"New agent created with ID: {new_agent.id}")
+    
+        return redirect(url_for('profile_blueprint.profile', agent_id=new_agent.id))
 
     return render_template('new_agent.html')
 
