@@ -340,8 +340,8 @@ def meeting_results(meeting_id):
 def dashboard():
     timeframe_id = request.args.get('timeframe_id')
     agents_data = []
-    timeframe = None  # Initialize timeframe variable
-  
+    timeframe = None
+
     if timeframe_id:
         timeframe = Timeframe.query.get(timeframe_id)
         if timeframe and timeframe.user_id == current_user.id:
@@ -358,18 +358,16 @@ def dashboard():
     else:
         agents_data = current_user.agents_data or []
         logger.info("Loaded base agents")
-
-        # Fetch the base64-encoded image data for each base agent
+  
         for agent in agents_data:
-            if 'photo_path' in agent:  # Check if 'photo_path' key exists
-                agent['image_data'] = current_user.images_data.get(
-                    agent['photo_path'].split('/')[-1], '')
+            if 'photo_path' in agent:
+                agent['image_data'] = current_user.images_data.get(agent['photo_path'].split('/')[-1], '')
             else:
-                agent['image_data'] = ''  # Set a default value if 'photo_path' is missing
-
+                agent['image_data'] = ''
+  
     timeframes = current_user.timeframes
     logger.info(f"Timeframes for user {current_user.id}: {timeframes}")
-
+  
     return render_template('dashboard.html', agents=agents_data, timeframes=timeframes, timeframe=timeframe)
 
 def get_prev_next_agent_ids(agents, agent):
@@ -426,13 +424,13 @@ def profile():
         timeframe_agents = []
 
     if agent:
-      logging.info(f"Agent ID: {agent_id}")
-      logging.info(f"Photo filename: {photo_filename}")
-      logging.info(f"Agent image data: {agent_image_data[:50]}...")  # Print the first 50 characters of the image data
-      return render_template('profile.html', agent=agent, agent_image_data=agent_image_data, main_agent=main_agent, timeframe_agents=timeframe_agents, timeframe_id=timeframe_id)
+        logging.info(f"Agent ID: {agent_id}")
+        logging.info(f"Photo filename: {photo_filename}")
+        logging.info(f"Agent image data: {agent_image_data[:50]}...")  # Print the first 50 characters of the image data
+        return render_template('profile.html', agent=agent, agent_image_data=agent_image_data, main_agent=main_agent, timeframe_agents=timeframe_agents, timeframe_id=timeframe_id)
     else:
-      flash('Agent not found.', 'error')
-      return redirect(url_for('dashboard_blueprint.dashboard'))
+        flash('Agent not found.', 'error')
+        return redirect(url_for('dashboard_blueprint.dashboard'))
       
 
 # Update load_agents function to accept the direct file path

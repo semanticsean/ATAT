@@ -116,8 +116,7 @@ def inject_secrets():
 @app.route('/')
 def home():
     if current_user.is_authenticated:
-        agents_content = json.dumps(
-            current_user.agents_data) if current_user.agents_data else None
+        agents_content = json.dumps(current_user.agents_data) if current_user.agents_data else None
         meeting_results = []
         for meeting in current_user.meetings:
             if meeting.agents and meeting.questions and meeting.answers:
@@ -126,10 +125,10 @@ def home():
     else:
         agents_content = None
         meeting_results = []
-
+  
     timeframes = current_user.timeframes if current_user.is_authenticated else []
     logger.info(f"Timeframes for user {current_user.id if current_user.is_authenticated else 'anonymous'}: {timeframes}")
-
+  
     return render_template('index.html', agents_content=agents_content, meeting_results=meeting_results, timeframes=timeframes)
 
 @app.route('/images/<filename>')
