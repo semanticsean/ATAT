@@ -103,12 +103,12 @@
             <div class="flex gap-4">
               <a
                 href="{{ url_for('meeting_blueprint.create_meeting') }}"
-                class="bg-blue-500 text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300"
+                class="bg-blue-500 text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
                 >New Meeting</a
               >
               <a
                 href="{{ url_for('profile_blueprint.create_new_agent') }}"
-                class="bg-black text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-200 transition duration-300"
+                class="bg-black text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
                 >New Agent</a
               >
             </div>
@@ -159,7 +159,7 @@
                 class="group relative mx-2 mb-4 text-xl font-bold"
               >
                 <div
-                  class="w-20 h-20 md:w-24 md:h-24 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold text-sm md:text-base hover:bg-blue-200 transition duration-300"
+                  class="w-20 h-20 md:w-24 md:h-24 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold text-sm md:text-base hover:bg-blue-600 transition duration-300"
                 >
                   Dashboard
                 </div>
@@ -191,13 +191,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <a
                 href="{{ url_for('meeting_blueprint.create_meeting') }}"
-                class="bg-black text-white font-bold py-4 px-6 text-xl rounded hover:bg-blue-200 transition duration-300 text-center"
+                class="bg-black text-white font-bold py-4 px-6 text-xl rounded hover:bg-blue-600 transition duration-300 text-center"
                 >New Meeting</a
               >
               {% for meeting in current_user.meetings %} {% if meeting.answers%}
               <a
                 href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}"
-                class="block bg-gray-200 text-black font-bold text-xl py-4 px-6 rounded hover:bg-blue-200 transition duration-300 text-center"
+                class="block bg-gray-200 text-black font-bold text-xl py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center"
                 >{{ meeting.name }} <br /><span class="text-gray-500"
                   >{{ meeting.agents|length }} agents</span
                 ></a
@@ -220,14 +220,14 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <a
                 href="{{ url_for('auth_blueprint.create_timeframe') }}"
-                class="bg-black text-white text-xl font-bold py-4 px-6 rounded hover:bg-blue-200 transition duration-300 text-center"
+                class="bg-black text-white text-xl font-bold py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center"
                 >New Timeframe</a
               >
               {% for timeframe in timeframes %} {% if timeframe.agents_count > 0
               %}
               <a
                 href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
-                class="inline-block bg-gray-200 text-xl text-black font-bold py-4 px-6 rounded hover:bg-blue-200 transition duration-300 text-center"
+                class="inline-block bg-gray-200 text-xl text-black font-bold py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center"
                 >{{ timeframe.name }} <br /><span class="text-gray-500"
                   >{{ timeframe.agents_count }} agents</span
                 ></a

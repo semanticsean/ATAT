@@ -111,7 +111,7 @@
 
                         const copyButton = document.createElement('button');
                         copyButton.textContent = 'Copy';
-                        copyButton.classList.add('copy-button', 'bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-1', 'px-4', 'rounded');
+                        copyButton.classList.add('copy-button', 'bg-blue-500', 'hover:bg-blue-600', 'text-white', 'font-bold', 'py-1', 'px-4', 'rounded');
                         copyButton.onclick = function() {
                             navigator.clipboard.writeText(key);
                             alert('API Key copied to clipboard!');
