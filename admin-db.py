@@ -36,8 +36,8 @@ def generate_log(username=None):
         log_lines.append(f"Agent Image: {agent.get('photo_path', '')}")
         log_lines.append(
             f"Agent Relationships: {agent.get('relationships', [])}")
-        log_lines.append(f"Agent Persona: {agent.get('persona', '')}")
-        log_lines.append(f"Agent Summary: {agent.get('summary', '')}")
+        log_lines.append(f"Agent Persona: {agent.get('persona', '')[:200]}")
+        log_lines.append(f"Agent Summary: {agent.get('summary', '')[:200]}")
         log_lines.append(
             f"Agent Keywords: {', '.join(agent.get('keywords', []))}")
         log_lines.append(
@@ -53,7 +53,7 @@ def generate_log(username=None):
             timeframe.agents_data) if timeframe.agents_data else []
         log_lines.append(f"Timeframe ID: {timeframe.id}")
         log_lines.append(f"Timeframe Name: {timeframe.name}")
-        log_lines.append(f"Number of Agents: {len(agents_data)}")
+        log_lines.append(f"Number of Agents: {len(agents_data[:200])}")
         log_lines.append("")
 
     meetings = Meeting.query.filter_by(user_id=user.id).all()
