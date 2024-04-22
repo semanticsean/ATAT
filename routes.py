@@ -377,6 +377,7 @@ def dashboard():
 @login_required
 def profile():
     agent_id = request.args.get('agent_id')
+    main_agent = get_agent_by_id(current_user.agents_data, agent_id)
     timeframe_id = request.args.get('timeframe_id')
 
     main_agent = get_agent_by_id(current_user.agents_data, agent_id)
@@ -404,9 +405,21 @@ def profile():
     else:
         agent = main_agent
 
-    if agent:
+    logging.debug(f"Agent before parsing: {agent}")
+
+    if agent is None:
+        flash('Agent not found.', 'error')
+        return redirect(url_for('dashboard_blueprint.dashboard'))
+
+    if isinstance(agent, dict):
+        logging.debug(f"Agent after parsing: {agent}")
+
         agent['relationships'] = get_relationships(agent)
         prev_agent_id, next_agent_id = get_prev_next_agent_ids(current_user.agents_data, agent)
+    else:
+        logging.warning(f"Unexpected agent type: {type(agent)}")
+        flash('Unexpected agent data. Please try again.', 'error')
+        return redirect(url_for('dashboard_blueprint.dashboard'))
 
     return render_template('profile.html',
                            agent=agent,
@@ -415,8 +428,6 @@ def profile():
                            timeframe_id=timeframe_id,
                            prev_agent_id=prev_agent_id,
                            next_agent_id=next_agent_id)
-
-
 # Update load_agents function to accept the direct file path
 def load_agents(agents_file_path):
   agents = []
@@ -543,22 +554,29 @@ def create_meeting():
         timeframes = current_user.timeframes
         return render_template('meeting1.html', timeframes=timeframes)
 
-
 def get_agent_by_id(agents, agent_id):
   if agent_id:
-    return next((a for a in agents if a['id'] == agent_id), None)
+      agent = next((a for a in agents if a['id'] == agent_id), None)
+      if agent:
+          return agent
+      else:
+          flash('Agent not found', 'error')
+          return None
   return None
+  
 
 def get_relationships(agent):
-    if isinstance(agent.get('relationships'), list):
-        return agent['relationships']
-    elif isinstance(agent.get('relationships'), str):
-        try:
-            return json.loads(agent['relationships'])
-        except json.JSONDecodeError:
-            return []
-    else:
-        return []
+  if isinstance(agent, Response):
+      agent = agent.json()  # Parse the response data as JSON
+  if agent and isinstance(agent.get('relationships'), list):
+      return agent['relationships']
+  elif agent and isinstance(agent.get('relationships'), str):
+      try:
+          return json.loads(agent['relationships'])
+      except json.JSONDecodeError:
+          return []
+  else:
+      return []
 
 
 
@@ -697,18 +715,7 @@ def public_survey_image(public_url, filename):
     abort(404)
 
 
-@auth_blueprint.route('/logout')
-@login_required
-def logout():
-  logout_user()
-  response = make_response(redirect('/login'))
-  response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-  response.headers['Pragma'] = 'no-cache'
-  response.headers['Expires'] = '0'
-  page_view = PageView(page='/')
-  db.session.add(page_view)
-  db.session.commit()
-  return response
+
 
 
 def allowed_file(filename):
@@ -763,24 +770,38 @@ def start_route():
 @profile_blueprint.route('/create_new_agent', methods=['GET', 'POST'])
 @login_required
 def create_new_agent():
-  if current_user.credits is None or current_user.credits <= 0:
-    flash(
-        "You don't have enough credits. Please contact the admin to add more credits."
-    )
-    return redirect(url_for('home'))
-  if request.method == 'POST':
-    agent_name = request.form['agent_name']
-    agent_name = re.sub(r'[^a-zA-Z0-9\s]', '', agent_name).replace(' ', '_')
-    jobtitle = request.form['jobtitle']
-    agent_description = request.form['agent_description']
+    if current_user.credits is None or current_user.credits <= 0:
+        flash(
+            "You don't have enough credits. Please contact the admin to add more credits."
+        )
+        return redirect(url_for('home'))
+    if request.method == 'POST':
+        agent_id = request.form.get('agent_id')
+        jobtitle = request.form.get('jobtitle')
+        agent_description = request.form.get('agent_description')
 
-    new_agent_data = abe_gpt.generate_new_agent(agent_name, jobtitle,
-                                                agent_description,
-                                                current_user)
-    return redirect(
-        url_for('profile_blueprint.profile', agent_id=new_agent_data['id']))
+        logging.info(f"Received form data: agent_id={agent_id}, jobtitle={jobtitle}, agent_description={agent_description}")
 
-  return render_template('new_agent.html')
+        try:
+            agent_id = re.sub(r'[^a-zA-Z0-9\s]', '', agent_id).replace(' ', '_')
+            logging.info(f"Sanitized agent_id: {agent_id}")
+
+            new_agent_data = abe_gpt.generate_new_agent(agent_id, jobtitle,
+                                                        agent_description,
+                                                        current_user)
+            logging.info(f"Generated new agent data: {new_agent_data}")
+
+            if new_agent_data:
+                return redirect(url_for('profile_blueprint.profile', agent_id=new_agent_data['id']))
+            else:
+                flash('Failed to create new agent. Please try again.', 'error')
+                return redirect(url_for('profile_blueprint.create_new_agent'))
+        except Exception as e:
+            logging.error(f"An error occurred while creating a new agent: {str(e)}")
+            flash('An error occurred while creating a new agent. Please try again.', 'error')
+            return redirect(url_for('profile_blueprint.create_new_agent'))
+
+    return render_template('new_agent.html')
 
 
 @profile_blueprint.route('/edit_agent/<agent_id>', methods=['GET', 'POST'])
@@ -951,14 +972,25 @@ def get_agents():
 
     if timeframe_id:
         timeframe = Timeframe.query.get(timeframe_id)
-        if not timeframe or timeframe.user_id != current_user.id:
-            return jsonify({'error': 'Invalid timeframe'}), 400
-
-        agents_data = json.loads(timeframe.agents_data)
-        images_data = json.loads(timeframe.images_data)
+        if timeframe and timeframe.user_id == current_user.id:
+            agents_data = json.loads(timeframe.agents_data)
+            agent = next((a for a in agents_data if str(a.get('id')) == agent_id), None)
+            if agent:
+                if isinstance(agent, Response):
+                    agent = agent.json()  # Parse the response data as JSON
+                agent['image_data'] = current_user.images_data.get(agent['photo_path'].split('/')[-1], '')
+        else:
+            abort(404)
     else:
-        agents_data = current_user.agents_data or []
-        images_data = current_user.images_data or {}
+        if isinstance(agent, Response):
+            agent = agent.json()  # Parse the response data as JSON
+
+    if agent:
+        agent['relationships'] = get_relationships(agent)
+        prev_agent_id, next_agent_id = get_prev_next_agent_ids(current_user.agents_data, agent)
+    else:
+        prev_agent_id = None
+        next_agent_id = None
 
     agents = []
     for agent in agents_data:
@@ -972,3 +1004,24 @@ def get_agents():
             agents.append(agent_data)
 
     return jsonify({'agents': agents})
+
+
+
+
+
+#####################
+###LOGIN LOGOUT######
+#####################
+
+@auth_blueprint.route('/logout')
+@login_required
+def logout():
+  logout_user()
+  response = make_response(redirect('/login'))
+  response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+  response.headers['Pragma'] = 'no-cache'
+  response.headers['Expires'] = '0'
+  page_view = PageView(page='/')
+  db.session.add(page_view)
+  db.session.commit()
+  return response
