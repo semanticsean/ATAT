@@ -11,7 +11,7 @@ from flask_login import LoginManager, current_user, login_required
 from flask_migrate import Migrate
 from datetime import datetime
 from extensions import db, login_manager
-from models import User, Timeframe, Meeting
+from models import db, User, Survey, Timeframe, Meeting, Agent, Image
 import start
 from routes import auth_blueprint, meeting_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint
 from werkzeug.utils import secure_filename
@@ -116,7 +116,16 @@ def inject_secrets():
 @app.route('/')
 def home():
     if current_user.is_authenticated:
-        agents_content = json.dumps(current_user.agents_data) if current_user.agents_data else None
+        agents = Agent.query.filter_by(user_id=current_user.id).all()
+        agents_content = []
+        for agent in agents:
+            agent_data = {
+                'id': agent.id,
+                'jobtitle': agent.data.get('jobtitle', ''),
+                'image_data': current_user.images_data.get(agent.data['photo_path'].split('/')[-1], '')
+            }
+            agents_content.append(agent_data)
+        agents_content = json.dumps(agents_content) if agents_content else None
         meeting_results = []
         for meeting in current_user.meetings:
             if meeting.agents and meeting.questions and meeting.answers:

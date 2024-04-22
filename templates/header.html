@@ -47,7 +47,7 @@
         @click="dropdownOpen = !dropdownOpen"
         class="font-md md:text-xl text-white focus:outline-none mr-6"
       >
-        {{ current_user.username }}
+        {{ current_user.username }} ({{ current_user.credits or 0 }})
         <svg class="w-4 h-4 fill-current inline-block ml-1" viewBox="0 0 20 20">
           <path
             :class="{'hidden': dropdownOpen, 'block': !dropdownOpen}"
