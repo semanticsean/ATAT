@@ -392,16 +392,13 @@ def profile():
     if timeframe_id:
         timeframe = Timeframe.query.get(timeframe_id)
         if timeframe and timeframe.user_id == current_user.id:
-            if agent_id:
-                try:
-                    agent_id = int(agent_id)
-                    agent = Agent.query.filter_by(user_id=current_user.id, id=agent_id).first()
-                except (ValueError, TypeError):
-                    agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
-            else:
-                agent = None
-
-            if agent:
+            agents_data = json.loads(timeframe.agents_data)
+            agent_data = next((agent for agent in agents_data if str(agent['id']) == str(agent_id)), None)
+            if agent_data:
+                agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
+                photo_filename = agent.data.get('photo_path', '').split('/')[-1]
+                images_data = json.loads(timeframe.images_data)
+                agent.image_data = images_data.get(photo_filename, '')
                 timeframe_agents = [{'timeframe_id': timeframe.id, 'timeframe_name': timeframe.name, 'agent': agent}]
                 main_agent = None
             else:
@@ -411,21 +408,27 @@ def profile():
             flash('Invalid timeframe.', 'error')
             return redirect(url_for('dashboard_blueprint.dashboard'))
     else:
-        if agent_id:
-            agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
-            main_agent = agent  # Set main_agent to the retrieved agent
+        agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
+        if not agent:
+            agent_data = next((agent for agent in current_user.agents_data if str(agent['id']) == str(agent_id)), None)
+            if agent_data:
+                agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
+                photo_filename = agent.data.get('photo_path', '').split('/')[-1]
+                agent.image_data = current_user.images_data.get(photo_filename, '')
+            else:
+                flash('Agent not found.', 'error')
+                return redirect(url_for('dashboard_blueprint.dashboard'))
         else:
-            agent = None
-            main_agent = None  # Set main_agent to None if no agent is found
-
+            photo_filename = agent.data.get('photo_path', '').split('/')[-1]
+            agent.image_data = current_user.images_data.get(photo_filename, '')
+        main_agent = agent
         timeframe_agents = []
 
-    if agent or timeframe_agents:
+    if agent:
         return render_template('profile.html', agent=agent, main_agent=main_agent, timeframe_agents=timeframe_agents, timeframe_id=timeframe_id)
     else:
         flash('Agent not found.', 'error')
         return redirect(url_for('dashboard_blueprint.dashboard'))
-
 
 # Update load_agents function to accept the direct file path
 def load_agents(agents_file_path):
