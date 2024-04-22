@@ -64,6 +64,13 @@ class APIKey(db.Model):
     key = db.Column(db.String(256), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+class MainAgent(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+  data = db.Column(db.Text, nullable=False)
+  image_data = db.Column(db.Text)
+  user = db.relationship('User', backref=db.backref('main_agents', lazy=True))
+
 class Survey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
