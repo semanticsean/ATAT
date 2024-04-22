@@ -1,3 +1,4 @@
+#models.py 
 import os
 import datetime
 import random
@@ -63,6 +64,20 @@ class APIKey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     key = db.Column(db.String(256), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+class Agent(db.Model):
+  id = db.Column(db.String, primary_key=True)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+  data = db.Column(db.JSON)
+  user = db.relationship('User', backref=db.backref('agents', lazy=True))
+
+class Image(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+  filename = db.Column(db.String(255), nullable=False)
+  data = db.Column(db.LargeBinary)
+  user = db.relationship('User', backref=db.backref('images', lazy=True))
+
 
 class MainAgent(db.Model):
   id = db.Column(db.Integer, primary_key=True)
