@@ -1,17 +1,15 @@
 <!-- templates/new_agent.html -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Create New Synth</title>
-  <style>
-      <style>
-
-        html {
-          height: 100%;
-          margin: 0;
-        }
+    <style>
+      <style > html {
+        height: 100%;
+        margin: 0;
+      }
 
       body {
         display: flex;
@@ -19,43 +17,15 @@
         min-height: 100vh;
       }
 
-        #content {
-          min-height: 100%;
-          /* Equal to footer height */
-          margin-bottom: -4rem; 
-        }
-
-        #footer-push {
-          margin-top:300px;
-          height: 16rem; 
-          /* Equal to footer height */
-        }
-
-        footer {
-          height: 4rem;
-          /* Other styling */
-        }
-
-
-        body {
-          display: flex;
-          flex-direction: column;
-          min-height: 100vh;
-        }
-
-        main {
-          flex: 1;
-        }
-
-
-      .flex-grow {
-        flex: 1;
+      #content {
+        min-height: 100%;
+        /* Equal to footer height */
+        margin-bottom: -4rem;
       }
 
-
-
       #footer-push {
-        height: 4rem; 
+        margin-top: 300px;
+        height: 16rem;
         /* Equal to footer height */
       }
 
@@ -64,77 +34,146 @@
         /* Other styling */
       }
 
-    /* Add your existing styles here */
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
 
-    /* Style for loading overlay */
-    #loadingOverlay {
-      display: none; /* Hidden by default */
-      position: fixed; /* Sit on top of the page content */
-      width: 100%; /* Full width (cover the whole page) */
-      height: 100%; /* Full height (cover the whole page) */
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0,0,0,0.9); /* Black background with opacity */
-      z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
-      cursor: pointer; /* Add a pointer on hover */
-    }
+      main {
+        flex: 1;
+      }
 
-    #loadingGif {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      font-size: 50px;
-      color: white;
-      transform: translate(-50%, -50%);
-      -ms-transform: translate(-50%, -50%);
-    }
+      .flex-grow {
+        flex: 1;
+      }
 
-  </style>
-  
-  
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-blue-50">
+      #footer-push {
+        height: 4rem;
+        /* Equal to footer height */
+      }
+
+      footer {
+        height: 4rem;
+        /* Other styling */
+      }
+
+      /* Add your existing styles here */
+
+      /* Style for loading overlay */
+      #loadingOverlay {
+        display: none; /* Hidden by default */
+        position: fixed; /* Sit on top of the page content */
+        width: 100%; /* Full width (cover the whole page) */
+        height: 100%; /* Full height (cover the whole page) */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(
+          0,
+          0,
+          0,
+          0.5
+        ); /* Black background with opacity */
+        z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+        cursor: pointer; /* Add a pointer on hover */
+      }
+
+      #loadingGif {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        font-size: 50px;
+        color: white;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+      }
+    </style>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-blue-50">
     {% include 'header.html' %}
     <div class="pt-16">
-        <main class="container mx-auto px-4 py-4 mt-2">
-          <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-6 py-6">
-            <h1 class="text-3xl font-bold mb-4 text-center">Create New Synth</h1>
-            <form id="createAgentForm" action="{{ url_for('profile_blueprint.create_new_agent') }}" method="post">
-                <div class="mb-4">
-                    <label for="agent_name" class="block text-gray-700 font-bold mb-2">Name:</label>
-                    <input type="text" id="agent_name" name="agent_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                </div>
-                <div class="mb-4">
-                    <label for="jobtitle" class="block text-gray-700 font-bold mb-2">Job Title:</label>
-                    <input type="text" id="jobtitle" name="jobtitle" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                </div>
-                <div class="mb-4">
-                    <label for="agent_description" class="block text-gray-700 font-bold mb-2">Details:</label>
-                    <textarea id="agent_description" name="agent_description" rows="10" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="Describe your synth in detail." required>{{ agent_template }}</textarea>
-                </div>
-                <div class="text-center">
-                    <button type="submit" class="bg-black text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Render Synth</button>
-                </div>
-            </form>
-          </div>
-          <div id="footer-push"></div>
-  {% include 'footer.html' %}
-        </main>
+      <main class="container mx-auto px-4 py-4 mt-2">
+        <div
+          class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-6 py-6"
+        >
+          <h1 class="text-3xl font-bold mb-4 text-center">Create New Synth</h1>
+          <form
+            id="createAgentForm"
+            action="{{ url_for('profile_blueprint.create_new_agent') }}"
+            method="post"
+          >
+            <div class="mb-4">
+              <label for="agent_name" class="block text-gray-700 font-bold mb-2"
+                >Name:</label
+              >
+              <input
+                type="text"
+                id="agent_name"
+                name="agent_name"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label for="jobtitle" class="block text-gray-700 font-bold mb-2"
+                >Job Title:</label
+              >
+              <input
+                type="text"
+                id="jobtitle"
+                name="jobtitle"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label
+                for="agent_description"
+                class="block text-gray-700 font-bold mb-2"
+                >Details:</label
+              >
+              <textarea
+                id="agent_description"
+                name="agent_description"
+                rows="10"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value="Describe your synth in detail."
+                required
+              >
+{{ agent_template }}</textarea
+              >
+            </div>
+            <div class="text-center">
+              <button
+                type="submit"
+                class="bg-black text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Render Synth
+              </button>
+            </div>
+          </form>
+        </div>
+        <div id="footer-push"></div>
+        {% include 'footer.html' %}
+      </main>
     </div>
-    
 
-  <!-- Loading Overlay -->
-  <div id="loadingOverlay">
-      <img id="loadingGif" src="/static/loading.gif" alt="Loading...">
-  </div>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+      <img id="loadingGif" src="/static/loading.gif" alt="Loading..." />
+    </div>
 
-  <script>
-    document.getElementById('createAgentForm').onsubmit = function() {
-      document.getElementById('loadingOverlay').style.display = 'block';
-    };
-  </script>
-</body>
+    <script>
+      document.getElementById("createAgentForm").onsubmit = function () {
+        document.getElementById("loadingOverlay").style.display = "block";
+      };
+    </script>
+  </body>
 </html>

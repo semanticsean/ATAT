@@ -426,13 +426,13 @@ def profile():
         timeframe_agents = []
 
     if agent:
-        logging.info(f"Agent ID: {agent_id}")
-        logging.info(f"Photo filename: {photo_filename}")
-        logging.info(f"Agent image data: {agent_image_data[:50]}...")  # Print the first 50 characters of the image data
-        return render_template('profile.html', agent=agent, agent_image_data=agent_image_data, main_agent=main_agent, timeframe_agents=timeframe_agents, timeframe_id=timeframe_id)
+      logging.info(f"Agent ID: {agent_id}")
+      logging.info(f"Photo filename: {photo_filename}")
+      logging.info(f"Agent image data: {agent_image_data[:50]}...")  # Print the first 50 characters of the image data
+      return render_template('profile.html', agent=agent, agent_image_data=agent_image_data, main_agent=main_agent, timeframe_agents=timeframe_agents, timeframe_id=timeframe_id)
     else:
-        flash('Agent not found.', 'error')
-        return redirect(url_for('dashboard_blueprint.dashboard'))
+      flash('Agent not found.', 'error')
+      return redirect(url_for('dashboard_blueprint.dashboard'))
       
 
 # Update load_agents function to accept the direct file path

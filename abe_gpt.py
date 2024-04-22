@@ -497,11 +497,11 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
 
   new_agent_data['photo_path'] = f"/images/{photo_filename}"
   logging.info(f"Updated photo path: {new_agent_data['photo_path']}")
-  
+
   # Add the new agent data to the user's agents_data
   if current_user.agents_data is None:
       current_user.agents_data = []
-  
+
   current_user.agents_data.append(new_agent_data)
 
   new_agent = Agent(id=new_agent_data['id'], user_id=current_user.id, data=new_agent_data)

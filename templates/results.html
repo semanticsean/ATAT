@@ -88,7 +88,7 @@
               <div class="mb-4 flex items-center">
                 <label for="is_public" class="inline-flex items-center mr-4">
                   <input type="checkbox" id="is_public" name="is_public" class="hidden" {% if meeting.is_public %}checked{% endif %} onchange="this.form.submit()"/>
-                  <span class="bg-black hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+                  <span class="bg-black hover:bg-blue-600 text-white font-bold py-2 px-4 rounded cursor-pointer">
                     {% if meeting.is_public %}Unpublish Public Meeting{% else %}Make Meeting Public{% endif %}
                   </span>
                 </label>
@@ -102,7 +102,7 @@
               <label for="public-url" class="block text-sm font-medium text-gray-700 mb-1">Public URL:</label>
               <div class="mt-1 flex rounded-md shadow-sm">
                 <input type="text" name="public-url" id="public-url" class="flex-1 min-w-0 block w-full px-3 py-2 rounded-l-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300" value="{{ request.host_url }}public/meeting/{{ meeting.public_url }}" readonly/>
-                <button type="button" class="ml-2 px-4 py-2 border border-transparent text-sm font-medium rounded-r-md text-white bg-black hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" onclick="copyPublicUrl(this)">Copy</button>
+                <button type="button" class="ml-2 px-4 py-2 border border-transparent text-sm font-medium rounded-r-md text-white bg-black hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" onclick="copyPublicUrl(this)">Copy</button>
                 <button type="button" class="ml-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-700 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" onclick="openPublicUrl()">Open</button>
               </div>
             </div>
@@ -143,7 +143,7 @@
         </div>
       </div>
       {% endfor %}
-      <button id="download-csv" class="ml-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+      <button id="download-csv" class="ml-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
         Download CSV
       </button>
 
