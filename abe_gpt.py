@@ -7,50 +7,38 @@ import time
 import uuid
 import datetime
 import os
-from models import db, Timeframe, User
+from models import db, Timeframe
 from openai import OpenAI, APIError
 from PIL import Image
 from io import BytesIO
-from flask import redirect, url_for
 
 client = OpenAI()
 openai_api_key = os.environ['OPENAI_API_KEY']
 
-def save_image_to_database(image_url, user_id=None, timeframe_id=None, photo_filename=None):
-  try:
-      # Download the image from the URL
-      response = requests.get(image_url)
-      img_data = response.content
+def save_image_to_database(image_url, timeframe_id, photo_filename):
+    try:
+        # Download the image from the URL
+        response = requests.get(image_url)
+        img_data = response.content
 
-      # Convert the image to base64
-      encoded_string = base64.b64encode(img_data).decode('utf-8')
+        # Convert the image to base64
+        encoded_string = base64.b64encode(img_data).decode('utf-8')
 
-      if timeframe_id:
-          # Save the base64 image to the database for the timeframe
-          timeframe = Timeframe.query.get(timeframe_id)
-          if timeframe:
-              timeframe_images_data = json.loads(timeframe.images_data)
-              timeframe_images_data[photo_filename] = encoded_string
-              timeframe.images_data = json.dumps(timeframe_images_data)
-              db.session.commit()
-              return True
-          else:
-              raise ValueError(f"Timeframe with ID {timeframe_id} not found.")
-      elif user_id:
-          # Save the base64 image to the user's images_data
-          user = User.query.get(user_id)
-          if user:
-              user.images_data[photo_filename] = encoded_string
-              db.session.commit()
-              return True
-          else:
-              raise ValueError(f"User with ID {user_id} not found.")
-      else:
-          raise ValueError("Either user_id or timeframe_id must be provided.")
+        # Save the base64 image to the database
+        timeframe = Timeframe.query.get(timeframe_id)
+        if timeframe:
+            timeframe_images_data = json.loads(timeframe.images_data)
+            timeframe_images_data[photo_filename] = encoded_string
+            timeframe.images_data = json.dumps(timeframe_images_data)
+            db.session.commit()
+            return True
+        else:
+            raise ValueError(f"Timeframe with ID {timeframe_id} not found.")
 
-  except Exception as e:
-      logging.error(f"Error occurred while saving image data: {e}")
-      return False
+    except Exception as e:
+        logging.error(f"Error occurred while saving image data: {e}")
+        return False
+
 def process_agents(payload, current_user):
   """
   Process agents based on the provided payload and update their data using OpenAI APIs.
@@ -370,27 +358,30 @@ def conduct_meeting(payload, current_user):
   return meeting_responses
   
 
-def generate_new_agent(agent_id, jobtitle, agent_description, current_user):
-
+def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
   # Generate unique_id and timestamp
   unique_id = str(uuid.uuid4())
   timestamp = datetime.datetime.now().isoformat()
-  email = f"{agent_id.lower()}@{os.environ['DOMAIN_NAME']}"
-  logging.info(f"Generating new agent data for agent {agent_id}")
+  email = f"{agent_name.lower()}@{os.environ['DOMAIN_NAME']}"
 
   # Prepare the API payload for the new agent
   agent_payload = {
-      "model": "gpt-4-turbo-preview",
+      "model":
+      "gpt-4-turbo-preview",
       "response_format": {
           "type": "json_object"
       },
       "messages": [{
-          "role": "system",
-          "content": f"You are a helpful assistant designed to generate a new agent data in JSON format based on the following instructions:\n{json.load(open('abe/abe-instructions.json'))['new_agent_json_instructions']} /n /n Relationships must be a list of dictionaries, each representing a unique relationship with detailed attributes (name, job, relationship_description, summary, common_interactions)"
+          "role":
+          "system",
+          "content":
+          f"You are a helpful assistant designed to generate a new agent data in JSON format based on the following instructions:\n{json.load(open('abe/abe-instructions.json'))['new_agent_json_instructions']} /n /n Relationships must be a list of dictionaries, each representing a unique relationship with detailed attributes (name, job, relationship_description, summary, common_interactions)"
       }, {
-          "role": "user",
-          "content": f"Agent Name: {agent_id}\nJob Title: {jobtitle}\nAgent Description: {agent_description}\n\nPlease generate the new agent data in JSON format without including the id, jobtitle, email, unique_id, timestamp, or photo_path fields."
-      }],
+          "role":
+          "user",
+          "content":
+          f"Agent Name: {agent_name}\nJob Title: {jobtitle}\nAgent Description: {agent_description}\n\nPlease generate the new agent data in JSON format without including the id, jobtitle, email, unique_id, timestamp, or photo_path fields."
+      }]
   }
 
   # Call the OpenAI API with exponential backoff and retries
@@ -398,35 +389,37 @@ def generate_new_agent(agent_id, jobtitle, agent_description, current_user):
   retry_delay = 5
   retry_count = 0
   while retry_count < max_retries:
-      try:
-          if current_user.credits is None or current_user.credits < 5:
-              raise Exception("Insufficient credits, please add more")
+    try:
+      if current_user.credits is None or current_user.credits < 5:
+        raise Exception("Insufficient credits, please add more")
 
-          response = client.chat.completions.create(**agent_payload)
+      response = client.chat.completions.create(**agent_payload)
 
-          # Deduct credits based on the API call
-          credits_used = 5  # Deduct 5 credits for gpt-4-turbo-preview models
+      # Deduct credits based on the API call
+      credits_used = 5  # Deduct 5 credits for gpt-4-turbo-preview models
 
-          current_user.credits -= credits_used
-          db.session.commit()
-          break
-      except APIError as e:
-          logging.error(f"OpenAI API error: {e}")
-          retry_count += 1
-          if retry_count < max_retries:
-              time.sleep(retry_delay)
-              retry_delay *= 2
-          else:
-              raise e
+      current_user.credits -= credits_used
+      db.session.commit()
+      break
+    except APIError as e:
+      logging.error(f"OpenAI API error: {e}")
+      retry_count += 1
+      if retry_count < max_retries:
+        time.sleep(retry_delay)
+        retry_delay *= 2
+      else:
+        raise e
 
   # Check if the response is valid JSON
   if response.choices[0].finish_reason == "stop":
-      new_agent_data = json.loads(response.choices[0].message.content)
+    new_agent_data = json.loads(response.choices[0].message.content)
   else:
-      raise ValueError(f"Incomplete or invalid JSON response: {response.choices[0].message.content}")
+    raise ValueError(
+        f"Incomplete or invalid JSON response: {response.choices[0].message.content}"
+    )
 
   new_agent_data = {
-      'id': agent_id,
+      'id': agent_name,
       'email': email,
       'unique_id': unique_id,
       'timestamp': timestamp,
@@ -436,87 +429,74 @@ def generate_new_agent(agent_id, jobtitle, agent_description, current_user):
       'include': True,
       **new_agent_data
   }
-  logging.info(f"New agent data generated: {new_agent_data}")
+
+
   # DALL-E - Generate new profile picture
   image_prompt = new_agent_data.get('image_prompt', '')
-  max_dalle_prompt_length = 1000  # Define the variable with an appropriate value
-  dalle_prompt = f"{image_prompt[:max_dalle_prompt_length]}"
+  dalle_prompt = f"{image_prompt[:3000]}"
 
-  # Call the DALL-E API to generate the profile picture
-  max_retries = 1
-  retry_delay = 30
+  dalle_prompt = f"{image_prompt[:3000]}"
+
+  # DALL-E - Generate profile picture
+  max_retries = 12
+  retry_delay = 5
   retry_count = 0
-  dalle_response = None
-
   while retry_count < max_retries:
-      try:
-          dalle_response = client.images.generate(
-              model="dall-e-3",
-              prompt=dalle_prompt[:max_dalle_prompt_length],
-              quality="standard",
-              size="1024x1024",
-              n=1,
-          )
-          current_user.credits -= 10
-          db.session.commit()
-          break
-      except APIError as e:
-          logging.error(f"OpenAI API error: {e}")
-          logging.error(f"DALL-E prompt: {dalle_prompt}")
-          retry_count += 1
-          if retry_count < max_retries:
-              time.sleep(retry_delay)
-              retry_delay *= 2
-          else:
-              # Handle the case when the DALL-E API returns an error due to the prompt being too long
-              logging.warning(f"Failed to generate DALL-E image for agent {agent_id} due to prompt length.")
-              new_agent_data['photo_path'] = None
-              break
+    try:
+      if current_user.credits is None or current_user.credits < 10:
+        raise Exception("Insufficient credits, please add more")
 
-  if dalle_response is None:
-        logging.warning(f"Failed to generate DALL-E image for agent {agent_id} after multiple retries.")
-        new_agent_data['photo_path'] = None
-  else:
-      image_url = dalle_response.data[0].url
-      photo_filename = f"{agent_id}.png"
-
-      success = save_image_to_database(image_url, user_id=current_user.id, photo_filename=photo_filename)
-      if success:
-          logging.info(f"Image {photo_filename} saved successfully for user {current_user.id}")
+      dalle_response = client.images.generate(
+          model="dall-e-3",
+          prompt=dalle_prompt[:5000],
+          quality="standard",
+          size="1024x1024",
+          n=1,
+      )
+      current_user.credits -= 10  # Deduct 10 credits for DALL-E models
+      db.session.commit()
+      break
+    except APIError as e:
+      logging.error(f"OpenAI API error: {e}")
+      retry_count += 1
+      if retry_count < max_retries:
+        time.sleep(retry_delay)
+        retry_delay *= 2
       else:
-          logging.error(f"Failed to save image {photo_filename} for user {current_user.id}")
+        raise e
 
-      new_agent_data['photo_path'] = photo_filename
-      logging.info(f"Updated photo path: {new_agent_data['photo_path']}")
+  image_url = dalle_response.data[0].url
+  logging.info(f"Generated image URL: {image_url[:142]}")
 
-  logging.info(f"Current user: {current_user}")
-  logging.info(f"Current user ID: {current_user.id}")
-  logging.info(f"Current user agents_data before appending: {current_user.agents_data}")
+  photo_filename = f"{agent_name}.png"
+  logging.info(f"New photo filename: {photo_filename[:142]}")
 
-  max_retries = 3
-  retry_delay = 1
-  retry_count = 0
+  img_data = requests.get(image_url).content
+  encoded_string = base64.b64encode(img_data).decode('utf-8')
+  current_user.images_data[photo_filename] = encoded_string
+  db.session.commit()
 
-  while retry_count < max_retries:
-      try:
-          if current_user.agents_data is None:
-              current_user.agents_data = []
+  # Generate thumbnail image
+  thumbnail_size = (200, 200)
+  img = Image.open(BytesIO(img_data))
+  img.thumbnail(thumbnail_size)
+  thumbnail_buffer = BytesIO()
+  img.save(thumbnail_buffer, format='PNG')
+  thumbnail_data = thumbnail_buffer.getvalue()
+  thumbnail_encoded_string = base64.b64encode(thumbnail_data).decode('utf-8')
+  current_user.thumbnail_images_data[
+      photo_filename] = thumbnail_encoded_string
 
-          logging.info(f"Saving new agent data to the database for user {current_user.id}")
-          current_user.agents_data.append(new_agent_data)
-          logging.info(f"Current user agents_data after appending: {current_user.agents_data}")
+  db.session.commit()
 
-          db.session.commit()
-          logging.info(f"New agent data saved to the database for user {current_user.id}")
-          break
-      except OperationalError as e:
-          logging.error(f"Database error occurred: {str(e)}")
-          db.session.rollback()
-          retry_count += 1
-          if retry_count < max_retries:
-              time.sleep(retry_delay)
-              retry_delay *= 2  # Exponential backoff
-          else:
-              raise e
+  new_agent_data['photo_path'] = f"/images/{photo_filename}"
+  logging.info(f"Updated photo path: {new_agent_data['photo_path']}")
+
+  # Add the new agent data to the user's agents_data
+  if current_user.agents_data is None:
+    current_user.agents_data = []
+
+  current_user.agents_data.append(new_agent_data)
+  db.session.commit()
 
   return new_agent_data
