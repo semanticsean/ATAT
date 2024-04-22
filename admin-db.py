@@ -62,6 +62,17 @@ def generate_log(username=None):
         )
         log_lines.append("")
 
+    relationships = agent.get('relationships', '❌')
+    if isinstance(relationships, list):
+        relationships_str = ', '.join(relationships)[:50]
+    elif isinstance(relationships, str):
+        relationships_str = relationships[:50]
+    else:
+        relationships_str = str(relationships)[:50]
+
+    log_lines.append(f"  Agent Relationships: {relationships_str}")
+
+
     meetings = Meeting.query.filter_by(user_id=user.id).all()
     log_lines.append(f"Meetings: {'✅' if meetings else '❌'}")
     for meeting in meetings:
