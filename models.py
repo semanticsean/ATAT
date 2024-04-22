@@ -71,6 +71,26 @@ class Agent(db.Model):
   data = db.Column(db.JSON)
   user = db.relationship('User', backref=db.backref('agents', lazy=True))
 
+  @property
+  def persona(self):
+      return self.data.get('persona', '')
+
+  @property
+  def summary(self):
+      return self.data.get('summary', '')
+
+  @property
+  def keywords(self):
+      return self.data.get('keywords', [])
+
+  @property
+  def image_prompt(self):
+      return self.data.get('image_prompt', '')
+
+  @property
+  def relationships(self):
+      return self.data.get('relationships', [])
+
 class Image(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

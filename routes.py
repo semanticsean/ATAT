@@ -412,18 +412,16 @@ def profile():
             return redirect(url_for('dashboard_blueprint.dashboard'))
     else:
         if agent_id:
-            try:
-                agent_id = int(agent_id)
-                main_agent = Agent.query.filter_by(user_id=current_user.id, id=agent_id).first()
-            except (ValueError, TypeError):
-                main_agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
+            agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
+            main_agent = agent  # Set main_agent to the retrieved agent
         else:
-            main_agent = None
+            agent = None
+            main_agent = None  # Set main_agent to None if no agent is found
 
         timeframe_agents = []
 
-    if main_agent or timeframe_agents:
-        return render_template('profile.html', main_agent=main_agent, timeframe_agents=timeframe_agents, timeframe_id=timeframe_id)
+    if agent or timeframe_agents:
+        return render_template('profile.html', agent=agent, main_agent=main_agent, timeframe_agents=timeframe_agents, timeframe_id=timeframe_id)
     else:
         flash('Agent not found.', 'error')
         return redirect(url_for('dashboard_blueprint.dashboard'))
