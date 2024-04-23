@@ -66,11 +66,23 @@
         alt="Loading"
       />
     </div>
-    <div id="insufficientCreditsOverlay" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50" style="display: none;">
+    <div
+      id="insufficientCreditsOverlay"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+      style="display: none"
+    >
       <div class="bg-white p-8 rounded-lg shadow-lg">
         <h2 class="text-2xl font-bold mb-4">Insufficient Credits</h2>
-        <p class="mb-4">You don't have enough credits to create a new timeframe. Please top up your credits to continue.</p>
-        <button id="topUpButton" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Top Up Credits</button>
+        <p class="mb-4">
+          You don't have enough credits to create a new timeframe. Please top up
+          your credits to continue.
+        </p>
+        <button
+          id="topUpButton"
+          class="px-4 py-2 bg-black text-white rounded-lg hover:bg-blue-600"
+        >
+          Top Up Credits
+        </button>
       </div>
     </div>
     {% include 'header.html' %}
@@ -92,10 +104,15 @@
                   Important: don't refresh the page.
                 </div>
               </div>
-              
-                <form action="{{ url_for('auth_blueprint.create_timeframe') }}" method="post">
+
+              <form
+                action="{{ url_for('auth_blueprint.create_timeframe') }}"
+                method="post"
+              >
                 <div class="mb-4">
-                  <label for="name" class="block text-lg md:text-xl font-bold">Name this Timeframe:</label>
+                  <label for="name" class="block text-lg md:text-xl font-bold"
+                    >Name this Timeframe:</label
+                  >
                   <input
                     type="text"
                     id="name"
@@ -107,7 +124,8 @@
                   <label
                     for="instruction1"
                     class="block text-sm font-bold text-gray-700"
-                  >Describe the timepoint, including year:</label>
+                    >Describe the timepoint, including year:</label
+                  >
                   <textarea
                     id="instruction1"
                     name="instruction1"
@@ -120,7 +138,8 @@
                   <label
                     for="instruction2"
                     class="block text-sm font-bold text-gray-700"
-                  >Describe the setting, including place:</label>
+                    >Describe the setting, including place:</label
+                  >
                   <textarea
                     id="instruction2"
                     name="instruction2"
@@ -132,7 +151,8 @@
                   <label
                     for="instruction3"
                     class="block text-sm font-bold text-gray-700"
-                  >Describe the 'plot' and other context:</label>
+                    >Describe the 'plot' and other context:</label
+                  >
                   <textarea
                     id="instruction3"
                     name="instruction3"
@@ -141,28 +161,54 @@
                   ></textarea>
                 </div>
 
-                  <div class="mb-8">
-                    <h2 class="text-lg md:text-xl font-bold mb-2">Select Synths:</h2>
-                    <div id="agent-list">
-                      {% for agent in base_agents %}
-                        <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
-                          <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden">
-                          {% set thumbnail_key = agent.photo_path.split('/')[-1] + '_thumbnail' %}
-                          {% if thumbnail_key in current_user.thumbnail_images_data %}
-                            <img src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4">
-                          {% else %}
-                            <div class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full bg-gray-200 -ml-2 mr-4"></div>
-                          {% endif %}
-                          <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-md">
-                            <div class="text-lg md:text-xl font-bold mb-2">{{ agent.id }}</div>
-                            <div class="mb-2">{{ agent.jobtitle }}</div>
-                            <div class="mb-2">{{ agent.summary }}</div>
-                          </label>
+                <div class="mb-8">
+                  <h2 class="text-lg md:text-xl font-bold mb-2">
+                    Select Synths:
+                  </h2>
+                  <div id="agent-list">
+                    {% for agent in base_agents %}
+                    <div
+                      class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8"
+                      data-agent-id="{{ agent.id }}"
+                    >
+                      <input
+                        type="checkbox"
+                        id="agent-{{ agent.id }}"
+                        name="selected_agents"
+                        value="{{ agent.id }}"
+                        class="hidden"
+                      />
+                      {% set thumbnail_key = agent.photo_path.split('/')[-1] +
+                      '_thumbnail' %} {% if thumbnail_key in
+                      current_user.thumbnail_images_data %}
+                      <img
+                        src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}"
+                        alt="Agent Profile"
+                        class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4"
+                      />
+                      {% else %}
+                      <div
+                        class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full bg-gray-200 -ml-2 mr-4"
+                      ></div>
+                      {% endif %}
+                      <label
+                        for="agent-{{ agent.id }}"
+                        class="text-gray-700 text-sm md:text-md"
+                      >
+                        <div class="text-lg md:text-xl font-bold mb-2">
+                          {{ agent.id }}
                         </div>
-                      {% endfor %}
+                        <div class="mb-2">{{ agent.jobtitle }}</div>
+                        <div class="mb-2">{{ agent.summary }}</div>
+                      </label>
                     </div>
+                    {% endfor %}
                   </div>
-                <button type="submit" class="px-4 py-2 md:px-6 md:py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 w-full text-sm md:text-md">
+                </div>
+                <button
+                  type="submit"
+                  class="px-4 py-2 md:px-6 md:py-3 bg-black text-white rounded-lg hover:bg-blue-600 w-full text-sm md:text-md"
+                >
                   Render Timeframe
                 </button>
                 <img
@@ -255,6 +301,5 @@
         });
       });
     </script>
-
   </body>
 </html>
