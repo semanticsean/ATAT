@@ -511,9 +511,6 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
   # Store the image data in the new_agent_data dictionary using the photo_path as the key
   new_agent_data['image_data'] = {new_agent_data['photo_path']: encoded_string}
 
-  # Store the image data in current_user.images_data using the photo_filename as the key
-  current_user.images_data[photo_filename] = encoded_string
-
   # Generate thumbnail image
   thumbnail_size = (200, 200)
   img = Image.open(BytesIO(img_data))
@@ -523,20 +520,8 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
   thumbnail_data = thumbnail_buffer.getvalue()
   thumbnail_encoded_string = base64.b64encode(thumbnail_data).decode('utf-8')
 
-  # Store the thumbnail image data in current_user.thumbnail_images_data using the photo_filename as the key
-  current_user.thumbnail_images_data[photo_filename] = thumbnail_encoded_string
-
-  db.session.commit()
-
-  # Generate thumbnail image
-  thumbnail_size = (200, 200)
-  img = Image.open(BytesIO(img_data))
-  img.thumbnail(thumbnail_size)
-  thumbnail_buffer = BytesIO()
-  img.save(thumbnail_buffer, format='PNG')
-  thumbnail_data = thumbnail_buffer.getvalue()
-  thumbnail_encoded_string = base64.b64encode(thumbnail_data).decode('utf-8')
-  current_user.thumbnail_images_data[photo_filename] = thumbnail_encoded_string
+  # Store the thumbnail image data in the new_agent_data dictionary using the photo_path as the key
+  new_agent_data['thumbnail_image_data'] = {new_agent_data['photo_path'] + '_thumbnail': thumbnail_encoded_string}
 
   db.session.commit()
 
@@ -544,21 +529,24 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
   logging.info(f"Updated photo path: {new_agent_data['photo_path']}")
 
   if current_user.agents_data is None:
-    current_user.agents_data = []
+      current_user.agents_data = []
 
   current_user.agents_data.append(new_agent_data)
   db.session.commit()
 
   new_agent = Agent(id=new_agent_data['id'],
-    user_id=current_user.id,
-    data=new_agent_data)
+                    user_id=current_user.id,
+                    data=new_agent_data)
   db.session.add(new_agent)
   db.session.commit()
 
   logging.info(f"Added new agent data to user's agents_data: {new_agent_data}")
   logging.info(f"Photo filename: {photo_filename}")
   logging.info(
-      f"Image data stored in current_user.images_data: {current_user.images_data.get(photo_filename, '')[:50]}..."
+      f"Image data stored in new_agent_data['image_data']: {new_agent_data['image_data'].get(new_agent_data['photo_path'], '')[:50]}..."
+  )
+  logging.info(
+      f"Thumbnail image data stored in new_agent_data['thumbnail_image_data']: {new_agent_data['thumbnail_image_data'].get(new_agent_data['photo_path'] + '_thumbnail', '')[:50]}..."
   )
 
   return new_agent
