@@ -42,7 +42,19 @@
                       <div class="bg-white rounded-lg shadow-md">
                           <div class="flex flex-col md:flex-row">
                               <div class="md:w-1/2 flex justify-center items-center agent-image">
-                                <img src="data:image/png;base64,{{ agent_image_data }}" alt="Agent Profile" class="md:mr-12">
+                                <img id="agent-image" src="" alt="Agent Profile" class="md:mr-12">
+                                <script>
+                                    $(document).ready(function() {
+                                        var agentImageData = "{{ agent_image_data }}";
+                                        if (agentImageData) {
+                                            console.log("Agent image data received:", agentImageData.slice(0, 50) + "...");
+                                            $("#agent-image").attr("src", "data:image/png;base64," + agentImageData);
+                                            console.log("Agent image source set successfully");
+                                        } else {
+                                            console.error("Agent image data not found");
+                                        }
+                                    });
+                                </script>
                               </div>
                               <div class="md:w-1/2 p-6">
                                   <div class="mb-2">
