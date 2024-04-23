@@ -41,6 +41,8 @@
       </button>
     </div>
 
+    
+
     <!-- Dropdown Menu for md and larger -->
     <div class="hidden md:block relative">
       <button
@@ -74,7 +76,6 @@
           class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800"
           >Help</a
         >
-        
         <a
           href="/user"
           class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800"
@@ -85,7 +86,6 @@
           class="font-md md:text-xl block px-4 py-2 text-white hover:bg-gray-800"
           >Logout</a
         >
-       
       </div>
     </div>
 
@@ -115,6 +115,34 @@
         >
       </div>
     </div>
+    
+  </div>
+</div>
+<!-- Desktop Navigation Menu styled as buttons -->
+<div class="container mx-auto px-4 mt-16">
+<div class="hidden md:flex flex-col items-center w-full mt-8">
+  <div class="flex justify-between w-full px-4">
+    <a
+      href="/"
+      class="hover:bg-gray-600 text-xl text-gray-600 font-semibold py-2 px-4 rounded-lg"
+      >Home</a
+    >
+    <a
+      href="/help"
+      class=" hover:bg-gray-600 text-xl text-gray-600 font-semibold py-2 px-4 rounded-lg"
+      >Help</a
+    >
+    <a
+      href="/user"
+      class=" hover:bg-gray-600 text-xl text-gray-600 font-semibold py-2 px-4 rounded-lg"
+      >Account</a
+    >
+    <a
+      href="{{ url_for('auth_blueprint.logout') }}"
+      class=" hover:bg-gray-600 text-xl text-gray-600 font-semibold py-2 px-4 rounded-lg"
+      >Logout</a
+    >
+  </div>
   </div>
 </div>
 
