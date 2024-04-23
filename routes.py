@@ -423,14 +423,12 @@ def profile():
             agent_data = next((agent for agent in current_user.agents_data if str(agent.get('id', '')) == str(agent_id)), None)
             if agent_data:
                 agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
-                photo_filename = agent.data.get('photo_path', '').split('/')[-1]
-                agent_image_data = current_user.images_data.get(photo_filename, '')
+                agent_image_data = agent.data.get('image_data', {}).get(agent.data.get('photo_path', ''), '')
             else:
                 flash('Agent not found.', 'error')
                 return redirect(url_for('dashboard_blueprint.dashboard'))
         else:
-            photo_filename = agent.data.get('photo_path', '').split('/')[-1]
-            agent_image_data = current_user.images_data.get(photo_filename, '')
+            agent_image_data = agent.data.get('image_data', {}).get(agent.data.get('photo_path', ''), '')
 
         main_agent = agent
         timeframe_agents = []

@@ -503,7 +503,29 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
 
   img_data = requests.get(image_url).content
   encoded_string = base64.b64encode(img_data).decode('utf-8')
+
+  # Update the photo_path in new_agent_data before storing the image data
+  photo_filename = f"{agent_name}.png"
+  new_agent_data['photo_path'] = f"/images/{photo_filename}"
+
+  # Store the image data in the new_agent_data dictionary using the photo_path as the key
+  new_agent_data['image_data'] = {new_agent_data['photo_path']: encoded_string}
+
+  # Store the image data in current_user.images_data using the photo_filename as the key
   current_user.images_data[photo_filename] = encoded_string
+
+  # Generate thumbnail image
+  thumbnail_size = (200, 200)
+  img = Image.open(BytesIO(img_data))
+  img.thumbnail(thumbnail_size)
+  thumbnail_buffer = BytesIO()
+  img.save(thumbnail_buffer, format='PNG')
+  thumbnail_data = thumbnail_buffer.getvalue()
+  thumbnail_encoded_string = base64.b64encode(thumbnail_data).decode('utf-8')
+
+  # Store the thumbnail image data in current_user.thumbnail_images_data using the photo_filename as the key
+  current_user.thumbnail_images_data[photo_filename] = thumbnail_encoded_string
+
   db.session.commit()
 
   # Generate thumbnail image
@@ -528,8 +550,8 @@ def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
   db.session.commit()
 
   new_agent = Agent(id=new_agent_data['id'],
-                    user_id=current_user.id,
-                    data=new_agent_data)
+    user_id=current_user.id,
+    data=new_agent_data)
   db.session.add(new_agent)
   db.session.commit()
 

@@ -166,6 +166,14 @@ def serve_image(filename):
             if filename in timeframe_images_data:
                 image_data = timeframe_images_data.get(filename)
                 return Response(base64.b64decode(image_data), mimetype='image/png')
+
+        # Check if the image is in any of the user's agents
+        agent = Agent.query.filter_by(user_id=user_id, data__photo_path=f"/images/{filename}").first()
+        if agent:
+            image_data = agent.data.get('image_data', {}).get(f"/images/{filename}")
+            if image_data:
+                return Response(base64.b64decode(image_data), mimetype='image/png')
+
     else:
         # Check if the image belongs to a public meeting
         public_meeting = Meeting.query.filter_by(is_public=True).join(Meeting.agents).filter(Meeting.agents.any(photo_path=filename)).first()
@@ -175,7 +183,6 @@ def serve_image(filename):
                 return Response(base64.b64decode(image_data), mimetype='image/png')
 
     abort(404)
-
 @app.route('/public/<path:filename>')
 def serve_public_image(filename):
     public_folder = 'public'
