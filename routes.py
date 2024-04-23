@@ -353,29 +353,33 @@ def dashboard():
                     agent['image_data'] = images_data.get(photo_filename, '')
                 else:
                     agent['image_data'] = ''
+                agent['agent_type'] = 'timeframe'  # Add agent_type for timeframe agents
         else:
             abort(404)
     else:
         user_agents = current_user.agents_data or []
         agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
-  
+
         for agent in user_agents:
             if 'photo_path' in agent:
                 agent['image_data'] = current_user.images_data.get(agent['photo_path'].split('/')[-1], '')
             else:
                 agent['image_data'] = ''
+            agent['agent_type'] = 'user'  # Add agent_type for user agents
             agents_data.append(agent)
-  
+
         for agent in agent_class_agents:
             if 'photo_path' in agent.data:
                 agent_data = {
                     'id': agent.id,
                     'jobtitle': agent.data.get('jobtitle', ''),
-                    'image_data': current_user.images_data.get(agent.data['photo_path'].split('/')[-1], '')
+                    'image_data': current_user.images_data.get(agent.data['photo_path'].split('/')[-1], ''),
+                    'agent_type': agent.agent_type  # Add agent_type for Agent class agents
                 }
                 agents_data.append(agent_data)
-  
+
     timeframes = current_user.timeframes
+
     return render_template('dashboard.html', agents=agents_data, timeframes=timeframes, timeframe=timeframe)
 
 def get_prev_next_agent_ids(agents, agent):
