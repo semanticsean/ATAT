@@ -32,8 +32,17 @@ def generate_log(username=None):
         log_lines.append(f"  Agent Name: {agent['id']}")
         log_lines.append(f"  Agent Job Title: {agent.get('jobtitle', '❌')}")
         log_lines.append(f"  Agent Image: {agent.get('photo_path', '❌')}")
-        log_lines.append(
-            f"  Agent Relationships: {agent.get('relationships', '❌')[:50]}")
+
+        relationships = agent.get('relationships', '❌')
+        if isinstance(relationships, list):
+          # Ensure each item in the list is a string before joining
+          relationships_str = ', '.join(str(rel) for rel in relationships)[:50]
+        elif isinstance(relationships, str):
+          relationships_str = relationships[:50]
+        else:
+          relationships_str = str(relationships)[:50]
+        log_lines.append(f"  Agent Relationships: {relationships_str}")
+
         log_lines.append(f"  Agent Persona: {agent.get('persona', '❌')[:50]}")
         log_lines.append(f"  Agent Summary: {agent.get('summary', '❌')[:50]}")
         log_lines.append(
@@ -61,17 +70,6 @@ def generate_log(username=None):
             f"  Thumbnail Images Data: {'✅' if timeframe.thumbnail_images_data else '❌'}"
         )
         log_lines.append("")
-
-    relationships = agent.get('relationships', '❌')
-    if isinstance(relationships, list):
-        relationships_str = ', '.join(relationships)[:50]
-    elif isinstance(relationships, str):
-        relationships_str = relationships[:50]
-    else:
-        relationships_str = str(relationships)[:50]
-
-    log_lines.append(f"  Agent Relationships: {relationships_str}")
-
 
     meetings = Meeting.query.filter_by(user_id=user.id).all()
     log_lines.append(f"Meetings: {'✅' if meetings else '❌'}")
