@@ -116,15 +116,26 @@ def inject_secrets():
 @app.route('/')
 def home():
     if current_user.is_authenticated:
-        agents = Agent.query.filter_by(user_id=current_user.id).all()
+        user_agents = current_user.agents_data or []
+        agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
+
         agents_content = []
-        for agent in agents:
+        for agent in user_agents:
+            agent_data = {
+                'id': agent['id'],
+                'jobtitle': agent.get('jobtitle', ''),
+                'image_data': current_user.images_data.get(agent['photo_path'].split('/')[-1], '')
+            }
+            agents_content.append(agent_data)
+
+        for agent in agent_class_agents:
             agent_data = {
                 'id': agent.id,
                 'jobtitle': agent.data.get('jobtitle', ''),
                 'image_data': current_user.images_data.get(agent.data['photo_path'].split('/')[-1], '')
             }
             agents_content.append(agent_data)
+
         agents_content = json.dumps(agents_content) if agents_content else None
         meeting_results = []
         for meeting in current_user.meetings:
@@ -134,10 +145,8 @@ def home():
     else:
         agents_content = None
         meeting_results = []
-  
+
     timeframes = current_user.timeframes if current_user.is_authenticated else []
-    logger.info(f"Timeframes for user {current_user.id if current_user.is_authenticated else 'anonymous'}: {timeframes}")
-  
     return render_template('index.html', agents_content=agents_content, meeting_results=meeting_results, timeframes=timeframes)
 
 @app.route('/images/<filename>')
