@@ -96,6 +96,28 @@
     </div>
     {% include 'header.html' %}
     <div class="flex-grow">
+      <main class="flex-1">
+        <div class="container mx-auto px-4 mt-4">
+          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-3xl font-bold mb-4 mt-4">Welcome</h2>
+            <p class="mb-4 text-xl lg:w-2/3 md:w-full">
+              Welcome to your suite of tools to manage AI agents. <br/>
+              We call them "synths" when they roleplay as synthetic people.
+            </p>
+            <div class="flex gap-4">
+              <a
+                href="{{ url_for('meeting_blueprint.create_meeting') }}"
+                class="bg-blue-500 text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+                >New Meeting</a
+              >
+              <a
+                href="{{ url_for('profile_blueprint.create_new_agent') }}"
+                class="bg-black text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+                >New Agent</a
+              >
+            </div>
+          </div>
+
       <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h2 class="text-2xl font-bold mb-4 tooltip">
           Synths<span class="tooltiptext">AI-generated synthetic agents</span>
