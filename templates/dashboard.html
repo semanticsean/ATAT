@@ -37,13 +37,13 @@
             <div class="mb-4 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md">
                 <a href="{{ url_for('dashboard_blueprint.dashboard') }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 {% if not request.args.get('timeframe_id') %}bg-gray-700{% endif %}">Main Agents ({{ current_user.agents_data | length }})</a>
                 {% if timeframes %}
-                    <div class="mt-4 flex flex-wrap gap-2">
+                    
                         {% for timeframe in timeframes %}
                             {% if timeframe.agents_count > 0 %}
                                 <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 {% if timeframe.id == request.args.get('timeframe_id')|int %}bg-blue-700{% endif %}">{{ timeframe.name }} ({{ timeframe.agents_count }})</a>
                             {% endif %}
                         {% endfor %}
-                    </div>
+                    
                 {% endif %}
             </div>
             {% if agents %}
@@ -70,7 +70,7 @@
                                         <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, timeframe_id=timeframe.id if timeframe else None) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-blue-600">Details</a>
                                         <a href="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-600">Edit</a>
                                         {% if agent.agent_type == 'user' %}
-                                            <a href="mailto:{{ agent.email }}" class="inline-block bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600">Email Agent</a>
+                                            <a href="mailto:{{ agent.email }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-blue-600">Email Agent</a>
                                         {% endif %}
                                     </div>
                                 </div>

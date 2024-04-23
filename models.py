@@ -1,8 +1,7 @@
-#models.py 
 import os
 import datetime
 import random
-import json 
+import json
 from extensions import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -22,6 +21,7 @@ class User(db.Model, UserMixin):
     meetings = db.relationship('Meeting', backref='creator', lazy=True)
     api_keys = db.relationship('APIKey', backref='owner', lazy='dynamic')
     timeframes = db.relationship('Timeframe', backref='user', lazy=True)
+    agent_type = db.Column(db.String(20), default='user')
 
     @property
     def folder_path(self):
@@ -31,20 +31,19 @@ class User(db.Model, UserMixin):
         return folder_path
 
     def generate_api_key(self, expiration=None):
-      s = Serializer(current_app.config['SECRET_KEY'])
-      random_data = random.randint(1000, 9999)  # Random number for uniqueness
-      timestamp = datetime.datetime.utcnow().isoformat()  # Current timestamp
-      payload = {'user_id': self.id, 'timestamp': timestamp, 'rnd': random_data}
-      token = s.dumps(payload)  
-      new_key = APIKey(key=token, owner=self)
-      try:
-          db.session.add(new_key)
-          db.session.commit()
-          return token
-      except Exception as e:
-          db.session.rollback()  # Rollback if there's an issue, such as a non-unique key
-          return None
-  
+        s = Serializer(current_app.config['SECRET_KEY'])
+        random_data = random.randint(1000, 9999)  # Random number for uniqueness
+        timestamp = datetime.datetime.utcnow().isoformat()  # Current timestamp
+        payload = {'user_id': self.id, 'timestamp': timestamp, 'rnd': random_data}
+        token = s.dumps(payload)
+        new_key = APIKey(key=token, owner=self)
+        try:
+            db.session.add(new_key)
+            db.session.commit()
+            return token
+        except Exception as e:
+            db.session.rollback()  # Rollback if there's an issue, such as a non-unique key
+            return None
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -65,46 +64,50 @@ class APIKey(db.Model):
     key = db.Column(db.String(256), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+
 class Agent(db.Model):
-  id = db.Column(db.String, primary_key=True)
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-  data = db.Column(db.JSON)
-  user = db.relationship('User', backref=db.backref('agents', lazy=True))
+    id = db.Column(db.String, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    data = db.Column(db.JSON)
+    user = db.relationship('User', backref=db.backref('agents', lazy=True))
+    agent_type = db.Column(db.String(20), default='agent')
 
-  @property
-  def persona(self):
-      return self.data.get('persona', '')
+    @property
+    def persona(self):
+        return self.data.get('persona', '')
 
-  @property
-  def summary(self):
-      return self.data.get('summary', '')
+    @property
+    def summary(self):
+        return self.data.get('summary', '')
 
-  @property
-  def keywords(self):
-      return self.data.get('keywords', [])
+    @property
+    def keywords(self):
+        return self.data.get('keywords', [])
 
-  @property
-  def image_prompt(self):
-      return self.data.get('image_prompt', '')
+    @property
+    def image_prompt(self):
+        return self.data.get('image_prompt', '')
 
-  @property
-  def relationships(self):
-      return self.data.get('relationships', [])
+    @property
+    def relationships(self):
+        return self.data.get('relationships', [])
+
 
 class Image(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-  filename = db.Column(db.String(255), nullable=False)
-  data = db.Column(db.LargeBinary)
-  user = db.relationship('User', backref=db.backref('images', lazy=True))
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+    data = db.Column(db.LargeBinary)
+    user = db.relationship('User', backref=db.backref('images', lazy=True))
 
 
 class MainAgent(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-  data = db.Column(db.Text, nullable=False)
-  image_data = db.Column(db.Text)
-  user = db.relationship('User', backref=db.backref('main_agents', lazy=True))
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    data = db.Column(db.Text, nullable=False)
+    image_data = db.Column(db.Text)
+    user = db.relationship('User', backref=db.backref('main_agents', lazy=True))
+
 
 class Survey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -115,6 +118,7 @@ class Survey(db.Model):
     public_url = db.Column(db.String(255), unique=True)
     user = db.relationship('User', backref=db.backref('surveys', lazy=True))
 
+
 class Timeframe(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -122,6 +126,7 @@ class Timeframe(db.Model):
     agents_data = db.Column(db.Text, default='[]')
     images_data = db.Column(db.Text, default='{}')
     thumbnail_images_data = db.Column(db.Text, default='{}')
+    agent_type = db.Column(db.String(20), default='timeframe')
 
     @property
     def agents_count(self):
@@ -129,7 +134,7 @@ class Timeframe(db.Model):
             agents = json.loads(self.agents_data)
             return len(agents)
         return 0
-    
+
 
 class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
