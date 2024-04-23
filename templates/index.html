@@ -96,203 +96,140 @@
     </div>
     {% include 'header.html' %}
     <div class="flex-grow">
-      <main class="flex-1">
-        <div class="container mx-auto px-4 mt-4">
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-3xl font-bold mb-4 mt-4">Welcome</h2>
-            <p class="mb-4 text-xl lg:w-2/3 md:w-full">
-              Welcome to your suite of tools to manage AI agents. <br/>
-              We call them
-              "synths" when they roleplay as synthetic people.
-            </p>
-            <div class="flex gap-4">
-              <a
-                href="{{ url_for('meeting_blueprint.create_meeting') }}"
-                class="bg-blue-500 text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-                >New Meeting</a
-              >
-              <a
-                href="{{ url_for('profile_blueprint.create_new_agent') }}"
-                class="bg-black text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-                >New Agent</a
-              >
-            </div>
-          </div>
-
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold mb-4 tooltip">
-              Synths<span class="tooltiptext"
-                >AI-generated synthetic agents</span
-              >
-            </h2>
-            {% if current_user.agents_data or current_user.agents %}
-            <div id="agentsDisplay" class="agent-container mt-4">
-              {% for agent in current_user.agents_data %}
-              <a
-                href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}"
-                class="group relative mx-2 mb-4"
-              >
-                {% if agent.photo_path %} {% set thumbnail_key =
-                agent.photo_path.split('/')[-1] + '_thumbnail' %} {% if
-                thumbnail_key in current_user.thumbnail_images_data %}
-                <img
-                  src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}"
-                  alt="{{ agent.id }}"
-                  class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left"
-                />
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-4 tooltip">
+          Synths<span class="tooltiptext">AI-generated synthetic agents</span>
+        </h2>
+        {% if current_user.agents_data or current_user.agents %}
+          <div id="agentsDisplay" class="agent-container mt-4">
+            {% for agent in current_user.agents_data %}
+              <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}" class="group relative mx-2 mb-4">
+                {% if agent.photo_path %}
+                  {% set thumbnail_key = agent.photo_path.split('/')[-1] + '_thumbnail' %}
+                  {% if thumbnail_key in current_user.thumbnail_images_data %}
+                    <img src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}" alt="{{ agent.id }}" class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left" />
+                  {% elif agent.photo_path in current_user.images_data %}
+                    <img src="data:image/png;base64,{{ current_user.images_data[agent.photo_path] }}" alt="{{ agent.id }}" class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left" />
+                  {% else %}
+                    <img id="agent-image-{{ agent.id }}" src="" alt="{{ agent.id }}" class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left" />
+                    <script>
+                      $(document).ready(function() {
+                        var agentId = "{{ agent.id }}";
+                        $.get("{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}", function(data) {
+                          var html = $.parseHTML(data);
+                          var agentImageData = $(html).find("#agent-image").attr("src");
+                          $("#agent-image-" + agentId).attr("src", agentImageData);
+                        });
+                      });
+                    </script>
+                  {% endif %}
                 {% else %}
-                <div
-                  class="w-24 h-24 md:w-32 md:h-32 bg-black text-white rounded-full flex items-center justify-center"
-                >
-                  {{ agent.id }}
-                </div>
-                {% endif %} {% else %}
-                <div
-                  class="w-24 h-24 md:w-32 md:h-32 bg-black text-white rounded-full flex items-center justify-center"
-                >
-                  {{ agent.id }}
-                </div>
+                  <div class="w-24 h-24 md:w-32 md:h-32 bg-black text-white rounded-full flex items-center justify-center">
+                    {{ agent.id }}
+                  </div>
                 {% endif %}
-                <div
-                  class="absolute top-0 left-0 w-24 h-24 md:w-32 md:h-32 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out"
-                >
-                  <div
-                    class="absolute inset-0 bg-black opacity-75 rounded-full"
-                  ></div>
-                  <div
-                    class="absolute inset-0 flex flex-col items-center justify-center text-white text-sm md:text-base text-center"
-                  >
+                <div class="absolute top-0 left-0 w-24 h-24 md:w-32 md:h-32 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out">
+                  <div class="absolute inset-0 bg-black opacity-75 rounded-full"></div>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-sm md:text-base text-center">
                     <span class="font-bold">{{ agent.id }}</span>
                     <span>{{ agent.jobtitle }}</span>
                   </div>
                 </div>
               </a>
-              {% endfor %} {% for agent in current_user.agents %}
-              <a
-                href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}"
-                class="group relative mx-2 mb-4"
-              >
-                {% if agent.data.photo_path %} {% set thumbnail_key =
-                agent.data.photo_path.split('/')[-1] + '_thumbnail' %} {% if
-                thumbnail_key in current_user.thumbnail_images_data %}
-                <img
-                  src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}"
-                  alt="{{ agent.id }}"
-                  class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left"
-                />
+            {% endfor %}
+            {% for agent in current_user.agents %}
+              <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}" class="group relative mx-2 mb-4">
+                {% if agent.data.photo_path %}
+                  {% set thumbnail_key = agent.data.photo_path.split('/')[-1] + '_thumbnail' %}
+                  {% if thumbnail_key in current_user.thumbnail_images_data %}
+                    <img src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}" alt="{{ agent.id }}" class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left" />
+                  {% elif agent.data.photo_path in current_user.images_data %}
+                    <img src="data:image/png;base64,{{ current_user.images_data[agent.data.photo_path] }}" alt="{{ agent.id }}" class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left" />
+                  {% elif agent.data.image_data %}
+                    <img src="data:image/png;base64,{{ agent.data.image_data }}" alt="{{ agent.id }}" class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left" />
+                  {% else %}
+                    <img id="agent-image-{{ agent.id }}" src="" alt="{{ agent.id }}" class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left" />
+                    <script>
+                      $(document).ready(function() {
+                        var agentId = "{{ agent.id }}";
+                        $.get("{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}", function(data) {
+                          var html = $.parseHTML(data);
+                          var agentImageData = $(html).find("#agent-image").attr("src");
+                          $("#agent-image-" + agentId).attr("src", agentImageData);
+                        });
+                      });
+                    </script>
+                  {% endif %}
                 {% else %}
-                <div
-                  class="w-24 h-24 md:w-32 md:h-32 bg-black text-white rounded-full flex items-center justify-center"
-                >
-                  {{ agent.id }}
-                </div>
-                {% endif %} {% else %}
-                <div
-                  class="w-24 h-24 md:w-32 md:h-32 bg-black text-white rounded-full flex items-center justify-center"
-                >
-                  {{ agent.id }}
-                </div>
+                  <div class="w-24 h-24 md:w-32 md:h-32 bg-black text-white rounded-full flex items-center justify-center">
+                    {{ agent.id }}
+                  </div>
                 {% endif %}
-                <div
-                  class="absolute top-0 left-0 w-24 h-24 md:w-32 md:h-32 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out"
-                >
-                  <div
-                    class="absolute inset-0 bg-black opacity-75 rounded-full"
-                  ></div>
-                  <div
-                    class="absolute inset-0 flex flex-col items-center justify-center text-white text-sm md:text-base text-center"
-                  >
+                <div class="absolute top-0 left-0 w-24 h-24 md:w-32 md:h-32 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out">
+                  <div class="absolute inset-0 bg-black opacity-75 rounded-full"></div>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-sm md:text-base text-center">
                     <span class="font-bold">{{ agent.id }}</span>
                     <span>{{ agent.data.jobtitle }}</span>
                   </div>
                 </div>
               </a>
-              {% endfor %}
-              <a
-                href="{{ url_for('dashboard_blueprint.dashboard') }}"
-                class="group relative mx-2 mb-4"
-              >
-                <div
-                  class="w-24 h-24 md:w-32 md:h-32 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold text-xl hover:bg-blue-600 transition duration-300"
-                >
-                  Dashboard
-                </div>
+            {% endfor %}
+            <a href="{{ url_for('dashboard_blueprint.dashboard') }}" class="group relative mx-2 mb-4">
+              <div class="w-24 h-24 md:w-32 md:h-32 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold text-xl hover:bg-blue-600 transition duration-300">
+                Dashboard
+              </div>
+            </a>
+          </div>
+        {% else %}
+          <div>
+            <form action="{{ url_for('auth_blueprint.add_base_agents') }}" method="post">
+              <button type="submit" class="block bg-gray-400 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                Add Base Agents
+              </button>
+            </form>
+            <p class="my-4 text-sm">May take several minutes</p>
+          </div>
+        {% endif %}
+      </div>
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-4 tooltip">
+          Meetings<span class="tooltiptext">Collaborate with your AI agents</span>
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <a href="{{ url_for('meeting_blueprint.create_meeting') }}" class="bg-black text-white font-bold py-4 px-6 text-xl rounded hover:bg-blue-600 transition duration-300 text-center">New Meeting</a>
+          {% for meeting in current_user.meetings %}
+            {% if meeting.answers %}
+              <a href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" class="block bg-gray-200 text-black font-bold text-xl py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center">
+                {{ meeting.name }} <br /><span class="text-gray-500">{{ meeting.agents|length }} agents</span>
               </a>
-            </div>
-            {% else %}
-            <div>
-              <form
-                action="{{ url_for('auth_blueprint.add_base_agents') }}"
-                method="post"
-              >
-                <button
-                  type="submit"
-                  class="block bg-gray-400 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
-                >
-                  Add Base Agents
-                </button>
-              </form>
-              <p class="my-4 text-sm">May take several minutes</p>
-            </div>
             {% endif %}
-          </div>
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold mb-4 tooltip">
-              Meetings<span class="tooltiptext"
-                >Collaborate with your AI agents</span
-              >
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <a
-                href="{{ url_for('meeting_blueprint.create_meeting') }}"
-                class="bg-black text-white font-bold py-4 px-6 text-xl rounded hover:bg-blue-600 transition duration-300 text-center"
-                >New Meeting</a
-              >
-              {% for meeting in current_user.meetings %} {% if meeting.answers%}
-              <a
-                href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}"
-                class="block bg-gray-200 text-black font-bold text-xl py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center"
-                >{{ meeting.name }} <br /><span class="text-gray-500"
-                  >{{ meeting.agents|length }} agents</span
-                ></a
-              >
-              {% endif %} {% endfor %}
-            </div>
-            {% if not current_user.meetings %}
-            <p class="text-gray-600 mt-4">
-              No meetings yet. You must create a timeframe before you can create
-              a meeting.
-            </p>
-            {% endif %}
-          </div>
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold mb-4 tooltip">
-              Timeframes<span class="tooltiptext"
-                >Manage your AI agent timelines</span
-              >
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <a
-                href="{{ url_for('auth_blueprint.create_timeframe') }}"
-                class="bg-black text-white text-xl font-bold py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center"
-                >New Timeframe</a
-              >
-              {% for timeframe in timeframes %} {% if timeframe.agents_count > 0
-              %}
-              <a
-                href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
-                class="inline-block bg-gray-200 text-xl text-black font-bold py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center"
-                >{{ timeframe.name }} <br /><span class="text-gray-500"
-                  >{{ timeframe.agents_count }} agents</span
-                ></a
-              >
-              {% endif %} {% endfor %}
-            </div>
-            {% if not timeframes %}
-            <p class="text-gray-600">No timeframes yet.</p>
-            {% endif %}
-          </div>
+          {% endfor %}
         </div>
+        {% if not current_user.meetings %}
+          <p class="text-gray-600 mt-4">
+            No meetings yet. You must create a timeframe before you can create a meeting.
+          </p>
+        {% endif %}
+      </div>
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-4 tooltip">
+          Timeframes<span class="tooltiptext">Manage your AI agent timelines</span>
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="bg-black text-white text-xl font-bold py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center">New Timeframe</a>
+          {% for timeframe in timeframes %}
+            {% if timeframe.agents_count > 0 %}
+              <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="inline-block bg-gray-200 text-xl text-black font-bold py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center">
+                {{ timeframe.name }} <br /><span class="text-gray-500">{{ timeframe.agents_count }} agents</span>
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% if not timeframes %}
+          <p class="text-gray-600">No timeframes yet.</p>
+        {% endif %}
+      </div>
+      </div>
       </main>
       <div id="footer-push"></div>
     </div>
