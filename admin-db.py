@@ -1,101 +1,132 @@
-# admin-db.py
-
 import os
 import sys
-from abe import app, db
-from models import User, Timeframe, Meeting
 import json
+import base64
+from abe import app, db
+from models import User, APIKey, Timeframe, Meeting, Agent, Image, MainAgent, Survey
 
+def is_base64(sb):
+    """Check if the input is base64 encoded."""
+    try:
+        if isinstance(sb, str):
+            sb_bytes = bytes(sb, 'ascii')
+        elif isinstance(sb, bytes):
+            sb_bytes = sb
+        else:
+            raise ValueError("Argument must be string or bytes")
+        return base64.b64encode(base64.b64decode(sb_bytes)) == sb_bytes
+    except Exception:
+        return False
+
+def format_data(data, max_length=50):
+    """Format data for logging, handling base64 and truncating as necessary."""
+    data_str = json.dumps(data) if isinstance(data, (dict, list)) else str(data)
+    if is_base64(data_str):
+        return "image in base64"
+    if len(data_str) > max_length:
+        return data_str[:max_length - 3] + '...'
+    return data_str
 
 def generate_log(username=None):
-  log_lines = []
+    log_lines = []
+    user_query = User.query.filter_by(username=username) if username else User.query.all()
 
-  if username:
-    users = User.query.filter_by(username=username).all()
-    log_lines.append(f"Generating log for user: {username}\n")
-  else:
-    users = User.query.all()
-    log_lines.append("Generating log for all users\n")
+    for user in user_query:
+        user_details = [
+            f"User ID: {user.id}",
+            f"Username: {format_data(user.username)}",
+            f"Email: {format_data(user.email)}",
+            f"Password Hash: {format_data(user.password_hash)}",
+            f"Credits: {format_data(user.credits)}",
+            f"Agents Data: {format_data(json.dumps(user.agents_data))}",
+            f"Images Data: {format_data(json.dumps(user.images_data))}",
+            f"Thumbnail Images Data: {format_data(json.dumps(user.thumbnail_images_data))}"
+        ]
+        log_lines.extend(user_details)
 
-  for user in users:
-    log_lines.append(f"User ID: {user.id}")
-    log_lines.append(f"Username: {user.username}")
-    log_lines.append(f"Credits: {user.credits}")
+        api_keys = [f"API Key: {format_data(key.key)}" for key in user.api_keys.all()]
+        log_lines.append(f"API Keys: {'✅' if api_keys else '❌'}")
+        log_lines.extend(api_keys)
 
-    timeframe_ids = set()
-    meeting_ids = set()
+        agents = user.agents
+        log_lines.append(f"Agents: {'✅' if agents else '❌'}")
+        for agent in agents:
+            agent_info = [
+                f"Agent ID: {agent.id}",
+                f"Persona: {format_data(agent.persona)}",
+                f"Summary: {format_data(agent.summary)}",
+                f"Keywords: {format_data(', '.join(agent.keywords))}",
+                f"Image Prompt: {format_data(agent.image_prompt)}",
+                f"Relationships: {format_data(', '.join(map(json.dumps, agent.relationships)))}"
+            ]
+            log_lines.extend(agent_info)
 
-    log_lines.append(f"Agents Data: {'✅' if user.agents_data else '❌'}")
-    if user.agents_data:
-      for agent in user.agents_data:
-        log_lines.append(f"  Agent ID: {agent['id']}")
-        log_lines.append(f"  Agent Name: {agent['id']}")
-        log_lines.append(f"  Agent Job Title: {agent.get('jobtitle', '❌')}")
-        log_lines.append(f"  Agent Image: {agent.get('photo_path', '❌')}")
+        images = user.images
+        log_lines.append(f"Images: {'✅' if images else '❌'}")
+        for image in images:
+            image_info = [
+                f"Image ID: {image.id}",
+                f"Filename: {format_data(image.filename)}"
+            ]
+            log_lines.extend(image_info)
 
-        relationships = agent.get('relationships', '❌')
-        if isinstance(relationships, list):
-          # Ensure each item in the list is a string before joining
-          relationships_str = ', '.join(str(rel) for rel in relationships)[:50]
-        elif isinstance(relationships, str):
-          relationships_str = relationships[:50]
-        else:
-          relationships_str = str(relationships)[:50]
-        log_lines.append(f"  Agent Relationships: {relationships_str}")
+        main_agents = user.main_agents
+        log_lines.append(f"Main Agents: {'✅' if main_agents else '❌'}")
+        for main_agent in main_agents:
+            main_agent_info = [
+                f"Main Agent ID: {main_agent.id}",
+                f"Data: {format_data(main_agent.data)}",
+                f"Image Data: {format_data(main_agent.image_data)}"
+            ]
+            log_lines.extend(main_agent_info)
 
-        log_lines.append(f"  Agent Persona: {agent.get('persona', '❌')[:50]}")
-        log_lines.append(f"  Agent Summary: {agent.get('summary', '❌')[:50]}")
-        log_lines.append(
-            f"  Agent Keywords: {', '.join(agent.get('keywords', ['❌']))}")
-        log_lines.append(
-            f"  Agent Image Prompt: {agent.get('image_prompt', '❌')[:50]}")
-        log_lines.append("")
-    else:
-      log_lines.append("  ❌ No agents found for this user.")
+        surveys = user.surveys
+        log_lines.append(f"Surveys: {'✅' if surveys else '❌'}")
+        for survey in surveys:
+            survey_info = [
+                f"Survey ID: {survey.id}",
+                f"Name: {format_data(survey.name)}",
+                f"Data: {format_data(json.dumps(survey.survey_data))}",
+                f"Is Public: {'✅' if survey.is_public else '❌'}",
+                f"Public URL: {format_data(survey.public_url)}"
+            ]
+            log_lines.extend(survey_info)
 
-    timeframes = Timeframe.query.filter_by(user_id=user.id).all()
-    log_lines.append(f"Timeframes: {'✅' if timeframes else '❌'}")
-    for timeframe in timeframes:
-      if timeframe.id not in timeframe_ids:
-        timeframe_ids.add(timeframe.id)
-        agents_data = json.loads(
-            timeframe.agents_data) if timeframe.agents_data else []
-        log_lines.append(f"  Timeframe ID: {timeframe.id}")
-        log_lines.append(f"  Timeframe Name: {timeframe.name}")
-        log_lines.append(f"  Number of Agents: {len(agents_data)}")
-        log_lines.append(f"  Agents Data: {'✅' if agents_data else '❌'}")
-        log_lines.append(
-            f"  Images Data: {'✅' if timeframe.images_data else '❌'}")
-        log_lines.append(
-            f"  Thumbnail Images Data: {'✅' if timeframe.thumbnail_images_data else '❌'}"
-        )
-        log_lines.append("")
+        timeframes = user.timeframes
+        log_lines.append(f"Timeframes: {'✅' if timeframes else '❌'}")
+        for timeframe in timeframes:
+            timeframe_info = [
+                f"Timeframe ID: {timeframe.id}",
+                f"Name: {format_data(timeframe.name)}",
+                f"Agents Count: {format_data(timeframe.agents_count)}",
+                f"Images Data: {format_data(timeframe.images_data)}",
+                f"Thumbnail Images Data: {format_data(timeframe.thumbnail_images_data)}"
+            ]
+            log_lines.extend(timeframe_info)
 
-    meetings = Meeting.query.filter_by(user_id=user.id).all()
-    log_lines.append(f"Meetings: {'✅' if meetings else '❌'}")
-    for meeting in meetings:
-      if meeting.id not in meeting_ids:
-        meeting_ids.add(meeting.id)
-        log_lines.append(f"  Meeting ID: {meeting.id}")
-        log_lines.append(f"  Meeting Name: {meeting.name}")
-        log_lines.append(f"  Agents: {'✅' if meeting.agents else '❌'}")
-        log_lines.append(f"  Questions: {'✅' if meeting.questions else '❌'}")
-        log_lines.append(f"  Answers: {'✅' if meeting.answers else '❌'}")
-        log_lines.append("")
+        meetings = user.meetings
+        log_lines.append(f"Meetings: {'✅' if meetings else '❌'}")
+        for meeting in meetings:
+            meeting_info = [
+                f"Meeting ID: {meeting.id}",
+                f"Name: {format_data(meeting.name)}",
+                f"Agents: {format_data(json.dumps(meeting.agents))}",
+                f"Questions: {format_data(json.dumps(meeting.questions))}",
+                f"Answers: {format_data(json.dumps(meeting.answers))}",
+                f"Is Public: {'✅' if meeting.is_public else '❌'}",
+                f"Public URL: {format_data(meeting.public_url)}"
+            ]
+            log_lines.extend(meeting_info)
 
-    log_lines.append(f"Images Data: {'✅' if user.images_data else '❌'}")
-    log_lines.append(
-        f"Thumbnail Images Data: {'✅' if user.thumbnail_images_data else '❌'}")
-    log_lines.append("\n")
+        log_lines.append("\n")
 
-  log_file_name = f"db_log{'_' + username if username else ''}.txt"
-  with open(log_file_name, 'w') as log_file:
-    log_file.write('\n'.join(log_lines))
+    log_file_name = f"db_log{'_' + username if username else ''}.txt"
+    with open(log_file_name, 'w') as log_file:
+        log_file.write('\n'.join(log_lines))
 
-  print(f"Log generated successfully: {log_file_name}")
-
+    print(f"Log generated successfully: {log_file_name}")
 
 if __name__ == '__main__':
-  with app.app_context():
-    username = sys.argv[1] if len(sys.argv) > 1 else None
-    generate_log(username)
+    with app.app_context():
+        username = sys.argv[1] if len(sys.argv) > 1 else None
+        generate_log(username)
