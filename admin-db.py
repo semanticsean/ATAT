@@ -53,12 +53,17 @@ def generate_log(username=None):
         for agent in agents:
             agent_info = [
                 f"Agent ID: {agent.id}",
+                f"Agent Type: {agent.agent_type}",
                 f"Persona: {format_data(agent.persona)}",
                 f"Summary: {format_data(agent.summary)}",
                 f"Keywords: {format_data(', '.join(agent.keywords))}",
                 f"Image Prompt: {format_data(agent.image_prompt)}",
                 f"Relationships: {format_data(', '.join(map(json.dumps, agent.relationships)))}"
             ]
+            if agent.data and 'photo_path' in agent.data:
+                agent_info.append(f"Photo Path: {format_data(agent.data['photo_path'])}")
+            if agent.data and 'image_data' in agent.data:
+                agent_info.append(f"Image Data: {'✅' if agent.data['image_data'] else '❌'}")
             log_lines.extend(agent_info)
 
         images = user.images
