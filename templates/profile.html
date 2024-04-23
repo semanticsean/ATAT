@@ -31,14 +31,14 @@
     </style>
   </head>
   <body class="bg-blue-50 min-h-screen flex flex-col">
-      {% include 'header.html' %}
-      <div class="container mx-auto px-4 py-8 md:mt-12 mt-6 flex-grow">
-          <div id="loading-overlay" class="fixed inset-0 bg-white flex items-center justify-center z-50">
-              <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." />
-          </div>
-          <div id="profile-content" style="display: none;">
-              {% if agent %}
-                  <div class="container mx-auto px-4 py-8 md:mt-12 mt-6">
+    {% include 'header.html' %}
+    <div class="container mx-auto px-4 py-8 md:mt-12 mt-6 flex-grow">
+        <div id="loading-overlay" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+            <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." />
+        </div>
+        <div id="profile-content" style="display: none;">
+            {% if agent %}
+                <div class="container mx-auto px-4 py-8 md:mt-12 mt-6">
                       <div class="bg-white rounded-lg shadow-md">
                           <div class="flex flex-col md:flex-row">
                               <div class="md:w-1/2 flex justify-center items-center agent-image">
@@ -130,22 +130,23 @@
                               {% endif %}
                           </div>
                       </div>
-                  </div>
-                  <div class="container mx-auto px-4 py-4">
-                      <div class="mb-2 container mx-auto px-4 py-4 mt-2 bg-white rounded-lg shadow-md">
-                          <div class="flex space-x-2 mt-1">
-                              <a href="{{ url_for('profile_blueprint.profile', agent_id=prev_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not prev_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not prev_agent_id %}disabled{% endif %}>Previous</a>
-                              <a href="{{ url_for('profile_blueprint.profile', agent_id=next_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not next_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not next_agent_id %}disabled{% endif %}>Next</a>
-                          </div>
-                      </div>
-                  </div>
-              {% else %}
-                  <p>Agent not found.</p>
-              {% endif %}
-          </div>
-      </div>
-      <div id="footer-push"></div>
-      {% include 'footer.html' %}
+                </div>
+                            </div>
+                            <div class="container mx-auto px-4 py-4">
+                                <div class="mb-2 container mx-auto px-4 py-4 mt-2 bg-white rounded-lg shadow-md">
+                                    <div class="flex space-x-2 mt-1">
+                                        <a href="{{ url_for('profile_blueprint.profile', agent_id=prev_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not prev_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not prev_agent_id %}disabled{% endif %}>Previous</a>
+                                        <a href="{{ url_for('profile_blueprint.profile', agent_id=next_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-white font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not next_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not next_agent_id %}disabled{% endif %}>Next</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <p>Agent not found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div id="footer-push"></div>
+                {% include 'footer.html' %}
     
     <script>
         $(window).on('load', function() {
