@@ -897,16 +897,48 @@ def create_timeframe():
 
 
   else:
-    logger.info('Accessing new timeframe page')
-    base_agents = current_user.agents_data or []
-    timeframes = current_user.timeframes
+        logger.info('Accessing new timeframe page')
+        user_agents = current_user.agents_data or []
+        agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
 
-    logger.info(f'Base agents count: {len(base_agents)}')
-    logger.info(f'Timeframes count: {len(timeframes)}')
+        base_agents = []
 
-    return render_template('new_timeframe.html',
-                           base_agents=base_agents,
-                           timeframes=timeframes)
+        for agent in user_agents:
+            agent_data = {
+                'id': agent['id'],
+                'jobtitle': agent.get('jobtitle', ''),
+                'summary': agent.get('summary', ''),
+                'photo_path': agent['photo_path'],
+                'image_data': current_user.images_data.get(agent['photo_path'].split('/')[-1], ''),
+                'agent_type': 'user'
+            }
+            base_agents.append(agent_data)
+
+        for agent in agent_class_agents:
+            agent_data_dict = agent.data  # agent.data is already a dictionary
+            photo_filename = agent_data_dict.get('photo_path', '').split('/')[-1]
+            agent_data = {
+                'id': agent.id,
+                'jobtitle': agent_data_dict.get('jobtitle', ''),
+                'summary': agent_data_dict.get('summary', ''),
+                'photo_path': agent_data_dict.get('photo_path', ''),
+                'image_data': current_user.images_data.get(photo_filename, ''),
+                'agent_type': 'agent'
+            }
+            base_agents.append(agent_data)
+
+        timeframes = current_user.timeframes
+
+        logger.info(f'User agents count: {len(user_agents)}')
+        logger.info(f'Agent class agents count: {len(agent_class_agents)}')
+        logger.info(f'Total base agents count: {len(base_agents)}')
+        logger.info(f'Timeframes count: {len(timeframes)}')
+
+        print("Base Agents:", base_agents)  # Print the base_agents data
+    
+        return render_template('new_timeframe.html',
+                               base_agents=base_agents,
+                               timeframes=timeframes)
 
 
 # Route to generate an API key and automatically fetch all keys
