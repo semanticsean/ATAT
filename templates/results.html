@@ -75,30 +75,28 @@
   <div id="loading" class="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-white z-50">
     <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." class="w-48 h-48" />
   </div>
-  <div id="content" class="container mx-auto py-8 px-4 hidden">
-    <div class="flex flex-col md:flex-row items-center md:justify-between mb-4 bg-gray-200 p-4 rounded-lg">
-      <h1 class="text-xl font-bold text-center md:text-left w-full">{{ meeting.name }}</h1>
-      <div class="w-full md:w-auto flex flex-col items-center md:items-end mt-4 md:mt-0">
-        <form action="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" method="post" class="w-full md:inline-block">
-          <div class="flex flex-col md:flex-row items-center justify-center md:justify-start">
-            <label for="is_public" class="inline-flex items-center mb-2 md:mb-0 md:mr-4">
-              <input type="checkbox" id="is_public" name="is_public" class="hidden" {% if meeting.is_public %}checked{% endif %} onchange="this.form.submit()" />
-              <span class="bg-black hover:bg-blue-600 text-white font-bold py-2 px-4 rounded cursor-pointer text-xs sm:text-base">{% if meeting.is_public %}Unpublish Public Meeting{% else %}Make Meeting Public{% endif %}</span>
-            </label>
-            {% if meeting.is_public %}
-            <span id="publicBadge" class="public-badge text-xs sm:text-sm" onclick="copyPublicUrl(this)">PUBLIC MEETING (copy url)</span>
-            {% endif %}
-          </div>
-        </form>
-        <!--
-        {% if meeting.is_public %}
-        <div class="text-xs mt-1 text-center md:text-right w-full hidden sm:block">
-          {{ request.host_url }}public/meeting/{{ meeting.public_url }}
+
+    
+    <div id="content" class="container mx-auto py-8 px-4 w-full md:w-1/2">
+      <div class="flex flex-col md:flex-row items-center md:justify-between mb-4 bg-gray-200 p-4 rounded-lg">
+        <h1 class="text-xl font-bold text-center md:text-left w-full">{{ meeting.name }}</h1>
+        <div class="w-full md:w-auto flex flex-col items-center md:items-end mt-4 md:mt-0">
+          <form action="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" method="post" class="w-full md:inline-block">
+            <div class="flex flex-col md:flex-row items-center justify-center md:justify-start">
+              <label for="is_public" class="inline-flex items-center mb-2 md:mb-0 md:mr-4">
+                <input type="checkbox" id="is_public" name="is_public" class="hidden" {% if meeting.is_public %}checked{% endif %} onchange="this.form.submit()" />
+                <span class="bg-black hover:bg-blue-600 text-white font-bold py-2 px-4 md:py-3 md:px-6 rounded cursor-pointer text-sm md:text-lg whitespace-nowrap">{% if meeting.is_public %}Unpublish Public Meeting{% else %}Make Meeting Public{% endif %}</span>
+              </label>
+              {% if meeting.is_public %}
+              <span id="publicBadge" class="public-badge text-xs sm:text-sm whitespace-nowrap py-2 px-4 md:py-3 md:px-6" onclick="copyPublicUrl(this)">PUBLIC MEETING (copy url)</span>
+              {% endif %}
+            </div>
+          </form>
         </div>
-        {% endif %} -->
       </div>
     </div>
-  </div>
+
+
 
       <div class="message-container relative">
         <div class="message-bubble outgoing mb-4 text-lg">

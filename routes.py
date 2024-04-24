@@ -698,23 +698,28 @@ def extract_questions_from_form(form_data):
         questions[question_id]['min'] = min_value
         questions[question_id]['max'] = max_value
   return questions
-  
+
 
 @meeting_blueprint.route('/public/meeting/<public_url>')
 def public_meeting_results(public_url):
+    logger.info(f"Accessing public meeting results for URL: {public_url}")
     meeting = Meeting.query.filter_by(public_url=public_url).first()
 
     if not meeting or not meeting.is_public:
+        logger.warning(f"Public meeting not found or not public for URL: {public_url}")
         abort(404)
 
+    logger.info(f"Rendering public_results.html template for meeting: {meeting.id}")
     return render_template('public_results.html', meeting=meeting)
 
 
 @meeting_blueprint.route('/public/meeting/<public_url>/data')
 def public_meeting_data(public_url):
+    logger.info(f"Accessing public meeting data for URL: {public_url}")
     meeting = Meeting.query.filter_by(public_url=public_url).first()
 
     if not meeting or not meeting.is_public:
+        logger.warning(f"Public meeting not found or not public for URL: {public_url}")
         abort(404)
 
     meeting_data = {
@@ -725,8 +730,9 @@ def public_meeting_data(public_url):
     }
 
     for agent in meeting_data['agents']:
-        agent['photo_path'] = url_for('serve_image', filename=agent['photo_path'].split('/')[-1])
+        agent['photo_path'] = url_for('serve_public_image', filename=agent['photo_path'].split('/')[-1])
 
+    logger.info(f"Returning public meeting data for meeting: {meeting.id}")
     return jsonify(meeting_data)
 
 
