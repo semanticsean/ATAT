@@ -5,7 +5,7 @@ import glob
 import os
 import base64
 import json
-from flask import Flask, render_template, send_from_directory, abort, send_file, url_for, Response, jsonify, request
+from flask import Flask, render_template, send_from_directory, abort, send_file, url_for, Response, jsonify, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, login_required
 from flask_migrate import Migrate

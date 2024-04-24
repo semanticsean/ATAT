@@ -1,4 +1,3 @@
-<!--templates/index.html -->
 <!doctype html>
 <html lang="en">
   <head>
@@ -55,27 +54,25 @@
         visibility: visible;
         opacity: 1;
       }
-      .agent-container {
-        display: flex;
-        justify-content: flex-start;
-        flex-wrap: wrap;
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
       }
-      .agent-container > * {
-        margin: 0.5rem;
-        width: calc(16.66% - 1rem);
-        min-width: 120px;
+      @media (max-width: 768px) {
+        .grid-container {
+          grid-template-columns: 1fr;
+        }
       }
-      .odd-row {
-        width: 100%;
-        text-align: center;
-      }
-      .meeting-button {
+      .grid-item {
         position: relative;
         overflow: hidden;
         background-size: cover;
         background-position: center;
+        padding: 10rem;
+        border-radius: 0.5rem;
       }
-      .meeting-button::before {
+      .grid-item::before {
         content: "";
         position: absolute;
         top: 0;
@@ -83,42 +80,25 @@
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
-        opacity: 0;
-        transition: opacity 0.3s ease;
       }
-      .meeting-button:hover::before {
-        opacity: 1;
-        color: white; // Added for text color to be white
-      }
-      .meeting-button-text {
+      .grid-item-content {
         position: relative;
         z-index: 1;
-      }
-      square-button {
-        display: inline-block;
-        background-color: black;
-        color: white;
-        font-bold: bold;
-        text-align: center;
-        width: 100px; /* Adjust size as needed */
-        height: 100px; /* Adjust size as needed */
-        line-height: 100px; /* Align text vertically */
-        text-decoration: none;
-        transition: background-color 0.3s ease;
-      }
-
-      .square-button:hover {
-        background-color: #007bff; /* Bootstrap primary blue */
         color: white;
       }
-
-      .meeting-thumbnail {
-        display: block;
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain; /* Keep aspect ratio */
-        margin: auto; /* Center the image if smaller than container */
-        opacity: 0.5;
+      .grid-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 0.5rem;
+      }
+      .new-button {
+        background-color: #007bff;
+        color: white;
+      }
+      .dashboard-button {
+        background-color: #6c757d;
+        color: white;
       }
     </style>
   </head>
@@ -146,7 +126,6 @@
         alt="Loading"
       />
     </div>
-
     <div class="flex-grow">
       <main class="flex-1">
         <div class="container mx-auto px-4 mt-4">
@@ -176,204 +155,113 @@
                 >AI-generated synthetic agents</span
               >
             </h2>
-            {% if current_user.agents_data or current_user.agents %}
-            <div id="agentsDisplay" class="agent-container mt-4">
-              {% for agent in current_user.agents_data %}
-              <a
-                href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}"
-                class="group relative mx-2 mb-4"
-              >
-                {% if agent.photo_path %} {% set thumbnail_key =
-                agent.photo_path.split('/')[-1] + '_thumbnail' %} {% if
-                thumbnail_key in current_user.thumbnail_images_data %}
-                <img
-                  src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}"
-                  alt="{{ agent.id }}"
-                  class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left"
-                />
-                {% else %}
-                <img
-                  src="data:image/png;base64,{{ current_user.images_data[agent.photo_path.split('/')[-1]] }}"
-                  alt="{{ agent.id }}"
-                  class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left"
-                />
-                {% endif %} {% else %}
-                <div
-                  class="w-24 h-24 md:w-32 md:h-32 bg-black text-white rounded-full flex items-center justify-center"
-                >
-                  {{ agent.id }}
-                </div>
-                {% endif %}
-
-                <div
-                  class="absolute top-0 left-0 w-24 h-24 md:w-32 md:h-32 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out"
-                >
-                  <div
-                    class="absolute inset-0 bg-black opacity-75 rounded-full"
-                  ></div>
-                  <div
-                    class="absolute inset-0 flex flex-col items-center justify-center text-white text-sm md:text-base text-center"
-                  >
-                    <span class="font-bold">{{ agent.id }}</span>
-                    <span>{{ agent.jobtitle }}</span>
-                  </div>
-                </div>
-              </a>
-              {% endfor %} {% for agent in current_user.agents %}
-              <a
-                href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}"
-                class="group relative mx-2 mb-4"
-              >
-                {% if agent.data.photo_path %} {% if agent.data.image_data and
-                agent.data.photo_path in agent.data.image_data %}
-                <img
-                  src="data:image/png;base64,{{ agent.data.image_data[agent.data.photo_path] }}"
-                  alt="{{ agent.id }}"
-                  class="rounded-full border-2 border-gray-300 hover:border-blue-500 transition duration-300 ease-in-out w-24 h-24 md:w-32 md:h-32 justify-left items-left"
-                />
-                {% else %}
-                <div
-                  class="w-24 h-24 md:w-32 md:h-32 bg-black text-white rounded-full flex items-center justify-center"
-                >
-                  {{ agent.id }}
-                </div>
-                {% endif %} {% else %}
-
-                <div
-                  class="w-24 h-24 md:w-32 md:h-32 bg-black text-white rounded-full flex items-center justify-center"
-                >
-                  {{ agent.id }}
-                </div>
-                {% endif %}
-
-                <div
-                  class="absolute top-0 left-0 w-24 h-24 md:w-32 md:h-32 rounded-full opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out"
-                >
-                  <div
-                    class="absolute inset-0 bg-black opacity-75 rounded-full"
-                  ></div>
-                  <div
-                    class="absolute inset-0 flex flex-col items-center justify-center text-white text-sm md:text-base text-center"
-                  >
-                    <span class="font-bold">{{ agent.id }}</span>
-                    <span>{{ agent.data.jobtitle }}</span>
-                  </div>
-                </div>
-              </a>
-              {% endfor %}
+            <div class="grid-container">
               <a
                 href="{{ url_for('dashboard_blueprint.dashboard') }}"
-                class="group relative mx-2 mb-4"
+                class="grid-item dashboard-button"
               >
                 <div
-                  class="w-24 h-24 md:w-32 md:h-32 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold text-xl hover:bg-blue-600 transition duration-300"
+                  class="grid-item-content text-2xl flex justify-center items-center h-full"
                 >
                   Dashboard
                 </div>
               </a>
-            </div>
-            {% else %}
-            <div>
+              {% if current_user.agents_data %} {% for agent in
+              current_user.agents_data %}
+              <a
+                href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}"
+                class="grid-item relative bg-center bg-cover"
+                style="background-image: url('data:image/png;base64,{{ current_user.images_data[agent.photo_path.split('/')[-1]] }}')"
+              >
+                <div
+                  class="absolute inset-0 bg-black bg-opacity-10 flex flex-col justify-end items-center p-4 hover:bg-opacity-0"
+                >
+                  <div class="text-center w-full">
+                    <span class="text-3xl font-bold text-white self-end"
+                      >{{ agent.id }}</span
+                    >
+                    <span class="text-sm text-gray-300 self-start mt-2"
+                      >{{ agent.jobtitle }}</span
+                    >
+                  </div>
+                </div>
+              </a>
+              {% endfor %} {% else %}
               <form
                 action="{{ url_for('auth_blueprint.add_base_agents') }}"
                 method="post"
               >
                 <button
                   type="submit"
-                  class="block bg-gray-400 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                  class="grid-item dashboard-button text-white text-xl"
                 >
-                  Add Base Agents
+                  Add Base Synths<br />
+                  <span class="my-4 text-sm">May take several minutes</span>
                 </button>
               </form>
-              <p class="my-4 text-sm">May take several minutes</p>
+              {% endif %}
             </div>
-            {% endif %}
           </div>
+
+          
 
           <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
             <h2 class="text-2xl font-bold mb-4 tooltip">
-              Meetings<span class="tooltiptext"
-                >Collaborate with your AI agents</span
-              >
+              Meetings<span class="tooltiptext">Collaborate with your AI agents</span>
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <a
-                href="{{ url_for('meeting_blueprint.create_meeting') }}"
-                class="square-button rounded-lg"
-                >New Meeting</a
-              >
-              {% for meeting in current_user.meetings %} {% if meeting.answers
-              %}
-              <div class="meeting-button square-button rounded-lg">
-                {% if meeting.thumbnail_image_data %}
-                <img
-                  src="data:image/png;base64,{{ meeting.thumbnail_image_data }}"
-                  alt="{{ meeting.name }}"
-                  class="meeting-thumbnail"
-                />
-                {% elif meeting.image_data %}
-                <img
-                  src="data:image/png;base64,{{ meeting.image_data }}"
-                  alt="{{ meeting.name }}"
-                  class="meeting-thumbnail"
-                />
-                {% else %}
-                <img
-                  src="{{ url_for('static', filename='placeholder.jpg') }}"
-                  alt="Placeholder"
-                  class="meeting-thumbnail"
-                />
-                {% endif %}
-                <a
-                  href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}"
-                  class="absolute inset-0 flex items-center justify-center text-black font-bold text-xl transition duration-300 text-center"
-                >
-                  <div class="meeting-button-text">
-                    {{ meeting.name }} <br /><span class="text-gray-200"
-                      >{{ meeting.agents|length }} agents</span
-                    >
+              <a href="{{ url_for('meeting_blueprint.create_meeting') }}" class="bg-black text-white font-bold py-4 px-6 text-xl rounded hover:bg-blue-600 transition duration-300 text-center">New Meeting</a>
+              {% for meeting in current_user.meetings %}
+                {% if meeting.answers %}
+                  <div class="meeting-button rounded overflow-hidden">
+                    {% if meeting.thumbnail_image_data %}
+                      <img src="data:image/png;base64,{{ meeting.thumbnail_image_data }}" alt="{{ meeting.name }}" class="meeting-thumbnail">
+                    {% elif meeting.image_data %}
+                      <img src="data:image/png;base64,{{ meeting.image_data }}" alt="{{ meeting.name }}" class="meeting-thumbnail">
+                    {% else %}
+                      <img src="{{ url_for('static', filename='placeholder.jpg') }}" alt="Placeholder" class="meeting-thumbnail">
+                    {% endif %}
+                    <a href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" class="absolute inset-0 flex items-center justify-center text-white font-bold text-xl transition duration-300 text-center">
+                      <div class="meeting-button-text">
+                        {{ meeting.name }} <br /><span class="text-gray-200">{{ meeting.agents|length }} agents</span>
+                      </div>
+                    </a>
                   </div>
-                </a>
-              </div>
-              {% endif %} {% endfor %}
+                {% endif %}
+              {% endfor %}
             </div>
             {% if not current_user.meetings %}
-            <p class="text-gray-600 mt-4">
-              No meetings yet. You must create a timeframe before you can create
-              a meeting.
-            </p>
+              <p class="text-gray-600 mt-4">
+                No meetings yet. You must create a timeframe before you can create a meeting.
+              </p>
             {% endif %}
           </div>
 
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold mb-4 tooltip">
-              Timeframes<span class="tooltiptext"
-                >Manage your AI agent timelines</span
-              >
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <a
-                href="{{ url_for('auth_blueprint.create_timeframe') }}"
-                class="bg-black text-white text-xl font-bold py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center"
-                >New Timeframe</a
-              >
-              {% for timeframe in timeframes %} {% if timeframe.agents_count > 0
-              %}
-              <a
-                href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
-                class="inline-block bg-gray-200 text-xl text-black font-bold py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center"
-              >
-                {{ timeframe.name }} <br /><span class="text-gray-500"
-                  >{{ timeframe.agents_count }} agents</span
-                >
-              </a>
-              {% endif %} {% endfor %}
-            </div>
-            {% if not timeframes %}
-            <p class="text-gray-600">No timeframes yet.</p>
-            {% endif %}
+          
+
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <h2 class="text-2xl font-bold mb-4 tooltip">
+            Timeframes<span class="tooltiptext">Manage your AI agent timelines</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="bg-black text-white text-xl font-bold py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center">New Timeframe</a>
+            {% for timeframe in timeframes %}
+              {% if timeframe.agents_count > 0 %}
+                <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="inline-block bg-gray-200 text-xl text-black font-bold py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center">
+                  {{ timeframe.name }} <br /><span class="text-gray-500">{{ timeframe.agents_count }} agents</span>
+                </a>
+              {% endif %}
+            {% endfor %}
           </div>
+          {% if not timeframes %}
+            <p class="text-gray-600">No timeframes yet.</p>
+          {% endif %}
         </div>
+        </div>
+
+
+        
       </main>
       <div id="footer-push"></div>
     </div>

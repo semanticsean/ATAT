@@ -233,47 +233,54 @@ def serve_survey_image(survey_id, filename):
 @meeting_blueprint.route('/meeting/<int:meeting_id>', methods=['GET', 'POST'])
 @login_required
 def meeting_form(meeting_id):
-  meeting = Meeting.query.get_or_404(meeting_id)
-  if meeting.user_id != current_user.id:
-    abort(403)
+    meeting = Meeting.query.get_or_404(meeting_id)
+    if meeting.user_id != current_user.id:
+        abort(403)
 
-  if request.method == 'POST':
-    questions = extract_questions_from_form(request.form)
-    selected_agent_ids = request.form.getlist('selected_agents')
-    llm_instructions = request.form.get('llm_instructions', '')
-    request_type = request.form.get('request_type', 'iterative')
+    if request.method == 'POST':
+        try:
+            questions = extract_questions_from_form(request.form)
+            selected_agent_ids = request.form.getlist('selected_agents')
+            llm_instructions = request.form.get('llm_instructions', '')
+            request_type = request.form.get('request_type', 'iterative')
 
-    selected_agents_data = [
-        agent for agent in meeting.agents
-        if str(agent['id']) in selected_agent_ids
-    ]
+            selected_agents_data = [
+                agent for agent in meeting.agents
+                if str(agent['id']) in selected_agent_ids
+            ]
 
-    payload = {
-        "meeting_id": meeting_id,
-        "agents_data": selected_agents_data,
-        "questions": questions,
-        "llm_instructions": llm_instructions,
-        "request_type": request_type,
-    }
+            payload = {
+                "meeting_id": meeting_id,
+                "agents_data": selected_agents_data,
+                "questions": questions,
+                "llm_instructions": llm_instructions,
+                "request_type": request_type,
+            }
 
-    meeting_responses = abe_gpt.conduct_meeting(payload, current_user)
+            meeting_responses = abe_gpt.conduct_meeting(payload, current_user)
 
-    answers = {}
-    for agent_data, response in zip(selected_agents_data, meeting_responses):
-      answers[agent_data['id']] = response['responses']
+            answers = {}
+            for agent_data, response in zip(selected_agents_data, meeting_responses):
+                answers[agent_data['id']] = response['responses']
 
-    meeting.agents = selected_agents_data
-    meeting.questions = questions
-    meeting.answers = answers
-    db.session.commit()
+            meeting.agents = selected_agents_data
+            meeting.questions = questions
+            meeting.answers = answers
+            db.session.commit()
 
-    return redirect(
-        url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id))
-  else:
-    agents_data = meeting.agents
-    return render_template('meeting2.html',
-                           meeting=meeting,
-                           agents=agents_data)
+            return redirect(
+                url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id))
+        except Exception as e:
+            if "Insufficient credits" in str(e):
+                return redirect(url_for('auth_blueprint.update_profile'))
+            else:
+                raise  # Re-raise the exception if it's not the one we're catching
+    else:
+        agents_data = meeting.agents
+        return render_template('meeting2.html',
+                               meeting=meeting,
+                               agents=agents_data)
+
 
 
 @meeting_blueprint.route('/meeting/<int:meeting_id>/results',
@@ -976,6 +983,8 @@ def status():
                          user_credits=user_credits)
 
 
+
+
 @auth_blueprint.route('/new_timeframe', methods=['GET', 'POST'])
 @login_required
 def create_timeframe():
@@ -996,17 +1005,31 @@ def create_timeframe():
             flash("Please select at least one agent to proceed.", "warning")
             return redirect(url_for('auth_blueprint.create_timeframe'))
 
-        agents_data = current_user.agents_data
-        selected_agents_data = [
-            agent for agent in agents_data
-            if str(agent['id']) in selected_agent_ids
-        ]
+        agents_data = []
+        user_agents = current_user.agents_data or []
+        agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
+        timeframe_agents = []
+
+        for timeframe in current_user.timeframes:
+            timeframe_agents.extend(json.loads(timeframe.agents_data))
+
+        for agent in user_agents:
+            if str(agent['id']) in selected_agent_ids:
+                agents_data.append(agent)
+
+        for agent in agent_class_agents:
+            if str(agent.id) in selected_agent_ids:
+                agents_data.append(agent.data)
+
+        for agent in timeframe_agents:
+            if str(agent['id']) in selected_agent_ids:
+                agents_data.append(agent)
 
         form_data = request.form.to_dict()
         form_data.pop('selected_agents', None)
 
         payload = {
-            "agents_data": selected_agents_data,
+            "agents_data": agents_data,
             "instructions": form_data,
             "timeframe_name": form_data["name"]
         }
@@ -1033,44 +1056,11 @@ def create_timeframe():
         logger.info('Accessing new timeframe page')
         user_agents = current_user.agents_data or []
         agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
-
-        base_agents = []
-
-        for agent in user_agents:
-            agent_data = {
-                'id': agent['id'],
-                'jobtitle': agent.get('jobtitle', ''),
-                'summary': agent.get('summary', ''),
-                'photo_path': agent['photo_path'],
-                'image_data': current_user.images_data.get(os.path.basename(agent['photo_path']), ''),
-                'agent_type': 'user'
-            }
-            base_agents.append(agent_data)
-
-        for agent in agent_class_agents:
-            agent_data_dict = agent.data  # agent.data is already a dictionary
-            photo_filename = os.path.basename(agent_data_dict.get('photo_path', ''))
-            agent_data = {
-                'id': agent.id,
-                'jobtitle': agent_data_dict.get('jobtitle', ''),
-                'summary': agent_data_dict.get('summary', ''),
-                'photo_path': agent_data_dict.get('photo_path', ''),
-                'image_data': current_user.images_data.get(photo_filename, ''),
-                'agent_type': 'agent'
-            }
-            base_agents.append(agent_data)
-
         timeframes = current_user.timeframes
 
-        logger.info(f'User agents count: {len(user_agents)}')
-        logger.info(f'Agent class agents count: {len(agent_class_agents)}')
-        logger.info(f'Total base agents count: {len(base_agents)}')
-        logger.info(f'Timeframes count: {len(timeframes)}')
-
-        print("Base Agents:", base_agents)  # Print the base_agents data
-
         return render_template('new_timeframe.html',
-                               base_agents=base_agents,
+                               user_agents=user_agents,
+                               agent_class_agents=agent_class_agents,
                                timeframes=timeframes)
 
 # Route to generate an API key and automatically fetch all keys
