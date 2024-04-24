@@ -24,7 +24,7 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
       .message-bubble {
-        max-width: 75%;
+        max-width: 90%;
         padding: 0.5rem 1rem;
         border-radius: 1rem;
         margin-bottom: 1rem;
@@ -53,67 +53,58 @@
       .public-badge.copied {
         background-color: #f59e0b;
       }
+      @keyframes glowEffect {
+        0% {
+          box-shadow: 0 0 5px #fbbf24;
+        }
+        50% {
+          box-shadow: 0 0 20px #fbbf24;
+        }
+        100% {
+          box-shadow: 0 0 5px #fbbf24;
+        }
+      }
+
+      .public-badge.glow {
+        animation: glowEffect 3s ease-in-out;
+      }
     </style>
   </head>
-  <body class="bg-gray-100">
-    {% include 'header.html' %}
-    <div
-      id="loading"
-      class="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-white z-50"
-    >
-      <img
-        src="{{ url_for('static', filename='loading.gif') }}"
-        alt="Loading..."
-        class="w-48 h-48"
-      />
-    </div>
-    <div id="content" class="container mx-auto py-8 px-4 hidden">
-      <div
-        class="flex items-center justify-between mb-4 bg-gray-200 p-4 rounded-lg"
-      >
-        <h1 class="text-xl font-bold">{{ meeting.name }}</h1>
-        <div>
-          <form
-            action="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}"
-            method="post"
-            class="inline-block"
-          >
-            <div class="flex items-center">
-              <label for="is_public" class="inline-flex items-center mr-4">
-                <input
-                  type="checkbox"
-                  id="is_public"
-                  name="is_public"
-                  class="hidden"
-                  {%
-                  if
-                  meeting.is_public
-                  %}checked{%
-                  endif
-                  %}
-                  onchange="this.form.submit()"
-                />
-                <span
-                  class="bg-black hover:bg-blue-600 text-white font-bold py-2 px-4 rounded cursor-pointer"
-                >
-                  {% if meeting.is_public %}Unpublish Public Meeting{% else
-                  %}Make Meeting Public{% endif %}
-                </span>
-              </label>
-            </div>
-          </form>
-          {% if meeting.is_public %}
-          <span class="public-badge" onclick="copyPublicUrl(this)"
-            >PUBLIC MEETING (copy url)</span
-          >
-          <div class="text-xs mt-1">
-            {{ request.host_url }}public/meeting/{{ meeting.public_url }}
-          </div>
-          {% endif %}
+      <body class="bg-gray-100">
+        {% include 'header.html' %}
+        <div id="loading" class="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-white z-50">
+          <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." class="w-48 h-48" />
         </div>
-      </div>
+        <div id="content" class="container mx-auto py-8 px-4 hidden">
+          <div class="flex items-center justify-between mb-4 bg-gray-200 p-4 rounded-lg">
+            <h1 class="text-xl font-bold">{{ meeting.name }}</h1>
+            <div class="flex flex-col items-end">
+              <div class="flex items-center">
+                <form action="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" method="post" class="inline-block">
+                  <div class="flex items-center">
+                    <label for="is_public" class="inline-flex items-center mr-4">
+                      <input type="checkbox" id="is_public" name="is_public" class="hidden" {% if meeting.is_public %}checked{% endif %} onchange="this.form.submit()" />
+                      <span class="bg-black hover:bg-blue-600 text-white font-bold py-2 px-4 rounded cursor-pointer">
+                        {% if meeting.is_public %}Unpublish Public Meeting{% else %}Make Meeting Public{% endif %}
+                      </span>
+                    </label>
+                  </div>
+                </form>
+                {% if meeting.is_public %}
+                <span id="publicBadge" class="public-badge ml-4" onclick="copyPublicUrl(this)">PUBLIC MEETING (copy url)</span>
+                {% endif %}
+              </div>
+              {% if meeting.is_public %}
+              <div class="text-xs mt-1 text-right">
+                {{ request.host_url }}public/meeting/{{ meeting.public_url }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
       <div class="message-container relative">
-        <div class="message-bubble incoming mb-4">
+        <div class="message-bubble outgoing mb-4 text-lg">
+          How did this meeting go? <br />
           <p class="font-bold">{{ meeting.name }}</p>
         </div>
         {% if meeting.image_data %}
@@ -132,49 +123,48 @@
         question_data is mapping %} {% set question_text =
         question_data.get('text', '') %} {% else %} {% set question_text =
         question_data %} {% endif %}
-        <div class="message-bubble outgoing mb-4">
-          <p>{{ question_text }}</p>
+        <div class="message-bubble outgoing mb-4 text-lg">
+          <p>
+            <span class="font-bold">Show me answers for:</span><br />{{
+            question_text }}
+          </p>
         </div>
-        {% for agent in agents_data %}
-          {% if meeting.answers[agent['id']][question_id] %}
-            {% set answer_data = meeting.answers[agent['id']][question_id] %}
-            {% if answer_data is string %}
-              {% set start_pattern = '{\\n \\"response\\": \\"' %}
-              {% set end_pattern = '\\"\\n}' %}
-              {% if start_pattern in answer_data and end_pattern in answer_data %}
-                {% set start_index = answer_data.find(start_pattern) + start_pattern|length %}
-                {% set end_index = answer_data.find(end_pattern) %}
-                {% set answer_text = answer_data[start_index:end_index] %}
-              {% else %}
-                {% set answer_json = answer_data|tojson|safe %}
-                {% if answer_json is mapping %}
-                  {% set answer_text = answer_json.get('response', '') %}
-                {% else %}
-                  {% set answer_text = answer_data %}
-                {% endif %}
-              {% endif %}
-              {% if answer_text is string %}
-                {% set answer_json = answer_text|tojson|safe %}
-                {% if answer_json is mapping and 'response' in answer_json %}
-                  {% set answer_text = answer_json['response'] %}
-                {% endif %}
-              {% endif %}
-            {% else %}
-              {% set answer_text = answer_data %}
-            {% endif %}
-            <div class="flex items-start mb-4">
-              <img src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}" alt="{{ agent['id'] }}" class="w-10 h-10 rounded-full mr-2" title="{{ agent['persona'] }}" onload="imageLoaded()">
-              <div class="message-bubble incoming">
-                <p class="font-bold">{{ agent['id'] }}</p>
-                <p class="text-sm text-gray-600">{{ agent['jobtitle'] }}</p>
-                <p>{{ answer_text|safe }}</p>
-              </div>
-            </div>
-          {% endif %}
-        {% endfor %}
-
-        
-        {% endfor %}
+        {% for agent in agents_data %} {% if
+        meeting.answers[agent['id']][question_id] %} {% set answer_data =
+        meeting.answers[agent['id']][question_id] %} {% if answer_data is string
+        %} {% set start_pattern = '{\\n \\"response\\": \\"' %} {% set
+        end_pattern = '\\"\\n}' %} {% if start_pattern in answer_data and
+        end_pattern in answer_data %} {% set start_index =
+        answer_data.find(start_pattern) + start_pattern|length %} {% set
+        end_index = answer_data.find(end_pattern) %} {% set answer_text =
+        answer_data[start_index:end_index] %} {% else %} {% set answer_json =
+        answer_data|tojson|safe %} {% if answer_json is mapping %} {% set
+        answer_text = answer_json.get('response', '') %} {% else %} {% set
+        answer_text = answer_data %} {% endif %} {% endif %} {% if answer_text
+        is string %} {% set answer_json = answer_text|tojson|safe %} {% if
+        answer_json is mapping and 'response' in answer_json %} {% set
+        answer_text = answer_json['response'] %} {% endif %} {% endif %} {% else
+        %} {% set answer_text = answer_data %} {% endif %}
+        <div class="flex items-start mb-4">
+          <a
+            href="{{ url_for('profile_blueprint.profile', agent_id=agent['id'], _external=True) }}"
+            target="_blank"
+          >
+            <img
+              src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}"
+              alt="{{ agent['id'] }}"
+              class="w-12 h-12 rounded-full mr-2"
+              title="{{ agent['persona'] }}"
+              onload="imageLoaded()"
+            />
+          </a>
+          <div class="message-bubble incoming">
+            <p class="font-bold text-lg">{{ agent['id'] }}</p>
+            <p class="text-gray-600">{{ agent['jobtitle'] }}</p>
+            <p class="text-lg">{{ answer_text|safe }}</p>
+          </div>
+        </div>
+        {% endif %} {% endfor %} {% endfor %}
       </div>
       <div class="text-center mt-8">
         <button
@@ -186,7 +176,7 @@
       </div>
     </div>
     {% include 'footer.html' %}
-      <script>
+    <script>
       var imagesToLoad = 0;
       var imagesLoaded = 0;
 
@@ -229,6 +219,10 @@
       function copyPublicUrl(button) {
         var publicUrl = "{{ request.host_url }}public/meeting/{{ meeting.public_url }}";
         navigator.clipboard.writeText(publicUrl).then(function() {
+          button.classList.add('glow');
+          setTimeout(function() {
+            button.classList.remove('glow');
+          }, 3000);
           button.classList.add('copied');
           setTimeout(function() {
             button.classList.remove('copied');
@@ -239,54 +233,50 @@
       }
 
       document.getElementById('download-csv').addEventListener('click', function() {
-        var csvRows = [];
-        var filename = 'semanticlife_data_' + new Date().toISOString() + '.csv';
+          var csvRows = [];
+          var filename = 'semanticlife_data_' + new Date().toISOString() + '.csv';
 
-        // Headers for CSV
-        csvRows.push(["Agent ID", "Job Title", "Question", "Response"].join(','));
+          // Headers for CSV
+          csvRows.push(["Agent ID", "Job Title", "Question", "Response"].join(','));
 
-        {% for agent in agents_data %}
-          {% for question_id, answer in meeting.answers[agent['id']].items() %}
-            var questionText = {% if meeting.questions and meeting.questions[question_id] %}"{{ meeting.questions[question_id]['text']|replace('"', '""')|replace('\n', ' ')|replace('\r', '') }}"{% else %}"Question {{ question_id }}"{% endif %};
-            {% if answer is mapping %}
-              var responseText = "{{ answer.get('response', '')|replace('"', '""')|replace('\n', ' ')|replace('\r', '') }}";
+          {% for agent in agents_data %}
+            {% for question_id, answer in meeting.answers[agent['id']].items() %}
+              var questionText = {% if meeting.questions and meeting.questions[question_id] %}"{{ meeting.questions[question_id]['text']|replace('"', '""')|replace('\n', ' ')|replace('\r', '') }}"{% else %}"Question {{ question_id }}"{% endif %};
+              var responseText = "{{ answer|replace('"', '""')|replace('\n', ' ')|replace('\r', '')|replace(',', '') }}";
+
+              csvRows.push([
+                "{{ agent['id']|replace('"', '""')|replace('\n', ' ')|replace('\r', '') }}",
+                "{{ agent['jobtitle']|replace('"', '""')|replace('\n', ' ')|replace('\r', '') }}",
+                questionText,
+                responseText
+              ].join(','));
             {% else %}
-              var responseText = "{{ answer|replace('"', '""')|replace('\n', ' ')|replace('\r', '') }}";
-            {% endif %}
-
-            csvRows.push([
-              "{{ agent['id']|replace('"', '""')|replace('\n', ' ')|replace('\r', '') }}",
-              "{{ agent['jobtitle']|replace('"', '""')|replace('\n', ' ')|replace('\r', '') }}",
-              questionText,
-              responseText
-            ].join(','));
-          {% else %}
-            // If no answers, still add the agent to the CSV.
-            csvRows.push([
-              "{{ agent['id']|replace('"', '""')|replace('\n', ' ')|replace('\r', '') }}",
-              "{{ agent['jobtitle']|replace('"', '""')|replace('\n', ' ')|replace('\r', '') }}",
-              "",
-              ""
-            ].join(','));
+              // If no answers, still add the agent to the CSV.
+              csvRows.push([
+                "{{ agent['id']|replace('"', '""')|replace('\n', ' ')|replace('\r', '') }}",
+                "{{ agent['jobtitle']|replace('"', '""')|replace('\n', ' ')|replace('\r', '') }}",
+                "",
+                ""
+              ].join(','));
+            {% endfor %}
           {% endfor %}
-        {% endfor %}
 
-        var csvString = csvRows.join('\n');
-        var blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+          var csvString = csvRows.join('\n');
+          var blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
 
-        // Create a link to download the CSV
-        var link = document.createElement('a');
-        if (link.download !== undefined) { // feature detection
-          // Browsers that support HTML5 download attribute
-          var url = URL.createObjectURL(blob);
-          link.setAttribute('href', url);
-          link.setAttribute('download', filename);
-          link.style.visibility = 'hidden';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }
-      });
+          // Create a link to download the CSV
+          var link = document.createElement('a');
+          if (link.download !== undefined) { // feature detection
+            // Browsers that support HTML5 download attribute
+            var url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }
+        });
     </script>
   </body>
 </html>
