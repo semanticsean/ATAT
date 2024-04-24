@@ -250,6 +250,7 @@ def meeting_form(meeting_id):
     ]
 
     payload = {
+        "meeting_id": meeting_id,
         "agents_data": selected_agents_data,
         "questions": questions,
         "llm_instructions": llm_instructions,
@@ -279,7 +280,11 @@ def meeting_form(meeting_id):
 @meeting_blueprint.route('/meeting/<int:meeting_id>/results', methods=['GET', 'POST'])
 @login_required
 def meeting_results(meeting_id):
-    meeting = Meeting.query.options(joinedload(Meeting.creator)).get_or_404(meeting_id)
+    meeting = Meeting.query.get(meeting_id)
+    agents_data = meeting.agents  
+    for agent in agents_data:
+        agent['photo_path'] = agent['photo_path'].split('/')[-1]
+
     if meeting.user_id != current_user.id:
         abort(403)
 
@@ -347,7 +352,7 @@ def meeting_results(meeting_id):
     if meeting.image_data:
         logger.info(f"Meeting {meeting.id} image data type: {type(meeting.image_data)}")
         logger.info(f"Meeting {meeting.id} image data length: {len(meeting.image_data)}")
-        logger.info(f"Meeting {meeting.id} image URL: {url_for('serve_meeting_image', meeting_id=meeting.id, _external=True)}")
+        logger.info(f"Meeting {meeting.id} image URL: {url_for('meeting_blueprint.serve_meeting_image', meeting_id=meeting.id, _external=True)}")
     else:
         logger.warning(f"No image data found for Meeting {meeting.id}")
 
@@ -358,7 +363,7 @@ def meeting_results(meeting_id):
                                         Meeting.id > meeting.id).order_by(
                                             Meeting.id).first()
 
-    return render_template('results.html', meeting=meeting, is_public=meeting.is_public, prev_meeting=prev_meeting, next_meeting=next_meeting)
+    return render_template('results.html', meeting=meeting, agents_data=agents_data)
 
 @dashboard_blueprint.route('/dashboard')
 @login_required
@@ -684,7 +689,7 @@ def extract_questions_from_form(form_data):
 
 @meeting_blueprint.route('/public/meeting/<public_url>')
 def public_meeting_results(public_url):
-    meeting = Meeting.query.filter_by(public_url=public_url).first()
+    meeting = Meeting.query.get(meeting_id)
 
     if not meeting or not meeting.is_public:
         abort(404)
