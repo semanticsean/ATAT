@@ -176,13 +176,12 @@ def serve_image(filename):
             if image_data:
                 return Response(base64.b64decode(image_data), mimetype='image/png')
 
-    else:
-        # Check if the image belongs to a public meeting
-        public_meeting = Meeting.query.filter_by(is_public=True).join(Meeting.agents).filter(Meeting.agents.any(photo_path=filename)).first()
-        if public_meeting:
-            image_data = public_meeting.images_data.get(filename)
-            if image_data:
-                return Response(base64.b64decode(image_data), mimetype='image/png')
+    # Check if the image belongs to a public meeting
+    public_meeting = Meeting.query.filter_by(is_public=True).join(Meeting.agents).filter(Meeting.agents.any(photo_path=filename)).first()
+    if public_meeting:
+        image_data = public_meeting.images_data.get(filename)
+        if image_data:
+            return Response(base64.b64decode(image_data), mimetype='image/png')
 
     # Check if the image belongs to a meeting summary
     meeting = Meeting.query.filter(Meeting.image_data.isnot(None)).filter_by(image_data=filename).first()
