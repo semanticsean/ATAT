@@ -157,6 +157,7 @@ def serve_image(filename):
 
         # Check if the image is in the user's images_data
         if user.images_data and filename in user.images_data:
+            print("Image found in user's images_data")  # Print if the image is found
             image_data = user.images_data.get(filename)
             return Response(base64.b64decode(image_data), mimetype='image/png')
 
@@ -181,8 +182,10 @@ def serve_image(filename):
             image_data = public_meeting.images_data.get(filename)
             if image_data:
                 return Response(base64.b64decode(image_data), mimetype='image/png')
-
+    print("Image not found")
     abort(404)
+
+
 @app.route('/public/<path:filename>')
 def serve_public_image(filename):
     public_folder = 'public'
