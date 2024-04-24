@@ -249,11 +249,12 @@ def conduct_meeting(payload, current_user):
 
   # Load instructions from abe/abe-instructions.json
   with open("abe/abe-instructions.json", "r") as file:
-      abe_instructions = json.load(file)
-      question_instructions = abe_instructions.get("question_instructions", "")
+    abe_instructions = json.load(file)
+    question_instructions = abe_instructions.get("question_instructions", "")
 
   # Combine form-provided llm_instructions with question_instructions
-  llm_instructions_combined = f"{question_instructions} {form_llm_instructions}".strip()
+  llm_instructions_combined = f"{question_instructions} {form_llm_instructions}".strip(
+  )
 
   logging.info(f"Agents data: {agents_data[:142]}")
   logging.info(f"Questions: {str(questions)[:142]}")
@@ -267,118 +268,128 @@ def conduct_meeting(payload, current_user):
   meeting_responses = []
 
   for agent in agents_data:
-      agent_response = {}
-      agent_response["id"] = agent["id"]
-      agent_response["email"] = agent["email"]
-      agent_response["questions"] = questions
+    agent_response = {}
+    agent_response["id"] = agent["id"]
+    agent_response["email"] = agent["email"]
+    agent_response["questions"] = questions
 
-      logging.info(f"Processing agent: {agent['id']}")
+    logging.info(f"Processing agent: {agent['id']}")
 
-      if request_type == "iterative":
-          responses = {}
-          for question_id, question_text in questions.items():
-              agent_payload = {
-                  "model": "gpt-3.5-turbo",
-                  "messages": [
-                      {
-                          "role": "system",
-                          "content": question_instructions
-                      },
-                      {
-                          "role": "user",
-                          "content": f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nQuestion: {question_text}\n{llm_instructions_combined}\nPlease respond in JSON format."
-                      },
-                  ],
-              }
-              max_retries = 12
-              retry_delay = 5
-              retry_count = 0
-              while retry_count < max_retries:
-                  try:
-                      if current_user.credits is None or current_user.credits < 1:
-                          raise Exception("Insufficient credits, please add more")
+    if request_type == "iterative":
+      responses = {}
+      for question_id, question_text in questions.items():
+        agent_payload = {
+            "model":
+            "gpt-3.5-turbo",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": question_instructions
+                },
+                {
+                    "role":
+                    "user",
+                    "content":
+                    f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nQuestion: {question_text}\n{llm_instructions_combined}\nPlease respond in JSON format."
+                },
+            ],
+        }
+        max_retries = 12
+        retry_delay = 5
+        retry_count = 0
+        while retry_count < max_retries:
+          try:
+            if current_user.credits is None or current_user.credits < 1:
+              raise Exception("Insufficient credits, please add more")
 
-                      logging.info(f"Sending request to OpenAI API for agent: {agent['id']}, question: {question_id}")
-                      response = client.chat.completions.create(**agent_payload)
-                      logging.info(f"Received response from OpenAI API for agent: {agent['id']}, question: {question_id}")
+            logging.info(
+                f"Sending request to OpenAI API for agent: {agent['id']}, question: {question_id}"
+            )
+            response = client.chat.completions.create(**agent_payload)
+            logging.info(
+                f"Received response from OpenAI API for agent: {agent['id']}, question: {question_id}"
+            )
 
-                      # Deduct credits based on the API call
-                      credits_used = 1  # Deduct 1 credit for gpt-3.5-turbo models
+            # Deduct credits based on the API call
+            credits_used = 1  # Deduct 1 credit for gpt-3.5-turbo models
 
-                      current_user.credits -= credits_used
-                      db.session.commit()
-                      break
-                  except APIError as e:
-                      logging.error(f"OpenAI API error: {e}")
-                      retry_count += 1
-                      if retry_count < max_retries:
-                          time.sleep(retry_delay)
-                          retry_delay *= 2
-                      else:
-                          raise e
-              responses[question_id] = response.choices[0].message.content.strip()
+            current_user.credits -= credits_used
+            db.session.commit()
+            break
+          except APIError as e:
+            logging.error(f"OpenAI API error: {e}")
+            retry_count += 1
+            if retry_count < max_retries:
+              time.sleep(retry_delay)
+              retry_delay *= 2
+            else:
+              raise e
+        responses[question_id] = response.choices[0].message.content.strip()
 
-      else:
-          questions_text = "\n".join([
-              f"Question {question_id}: {question_text}"
-              for question_id, question_text in questions.items()
-          ])
-          agent_payload = {
-              "model": "gpt-3.5-turbo",
-              "messages": [
-                  {
-                      "role": "system",
-                      "content": question_instructions
-                  },
-                  {
-                      "role": "user",
-                      "content": f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nPlease answer the following questions:\n{questions_text}\n{llm_instructions_combined}\nProvide your responses in JSON format."
-                  },
-              ],
-          }
-          max_retries = 12
-          retry_delay = 5
-          retry_count = 0
-          while retry_count < max_retries:
-              try:
-                  if current_user.credits is None or current_user.credits < 1:
-                      raise Exception("Insufficient credits, please add more")
+    else:
+      questions_text = "\n".join([
+          f"Question {question_id}: {question_text}"
+          for question_id, question_text in questions.items()
+      ])
+      agent_payload = {
+          "model":
+          "gpt-3.5-turbo",
+          "messages": [
+              {
+                  "role": "system",
+                  "content": question_instructions
+              },
+              {
+                  "role":
+                  "user",
+                  "content":
+                  f"ID: {agent['id']}\nPersona: {agent['persona']}\nRelationships: {agent['relationships']}\nKeywords: {', '.join(agent['keywords'])}\n\nPlease answer the following questions:\n{questions_text}\n{llm_instructions_combined}\nProvide your responses in JSON format."
+              },
+          ],
+      }
+      max_retries = 12
+      retry_delay = 5
+      retry_count = 0
+      while retry_count < max_retries:
+        try:
+          if current_user.credits is None or current_user.credits < 1:
+            raise Exception("Insufficient credits, please add more")
 
-                  logging.info(f"Sending request to OpenAI API for agent: {agent['id']}")
-                  response = client.chat.completions.create(**agent_payload)
-                  logging.info(f"Received response from OpenAI API for agent: {agent['id']}")
+          logging.info(
+              f"Sending request to OpenAI API for agent: {agent['id']}")
+          response = client.chat.completions.create(**agent_payload)
+          logging.info(
+              f"Received response from OpenAI API for agent: {agent['id']}")
 
-                  # Deduct credits based on the API call
-                  credits_used = 1  # Deduct 1 credit for gpt-3.5-turbo models
+          # Deduct credits based on the API call
+          credits_used = 1  # Deduct 1 credit for gpt-3.5-turbo models
 
-                  current_user.credits -= credits_used
-                  db.session.commit()
-                  break
-              except APIError as e:
-                  logging.error(f"OpenAI API error: {e}")
-                  retry_count += 1
-                  if retry_count < max_retries:
-                      time.sleep(retry_delay)
-                      retry_delay *= 2
-                  else:
-                      raise e
+          current_user.credits -= credits_used
+          db.session.commit()
+          break
+        except APIError as e:
+          logging.error(f"OpenAI API error: {e}")
+          retry_count += 1
+          if retry_count < max_retries:
+            time.sleep(retry_delay)
+            retry_delay *= 2
+          else:
+            raise e
 
-          responses = json.loads(response.choices[0].message.content.strip())
+      responses = json.loads(response.choices[0].message.content.strip())
 
-      agent_response["responses"] = responses
-      meeting_responses.append(agent_response)
-      logging.info(f"Processed agent: {agent['id']}")
+    agent_response["responses"] = responses
+    meeting_responses.append(agent_response)
+    logging.info(f"Processed agent: {agent['id']}")
 
   logging.info(f"Meeting responses: {meeting_responses[:142]}")
 
-  new_meeting = Meeting(
-      name=meeting_name,
-      user_id=current_user.id,
-      agents=json.dumps(agents_data),
-      questions=json.dumps(questions),
-      answers=json.dumps(meeting_responses),
-      original_name=original_name
-  )
+  new_meeting = Meeting(name=meeting_name,
+                        user_id=current_user.id,
+                        agents=json.dumps(agents_data),
+                        questions=json.dumps(questions),
+                        answers=json.dumps(meeting_responses),
+                        original_name=original_name)
   db.session.add(new_meeting)
   db.session.commit()
 
@@ -617,8 +628,13 @@ def process_meeting_summary(meeting, current_user):
         raise e
 
   meeting_summary = response.choices[0].message.content.strip()
-  meeting.summary = meeting_summary
-  db.session.commit()
+  meeting.summary = meeting_summary  # Store the meeting summary
+
+  logging.info(f"Meeting summary generated: {meeting_summary[:100]}...")
+  logging.info(f"Storing meeting summary in meeting.summary for Meeting ID: {meeting.id}")
+
+  db.session.commit()  # Commit the changes to the database
+  logging.info(f"Meeting summary committed to the database for Meeting ID: {meeting.id}")
 
   # Prepare the API payload for meeting image
   image_prompt = f"{meeting_summary_dalle}\n\nMeeting Summary: {meeting_summary}\n\nAgents Data:\n"
@@ -657,7 +673,11 @@ def process_meeting_summary(meeting, current_user):
   logging.info(f"Generated image URL: {image_url[:142]}")
 
   img_data = requests.get(image_url).content
-  meeting.image_data = base64.b64encode(img_data).decode('utf-8')
+  meeting.image_data = base64.b64encode(img_data).decode('utf-8')  # Store the encoded image data
+
+  logging.info(f"Meeting image data generated from URL: {image_url[:142]}")
+  logging.info(f"Storing meeting image data in meeting.image_data for Meeting ID: {meeting.id}")
+  logging.info(f"Sample of stored meeting image data: {meeting.image_data[:100]}...")
 
   # Generate thumbnail image
   thumbnail_size = (200, 200)
@@ -666,9 +686,18 @@ def process_meeting_summary(meeting, current_user):
   thumbnail_buffer = BytesIO()
   img.save(thumbnail_buffer, format='PNG')
   thumbnail_data = thumbnail_buffer.getvalue()
-  meeting.thumbnail_image_data = base64.b64encode(thumbnail_data).decode(
-      'utf-8')
+  meeting.thumbnail_image_data = base64.b64encode(thumbnail_data).decode('utf-8')
 
-  db.session.commit()
+  logging.info(f"Meeting thumbnail image data generated")
+  logging.info(f"Storing meeting thumbnail image data in meeting.thumbnail_image_data for Meeting ID: {meeting.id}")
+  logging.info(f"Sample of stored meeting thumbnail image data: {meeting.thumbnail_image_data[:100]}...")
+
+  db.session.commit()  # Commit the changes to the database
+  logging.info(f"Meeting image data and thumbnail image data committed to the database for Meeting ID: {meeting.id}")
+
+  logging.info(f"Verifying stored data for Meeting ID: {meeting.id}")
+  logging.info(f"Meeting summary from database: {meeting.summary[:100]}...")
+  logging.info(f"Meeting image data from database: {meeting.image_data[:100]}...")
+  logging.info(f"Meeting thumbnail image data from database: {meeting.thumbnail_image_data[:100]}...")
 
   logging.info("Meeting summary and image generated successfully")

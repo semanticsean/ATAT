@@ -21,6 +21,7 @@ from logging.handlers import RotatingFileHandler
 
 import time
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import joinedload
 
 
 #LOGGING
@@ -274,10 +275,11 @@ def meeting_form(meeting_id):
                            meeting=meeting,
                            agents=agents_data)
 
+
 @meeting_blueprint.route('/meeting/<int:meeting_id>/results', methods=['GET', 'POST'])
 @login_required
 def meeting_results(meeting_id):
-    meeting = Meeting.query.get_or_404(meeting_id)
+    meeting = Meeting.query.options(joinedload(Meeting.creator)).get_or_404(meeting_id)
     if meeting.user_id != current_user.id:
         abort(403)
 
@@ -288,36 +290,40 @@ def meeting_results(meeting_id):
         if is_public:
             if not meeting.public_url:
                 meeting.public_url = str(uuid.uuid4())
-                print(f"Generated public_url: {meeting.public_url}")
+                logger.info(f"Generated public_url: {meeting.public_url}")
             public_url = url_for('meeting_blueprint.public_meeting_results', public_url=meeting.public_url, _external=True)
-            print(f"Full public URL: {public_url}")
+            logger.info(f"Full public URL: {public_url}")
 
             # Save the image files in the public folder
             public_folder = 'public'
             os.makedirs(public_folder, exist_ok=True)
             for agent in meeting.agents:
                 filename = agent['photo_path'].split('/')[-1]
-                
+
                 # Check if the agent is from a Timeframe
                 timeframe = Timeframe.query.filter(Timeframe.agents_data.contains(json.dumps(agent))).first()
                 if timeframe:
                     # If the agent is from a Timeframe, get the image data from the Timeframe's images_data
                     images_data = json.loads(timeframe.images_data)
                     image_data = images_data.get(filename)
+                    logger.info(f"Agent {agent['id']} image data retrieved from Timeframe {timeframe.id}")
                 else:
                     # If the agent is a Main Agent, get the image data from the user's images_data
                     image_data = current_user.images_data.get(filename)
-                
+                    logger.info(f"Agent {agent['id']} image data retrieved from User {current_user.id}")
+
                 if image_data:
                     image_data = base64.b64decode(image_data)
                     file_path = os.path.join(public_folder, secure_filename(filename))
                     with open(file_path, 'wb') as file:
                         file.write(image_data)
+                    logger.info(f"Agent {agent['id']} image saved to {file_path}")
                 else:
                     logger.warning(f"Missing image data for agent: {agent['id']}")
         else:
             meeting.public_url = None
             public_url = None
+            logger.info("Meeting is not public")
 
         db.session.commit()
         return redirect(url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id))
@@ -329,11 +335,30 @@ def meeting_results(meeting_id):
                                         Meeting.id > meeting.id).order_by(
                                             Meeting.id).first()
 
-    return render_template('results.html',
-                           meeting=meeting,
-                           is_public=meeting.is_public,
-                           prev_meeting=prev_meeting,
-                           next_meeting=next_meeting)
+    # Retrieve the meeting summary and image data from the database
+    meeting.summary = meeting.summary if meeting.summary else None
+    meeting.image_data = meeting.image_data if meeting.image_data else None
+    meeting.thumbnail_image_data = meeting.thumbnail_image_data if meeting.thumbnail_image_data else None
+  
+    logger.info(f"Meeting {meeting.id} summary: {meeting.summary}")
+    logger.info(f"Meeting {meeting.id} image data: {meeting.image_data[:50] if meeting.image_data else None}")
+    logger.info(f"Meeting {meeting.id} thumbnail image data: {meeting.thumbnail_image_data[:50] if meeting.thumbnail_image_data else None}")
+
+    if meeting.image_data:
+        logger.info(f"Meeting {meeting.id} image data type: {type(meeting.image_data)}")
+        logger.info(f"Meeting {meeting.id} image data length: {len(meeting.image_data)}")
+        logger.info(f"Meeting {meeting.id} image URL: {url_for('serve_meeting_image', meeting_id=meeting.id, _external=True)}")
+    else:
+        logger.warning(f"No image data found for Meeting {meeting.id}")
+
+    prev_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
+                                        Meeting.id < meeting.id).order_by(
+                                            Meeting.id.desc()).first()
+    next_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
+                                        Meeting.id > meeting.id).order_by(
+                                            Meeting.id).first()
+
+    return render_template('results.html', meeting=meeting, is_public=meeting.is_public, prev_meeting=prev_meeting, next_meeting=next_meeting)
 
 @dashboard_blueprint.route('/dashboard')
 @login_required
@@ -617,6 +642,15 @@ def serve_agents_json():
     return send_file(agents_json_path)
   else:
     return abort(404)
+
+@meeting_blueprint.route('/meeting_images/<int:meeting_id>')
+def serve_meeting_image(meeting_id):
+    meeting = Meeting.query.get(meeting_id)
+    if meeting and meeting.image_data:
+        image_data = base64.b64decode(meeting.image_data)
+        return Response(image_data, mimetype='image/png')
+    else:
+        abort(404)
 
 
 @auth_blueprint.route('/agents/copies/<path:filename>')
