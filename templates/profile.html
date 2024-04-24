@@ -147,7 +147,24 @@
                 </div>
                 <div id="footer-push"></div>
                 {% include 'footer.html' %}
-    
+    <script>
+        $(document).ready(function() {
+            var agentImageData = "{{ agent_image_data }}";
+            if (agentImageData) {
+                console.log("Agent image data received:", agentImageData.slice(0, 50) + "...");
+                $("#agent-image").attr("src", "data:image/png;base64," + agentImageData);
+                console.log("Agent image source set successfully");
+            } else {
+                var agentPhotoPath = "{{ agent.data.photo_path }}";
+                if (agentPhotoPath) {
+                    $("#agent-image").attr("src", "{{ url_for('serve_image', filename=agent.data.photo_path.split('/')[-1]) }}");
+                    console.log("Agent image source set successfully using serve_image route");
+                } else {
+                    console.error("Agent image data and photo path not found");
+                }
+            }
+        });
+    </script>
     <script>
         $(window).on('load', function() {
             $('#loading-overlay').fadeOut(500, function() {

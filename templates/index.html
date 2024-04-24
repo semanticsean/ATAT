@@ -69,6 +69,29 @@
         width: 100%;
         text-align: center;
       }
+      .meeting-button {
+        position: relative;
+        overflow: hidden;
+        background-size: cover;
+        background-position: center;
+      }
+      .meeting-button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .meeting-button:hover::before {
+        opacity: 1;
+      }
+      .meeting-button-text {
+        position: relative;        z-index: 1;
+      }
     </style>
   </head>
   <body>
@@ -189,26 +212,28 @@
           </div>
         {% endif %}
       </div>
-      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 class="text-2xl font-bold mb-4 tooltip">
-          Meetings<span class="tooltiptext">Collaborate with your AI agents</span>
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <a href="{{ url_for('meeting_blueprint.create_meeting') }}" class="bg-black text-white font-bold py-4 px-6 text-xl rounded hover:bg-blue-600 transition duration-300 text-center">New Meeting</a>
-          {% for meeting in current_user.meetings %}
-            {% if meeting.answers %}
-              <a href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" class="block bg-gray-200 text-black font-bold text-xl py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center">
-                {{ meeting.name }} <br /><span class="text-gray-500">{{ meeting.agents|length }} agents</span>
-              </a>
+          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 tooltip">
+              Meetings<span class="tooltiptext">Collaborate with your AI agents</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <a href="{{ url_for('meeting_blueprint.create_meeting') }}" class="bg-black text-white font-bold py-4 px-6 text-xl rounded hover:bg-blue-600 transition duration-300 text-center">New Meeting</a>
+              {% for meeting in current_user.meetings %}
+                {% if meeting.answers %}
+                  <a href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" class="block meeting-button text-white font-bold text-xl py-20 px-6 rounded transition duration-300 text-center" style="background-image: url('{% if meeting.thumbnail_image_data %}data:image/png;base64,{{ meeting.thumbnail_image_data }}{% else %}{% if meeting.image_data %}data:image/png;base64,{{ meeting.image_data }}{% else %}{{ url_for('static', filename='placeholder.jpg') }}{% endif %}{% endif %}');">
+                    <div class="meeting-button-text">
+                      {{ meeting.name }} <br /><span class="text-gray-200">{{ meeting.agents|length }} agents</span>
+                    </div>
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% if not current_user.meetings %}
+              <p class="text-gray-600 mt-4">
+                No meetings yet. You must create a timeframe before you can create a meeting.
+              </p>
             {% endif %}
-          {% endfor %}
-        </div>
-        {% if not current_user.meetings %}
-          <p class="text-gray-600 mt-4">
-            No meetings yet. You must create a timeframe before you can create a meeting.
-          </p>
-        {% endif %}
-      </div>
+          </div>
       <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h2 class="text-2xl font-bold mb-4 tooltip">
           Timeframes<span class="tooltiptext">Manage your AI agent timelines</span>
