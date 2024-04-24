@@ -167,11 +167,7 @@
                     {% for agent in base_agents %}
                     <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
                       <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden" />
-                      {% if agent.image_data %}
-                        <img src="data:image/png;base64,{{ agent.image_data }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4" />
-                      {% else %}
-                        <div class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full bg-gray-200 -ml-2 mr-4"></div>
-                      {% endif %}
+                      <img src="" alt="Agent Profile" class="agent-image float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4" data-src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}" />
                       <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-md">
                         <div class="text-lg md:text-xl font-bold mb-2">{{ agent.id }}</div>
                         <div class="mb-2">{{ agent.jobtitle }}</div>
@@ -205,6 +201,15 @@
     {% include 'footer.html' %}
 
     <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const agentImages = document.querySelectorAll(".agent-image");
+
+        agentImages.forEach((img) => {
+          const src = img.getAttribute("data-src");
+          img.setAttribute("src", src);
+        });
+      });
+      
       window.onload = function () {
         var loadingPlaceholder = document.getElementById("loadingPlaceholder");
         if (loadingPlaceholder) {
