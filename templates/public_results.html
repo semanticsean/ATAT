@@ -7,34 +7,31 @@
   <title>Public Meeting Results</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
   <style>
-    canvas {
-      width: 100% !important;
-      height: auto !important;
-      max-height: 400px;
+    /* Add your custom styles here */
+    .message-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1rem;
+      background-color: #ffffff;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-
-    html,
-body {
-  height: 100%;
-  margin: 0;
-}
-
-#content {
-  min-height: 100%;
-  /* Equal to footer height */
-  margin-bottom: -4rem;
-}
-
-#footer-push {
-  height: 4rem;
-  /* Equal to footer height */
-}
-
-footer {
-  height: 4rem;
-  /* Other styling */
-}
-</style>
+    .message-bubble {
+      max-width: 90%;
+      padding: 0.5rem 1rem;
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+    }
+    .message-bubble.outgoing {
+      align-self: flex-end;
+      background-color: #3b82f6;
+      color: white;
+    }
+    .message-bubble.incoming {
+      align-self: flex-start;
+      background-color: #f0f0f0;
+    }
+  </style>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
@@ -45,73 +42,60 @@ footer {
     <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." class="w-48 h-48" />
   </div>
   <div id="content" class="container mx-auto py-8 px-4 hidden">
-    <div class="flex flex-col md:flex-row items-center md:justify-between mb-4 bg-gray-200 p-4 rounded-lg">
-      <h1 class="text-xl font-bold text-center md:text-left w-full">{{ meeting.name }}</h1>
-    </div>
     <div class="message-container relative">
       <div class="message-bubble outgoing mb-4 text-lg">
         How did this meeting go? <br />
         <p class="font-bold">{{ meeting.name }}</p>
       </div>
       {% if meeting.image_data %}
-      <img
-        src="{{ url_for('meeting_blueprint.serve_meeting_image', meeting_id=meeting.id) }}"
-        alt="Meeting Image"
-        class="w-full h-auto mb-4 rounded-lg shadow-md"
-        onload="imageLoaded()"
-      />
+      <img src="{{ url_for('meeting_blueprint.serve_meeting_image', meeting_id=meeting.id) }}" alt="Meeting Image" class="w-full h-auto mb-4 rounded-lg shadow-md" onload="imageLoaded()">
       {% endif %}
       <div class="message-bubble incoming mb-4">
         <p class="font-bold">MEETING SUMMARY:</p>
         <p class="text-lg">{{ meeting.summary }}</p>
       </div>
-      {% for question_id, question_data in meeting.questions.items() %} {% if
-      question_data is mapping %} {% set question_text =
-      question_data.get('text', '') %} {% else %} {% set question_text =
-      question_data %} {% endif %}
+      {% for question_id, question_data in meeting.questions.items() %}
       <div class="message-bubble outgoing mb-4 text-lg">
         <p>
-          <span class="font-bold">Show me answers for:</span><br />{{
-          question_text }}
+          <span class="font-bold">Show me answers for:</span><br />
+          {{ question_data.get('text', '') }}
         </p>
       </div>
-      {% for agent in agents_data %} {% if
-      meeting.answers[agent['id']][question_id] %} {% set answer_data =
-      meeting.answers[agent['id']][question_id] %} {% if answer_data is string
-      %} {% set start_pattern = '{\\n \\"response\\": \\"' %} {% set
-      end_pattern = '\\"\\n}' %} {% if start_pattern in answer_data and
-      end_pattern in answer_data %} {% set start_index =
-      answer_data.find(start_pattern) + start_pattern|length %} {% set
-      end_index = answer_data.find(end_pattern) %} {% set answer_text =
-      answer_data[start_index:end_index] %} {% else %} {% set answer_json =
-      answer_data|tojson|safe %} {% if answer_json is mapping %} {% set
-      answer_text = answer_json.get('response', '') %} {% else %} {% set
-      answer_text = answer_data %} {% endif %} {% endif %} {% if answer_text
-      is string %} {% set answer_json = answer_text|tojson|safe %} {% if
-      answer_json is mapping and 'response' in answer_json %} {% set
-      answer_text = answer_json['response'] %} {% endif %} {% endif %} {% else
-      %} {% set answer_text = answer_data %} {% endif %}
+      {% for agent in meeting.agents %}
+      {% if meeting.answers[agent['id']][question_id] %}
+      {% set answer_data = meeting.answers[agent['id']][question_id] %}
+      {% if answer_data is string %}
+        {% set start_pattern = '{\\n \\"response\\": \\"' %}
+        {% set end_pattern = '\\"\\n}' %}
+        {% if start_pattern in answer_data and end_pattern in answer_data %}
+          {% set start_index = answer_data.find(start_pattern) + start_pattern|length %}
+          {% set end_index = answer_data.find(end_pattern) %}
+          {% set answer_text = answer_data[start_index:end_index] %}
+        {% else %}
+          {% set answer_json = answer_data|tojson|safe %}
+          {% if answer_json is mapping %}
+            {% set answer_text = answer_json.get('response', '') %}
+          {% else %}
+            {% set answer_text = answer_data %}
+          {% endif %}
+        {% endif %}
+      {% else %}
+        {% set answer_text = answer_data %}
+      {% endif %}
       <div class="flex items-start mb-4">
-        <img
-          src="{{ url_for('serve_public_image', filename=agent.photo_path.split('/')[-1]) }}"
-          alt="{{ agent['id'] }}"
-          class="w-12 h-12 rounded-full mr-2"
-          title="{{ agent['persona'] }}"
-          onload="imageLoaded()"
-        />
+        <img src="{{ url_for('serve_public_image', filename=agent.photo_path.split('/')[-1]) }}" alt="{{ agent['id'] }}" class="w-12 h-12 rounded-full mr-2" title="{{ agent['persona'] }}" onload="imageLoaded()">
         <div class="message-bubble incoming">
           <p class="font-bold text-lg">{{ agent['id'] }}</p>
           <p class="text-gray-600">{{ agent['jobtitle'] }}</p>
           <p class="text-lg">{{ answer_text|safe }}</p>
         </div>
       </div>
-      {% endif %} {% endfor %} {% endfor %}
+      {% endif %}
+      {% endfor %}
+      {% endfor %}
     </div>
     <div class="text-center mt-8">
-      <button
-        id="download-csv"
-        class="px-4 py-2 bg-black text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
+      <button id="download-csv" class="px-4 py-2 bg-black text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
         Download CSV
       </button>
     </div>
