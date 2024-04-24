@@ -362,7 +362,20 @@ def meeting_results(meeting_id):
     next_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
                                         Meeting.id > meeting.id).order_by(
                                             Meeting.id).first()
-
+  
+    # Update the answer extraction logic
+    for agent_id, answers in meeting.answers.items():
+        for question_id, answer in answers.items():
+            if isinstance(answer, dict) and 'response' in answer:
+                meeting.answers[agent_id][question_id] = answer['response']
+            elif isinstance(answer, str):
+                try:
+                    answer_json = json.loads(answer)
+                    if isinstance(answer_json, dict) and 'response' in answer_json:
+                        meeting.answers[agent_id][question_id] = answer_json['response']
+                except (json.JSONDecodeError, TypeError):
+                    pass
+  
     return render_template('results.html', meeting=meeting, agents_data=agents_data)
 
 @dashboard_blueprint.route('/dashboard')
