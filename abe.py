@@ -141,7 +141,8 @@ def home():
         for meeting in current_user.meetings:
             if meeting.agents and meeting.questions and meeting.answers:
                 for agent_data in meeting.agents:
-                    meeting_results.append((meeting.name, agent_data['id']))
+                    if isinstance(agent_data, dict) and 'id' in agent_data:
+                        meeting_results.append((meeting.name, agent_data['id']))
     else:
         agents_content = None
         meeting_results = []
@@ -182,6 +183,14 @@ def serve_image(filename):
             image_data = public_meeting.images_data.get(filename)
             if image_data:
                 return Response(base64.b64decode(image_data), mimetype='image/png')
+
+    # Check if the image belongs to a meeting summary
+    meeting = Meeting.query.filter(Meeting.image_data.isnot(None)).filter_by(image_data=filename).first()
+    if meeting:
+        image_data = meeting.image_data
+        if image_data:
+            return Response(base64.b64decode(image_data), mimetype='image/png')
+
     print("Image not found")
     abort(404)
 
