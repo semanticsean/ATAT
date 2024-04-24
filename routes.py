@@ -736,6 +736,8 @@ def public_meeting_data(public_url):
     return jsonify(meeting_data)
 
 
+
+
 @meeting_blueprint.route('/public/survey/<public_url>/data')
 def public_survey_data(public_url):
   survey = Survey.query.filter_by(public_url=public_url).first()
