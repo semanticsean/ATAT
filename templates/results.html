@@ -82,22 +82,23 @@
                 {% include 'header.html' %}
                 <div class="container mx-auto py-8 mt-28 px-4 md:mt-12">
                     <h1 class="text-3xl font-bold mb-4">{{ meeting.original_name }}</h1>
-                    <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
-                        <div class="relative">
-                          {% if meeting.image_data %}
-                            <img src="data:image/png;base64,{{ meeting.image_data }}" alt="Meeting Image" class="w-full h-auto">
-                          {% else %}
-                            <p>No meeting image available.</p>
-                          {% endif %}
-                          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
-                            <h2 class="text-white text-2xl font-bold mb-2">Meeting Summary</h2>
-                            {% if meeting.summary %}
+                  <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
+                  <div class="relative">
+                      {% if meeting.image_data %}
+                    <img src="{{ url_for('meeting_blueprint.serve_meeting_image', meeting_id=meeting.id) }}" alt="Meeting Image" class="w-full h-auto">
+                      {% else %}
+                          <p>No meeting image available.</p>
+                      {% endif %}
+                      <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
+                          <h2 class="text-white text-2xl font-bold mb-2">Meeting Summary</h2>
+                          {% if meeting.summary %}
                               <p class="text-white text-lg">{{ meeting.summary }}</p>
-                            {% else %}
+                          {% else %}
                               <p class="text-white text-lg">No meeting summary available.</p>
-                            {% endif %}
-                          </div>
-                        </div>
+                          {% endif %}
+                      </div>
+                  </div>
+                        
                       
                         <div class="px-4 py-5 sm:p-6">
             <form action="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" method="post">
@@ -125,23 +126,24 @@
             {% endif %}
           </div>
         </div>
-      {% for agent in meeting.agents %}
+                  {% for agent in agents_data %}
+
       <div class="bg-white shadow-xl rounded-lg mb-8">
         <div class="bg-gradient-to-r from-gray-200 to-gray-250 px-6 py-4 md:flex">
           <div class="md:w-1/4 lg:w-1/5 flex justify-center md:justify-start">
-            <img src="{{ custom_image_filter(agent.photo_path, '64x64') }}" alt="Agent Profile" class="w-16 h-16 md:w-32 md:h-32 lg:w-48 lg:h-48 rounded-full border-4 border-white"/>
+            <img src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}" alt="Agent Profile" class="w-16 h-16 md:w-32 md:h-32 lg:w-48 lg:h-48 rounded-full border-4 border-white"/>
           </div>
           <div class="md:w-3/4 lg:w-4/5 mt-4 md:mt-0">
             <div class="text-center md:text-left">
-              <h3 class="text-2xl font-bold text-black">{{ agent.id }}</h3>
-              <p class="text-xl font-semibold text-gray-700">{{ agent.jobtitle }}</p>
-              <p class="text-lg text-gray-700">{{ agent.persona[:142] + '...' }}</p>
-              <p class="text-gray-600">Keywords: {{ agent.keywords|join(', ') }}</p>
+              <h3 class="text-2xl font-bold text-black">{{ agent['id'] }}</h3>
+              <p class="text-xl font-semibold text-gray-700">{{ agent['jobtitle'] }}</p>
+              <p class="text-lg text-gray-700">{{ agent['persona'][:142] + '...' }}</p>
+              <p class="text-gray-600">Keywords: {{ agent['keywords']|join(', ') }}</p>
             </div>
             <div class="bg-gray-100 mt-4 md:mt-6 p-4 rounded-lg">
               <h3 class="text-xl font-bold text-black mb-2">Responses:</h3>
-              {% if meeting.answers[agent.id] %}
-              {% for question_id, answer in meeting.answers[agent.id].items() %}
+              {% if meeting.answers[agent['id']] %}
+              {% for question_id, answer in meeting.answers[agent['id']].items() %}
               <div class="mb-4">
                 {% if meeting.questions and meeting.questions[question_id] %}
                 <p class="question font-bold">{{ meeting.questions[question_id]['text'] }}</p>
@@ -233,22 +235,23 @@
           // Headers for CSV
           csvRows.push(["Agent ID", "Job Title", "Question", "Response"].join(','));
 
-          {% for agent in meeting.agents %}
-          {% for question_id, answer in meeting.answers[agent.id].items() %}
+         {% for agent in agents_data %}
+
+          {% for question_id, answer in meeting.answers[agent['id']].items() %}
           var questionText = {% if meeting.questions and meeting.questions[question_id] %}"{{ meeting.questions[question_id]['text']|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}"{% else %}"Question {{ question_id }}"{% endif %};
           var responseText = "{{ answer|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}";
 
           csvRows.push([
-            "{{ agent.id|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}",
-            "{{ agent.jobtitle|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}",
+            "{{ agent['id']|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}",
+            "{{ agent['jobtitle']|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}",
             questionText,
             responseText
           ].join(','));
           {% else %}
           // If no answers, still add the agent to the CSV.
           csvRows.push([
-            "{{ agent.id|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}",
-            "{{ agent.jobtitle|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}",
+            "{{ agent['id']|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}",
+            "{{ agent['jobtitle']|replace('"', '\"')|replace('\n', ' ')|replace('\r', '') }}",
             "",
             ""
           ].join(','));

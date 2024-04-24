@@ -384,18 +384,21 @@ def conduct_meeting(payload, current_user):
 
   logging.info(f"Meeting responses: {meeting_responses[:142]}")
 
-  new_meeting = Meeting(name=meeting_name,
-                        user_id=current_user.id,
-                        agents=json.dumps(agents_data),
-                        questions=json.dumps(questions),
-                        answers=json.dumps(meeting_responses),
-                        original_name=original_name)
-  db.session.add(new_meeting)
-  db.session.commit()
+  # Find the existing meeting by ID
+  meeting = Meeting.query.get(payload["meeting_id"])
 
-  process_meeting_summary(new_meeting, current_user)
+  if meeting:
+      # Update the meeting with the generated responses
+      meeting.agents = json.dumps(agents_data)
+      meeting.questions = json.dumps(questions)
+      meeting.answers = json.dumps(meeting_responses)
+      db.session.commit()
 
-  return meeting_responses
+      process_meeting_summary(meeting, current_user)
+
+      return meeting_responses
+  else:
+      raise ValueError(f"Meeting with ID {payload['meeting_id']} not found")
 
 
 def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
