@@ -652,10 +652,10 @@ def serve_agents_json():
 def serve_meeting_image(meeting_id):
     meeting = Meeting.query.get(meeting_id)
     if meeting and meeting.image_data:
-        image_data = base64.b64decode(meeting.image_data)
-        return Response(image_data, mimetype='image/png')
-    else:
-        abort(404)
+        if meeting.is_public or (current_user.is_authenticated and meeting.user_id == current_user.id):
+            image_data = base64.b64decode(meeting.image_data)
+            return Response(image_data, mimetype='image/png')
+    abort(404)
 
 
 @auth_blueprint.route('/agents/copies/<path:filename>')
@@ -689,7 +689,7 @@ def extract_questions_from_form(form_data):
 
 @meeting_blueprint.route('/public/meeting/<public_url>')
 def public_meeting_results(public_url):
-    meeting = Meeting.query.get(meeting_id)
+    meeting = Meeting.query.filter_by(public_url=public_url).first()
 
     if not meeting or not meeting.is_public:
         abort(404)

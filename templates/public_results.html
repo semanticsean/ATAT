@@ -85,18 +85,26 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
       </head>
-          <body class="bg-gray-100">
-            {% include 'header.html' %}
-            <div class="container mx-auto py-8">
-                <h1 class="text-3xl font-bold mb-4">{{ meeting.original_name }}</h1>
-                <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
-                    <div class="relative">
-                        <img src="data:image/png;base64,{{ meeting.image_data }}" alt="Meeting Image" class="w-full h-auto">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
-                            <h2 class="text-white text-2xl font-bold mb-2">Meeting Summary</h2>
-                            <p class="text-white text-lg">{{ meeting.summary }}</p>
-                        </div>
-                    </div>
+      <body class="bg-gray-100">
+        {% include 'header.html' %}
+        <div class="container mx-auto py-8">
+          <h1 class="text-3xl font-bold mb-4">{{ meeting.original_name }}</h1>
+          <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
+            <div class="relative">
+              {% if meeting.image_data %}
+              <img src="{{ url_for('meeting_blueprint.serve_meeting_image', meeting_id=meeting.id) }}" alt="Meeting Image" class="w-full h-auto">
+              {% else %}
+                <p>No meeting image available.</p>
+              {% endif %}
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
+                <h2 class="text-white text-2xl font-bold mb-2">Meeting Summary</h2>
+                {% if meeting.summary %}
+                  <p class="text-white text-lg">{{ meeting.summary }}</p>
+                {% else %}
+                  <p class="text-white text-lg">No meeting summary available.</p>
+                {% endif %}
+              </div>
+            </div>
           <h1 class="text-3xl font-bold mb-4">{{ meeting.name }}</h1>
           <div class="bg-white shadow-md rounded-lg overflow-hidden">
             <div class="px-4 py-5 sm:p-6">
