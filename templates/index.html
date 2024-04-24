@@ -174,7 +174,7 @@
                 style="background-image: url('data:image/png;base64,{{ current_user.images_data[agent.photo_path.split('/')[-1]] }}')"
               >
                 <div
-                  class="absolute inset-0 bg-black bg-opacity-10 flex flex-col justify-end items-center p-4 hover:bg-opacity-0"
+                  class="absolute inset-0 bg-black bg-opacity-10 flex flex-col justify-end items-center p-4 hover:bg-opacity-1"
                 >
                   <div class="text-center w-full">
                     <span class="text-3xl font-bold text-white self-end"
@@ -204,29 +204,27 @@
           </div>
 
           
-
           <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
             <h2 class="text-2xl font-bold mb-4 tooltip">
               Meetings<span class="tooltiptext">Collaborate with your AI agents</span>
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <a href="{{ url_for('meeting_blueprint.create_meeting') }}" class="bg-black text-white font-bold py-4 px-6 text-xl rounded hover:bg-blue-600 transition duration-300 text-center">New Meeting</a>
+            <div class="grid-container">
+              <a href="{{ url_for('meeting_blueprint.create_meeting') }}" class="grid-item dashboard-button">
+                <div class="grid-item-content text-2xl flex justify-center items-center h-full">
+                  New Meeting
+                </div>
+              </a>
               {% for meeting in current_user.meetings %}
                 {% if meeting.answers %}
-                  <div class="meeting-button rounded overflow-hidden">
-                    {% if meeting.thumbnail_image_data %}
-                      <img src="data:image/png;base64,{{ meeting.thumbnail_image_data }}" alt="{{ meeting.name }}" class="meeting-thumbnail">
-                    {% elif meeting.image_data %}
-                      <img src="data:image/png;base64,{{ meeting.image_data }}" alt="{{ meeting.name }}" class="meeting-thumbnail">
-                    {% else %}
-                      <img src="{{ url_for('static', filename='placeholder.jpg') }}" alt="Placeholder" class="meeting-thumbnail">
-                    {% endif %}
-                    <a href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" class="absolute inset-0 flex items-center justify-center text-white font-bold text-xl transition duration-300 text-center">
-                      <div class="meeting-button-text">
-                        {{ meeting.name }} <br /><span class="text-gray-200">{{ meeting.agents|length }} agents</span>
+                  <a href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" class="grid-item relative bg-center bg-cover"
+                    style="background-image: url('data:image/png;base64,{{ meeting.thumbnail_image_data if meeting.thumbnail_image_data else url_for('static', filename='placeholder.jpg') }}')">
+                    <div class="absolute inset-0 bg-black bg-opacity-20 flex flex-col justify-end items-center p-4 hover:bg-opacity-1 transition-opacity duration-100">
+                      <div class="text-center w-full">
+                        <span class="text-3xl font-bold text-white">{{ meeting.name }}</span>
+                        <span class="text-sm text-gray-300 mt-2">{{ meeting.agents|length }} agents</span>
                       </div>
-                    </a>
-                  </div>
+                    </div>
+                  </a>
                 {% endif %}
               {% endfor %}
             </div>
@@ -237,28 +235,39 @@
             {% endif %}
           </div>
 
-          
 
 
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
           <h2 class="text-2xl font-bold mb-4 tooltip">
             Timeframes<span class="tooltiptext">Manage your AI agent timelines</span>
           </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="bg-black text-white text-xl font-bold py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center">New Timeframe</a>
+          <div class="grid-container">
+            <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="grid-item dashboard-button">
+              <div class="grid-item-content text-2xl flex justify-center items-center h-full">
+                New Timeframe
+              </div>
+            </a>
             {% for timeframe in timeframes %}
               {% if timeframe.agents_count > 0 %}
-                <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="inline-block bg-gray-200 text-xl text-black font-bold py-4 px-6 rounded hover:bg-blue-600 transition duration-300 text-center">
-                  {{ timeframe.name }} <br /><span class="text-gray-500">{{ timeframe.agents_count }} agents</span>
+                <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="grid-item relative bg-center bg-cover"
+                  style="background-image: url('{{ url_for('static', filename='timeframe_bg.jpg') }}');">
+                  <div class="absolute inset-0 bg-black bg-opacity-20 flex flex-col justify-end items-center p-4 hover:bg-opacity-1 transition-opacity duration-100">
+                    <div class="text-center w-full">
+                      <span class="text-3xl font-bold text-white">{{ timeframe.name }}</span>
+                      <span class="text-sm text-gray-300 mt-2">{{ timeframe.agents_count }} agents</span>
+                    </div>
+                  </div>
                 </a>
               {% endif %}
             {% endfor %}
           </div>
           {% if not timeframes %}
-            <p class="text-gray-600">No timeframes yet.</p>
+            <p class="text-gray-600 mt-4">
+              No timeframes yet.
+            </p>
           {% endif %}
         </div>
-        </div>
+
 
 
         
