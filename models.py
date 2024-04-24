@@ -233,3 +233,7 @@ class Meeting(db.Model):
   answers = db.Column(db.JSON)
   is_public = db.Column(db.Boolean, default=False)
   public_url = db.Column(db.String(255), unique=True, nullable=True)
+  original_name = db.Column(db.String(100))
+  summary = db.Column(db.Text)
+  image_data = db.Column(db.Text)
+  thumbnail_image_data = db.Column(db.Text)

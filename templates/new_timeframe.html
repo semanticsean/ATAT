@@ -162,49 +162,27 @@
                 </div>
 
                 <div class="mb-8">
-                  <h2 class="text-lg md:text-xl font-bold mb-2">
-                    Select Synths:
-                  </h2>
+                  <h2 class="text-lg md:text-xl font-bold mb-2">Select Synths:</h2>
                   <div id="agent-list">
                     {% for agent in base_agents %}
-                    <div
-                      class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8"
-                      data-agent-id="{{ agent.id }}"
-                    >
-                      <input
-                        type="checkbox"
-                        id="agent-{{ agent.id }}"
-                        name="selected_agents"
-                        value="{{ agent.id }}"
-                        class="hidden"
-                      />
-                      {% set thumbnail_key = agent.photo_path.split('/')[-1] +
-                      '_thumbnail' %} {% if thumbnail_key in
-                      current_user.thumbnail_images_data %}
-                      <img
-                        src="data:image/png;base64,{{ current_user.thumbnail_images_data[thumbnail_key] }}"
-                        alt="Agent Profile"
-                        class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4"
-                      />
+                    <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
+                      <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden" />
+                      {% if agent.image_data %}
+                        <img src="data:image/png;base64,{{ agent.image_data }}" alt="Agent Profile" class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4" />
                       {% else %}
-                      <div
-                        class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full bg-gray-200 -ml-2 mr-4"
-                      ></div>
+                        <div class="float-right w-12 h-12 md:w-28 md:h-28 rounded-full bg-gray-200 -ml-2 mr-4"></div>
                       {% endif %}
-                      <label
-                        for="agent-{{ agent.id }}"
-                        class="text-gray-700 text-sm md:text-md"
-                      >
-                        <div class="text-lg md:text-xl font-bold mb-2">
-                          {{ agent.id }}
-                        </div>
+                      <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-md">
+                        <div class="text-lg md:text-xl font-bold mb-2">{{ agent.id }}</div>
                         <div class="mb-2">{{ agent.jobtitle }}</div>
                         <div class="mb-2">{{ agent.summary }}</div>
+                        <div class="text-xs text-gray-500">Photo Path: {{ agent.photo_path }}</div>
                       </label>
                     </div>
                     {% endfor %}
                   </div>
-                </div>
+
+                
                 <button
                   type="submit"
                   class="px-4 py-2 md:px-6 md:py-3 bg-black text-white rounded-lg hover:bg-blue-600 w-full text-sm md:text-md"
