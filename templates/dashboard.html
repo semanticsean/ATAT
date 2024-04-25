@@ -63,7 +63,7 @@
           >
           {% endif %} {% endfor %} {% endif %}
         </div>
-        {% if agents %}
+    {% if agents %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {% for agent in agents %} {% if agent.id %}
           <div class="bg-white rounded-lg shadow-md agent-item">
@@ -84,9 +84,9 @@
                 >
                   {{ agent.jobtitle }}
                 </div>
-                {% if agent.get('image_data') %}
+                {% if agent.photo_path %}
                 <img
-                  src="data:image/png;base64,{{ agent.image_data }}"
+                  src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}"
                   alt="{{ agent.id }}"
                   class="w-full h-72 rounded-lg object-cover mb-4"
                 />
@@ -108,13 +108,6 @@
                   class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-600"
                   >Edit</a
                 >
-                {% if agent.agent_type == 'user' %}
-                <a
-                  href="mailto:{{ agent.email }}"
-                  class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-blue-600"
-                  >Email Agent</a
-                >
-                {% endif %}
               </div>
             </div>
           </div>
