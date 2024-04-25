@@ -1009,21 +1009,26 @@ def create_timeframe():
         user_agents = current_user.agents_data or []
         agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
         timeframe_agents = []
-
+        
         for timeframe in current_user.timeframes:
             timeframe_agents.extend(json.loads(timeframe.agents_data))
-
+        
+        processed_agent_ids = set()
+        
         for agent in user_agents:
-            if 'id' in agent and str(agent['id']) in selected_agent_ids:
+            if 'id' in agent and str(agent['id']) in selected_agent_ids and str(agent['id']) not in processed_agent_ids:
                 agents_data.append(agent)
-
+                processed_agent_ids.add(str(agent['id']))
+        
         for agent in agent_class_agents:
-            if hasattr(agent, 'id') and str(agent.id) in selected_agent_ids:
+            if hasattr(agent, 'id') and str(agent.id) in selected_agent_ids and str(agent.id) not in processed_agent_ids:
                 agents_data.append(agent.data)
-
+                processed_agent_ids.add(str(agent.id))
+        
         for agent in timeframe_agents:
-            if 'id' in agent and str(agent['id']) in selected_agent_ids:
+            if 'id' in agent and str(agent['id']) in selected_agent_ids and str(agent['id']) not in processed_agent_ids:
                 agents_data.append(agent)
+                processed_agent_ids.add(str(agent['id']))
 
         form_data = request.form.to_dict()
         form_data.pop('selected_agents', None)
@@ -1040,7 +1045,7 @@ def create_timeframe():
         except Exception as e:
             db.session.rollback()
             flash(f"An error occurred while processing agents: {str(e)}", "error")
-            return redirect(url_for('auth_blueprint.create_timeframe'))
+            return redirect(url_for('home'))  # Redirect to home if it fails
 
     else:
         logger.info('Accessing new timeframe page')
