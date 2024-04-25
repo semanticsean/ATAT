@@ -151,174 +151,149 @@
 
           <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
             <h2 class="text-2xl font-bold mb-4 tooltip">
-              Synths<span class="tooltiptext"
-                >AI-generated synthetic agents</span
+              Synths<span class="tooltiptext">AI-generated synthetic agents</span>
+            </h2>
+            <div class="grid-container">
+              <a href="{{ url_for('dashboard_blueprint.dashboard') }}" class="grid-item dashboard-button">
+                <div class="grid-item-content text-2xl flex justify-center items-center h-full">
+                  Dashboard
+                </div>
+              </a>
+              {% if current_user.agents_data %}
+                {% for agent in current_user.agents_data %}
+                  <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}" class="grid-item relative bg-center bg-cover" style="background-image: url('data:image/png;base64,{{ current_user.images_data[agent.photo_path.split('/')[-1]] }}')">
+                    <div class="absolute inset-0 bg-black bg-opacity-10 flex flex-col justify-end items-center p-4 hover:bg-opacity-1">
+                      <div class="text-center w-full">
+                        <span class="text-3xl font-bold text-white self-end">{{ agent.id }}</span>
+                        <span class="text-lg text-gray-300 self-start mt-2">{{ agent.jobtitle }}</span>
+                      </div>
+                    </div>
+                  </a>
+                {% endfor %}
+              {% endif %}
+              {% for agent in current_user.agents %}
+                <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}" class="grid-item relative bg-center bg-cover" style="background-image: url('data:image/png;base64,{{ current_user.images_data[agent.data.photo_path.split('/')[-1]] }}')">
+                  <div class="absolute inset-0 bg-black bg-opacity-10 flex flex-col justify-end items-center p-4 hover:bg-opacity-1">
+                    <div class="text-center w-full">
+                      <span class="text-3xl font-bold text-white self-end">{{ agent.id }}</span>
+                      <span class="text-lg text-gray-300 self-start mt-2">{{ agent.data.jobtitle }}</span>
+                    </div>
+                  </div>
+                </a>
+              {% endfor %}
+              {% if not current_user.agents_data and not current_user.agents %}
+                <form action="{{ url_for('auth_blueprint.add_base_agents') }}" method="post">
+                  <button type="submit" class="grid-item dashboard-button text-white text-xl">
+                    Add Base Synths<br />
+                    <span class="my-4 text-sm">May take several minutes</span>
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 tooltip">
+              Meetings<span class="tooltiptext"
+                >Collaborate with your AI agents</span
               >
             </h2>
             <div class="grid-container">
               <a
-                href="{{ url_for('dashboard_blueprint.dashboard') }}"
+                href="{{ url_for('meeting_blueprint.create_meeting') }}"
                 class="grid-item dashboard-button"
               >
                 <div
                   class="grid-item-content text-2xl flex justify-center items-center h-full"
                 >
-                  Dashboard
+                  New Meeting
                 </div>
               </a>
-              {% if current_user.agents_data %} {% for agent in
-              current_user.agents_data %}
+              {% for meeting in current_user.meetings %} {% if meeting.answers
+              %}
               <a
-                href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}"
+                href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}"
                 class="grid-item relative bg-center bg-cover"
-                style="background-image: url('data:image/png;base64,{{ current_user.images_data[agent.photo_path.split('/')[-1]] }}')"
+                style="background-image: url('data:image/png;base64,{{ meeting.image_data if meeting.image_data else url_for('static', filename='placeholder.jpg') }}')"
               >
                 <div
-                  class="absolute inset-0 bg-black bg-opacity-10 flex flex-col justify-end items-center p-4 hover:bg-opacity-1"
+                  class="absolute inset-0 bg-black bg-opacity-20 flex flex-col justify-end items-center p-4 hover:bg-opacity-1 transition-opacity duration-100"
                 >
                   <div class="text-center w-full">
-                    <span class="text-3xl font-bold text-white self-end"
-                      >{{ agent.id }}</span
+                    <span class="text-3xl font-bold text-white"
+                      >{{ meeting.name }}</span
                     >
-                    <span class="text-sm text-gray-300 self-start mt-2"
-                      >{{ agent.jobtitle }}</span
+                    <span class="text-sm text-gray-300 mt-2"
+                      >{{ meeting.agents|length }} agents</span
                     >
                   </div>
                 </div>
               </a>
-              {% endfor %} {% else %}
-              <form
-                action="{{ url_for('auth_blueprint.add_base_agents') }}"
-                method="post"
-              >
-                <button
-                  type="submit"
-                  class="grid-item dashboard-button text-white text-xl"
-                >
-                  Add Base Synths<br />
-                  <span class="my-4 text-sm">May take several minutes</span>
-                </button>
-              </form>
-              {% endif %}
+              {% endif %} {% endfor %}
             </div>
+            {% if not current_user.meetings %}
+            <p class="text-gray-600 mt-4">
+              No meetings yet. 
+            </p>
+            {% endif %}
           </div>
 
-          
-    Here's the modified index.html with full-size images for Meetings and Timeframe buttons, similar to how it's done for Synths:
-    htmlCopy code<!doctype html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Semantic Life - AI Agent Dashboard</title>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css"
-        />
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <style>
-          /* ... (existing styles) ... */
-        </style>
-      </head>
-      <body>
-        {% include 'header.html' %}
-        <div id="loadingPlaceholder">
-          <!-- ... (loading placeholder) ... -->
-        </div>
-        <div class="flex-grow">
-          <main class="flex-1">
-            <div class="container mx-auto px-4 mt-4">
-              <!-- ... (welcome section) ... -->
-
-              <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h2 class="text-2xl font-bold mb-4 tooltip">
-                  Synths<span class="tooltiptext">AI-generated synthetic agents</span>
-                </h2>
-                <div class="grid-container">
-                  <!-- ... (synths section) ... -->
+          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 tooltip">
+              Timeframes<span class="tooltiptext"
+                >Manage your AI agent timelines</span
+              >
+            </h2>3
+            <div class="grid-container">
+              <a href="{{ url_for('auth_blueprint.create_timeframe') }}"
+                class="grid-item dashboard-button">
+                <div class="grid-item-content text-2xl flex justify-center items-center h-full">
+                  New Timeframe
                 </div>
-              </div>
-
-              <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h2 class="text-2xl font-bold mb-4 tooltip">
-                  Meetings<span class="tooltiptext">Collaborate with your AI agents</span>
-                </h2>
-                <div class="grid-container">
-                  <a href="{{ url_for('meeting_blueprint.create_meeting') }}" class="grid-item dashboard-button">
-                    <div class="grid-item-content text-2xl flex justify-center items-center h-full">
-                      New Meeting
-                    </div>
-                  </a>
-                  {% for meeting in current_user.meetings %}
-                    {% if meeting.answers %}
-                      <a href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" class="grid-item relative bg-center bg-cover"
-                        style="background-image: url('data:image/png;base64,{{ meeting.image_data if meeting.image_data else url_for('static', filename='placeholder.jpg') }}')">
-                        <div class="absolute inset-0 bg-black bg-opacity-20 flex flex-col justify-end items-center p-4 hover:bg-opacity-1 transition-opacity duration-100">
-                          <div class="text-center w-full">
-                            <span class="text-3xl font-bold text-white">{{ meeting.name }}</span>
-                            <span class="text-sm text-gray-300 mt-2">{{ meeting.agents|length }} agents</span>
-                          </div>
-                        </div>
-                      </a>
-                    {% endif %}
-                  {% endfor %}
+              </a>
+              {% for timeframe in timeframes %} {% if timeframe.agents_count > 0
+              %}
+              <a
+                href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
+                class="grid-item relative bg-center bg-cover"
+                style="background-image: url('data:image/png;base64,{{ timeframe.image_data if timeframe.image_data else url_for('static', filename='placeholder.jpg') }}');"
+              >
+                <div
+                  class="absolute inset-0 bg-black bg-opacity-70 flex flex-col justify-end items-center p-4 hover:bg-opacity-100 transition-opacity duration-300"
+                >
+                  <div class="text-center w-full">
+                    <span class="text-3xl font-bold text-white"
+                      >{{ timeframe.name }}</span
+                    >
+                    <span class="text-sm text-gray-300 mt-2"
+                      >{{ timeframe.agents_count }} agents</span
+                    >
+                  </div>
                 </div>
-                {% if not current_user.meetings %}
-                  <p class="text-gray-600 mt-4">
-                    No meetings yet. You must create a timeframe before you can create a meeting.
-                  </p>
-                {% endif %}
-              </div>
-
-              <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h2 class="text-2xl font-bold mb-4 tooltip">
-                  Timeframes<span class="tooltiptext">Manage your AI agent timelines</span>
-                </h2>
-                <div class="grid-container">
-                  <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="grid-item dashboard-button">
-                    <div class="grid-item-content text-2xl flex justify-center items-center h-full">
-                      New Timeframe
-                    </div>
-                  </a>
-                  {% for timeframe in timeframes %}
-                  {% if timeframe.agents_count > 0 %}
-                    <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="grid-item relative bg-center bg-cover"
-                      style="background-image: url('data:image/png;base64,{{ timeframe.image_data if timeframe.image_data else url_for('static', filename='placeholder.jpg') }}');">
-
-                        <div class="absolute inset-0 bg-black bg-opacity-70 flex flex-col justify-end items-center p-4 hover:bg-opacity-100 transition-opacity duration-300">
-                          <div class="text-center w-full">
-                            <span class="text-3xl font-bold text-white">{{ timeframe.name }}</span>
-                            <span class="text-sm text-gray-300 mt-2">{{ timeframe.agents_count }} agents</span>
-                          </div>
-                        </div>
-                      </a>
-                    {% endif %}
-                  {% endfor %}
-                </div>
-                {% if not timeframes %}
-                  <p class="text-gray-600 mt-4">
-                    No timeframes yet.
-                  </p>
-                {% endif %}
-              </div>
-
+              </a>
+              {% endif %} {% endfor %}
             </div>
-          </main>
-          <div id="footer-push"></div>
+            {% if not timeframes %}
+            <p class="text-gray-600 mt-4">No timeframes yet.</p>
+            {% endif %}
+          </div>
         </div>
-        {% include 'footer.html' %}
-        <script>
+      </main>
+      <div id="footer-push"></div>
+    </div>
     {% include 'footer.html' %}
     <script>
-      window.onload = function () {
-        hideLoading(); // Hide loading image after initial page load
-      };
+      {% include 'footer.html' %}
+      <script>
+        window.onload = function () {
+          hideLoading(); // Hide loading image after initial page load
+        };
 
-      $(document).ready(function () {
-        $("form").submit(function () {
-          $("#loadingPlaceholder").css({ display: "flex", opacity: "1" });
+        $(document).ready(function () {
+          $("form").submit(function () {
+            $("#loadingPlaceholder").css({ display: "flex", opacity: "1" });
+          });
         });
-      });
     </script>
     <script>
       // This function hides the loading placeholder

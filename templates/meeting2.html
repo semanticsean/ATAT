@@ -25,17 +25,32 @@
   <script>
     function submitSurvey() {
       document.getElementById('meetingForm').submit();
+      document.getElementById('loadingOverlay').style.display = 'flex';
     }
+
     function addQuestion() {
       const questionsContainer = document.getElementById('questionsContainer');
       const questionIndex = questionsContainer.children.length + 1;
+
+      if (questionIndex > 6) {
+        alert('You can only add up to 6 questions. Please limit your questions to 6.');
+        return;
+      }
+
       const newQuestion = `
         <div class="mb-8">
           <label for="question_${questionIndex}" class="block text-gray-700 font-bold mb-2">Question ${questionIndex}:</label>
           <input type="text" id="question_${questionIndex}" name="question_${questionIndex}" required class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
         </div>
       `;
+
       questionsContainer.insertAdjacentHTML('beforeend', newQuestion);
+    }
+
+    function limitInstructions(textarea) {
+      if (textarea.value.length > 400) {
+        textarea.value = textarea.value.slice(0, 400);
+      }
     }
   </script>
 </head>
@@ -46,8 +61,6 @@
       <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
         <h1 class="text-3xl font-bold mb-4">Meeting Conversation Starters</h1>
         <form id="meetingForm" action="{{ url_for('meeting_blueprint.meeting_form', meeting_id=meeting.id) }}" method="post">
-          
-         
           <div id="questionsContainer">
             <!-- Additional questions will be added here dynamically -->
           </div>
@@ -56,9 +69,9 @@
           </div>
           <div class="mb-8">
             <label for="llm_instructions" class="block text-gray-700 font-bold mb-2">Custom LLM Instructions (Optional):</label>
-            <textarea id="llm_instructions" name="llm_instructions" rows="4" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"></textarea>
+            <textarea id="llm_instructions" name="llm_instructions" rows="4" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none" placeholder="Be concise." oninput="limitInstructions(this)"></textarea>
           </div>
-          <div class="mb-8">
+          <div class="mb-8" style="display: none;">
             <label for="request_type" class="block text-gray-700 font-bold mb-2">Request Type:</label>
             <select id="request_type" name="request_type" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
               <option value="iterative">Iterative</option>
@@ -68,12 +81,15 @@
           {% for agent in agents %}
             <input type="hidden" name="selected_agents" value="{{ agent['id'] }}">
           {% endfor %}
-          <button type="submit" class="px-6 py-3 bg-black text-white rounded-lg hover:bg-green-600">Submit Meeting</button>
+          <button type="button" onclick="submitSurvey()" class="px-6 py-3 bg-black text-white rounded-lg hover:bg-green-600">Submit Meeting</button>
         </form>
       </div>
     </div>
   </main>
   <div id="footer-push"></div>
   {% include 'footer.html' %}
+  <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.8); z-index: 9999; justify-content: center; align-items: center;">
+    <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." style="max-width: 200px;">
+  </div>
 </body>
 </html>

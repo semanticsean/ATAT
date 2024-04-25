@@ -1,103 +1,145 @@
 <!--templates/dashboard.html-->
 <!doctype html>
 <html lang="en" class="h-full">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
     <style>
-        .agent-item:hover {
-            background-color: #f0f0f0;
+      .agent-item:hover {
+        background-color: #f0f0f0;
+      }
+      @media (max-width: 640px) {
+        .timeframe-btn {
+          padding: 8px 12px;
+          font-size: 12px;
         }
-        @media (max-width: 640px) {
-            .timeframe-btn {
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-        }
-        .agent-summary {
-            height: 9rem; 
-            overflow: hidden;
-        }
-        .agent-jobtitle {
-            height: 4rem; 
-            overflow: hidden;
-        }
+      }
+      .agent-summary {
+        height: 9rem;
+        overflow: hidden;
+      }
+      .agent-jobtitle {
+        height: 4rem;
+        overflow: hidden;
+      }
     </style>
-</head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+  </head>
+  <body class="bg-gray-100 min-h-screen flex flex-col">
     {% include 'header.html' %}
     <main class="container mx-auto px-4 py-12 flex-grow">
-        <div id="loading-overlay" class="fixed inset-0 bg-white flex items-center justify-center z-50">
-            <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." />
+      <div
+        id="loading-overlay"
+        class="fixed inset-0 bg-white flex items-center justify-center z-50"
+      >
+        <img
+          src="{{ url_for('static', filename='loading.gif') }}"
+          alt="Loading..."
+        />
+      </div>
+      <div id="dashboard-content" style="display: none">
+        <h1 class="text-4xl font-bold mb-6 mt-6">
+          Dashboard{% if timeframe %} (Timeframe "{{ timeframe.name }}"){% elif
+          not request.args.get('timeframe_id') %} (Main Agents){% endif %}
+        </h1>
+        <div
+          class="mb-4 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md"
+        >
+          <a
+            href="{{ url_for('dashboard_blueprint.dashboard') }}"
+            class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 {% if not request.args.get('timeframe_id') %}bg-gray-700{% endif %}"
+            >Main Agents ({{ current_user.agents_data | length }})</a
+          >
+          {% if timeframes %} {% for timeframe in timeframes %} {% if
+          timeframe.agents_count > 0 %}
+          <a
+            href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
+            class="inline-block bg-black text-white font-bold mt-2 py-2 px-4 rounded hover:bg-gray-400 {% if timeframe.id == request.args.get('timeframe_id')|int %}bg-blue-700{% endif %}"
+            >{{ timeframe.name }} ({{ timeframe.agents_count }})</a
+          >
+          {% endif %} {% endfor %} {% endif %}
         </div>
-        <div id="dashboard-content" style="display: none;">
-            <h1 class="text-4xl font-bold mb-6 mt-12">Dashboard{% if timeframe %} (Timeframe "{{ timeframe.name }}"){% elif not request.args.get('timeframe_id') %} (Main Agents){% endif %}</h1>
-            <div class="mb-4 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md">
-                <a href="{{ url_for('dashboard_blueprint.dashboard') }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 {% if not request.args.get('timeframe_id') %}bg-gray-700{% endif %}">Main Agents ({{ current_user.agents_data | length }})</a>
-                {% if timeframes %}
-                    
-                        {% for timeframe in timeframes %}
-                            {% if timeframe.agents_count > 0 %}
-                                <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 {% if timeframe.id == request.args.get('timeframe_id')|int %}bg-blue-700{% endif %}">{{ timeframe.name }} ({{ timeframe.agents_count }})</a>
-                            {% endif %}
-                        {% endfor %}
-                    
-                {% endif %}
-            </div>
-            {% if agents %}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {% for agent in agents %}
-                        {% if agent.id %}
-                            <div class="bg-white rounded-lg shadow-md agent-item">
-                                <div class="p-4">
-                                    <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, timeframe_id=timeframe.id if timeframe else None) }}" class="no-underline text-black">
-                                        <h2 class="text-3xl font-bold mb-2 text-center">{{ agent.id }}
-                                            {% if timeframe %}
-                                                <span class="text-2xl font-semibold text-gray-600">({{ timeframe.name }})</span>
-                                            {% endif %}
-                                        </h2>
-                                        <div class="text-2xl font-bold text-gray-600 agent-jobtitle text-center">{{ agent.jobtitle }}</div>
-                                        {% if agent.get('image_data') %}
-                                            <img src="data:image/png;base64,{{ agent.image_data }}" alt="{{ agent.id }}" class="w-full h-72 rounded-lg object-cover mb-4" />
-                                        {% else %}
-                                            <div class="w-full h-48 bg-gray-200 mb-4"></div>
-                                        {% endif %}
-                                    </a>
-                                    <p class="text-lg text-gray-700 agent-summary">{{ agent.summary }}</p>
-                                    <div class="mt-4 space-x-2">
-                                        <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, timeframe_id=timeframe.id if timeframe else None) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-blue-600">Details</a>
-                                        <a href="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-600">Edit</a>
-                                        {% if agent.agent_type == 'user' %}
-                                            <a href="mailto:{{ agent.email }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-blue-600">Email Agent</a>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
+        {% if agents %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {% for agent in agents %} {% if agent.id %}
+          <div class="bg-white rounded-lg shadow-md agent-item">
+            <div class="p-4">
+              <a
+                href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, timeframe_id=timeframe.id if timeframe else None) }}"
+                class="no-underline text-black"
+              >
+                <h2 class="text-3xl font-bold mb-2 text-center">
+                  {{ agent.id }} {% if timeframe %}
+                  <span class="text-2xl font-semibold text-gray-600"
+                    >({{ timeframe.name }})</span
+                  >
+                  {% endif %}
+                </h2>
+                <div
+                  class="text-2xl font-bold text-gray-600 agent-jobtitle text-center"
+                >
+                  {{ agent.jobtitle }}
                 </div>
-            {% else %}
-                <p class="text-gray-500">No agents found.</p>
-            {% endif %}
+                {% if agent.get('image_data') %}
+                <img
+                  src="data:image/png;base64,{{ agent.image_data }}"
+                  alt="{{ agent.id }}"
+                  class="w-full h-72 rounded-lg object-cover mb-4"
+                />
+                {% else %}
+                <div class="w-full h-48 bg-gray-200 mb-4"></div>
+                {% endif %}
+              </a>
+              <p class="text-lg text-gray-700 agent-summary">
+                {{ agent.summary }}
+              </p>
+              <div class="mt-4 space-x-2">
+                <a
+                  href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, timeframe_id=timeframe.id if timeframe else None) }}"
+                  class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-blue-600"
+                  >Details</a
+                >
+                <a
+                  href="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}"
+                  class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-600"
+                  >Edit</a
+                >
+                {% if agent.agent_type == 'user' %}
+                <a
+                  href="mailto:{{ agent.email }}"
+                  class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-blue-600"
+                  >Email Agent</a
+                >
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endif %} {% endfor %}
         </div>
+        {% else %}
+        <p class="text-gray-500">No agents found.</p>
+        {% endif %}
+      </div>
     </main>
     {% include 'footer.html' %}
     <script>
-        window.addEventListener('load', function() {
-            var loadingOverlay = document.getElementById('loading-overlay');
-            var dashboardContent = document.getElementById('dashboard-content');
-          loadingOverlay.style.opacity = 0;
-                  setTimeout(function() {
-                      loadingOverlay.style.display = 'none';
-                      dashboardContent.style.display = 'block';
-                      dashboardContent.style.opacity = 0;
-                      setTimeout(function() {
-                          dashboardContent.style.opacity = 1;
-                      }, 50);
-                  }, 500);
-              });
-          </script>
-          </body>
-          </html>
+      window.addEventListener("load", function () {
+        var loadingOverlay = document.getElementById("loading-overlay");
+        var dashboardContent = document.getElementById("dashboard-content");
+        loadingOverlay.style.opacity = 0;
+        setTimeout(function () {
+          loadingOverlay.style.display = "none";
+          dashboardContent.style.display = "block";
+          dashboardContent.style.opacity = 0;
+          setTimeout(function () {
+            dashboardContent.style.opacity = 1;
+          }, 50);
+        }, 500);
+      });
+    </script>
+  </body>
+</html>
