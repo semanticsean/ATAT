@@ -41,8 +41,6 @@
       </button>
     </div>
 
-    
-
     <!-- Dropdown Menu for md and larger -->
     <div class="hidden md:block relative">
       <button
@@ -115,30 +113,33 @@
         >
       </div>
     </div>
-    
   </div>
 </div>
 <!-- Desktop Navigation Menu styled as buttons -->
 <div class="container mx-auto px-4 mt-18">
-<div class="hidden md:flex flex-col items-center w-full mt-2">
-  <div class="flex justify-between w-full px-4 mt-20">
-    <a
-      href="/"
-      class="hover:bg-gray-600 text-xl text-gray-600 font-semibold py-2 px-4 rounded-lg"
-      >Home</a
-    >
-    <a
-      href="/help"
-      class=" hover:bg-gray-600 text-xl text-gray-600 font-semibold py-2 px-4 rounded-lg"
-      >Help</a
-    >
-    <a
-      href="/user"
-      class=" hover:bg-gray-600 text-xl text-gray-600 font-semibold py-2 px-4 rounded-lg"
-      >Account</a
-    >
-    <a href="{{ url_for('meeting_blueprint.create_meeting') }}" class="bg-black text-white font-bold py-4 px-6 text-xl rounded hover:bg-blue-600 transition duration-300 text-center">New Meeting</a>
-  </div>
+  <div class="hidden md:flex flex-col items-center w-full mt-2">
+    <div class="flex justify-between w-full px-4 mt-20">
+      <a
+        href="/"
+        class="hover:bg-gray-600 text-xl text-gray-600 font-semibold py-2 px-4 rounded-lg"
+        >Home</a
+      >
+      <a
+        href="/dashboard"
+        class="hover:bg-gray-600 text-xl text-gray-600 font-semibold py-2 px-4 rounded-lg"
+        >Synths</a
+      >
+      <a
+        href="/user"
+        class="hover:bg-gray-600 text-xl text-gray-600 font-semibold py-2 px-4 rounded-lg"
+        >Account</a
+      >
+      <a
+        href="{{ url_for('meeting_blueprint.create_meeting') }}"
+        class="bg-black text-white font-bold py-4 px-6 text-xl rounded hover:bg-blue-600 transition duration-300 text-center"
+        >New Meeting</a
+      >
+    </div>
   </div>
 </div>
 
