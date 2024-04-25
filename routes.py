@@ -1014,15 +1014,15 @@ def create_timeframe():
             timeframe_agents.extend(json.loads(timeframe.agents_data))
 
         for agent in user_agents:
-            if str(agent['id']) in selected_agent_ids:
+            if 'id' in agent and str(agent['id']) in selected_agent_ids:
                 agents_data.append(agent)
 
         for agent in agent_class_agents:
-            if str(agent.id) in selected_agent_ids:
+            if hasattr(agent, 'id') and str(agent.id) in selected_agent_ids:
                 agents_data.append(agent.data)
 
         for agent in timeframe_agents:
-            if str(agent['id']) in selected_agent_ids:
+            if 'id' in agent and str(agent['id']) in selected_agent_ids:
                 agents_data.append(agent)
 
         form_data = request.form.to_dict()
