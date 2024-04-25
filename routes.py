@@ -464,70 +464,64 @@ def get_prev_next_agent_ids(agents, agent):
 @profile_blueprint.route('/profile')
 @login_required
 def profile():
-  agent_id = request.args.get('agent_id')
-  timeframe_id = request.args.get('timeframe_id')
+    agent_id = request.args.get('agent_id')
+    timeframe_id = request.args.get('timeframe_id')
 
-  if timeframe_id:
-    timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe and timeframe.user_id == current_user.id:
-      agents_data = json.loads(timeframe.agents_data)
-      agent_data = next((agent for agent in agents_data
-                         if str(agent.get('id', '')) == str(agent_id)), None)
-      if agent_data:
-        agent = Agent(id=agent_data['id'],
-                      user_id=current_user.id,
-                      data=agent_data)
-        photo_filename = agent.data.get('photo_path', '').split('/')[-1]
-        images_data = json.loads(timeframe.images_data)
-        agent_image_data = images_data.get(photo_filename, '')
-        timeframe_agents = [{
-            'timeframe_id': timeframe.id,
-            'timeframe_name': timeframe.name,
-            'agent': agent
-        }]
-        main_agent = None
-      else:
-        flash('Agent not found within the specified timeframe.', 'error')
-        return redirect(url_for('dashboard_blueprint.dashboard'))
+    if timeframe_id:
+        timeframe = Timeframe.query.get(timeframe_id)
+        if timeframe and timeframe.user_id == current_user.id:
+            agents_data = json.loads(timeframe.agents_data)
+            agent_data = next((agent for agent in agents_data if str(agent.get('id', '')) == str(agent_id)), None)
+            if agent_data:
+                agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
+                agent.agent_type = 'timeframe'
+                photo_filename = agent.data.get('photo_path', '').split('/')[-1]
+                images_data = json.loads(timeframe.images_data)
+                agent_image_data = images_data.get(photo_filename, '')
+                timeframe_agents = [{
+                    'timeframe_id': timeframe.id,
+                    'timeframe_name': timeframe.name,
+                    'agent': agent
+                }]
+                main_agent = None
+            else:
+                flash('Agent not found within the specified timeframe.', 'error')
+                return redirect(url_for('dashboard_blueprint.dashboard'))
+        else:
+            flash('Invalid timeframe.', 'error')
+            return redirect(url_for('dashboard_blueprint.dashboard'))
     else:
-      flash('Invalid timeframe.', 'error')
-      return redirect(url_for('dashboard_blueprint.dashboard'))
-  else:
-    agent = Agent.query.filter_by(user_id=current_user.id,
-                                  id=str(agent_id)).first()
-    if not agent:
-      agent_data = next((agent for agent in current_user.agents_data
-                         if str(agent.get('id', '')) == str(agent_id)), None)
-      if agent_data:
-        agent = Agent(id=agent_data['id'],
-                      user_id=current_user.id,
-                      data=agent_data)
-        photo_filename = agent.data.get('photo_path', '').split('/')[-1]
-        agent_image_data = current_user.images_data.get(photo_filename, '')
-      else:
+        agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
+        if not agent:
+            agent_data = next((agent for agent in current_user.agents_data if str(agent.get('id', '')) == str(agent_id)), None)
+            if agent_data:
+                agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
+                agent.agent_type = 'agent'
+                photo_filename = agent.data.get('photo_path', '').split('/')[-1]
+                agent_image_data = current_user.images_data.get(photo_filename, '')
+            else:
+                agent.agent_type = agent.data.get('agent_type', 'agent')
+                flash('Agent not found.', 'error')
+                return redirect(url_for('dashboard_blueprint.dashboard'))
+        else:
+            photo_filename = agent.data.get('photo_path', '').split('/')[-1]
+            agent_image_data = current_user.images_data.get(photo_filename, '')
+            if not agent_image_data:
+                agent_image_data = agent.data.get('image_data', {}).get(agent.data.get('photo_path', ''), '')
+
+        main_agent = agent
+        timeframe_agents = []
+
+    if agent:
+        agents = current_user.agents + Agent.query.filter_by(user_id=current_user.id).all()
+        prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents, agent)
+
+        return render_template('profile.html', agent=agent, agent_image_data=agent_image_data, main_agent=main_agent,
+                               timeframe_agents=timeframe_agents, timeframe_id=timeframe_id, prev_agent_id=prev_agent_id,
+                               next_agent_id=next_agent_id, talk_to_agent_url=url_for('talker_blueprint.talker', agent_type=agent.agent_type, agent_id=agent_id))
+    else:
         flash('Agent not found.', 'error')
         return redirect(url_for('dashboard_blueprint.dashboard'))
-    else:
-      photo_filename = agent.data.get('photo_path', '').split('/')[-1]
-      agent_image_data = current_user.images_data.get(photo_filename, '')
-      if not agent_image_data:
-        agent_image_data = agent.data.get('image_data', {}).get(
-            agent.data.get('photo_path', ''), '')
-
-    main_agent = agent
-    timeframe_agents = []
-
-  if agent:
-    agents = current_user.agents + Agent.query.filter_by(
-        user_id=current_user.id).all()
-    prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents, agent)
-
-    return render_template('profile.html', agent=agent, agent_image_data=agent_image_data, main_agent=main_agent,
-     timeframe_agents=timeframe_agents, timeframe_id=timeframe_id, prev_agent_id=prev_agent_id,
-     next_agent_id=next_agent_id, talk_to_agent_url=url_for('talker_blueprint.talker', agent_id=agent_id))
-  else:
-    flash('Agent not found.', 'error')
-    return redirect(url_for('dashboard_blueprint.dashboard'))
 
 
 # Update load_agents function to accept the direct file path

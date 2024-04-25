@@ -143,7 +143,7 @@
         %} {% set answer_text = answer_data %} {% endif %}
         <div class="flex items-start mb-4">
           <a
-            href="{{ url_for('profile_blueprint.profile', agent_id=agent['id'], _external=True) }}"
+            href="{{ url_for('profile_blueprint.profile', agent_id=agent['id'], agent_type='agent') }}"
             target="_blank"
           >
             <img
