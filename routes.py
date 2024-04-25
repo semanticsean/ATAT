@@ -7,6 +7,7 @@ import base64
 from models import db, User, Survey, Timeframe, Meeting, Agent, Image
 from abe_gpt import generate_new_agent
 from abe import login_manager
+from talker import talker_blueprint
 import email_client
 
 from PIL import Image
@@ -64,6 +65,12 @@ dashboard_blueprint = Blueprint('dashboard_blueprint',
 profile_blueprint = Blueprint('profile_blueprint',
                               __name__,
                               template_folder='templates')
+
+talker_blueprint = Blueprint('talker_blueprint',
+__name__,
+template_folder='templates')
+
+
 
 #API LIMITER
 limiter = Limiter(key_func=get_remote_address,
@@ -515,14 +522,9 @@ def profile():
         user_id=current_user.id).all()
     prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents, agent)
 
-    return render_template('profile.html',
-                           agent=agent,
-                           agent_image_data=agent_image_data,
-                           main_agent=main_agent,
-                           timeframe_agents=timeframe_agents,
-                           timeframe_id=timeframe_id,
-                           prev_agent_id=prev_agent_id,
-                           next_agent_id=next_agent_id)
+    return render_template('profile.html', agent=agent, agent_image_data=agent_image_data, main_agent=main_agent,
+     timeframe_agents=timeframe_agents, timeframe_id=timeframe_id, prev_agent_id=prev_agent_id,
+     next_agent_id=next_agent_id, talk_to_agent_url=url_for('talker_blueprint.talker', agent_id=agent_id))
   else:
     flash('Agent not found.', 'error')
     return redirect(url_for('dashboard_blueprint.dashboard'))

@@ -79,6 +79,7 @@
                                   </div>
                                   <div class="mb-8 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md mb-4">
                                       <h2 class="text-xl font-semibold mb-2">Actions</h2>
+                                    <a href="{{ talk_to_agent_url }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Talk to Synth</a>
                                       {% if not timeframe and main_agent.id == agent.id %}
                                           <a href="mailto:{{ agent.email }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Email Agent</a>
                                       {% endif %}
