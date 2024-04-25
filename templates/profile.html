@@ -77,14 +77,20 @@
                                           </div>
                                       </div>
                                   </div>
-                                  <div class="mb-8 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md mb-4">
-                                      <h2 class="text-xl font-semibold mb-2">Actions</h2>
-                                    <a href="{{ talk_to_agent_url }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Talk to Synth</a>
-                                      {% if not timeframe and main_agent.id == agent.id %}
-                                          <a href="mailto:{{ agent.email }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Email Agent</a>
-                                      {% endif %}
-                                      <a href="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Edit Agent</a>
-                                  </div>
+                                <div class="mb-8 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md mb-4">
+                                    <h2 class="text-xl font-semibold mb-2">Actions</h2>
+                                    {% if timeframe %}
+                                        <a href="{{ url_for('talker_blueprint.talker', agent_type='timeframe', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Talk to Synth</a>
+                                    {% elif agent.agent_type == 'user' %}
+                                        <a href="{{ url_for('talker_blueprint.talker', agent_type='user', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Talk to Synth</a>
+                                    {% else %}
+                                        <a href="{{ url_for('talker_blueprint.talker', agent_type='agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Talk to Synth</a>
+                                    {% endif %}
+                                    {% if not timeframe and main_agent.id == agent.id %}
+                                        <a href="mailto:{{ agent.email }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Email Agent</a>
+                                    {% endif %}
+                                    <a href="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Edit Agent</a>
+                                </div>
                                   <div class="mb-4 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md">
                                       <h2 class="text-xl font-semibold mb-2">Agent Versions</h2>
                                       <div class="flex flex-wrap gap-2">
