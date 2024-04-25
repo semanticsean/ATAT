@@ -31,6 +31,7 @@
       }
 
       .agent-item {
+        display: none; /* Add this line */
         cursor: pointer;
       }
 
@@ -41,6 +42,16 @@
       .agent-item:hover {
         background-color: #e9f0ff;
       }
+      
+      .agent-item.selected {
+        background-color: #d3e1ff;
+      }
+
+      .agent-item:hover {
+        background-color: #e9f0ff;
+      }
+
+      
     </style>
   </head>
   <body class="bg-blue-50 h-full">
@@ -163,9 +174,10 @@
                     <div id="agent-list">
                       <!-- User Agents -->
                           <h3 class="text-lg font-bold mt-4">User Agents</h3>
-                          {% for agent in user_agents %}
-                          <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
-                            <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden" />
+                      {% for agent in user_agents %}
+                      <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
+                        <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden" />
+
                             <img src="" alt="Agent Profile" class="agent-image float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4" data-src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1] if agent.get('photo_path') else 'default.png') }}" />
                             <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-md">
                               <div class="text-lg md:text-xl font-bold mb-2">{{ agent.id }}</div>
@@ -177,9 +189,10 @@
 
                           <!-- Agent Class Agents -->
                           <h3 class="text-lg font-bold mt-4">Agent Class Agents</h3>
-                          {% for agent in agent_class_agents %}
-                          <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
-                            <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden" />
+                      {% for agent in agent_class_agents %}
+                      <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
+                        <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden" />
+
                             <img src="" alt="Agent Profile" class="agent-image float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4" data-src="{{ url_for('serve_image', filename=agent.data.photo_path.split('/')[-1]) }}" />
                             <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-md">
                               <div class="text-lg md:text-xl font-bold mb-2">{{ agent.id }}</div>
@@ -190,11 +203,11 @@
                           {% endfor %}
 
                           <!-- Timeframe Agents -->
-                          {% for timeframe in timeframes %}
-                          <h3 class="text-lg font-bold mt-4">{{ timeframe.name }} Agents</h3>
-                          {% for agent in timeframe.agents_data | from_json %}
-                          <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
-                            <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden" />
+                            {% for timeframe in timeframes %}
+                            {% for agent in timeframe.agents_data | from_json %}
+                              <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-8 pt-6 pb-8" data-agent-id="{{ agent.id }}">
+                                <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden" />
+
                             <img src="" alt="Agent Profile" class="agent-image float-right w-12 h-12 md:w-28 md:h-28 rounded-full -ml-2 mr-4" data-src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1] if agent.get('photo_path') else 'default.png') }}" />
                             <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-md">
                               <div class="text-lg md:text-xl font-bold mb-2">{{ agent.id }}</div>
@@ -232,10 +245,16 @@
 
         agentImages.forEach((img) => {
           const src = img.getAttribute("data-src");
+          img.onload = () => {
+            img.closest('.agent-item').style.display = 'flex'; // Show agent item if image loads
+          };
+          img.onerror = () => {
+            console.error("Failed to load image for agent:", img.closest('.agent-item').dataset.agentId);
+          };
           img.setAttribute("src", src);
         });
       });
-      
+
       window.onload = function () {
         var loadingPlaceholder = document.getElementById("loadingPlaceholder");
         if (loadingPlaceholder) {
