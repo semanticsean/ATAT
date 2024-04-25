@@ -1035,20 +1035,10 @@ def create_timeframe():
         }
 
         try:
-            logging.info("Calling process_agents function")
             new_timeframe = abe_gpt.process_agents(payload, current_user)
-            logging.info(f"New timeframe object received: {new_timeframe}")
-
-            logging.info(f"New timeframe created with ID: {new_timeframe.id}")
-
-            # Redirect to the dashboard for the new timeframe
-            return redirect(
-                url_for('dashboard_blueprint.dashboard',
-                        timeframe_id=new_timeframe.id))
-
+            return redirect(url_for('dashboard_blueprint.dashboard', timeframe_id=new_timeframe.id))
         except Exception as e:
             db.session.rollback()
-            logging.error(f"Error occurred while processing agents: {str(e)}")
             flash(f"An error occurred while processing agents: {str(e)}", "error")
             return redirect(url_for('auth_blueprint.create_timeframe'))
 

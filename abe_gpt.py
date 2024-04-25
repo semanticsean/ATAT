@@ -592,7 +592,7 @@ def process_meeting_summary(meeting, current_user):
   # Prepare the API payload for meeting summary
   summary_payload = {
       "model":
-      "gpt-4",
+      "gpt-40-turbo-preview",
       "messages": [{
           "role": "system",
           "content": meeting_summary_instructions
@@ -722,7 +722,7 @@ def summarize_process_agents(new_timeframe, payload, current_user):
 
   # Prepare the API payload for process agents summary
   summary_payload = {
-      "model": "gpt-4",
+      "model": "gpt-4-turbo-preview",
       "messages": [
           {
               "role": "system",
@@ -764,7 +764,7 @@ def summarize_process_agents(new_timeframe, payload, current_user):
               raise e
 
   process_agents_summary = response.choices[0].message.content.strip()
-  new_timeframe.summary = process_agents_summary  # Store the process agents summary
+  new_timeframe.summary = process_agents_summary# Store the process agents summary
 
   logging.info(f"Process agents summary generated: {process_agents_summary[:100]}...")
   logging.info(f"Storing process agents summary in new_timeframe.summary for Timeframe ID: {new_timeframe.id}")
@@ -806,16 +806,9 @@ def summarize_process_agents(new_timeframe, payload, current_user):
               raise e
 
   image_url = dalle_response.data[0].url
-  logging.info(f"Generated image URL: {image_url[:142]}")
-
   img_data = requests.get(image_url).content
   new_timeframe.image_data = base64.b64encode(img_data).decode('utf-8')  # Store the encoded image data
 
-  logging.info(f"Process agents image data generated from URL: {image_url[:142]}")
-  logging.info(f"Storing process agents image data in new_timeframe.image_data for Timeframe ID: {new_timeframe.id}")
-  logging.info(f"Sample of stored process agents image data: {new_timeframe.image_data[:100]}...")
-
-  # Generate thumbnail image
   thumbnail_size = (200, 200)
   img = Image.open(BytesIO(img_data))
   img.thumbnail(thumbnail_size)
@@ -823,10 +816,6 @@ def summarize_process_agents(new_timeframe, payload, current_user):
   img.save(thumbnail_buffer, format='PNG')
   thumbnail_data = thumbnail_buffer.getvalue()
   new_timeframe.thumbnail_image_data = base64.b64encode(thumbnail_data).decode('utf-8')
-
-  logging.info(f"Process agents thumbnail image data generated")
-  logging.info(f"Storing process agents thumbnail image data in new_timeframe.thumbnail_image_data for Timeframe ID: {new_timeframe.id}")
-  logging.info(f"Sample of stored process agents thumbnail image data: {new_timeframe.thumbnail_image_data[:100]}...")
 
   db.session.commit()  # Commit the changes to the database
   logging.info(f"Process agents image data and thumbnail image data committed to the database for Timeframe ID: {new_timeframe.id}")
