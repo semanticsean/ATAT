@@ -592,7 +592,7 @@ def process_meeting_summary(meeting, current_user):
   # Prepare the API payload for meeting summary
   summary_payload = {
       "model":
-      "gpt-40-turbo-preview",
+      "gpt-4-turbo-preview",
       "messages": [{
           "role": "system",
           "content": meeting_summary_instructions
@@ -733,6 +733,9 @@ def summarize_process_agents(new_timeframe, payload, current_user):
               "content": f"Timeframe Name: {new_timeframe.name}\nInstructions: {json.dumps(instructions)}\n\nAgents Data:\n{json.dumps(agents_data, indent=2)}\n\nPlease generate a concise summary of the process agents operation."
           }
       ],
+      "max_tokens": 250,  # Set the limit of response length
+      "temperature": 0.8,  # Set the randomness of the response
+      "top_p": 0.7  # Set the nucleus sampling cutoff
   }
 
   # Call the OpenAI API with exponential backoff and retries

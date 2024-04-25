@@ -230,9 +230,18 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        const loadingOverlay = document.getElementById("loading-overlay");
+  
+        // Show the loading overlay as soon as the page loads
+        loadingOverlay.style.display = "flex";
+  
+        // Hide the loading overlay after 10 seconds
+        setTimeout(() => {
+          loadingOverlay.style.display = "none";
+        }, 10000); // 10000 milliseconds = 10 seconds
         const agentCards = document.querySelectorAll(".agent-card");
         const form = document.querySelector("form");
-        const loadingOverlay = document.getElementById("loading-overlay");
+        
         const agentProgress = document.getElementById("agent-progress");
         const checkboxes = document.querySelectorAll('input[type="checkbox"]');
         const searchInput = document.getElementById("search");
@@ -314,13 +323,14 @@
 
         // Event listeners for agent card clicks
         agentCards.forEach((card) => {
-          card.addEv
+          card.addEventListener("click", handleAgentSelection);
+        });
 
         // Modify the form submit event
         form.addEventListener("submit", function (e) {
           e.preventDefault(); // Prevent the default form submission
-
-          // Show the loading overlay
+  
+          // Show the loading overlay again when submitting the form
           loadingOverlay.style.display = "flex";
 
           const formData = new FormData(form);
