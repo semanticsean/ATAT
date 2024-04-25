@@ -43,6 +43,9 @@
             <button id="record-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full">
                 Tap to Talk
             </button>
+            <button id="stop-audio-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-full ml-4" style="display: none;">
+                Stop
+            </button>
         </div>
         <div id="status" class="mt-4 text-center text-gray-600"></div>
         <audio id="response-audio" style="display: none;"></audio>
@@ -53,6 +56,22 @@
             const statusDiv = $("#status");
             const conversationDiv = $("#conversation");
             const responseAudio = $("#response-audio");
+            const stopAudioButton = $("#stop-audio-button");
+
+            stopAudioButton.on("click", function() {
+                responseAudio[0].pause();
+                responseAudio[0].currentTime = 0;
+                stopAudioButton.hide();
+            });
+
+            responseAudio.on("play", function() {
+                displayConversation(response.ai_text, "AI");
+                stopAudioButton.show();
+            }).on("error", function(error) {
+                console.error("Audio playback error:", error);
+                statusDiv.text("Audio playback error. Please try again.");
+            });
+
             let mediaRecorder;
             let isRecording = false;
 
@@ -88,57 +107,52 @@
             }
 
           function handleDataAvailable(audioBlob) {
-              const formData = new FormData();
-              formData.append("audio", audioBlob, "audio.wav");
-              formData.append("agent_id", "{{ agent_id }}");
+                const formData = new FormData();
+                formData.append("audio", audioBlob, "audio.wav");
+                formData.append("agent_id", "{{ agent_id }}");
+                formData.append("agent_type", "{{ agent_type }}");
 
-              $.ajax({
-                  url: "/transcribe",
-                  type: "POST",
-                  data: formData,
-                  processData: false,
-                  contentType: false,
-                  success: function(response) {
-                      if (response.error) {
-                          console.error("Transcription error:", response.error);
-                          statusDiv.text("Error: " + response.error);
-                          recordButton.text("Tap to Talk");
-                      } else {
-                          displayConversation(response.user_text, "You");
-                          setTimeout(function() {
-                              $.ajax({
-                                  url: "/text-to-speech",
-                                  type: "POST",
-                                  data: { text: response.ai_text },
-                                  success: function(data) {
-                                      console.log("Text-to-speech response:", data);
-                                      const audioUrl = "/audio/" + data.audio_file_path.split("/").pop();
-                                      responseAudio.attr("src", audioUrl);
-                                      responseAudio[0].play().then(function() {
-                                          displayConversation(response.ai_text, "AI");
-                                      }).catch(function(error) {
-                                          console.error("Audio playback error:", error);
-                                          statusDiv.text("Audio playback error. Please try again.");
-                                      });
-                                      recordButton.text("Tap to Talk");
-                                      statusDiv.text("Ready");
-                                  },
-                                  error: function(jqXHR, textStatus, errorThrown) {
-                                      console.error("Text-to-speech error:", textStatus, errorThrown);
-                                      statusDiv.text("Error: " + textStatus);
-                                      recordButton.text("Tap to Talk");
-                                  }
-                              });
-                          }, 1000);
-                      }
-                  },
-                  error: function(jqXHR, textStatus, errorThrown) {
-                      console.error("Transcription error:", textStatus, errorThrown);
-                      statusDiv.text("Error: " + textStatus);
-                      recordButton.text("Tap to Talk");
-                  }
-              });
-          }
+                $.ajax({
+                    url: "/transcribe",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.error) {
+                            console.error("Transcription error:", response.error);
+                            statusDiv.text("Error: " + response.error);
+                            recordButton.text("Tap to Talk");
+                        } else {
+                            displayConversation(response.user_text, "You");
+                            setTimeout(function() {
+                                $.ajax({
+                                    url: "/text-to-speech",
+                                    type: "POST",
+                                    data: { text: response.ai_text },
+                                    success: function(data) {
+                                        const audioUrl = "/audio/" + data.audio_file_path.split("/").pop();
+                                        responseAudio.attr("src", audioUrl);
+                                        recordButton.text("Tap to Play");
+                                        statusDiv.text("Ready");
+                                        recordButton.off("click").on("click", function() {
+                                            responseAudio[0].play();
+                                            displayConversationWithTyping(response.ai_text, "AI", responseAudio[0].duration);
+                                            stopAudioButton.show();
+                                            recordButton.hide();
+                                        });
+                                    }
+                                });
+                            }, 1000);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error("Transcription error:", textStatus, errorThrown);
+                        statusDiv.text("Error: " + textStatus);
+                        recordButton.text("Tap to Talk");
+                    }
+                });
+            }
 
             function displayConversation(text, speaker) {
                 conversationDiv.append(

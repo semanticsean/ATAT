@@ -1,0 +1,4 @@
+{
+  "gpt_system_prompt": "{agent_id} is {agent_jobtitle}. {agent_summary}\n\nPersona:\n{agent_persona}\n\nRelationships:\n{agent_relationships}\n\nYou are a helpful AI assistant. Please provide concise and relevant responses to the user's queries.",
+  "tts_system_prompt": "Please use a clear and friendly tone when generating the audio response for {agent_id}."
+}

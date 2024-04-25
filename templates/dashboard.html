@@ -97,26 +97,26 @@
               <p class="text-lg text-gray-700 agent-summary">
                 {{ agent.summary }}
               </p>
-              <div class="mt-4 space-x-2">
-                <a
-                  href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, timeframe_id=timeframe.id if timeframe else None) }}"
-                  class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-blue-600"
-                  >Details</a
-                >
-                <a
-                  href="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}"
-                  class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-600"
-                  >Edit</a
-                >
-              </div>
-            </div>
-          </div>
-          {% endif %} {% endfor %}
-        </div>
-        {% else %}
-        <p class="text-gray-500">No agents found.</p>
-        {% endif %}
-      </div>
+    <div class="mt-4 space-x-2">
+      <a
+        href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type='timeframe' if timeframe else 'agent', timeframe_id=timeframe.id if timeframe else None) }}"
+        class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-blue-600"
+        >Details</a
+      >
+      <a
+        href="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}"
+        class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-600"
+        >Edit</a
+      >
+    </div>
+    </div>
+    </div>
+    {% endif %} {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-500">No agents found.</p>
+    {% endif %}
+    </div>
     </main>
     {% include 'footer.html' %}
     <script>
