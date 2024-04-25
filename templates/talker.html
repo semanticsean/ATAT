@@ -1,132 +1,151 @@
-<!--templates/dashboard.html-->
-<!doctype html>
-<html lang="en" class="h-full">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <style></style>
-  </head>
-  <body class="bg-gray-100 min-h-screen flex flex-col">
-    {% include 'header.html' %}
-
-    <div class="container mx-auto px-4 py-8">
-      <h1 class="text-2xl font-bold mb-4">Talk to {{ agent.id }}</h1>
-      <div class="flex">
-        <div class="w-1/3">
-          <img
-            src="{{ url_for('serve_agent_image', filename=agent.photo_path.split('/')[-1]) }}"
-            alt="{{ agent.id }}"
-            class="mb-4"
-          />
-        </div>
-        <div class="w-2/3 pl-8">
-          <div id="conversation" class="mb-4">
-            <!-- Conversation will be displayed here -->
-          </div>
-          <button
-            id="record-button"
-            class="bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            Record
-          </button>
-          <div id="status" class="mt-4"></div>
-          <audio id="response-audio" controls style="display: none"></audio>
-        </div>
-      </div>
-    </div>
-
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Semantic Life - Talker</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .phone-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f2f2f2;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .message-bubble {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+        }
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+        }
+        .ai-message {
+            background-color: #e6e6e6;
+            color: black;
+            align-self: flex-start;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="phone-container">
+        <h1 class="text-2xl font-bold mb-4 text-center">{{ agent.id }}</h1>
+        <h2 class="text-xl font-bold mb-2 text-center">{{ agent.data.get('jobtitle', '') }}</h2>
+        <p class="text-center mb-4">{{ agent.data.get('summary', '') }}</p>
+        <div id="conversation" class="mb-4 flex flex-col">
+            <!-- Conversation will be displayed here -->
+        </div>
+        <div class="flex justify-center">
+            <button id="record-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full">
+                Tap to Talk
+            </button>
+        </div>
+        <div id="status" class="mt-4 text-center text-gray-600"></div>
+        <audio id="response-audio" style="display: none;"></audio>
+    </div>
     <script>
-      $(document).ready(function () {
-        const recordButton = $("#record-button");
-        const statusDiv = $("#status");
-        const conversationDiv = $("#conversation");
-        const responseAudio = $("#response-audio");
-        let mediaRecorder;
+        $(document).ready(function() {
+            const recordButton = $("#record-button");
+            const statusDiv = $("#status");
+            const conversationDiv = $("#conversation");
+            const responseAudio = $("#response-audio");
+            let mediaRecorder;
+            let isRecording = false;
 
-        recordButton.on("click", startRecording);
+            recordButton.on("click", toggleRecording);
 
-        function startRecording() {
-          navigator.mediaDevices
-            .getUserMedia({ audio: true })
-            .then(function (stream) {
-              mediaRecorder = new MediaRecorder(stream);
-              mediaRecorder.start();
+            function toggleRecording() {
+                if (!isRecording) {
+                    startRecording();
+                } else {
+                    stopRecording();
+                }
+            }
 
-              const audioChunks = [];
-              mediaRecorder.addEventListener("dataavailable", function (event) {
-                audioChunks.push(event.data);
+            function startRecording() {
+                isRecording = true;
+                recordButton.text("Stop");
+                statusDiv.text("Recording...");
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(function(stream) {
+                        mediaRecorder = new MediaRecorder(stream);
+                        mediaRecorder.start();
+                        mediaRecorder.ondataavailable = function(e) {
+                            handleDataAvailable(e.data);
+                        };
+                    });
+            }
+
+            function stopRecording() {
+                isRecording = false;
+                recordButton.text("Processing...");
+                statusDiv.text("Processing...");
+                mediaRecorder.stop();
+            }
+
+          function handleDataAvailable(audioBlob) {
+              const formData = new FormData();
+              formData.append("audio", audioBlob, "audio.wav");
+              formData.append("agent_id", "{{ agent_id }}");
+
+              $.ajax({
+                  url: "/transcribe",
+                  type: "POST",
+                  data: formData,
+                  processData: false,
+                  contentType: false,
+                  success: function(response) {
+                      if (response.error) {
+                          console.error("Transcription error:", response.error);
+                          statusDiv.text("Error: " + response.error);
+                          recordButton.text("Tap to Talk");
+                      } else {
+                          displayConversation(response.user_text, "You");
+                          setTimeout(function() {
+                              $.ajax({
+                                  url: "/text-to-speech",
+                                  type: "POST",
+                                  data: { text: response.ai_text },
+                                  success: function(data) {
+                                      console.log("Text-to-speech response:", data);
+                                      const audioUrl = "/audio/" + data.audio_file_path.split("/").pop();
+                                      responseAudio.attr("src", audioUrl);
+                                      responseAudio[0].play().then(function() {
+                                          displayConversation(response.ai_text, "AI");
+                                      }).catch(function(error) {
+                                          console.error("Audio playback error:", error);
+                                          statusDiv.text("Audio playback error. Please try again.");
+                                      });
+                                      recordButton.text("Tap to Talk");
+                                      statusDiv.text("Ready");
+                                  },
+                                  error: function(jqXHR, textStatus, errorThrown) {
+                                      console.error("Text-to-speech error:", textStatus, errorThrown);
+                                      statusDiv.text("Error: " + textStatus);
+                                      recordButton.text("Tap to Talk");
+                                  }
+                              });
+                          }, 1000);
+                      }
+                  },
+                  error: function(jqXHR, textStatus, errorThrown) {
+                      console.error("Transcription error:", textStatus, errorThrown);
+                      statusDiv.text("Error: " + textStatus);
+                      recordButton.text("Tap to Talk");
+                  }
               });
+          }
 
-              mediaRecorder.addEventListener("stop", function () {
-                const audioBlob = new Blob(audioChunks);
-                sendAudioForTranscription(audioBlob);
-              });
-
-              recordButton.text("Stop");
-              recordButton.off("click");
-              recordButton.on("click", stopRecording);
-            });
-        }
-
-        function stopRecording() {
-          mediaRecorder.stop();
-          recordButton.text("Record");
-          recordButton.off("click");
-          recordButton.on("click", startRecording);
-        }
-
-        function sendAudioForTranscription(audioBlob) {
-          const formData = new FormData();
-          formData.append("audio", audioBlob, "audio.mp3");
-          formData.append("agent_id", "{{ agent.id }}");
-
-          $.ajax({
-            url: "/transcribe",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-              displayConversation(response.user_text, response.ai_text);
-              textToSpeech(response.ai_text);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.error("Error:", textStatus, errorThrown);
-              statusDiv.text("Error: " + textStatus);
-            },
-          });
-        }
-
-        function displayConversation(userText, aiText) {
-          conversationDiv.append(
-            "<p><strong>You:</strong> " + userText + "</p>",
-          );
-          conversationDiv.append("<p><strong>AI:</strong> " + aiText + "</p>");
-        }
-
-        function textToSpeech(text) {
-          $.ajax({
-            url: "/text-to-speech",
-            type: "POST",
-            data: { text: text },
-            success: function (response) {
-              responseAudio.attr("src", response.audio_url);
-              responseAudio[0].play();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.error("Error:", textStatus, errorThrown);
-              statusDiv.text("Error: " + textStatus);
-            },
-          });
-        }
-      });
+            function displayConversation(text, speaker) {
+                conversationDiv.append(
+                    `<div class="message-bubble ${speaker.toLowerCase()}-message">${text}</div>`
+                );
+            }
+        });
     </script>
-    
-  </body>
+</body>
 </html>
