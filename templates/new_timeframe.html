@@ -30,25 +30,31 @@
         height: 4rem;
       }
 
-      .agent-item {
-        display: none; /* Add this line */
+      .agent-card {
+        display: none;
         cursor: pointer;
+        background-color: white;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s;
       }
 
-      .agent-item.selected {
+      .agent-card:hover {
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .agent-card.selected {
         background-color: #d3e1ff;
       }
 
-      .agent-item:hover {
-        background-color: #e9f0ff;
-      }
-
-      .agent-item.selected {
-        background-color: #d3e1ff;
-      }
-
-      .agent-item:hover {
-        background-color: #e9f0ff;
+      .agent-image {
+        width: 100%;
+        height: 0;
+        padding-bottom: 100%;
+        border-radius: 8px;
+        background-size: cover;
+        background-position: center;
       }
 
       #loading-overlay {
@@ -141,59 +147,65 @@
                 </div>
 
                 <div class="mb-8">
-                  <h2 class="text-2xl md:text-3xl font-bold mb-4">Select Synths:</h2>
+                  <h2 class="text-2xl md:text-3xl font-bold mb-4">Select up to 6 Synths:</h2>
                   <div class="mb-4">
                     <input type="text" id="search" placeholder="Search agents..." class="w-full py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                   </div>
-                  <div class="mb-4">
-                    <select id="sort" class="w-full py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                      <option value="">Sort by...</option>
-                      <option value="name">Name</option>
-                      <option value="timeframe">Timeframe</option>
-                    </select>
+                  <div class="mb-4 flex space-x-2">
+                    <button type="button" class="timeframe-filter py-1 px-2 bg-black text-white text-sm rounded focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" data-timeframe="">All</button>
+                    {% for timeframe in timeframes %}
+                      <button type="button" class="timeframe-filter py-1 px-2 bg-black text-white text-sm rounded focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" data-timeframe="{{ timeframe.name }}">{{ timeframe.name }}</button>
+                    {% endfor %}
                   </div>
                   <div id="agent-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- User Agents -->
-                    <h3 class="text-xl font-bold mt-4 col-span-full">User Agents</h3>
                     {% for agent in user_agents %}
-                    <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-6 py-4" data-agent-id="{{ agent.id }}" data-agent-name="{{ agent.id }}" data-agent-timeframe="">
+                    {% if agent.get('photo_path') %}
+                    <div class="agent-card" data-agent-id="{{ agent.id }}" data-agent-name="{{ agent.id }}" data-agent-timeframe="">
                       <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden" />
-                      <img src="" alt="Agent Profile" class="agent-image float-right w-12 h-12 md:w-24 md:h-24 rounded-full -ml-2 mr-4" data-src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1] if agent.get('photo_path') else 'default.png') }}" />
-                      <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-base">
-                        <div class="text-lg md:text-xl font-bold mb-1">{{ agent.id }}</div>
-                        <div class="mb-1">{{ agent.jobtitle }}</div>
-                        <div class="mb-1">{{ agent.summary }}</div>
+                      <label for="agent-{{ agent.id }}">
+                        <div class="agent-image" style="background-image: url('{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}');"></div>
+                        <div class="mt-2 text-center">
+                          <div class="text-lg font-bold">{{ agent.id }}</div>
+                          <div class="text-sm">{{ agent.jobtitle }}</div>
+                        </div>
                       </label>
                     </div>
+                    {% endif %}
                     {% endfor %}
 
                     <!-- Agent Class Agents -->
-                    <h3 class="text-xl font-bold mt-4 col-span-full">Agent Class Agents</h3>
                     {% for agent in agent_class_agents %}
-                    <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-6 py-4" data-agent-id="{{ agent.id }}" data-agent-name="{{ agent.id }}" data-agent-timeframe="">
+                    {% if agent.data.get('photo_path') %}
+                    <div class="agent-card" data-agent-id="{{ agent.id }}" data-agent-name="{{ agent.id }}" data-agent-timeframe="">
                       <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden" />
-                      <img src="" alt="Agent Profile" class="agent-image float-right w-12 h-12 md:w-24 md:h-24 rounded-full -ml-2 mr-4" data-src="{{ url_for('serve_image', filename=agent.data.photo_path.split('/')[-1]) }}" />
-                      <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-base">
-                        <div class="text-lg md:text-xl font-bold mb-1">{{ agent.id }}</div>
-                        <div class="mb-1">{{ agent.data.jobtitle }}</div>
-                        <div class="mb-1">{{ agent.data.summary }}</div>
+                      <label for="agent-{{ agent.id }}">
+                        <div class="agent-image" style="background-image: url('{{ url_for('serve_image', filename=agent.data.photo_path.split('/')[-1]) }}');"></div>
+                        <div class="mt-2 text-center">
+                          <div class="text-lg font-bold">{{ agent.id }}</div>
+                          <div class="text-sm">{{ agent.data.jobtitle }}</div>
+                        </div>
                       </label>
                     </div>
+                    {% endif %}
                     {% endfor %}
 
                     <!-- Timeframe Agents -->
                     {% for timeframe in timeframes %}
                     {% for agent in timeframe.agents_data | from_json %}
-                    <div class="agent-item flex items-center mb-2 bg-white shadow-md rounded-lg px-6 py-4" data-agent-id="{{ agent.id }}" data-agent-name="{{ agent.id }}" data-agent-timeframe="{{ timeframe.name }}">
+                    {% if agent.get('photo_path') %}
+                    <div class="agent-card" data-agent-id="{{ agent.id }}" data-agent-name="{{ agent.id }}" data-agent-timeframe="{{ timeframe.name }}">
                       <input type="checkbox" id="agent-{{ agent.id }}" name="selected_agents" value="{{ agent.id }}" class="hidden" />
-                      <img src="" alt="Agent Profile" class="agent-image float-right w-12 h-12 md:w-24 md:h-24 rounded-full -ml-2 mr-4" data-src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1] if agent.get('photo_path') else 'default.png') }}" />
-                      <label for="agent-{{ agent.id }}" class="text-gray-700 text-sm md:text-base">
-                        <div class="text-lg md:text-xl font-bold mb-1">{{ agent.id }}</div>
-                        <div class="mb-1">{{ agent.jobtitle }}</div>
-                        <div class="mb-1">{{ timeframe.name }}</div>
-                        <div class="mb-1">{{ agent.summary }}</div>
+                      <label for="agent-{{ agent.id }}">
+                        <div class="agent-image" style="background-image: url('{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}');"></div>
+                        <div class="mt-2 text-center">
+                          <div class="text-lg font-bold">{{ agent.id }}</div>
+                          <div class="text-sm">{{ agent.jobtitle }}</div>
+                          <div class="text-xs text-gray-500">{{ timeframe.name }}</div>
+                        </div>
                       </label>
                     </div>
+                    {% endif %}
                     {% endfor %}
                     {% endfor %}
                   </div>
@@ -218,26 +230,36 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        const agentImages = document.querySelectorAll(".agent-image");
-
-        agentImages.forEach((img) => {
-          const src = img.getAttribute("data-src");
-          img.onload = () => {
-            img.closest('.agent-item').style.display = 'flex'; // Show agent item if image loads
-          };
-          img.onerror = () => {
-            console.error("Failed to load image for agent:", img.closest('.agent-item').dataset.agentId);
-          };
-          img.setAttribute("src", src);
-        });
-
+        const agentCards = document.querySelectorAll(".agent-card");
         const form = document.querySelector("form");
         const loadingOverlay = document.getElementById("loading-overlay");
         const agentProgress = document.getElementById("agent-progress");
-        const agentItems = document.querySelectorAll(".agent-item");
         const checkboxes = document.querySelectorAll('input[type="checkbox"]');
         const searchInput = document.getElementById("search");
-        const sortSelect = document.getElementById("sort");
+        const timeframeFilters = document.querySelectorAll(".timeframe-filter");
+
+        // Function to show the agent cards after images load
+        function showAgentCard(card) {
+          card.style.display = "block";
+        }
+
+        // Function to handle image load events
+        function handleImageLoad() {
+          showAgentCard(this.parentElement.parentElement);
+        }
+
+        // Function to handle image error events
+        function handleImageError() {
+          console.error("Failed to load image for agent:", this.parentElement.parentElement.dataset.agentId);
+        }
+
+        // Attach load and error event listeners to agent images
+        agentCards.forEach((card) => {
+          const img = new Image();
+          img.onload = handleImageLoad.bind(img);
+          img.onerror = handleImageError.bind(img);
+          img.src = card.querySelector(".agent-image").style.backgroundImage.slice(5, -2);
+        });
 
         // Check if the user has insufficient credits
         {% if current_user.credits is none or current_user.credits <= 0 %}
@@ -245,61 +267,54 @@
           window.location.href = "{{ url_for('auth_blueprint.update_profile') }}";
         {% endif %}
 
-        // Search and filter agents
+        // Function to filter agents based on search and timeframe
         function filterAgents() {
           const searchTerm = searchInput.value.toLowerCase();
-          const sortBy = sortSelect.value;
+          const selectedTimeframe = document.querySelector(".timeframe-filter.bg-blue-600").dataset.timeframe;
 
-          agentItems.forEach((item) => {
-            const agentName = item.dataset.agentName.toLowerCase();
-            const agentTimeframe = item.dataset.agentTimeframe.toLowerCase();
-            const matchesSearch = searchTerm === "" || agentName.includes(searchTerm) || agentTimeframe.includes(searchTerm);
+          agentCards.forEach((card) => {
+            const agentName = card.dataset.agentName.toLowerCase();
+            const agentTimeframe = card.dataset.agentTimeframe.toLowerCase();
+            const matchesSearch = searchTerm === "" || agentName.includes(searchTerm);
+            const matchesTimeframe = selectedTimeframe === "" || agentTimeframe === selectedTimeframe;
 
-            if (matchesSearch) {
-              item.style.display = "flex";
+            if (matchesSearch && matchesTimeframe) {
+              showAgentCard(card);
             } else {
-              item.style.display = "none";
+              card.style.display = "none";
             }
           });
+        }
 
-          if (sortBy === "name") {
-            sortAgentsByName();
-          } else if (sortBy === "timeframe") {
-            sortAgentsByTimeframe();
+        // Event listener for search input
+        searchInput.addEventListener("input", filterAgents);
+
+        // Event listener for timeframe filter buttons
+        timeframeFilters.forEach((filter) => {
+          filter.addEventListener("click", function () {
+            timeframeFilters.forEach((f) => f.classList.remove("bg-blue-600"));
+            this.classList.add("bg-blue-600");
+            filterAgents();
+          });
+        });
+
+        // Function to handle agent selection
+        function handleAgentSelection(e) {
+          const checkbox = this.querySelector('input[type="checkbox"]');
+          const isChecked = checkbox.checked;
+          const selectedAgents = document.querySelectorAll('input[name="selected_agents"]:checked');
+
+          if (selectedAgents.length > 6 && !isChecked) {
+            e.preventDefault();
+            alert("You can only select up to 6 agents. Please upgrade to a pro account to select more.");
+          } else {
+            this.classList.toggle("selected", checkbox.checked);
           }
         }
 
-        // Sort agents by name
-        function sortAgentsByName() {
-          const agentList = document.getElementById("agent-list");
-          const agents = Array.from(agentItems);
-
-          agents.sort((a, b) => {
-            const nameA = a.dataset.agentName.toLowerCase();
-            const nameB = b.dataset.agentName.toLowerCase();
-            return nameA.localeCompare(nameB);
-          });
-
-          agents.forEach((agent) => agentList.appendChild(agent));
-        }
-
-        // Sort agents by timeframe
-        function sortAgentsByTimeframe() {
-          const agentList = document.getElementById("agent-list");
-          const agents = Array.from(agentItems);
-
-          agents.sort((a, b) => {
-            const timeframeA = a.dataset.agentTimeframe.toLowerCase();
-            const timeframeB = b.dataset.agentTimeframe.toLowerCase();
-            return timeframeA.localeCompare(timeframeB);
-          });
-
-          agents.forEach((agent) => agentList.appendChild(agent));
-        }
-
-        // Event listeners for search and sort
-        searchInput.addEventListener("input", filterAgents);
-        sortSelect.addEventListener("change", filterAgents);
+        // Event listeners for agent card clicks
+        agentCards.forEach((card) => {
+          card.addEv
 
         // Modify the form submit event
         form.addEventListener("submit", function (e) {
@@ -321,29 +336,9 @@
             }
           }
 
-          console.log("Form payload to be sent to process_agents via create_timeframe:",payload);
-
-          // Show the loading GIF when the form is being submitted
-          if (loadingOnSubmit) {
-            loadingOnSubmit.style.display = "block";
-          }
+          console.log("Form payload to be sent to process_agents via create_timeframe:", payload);
 
           form.submit(); // Now submit the form programmatically
-        });
-
-        // Your existing code for handling agent item clicks
-        agentItems.forEach((item) => {
-          item.addEventListener("click", function (e) {
-            // Prevent form from submitting if the form is clicked
-            e.preventDefault();
-
-            // Check the clicked element is not the checkbox itself
-            if (e.target !== this.querySelector('input[type="checkbox"]')) {
-              const checkbox = this.querySelector('input[type="checkbox"]');
-              checkbox.checked = !checkbox.checked;
-              this.classList.toggle("selected", checkbox.checked);
-            }
-          });
         });
       });
     </script>
