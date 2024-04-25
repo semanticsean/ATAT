@@ -1,4 +1,4 @@
-<!-- templates/meeting1.html --> 
+<!-- templates/meeting1.html -->
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -18,15 +18,27 @@
     footer {
       height: 4rem;
     }
-    .agent-item {
+    .agent-card {
       cursor: pointer;
+      background-color: white;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.3s;
     }
-    .agent-item.selected {
+    .agent-card:hover {
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    }
+    .agent-card.selected {
       background-color: #d3e1ff;
-      border: 2px solid #3b82f6;
     }
-    .agent-item:hover {
-      background-color: #e9f0ff;
+    .agent-image {
+      width: 100%;
+      height: 0;
+      padding-bottom: 100%;
+      border-radius: 8px;
+      background-size: cover;
+      background-position: center;
     }
   </style>
 </head>
@@ -34,128 +46,143 @@
 {% include 'header.html' %}
 <main class="flex-grow">
   <div class="container mx-auto px-4 py-8 mt-12">
-    <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg px-4 py-8">
-      <h1 class="text-2xl font-bold mb-2">Make a Meeting</h1>
-      <h2 class="italic">1 credit per question or discussion point per synth.</h2>
-      <form id="meetingForm" action="{{ url_for('meeting_blueprint.create_meeting') }}" method="post">
-          <div class="mb-4">
-            <label for="meeting_name" class="block text-xl font-bold mb-2 mt-4">Meeting Name:</label>
-            <input type="text" id="meeting_name" name="meeting_name" required class="w-full px-3 py-2 text-xl font-bold mb-2 border rounded-lg focus:outline-none" value="Meeting {{ next_meeting_id }}">
+    <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-4xl">
+      <div class="flex flex-col md:flex-row">
+        <div class="w-full p-4 md:p-8">
+          <div class="text-center mb-8">
+            <h1 class="font-bold text-3xl md:text-4xl">Make a Meeting</h1>
+            <h2 class="italic text-xl md:text-2xl mt-2">1 credit per question or discussion point per synth.</h2>
           </div>
-          <div class="mb-8">
-            <h2 class="text-xl font-bold mb-2">Select Synths</h2>
-            <div class="mb-4">
-              <label for="agent_source" class="block text-gray-700 font-bold mb-2">Agent Source:</label>
-              <select id="agent_source" name="agent_source" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
-                <option value="main_agents">Main Agents</option>
-                {% for timeframe in timeframes %}
-                {% if timeframe.agents_data %}
-                  {% set agents = timeframe.agents_data | from_json %}
-                  {% if agents | selectattr('id') | list | length > 0 %}
-                    <option value="timeframe_{{ timeframe.id }}">{{ timeframe.name }}</option>
+          <form id="meetingForm" action="{{ url_for('meeting_blueprint.create_meeting') }}" method="post">
+            <div class="mb-6">
+              <label for="meeting_name" class="block text-xl md:text-2xl font-bold mb-2">Meeting Name:</label>
+              <input type="text" id="meeting_name" name="meeting_name" required class="w-full py-3 px-4 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-base md:text-lg" value="Meeting {{ next_meeting_id }}">
+            </div>
+            <div class="mb-8">
+              <h2 class="text-2xl md:text-3xl font-bold mb-4">Select Synths:</h2>
+              <div class="mb-4">
+                <label for="agent_source" class="block text-base font-bold text-gray-700 mb-2">Agent Source:</label>
+                <select id="agent_source" name="agent_source" class="w-full py-2 px-4 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  <option value="main_agents">Main Agents</option>
+                  {% for timeframe in timeframes %}
+                  {% if timeframe.agents_data %}
+                    {% set agents = timeframe.agents_data | from_json %}
+                    {% if agents | selectattr('id') | list | length > 0 %}
+                      <option value="timeframe_{{ timeframe.id }}">{{ timeframe.name }}</option>
+                    {% endif %}
                   {% endif %}
-                {% endif %}
-                {% endfor %}
-              </select>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="mb-4">
+                <input type="text" id="search" placeholder="Search agents..." class="w-full py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+              </div>
+              <div id="agent-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div id="loading" class="text-center w-full">Loading...</div>
+              </div>
             </div>
-            <div id="agent-list" class="grid grid-cols-1 gap-4">
-              <div id="loading" class="text-center w-full">Loading...</div>
-            </div>
-            <div class="flex justify-between mt-4">
-              <button type="button" id="select-all" class="px-4 py-2 text-sm md:px-6 md:py-3 bg-blue-200 text-white rounded-lg hover:bg-blue-600">Select All</button>
-              <button type="button" id="clear-all" class="px-2 py-1 text-sm md:px-2 md:py-1 bg-red-200 text-white rounded-lg hover:bg-red-600">Clear All</button>
-            </div>
-          </div>
-          <input type="hidden" id="selected_agents" name="selected_agents" value="">
-          <button type="submit" class="px-6 py-3 bg-black text-white rounded-lg hover:bg-green-700">Next Step</button>
-        </form>
+            <input type="hidden" id="selected_agents" name="selected_agents" value="">
+            <button type="submit" class="px-6 py-4 md:px-8 md:py-5 bg-black text-white rounded-lg hover:bg-green-700 w-full text-lg md:text-xl font-bold">Next Step</button>
+          </form>
+        </div>
       </div>
     </div>
-  </main>
-  <div id="footer-push"></div>
-  {% include 'footer.html' %}
-  <script>
-      $(document).ready(function() {
-      var selectedAgents = [];
+  </div>
+</main>
+<div id="footer-push"></div>
+{% include 'footer.html' %}
+<script>
+  $(document).ready(function() {
+    var selectedAgents = [];
 
-      $('#agent_source').change(function() {
-        var source = $(this).val();
-        if (source.startsWith('timeframe_')) {
-          var timeframeId = source.split('_')[1];
-          loadAgents(timeframeId);
-        } else {
-          loadAgents();
-        }
-      });
-
-      function loadAgents(timeframeId) {
-        $.ajax({
-          url: '/get_agents',
-          data: { timeframe_id: timeframeId },
-          success: function(data) {
-            const agentList = $('#agent-list');
-            agentList.empty();
-
-            if (data.agents.length === 0) {
-              agentList.html('<div>No agents found.</div>');
-            } else {
-              data.agents.forEach(agent => {
-                const agentHTML = `<div class="agent-item bg-white shadow-md rounded-lg p-4 flex items-center space-x-4" data-agent-id="${agent.id}">
-                  <img src="data:image/png;base64,${agent.image_data}" alt="${agent.id}" class="w-16 h-16 rounded-full">
-                  <div class="flex-grow">
-                    <h3 class="text-lg font-bold">${agent.id}</h3>
-                    <p>${agent.jobtitle}</p>
-                  </div>
-                </div>`;
-                agentList.append(agentHTML);
-              });
-            }
-
-            $('#loading').hide();
-          },
-          error: function(jqXHR, textStatus, errorThrown) {
-            $('#agent-list').html(`<div>Error loading agents: ${textStatus}</div>`);
-            console.error('Error loading agents:', errorThrown);
-          }
-        });
+    $('#agent_source').change(function() {
+      var source = $(this).val();
+      if (source.startsWith('timeframe_')) {
+        var timeframeId = source.split('_')[1];
+        loadAgents(timeframeId);
+      } else {
+        loadAgents();
       }
+    });
 
-        // Initialize with main agents on document ready
-        $(document).ready(function() {
-          loadAgents();
-        });
-        
+    function loadAgents(timeframeId) {
+      $.ajax({
+        url: '/get_agents',
+        data: { timeframe_id: timeframeId },
+        success: function(data) {
+          const agentList = $('#agent-list');
+          agentList.empty();
 
-      $('#agent-list').on('click', '.agent-item', function() {
-        var agentId = $(this).data('agent-id');
-        var index = selectedAgents.indexOf(agentId);
-        if (index > -1) {
-          selectedAgents.splice(index, 1);
-          $(this).removeClass('selected');
-        } else {
-          selectedAgents.push(agentId);
-          $(this).addClass('selected');
+          if (data.agents.length === 0) {
+            agentList.html('<div>No agents found.</div>');
+          } else {
+            data.agents.forEach(agent => {
+              const agentHTML = `
+                <div class="agent-card" data-agent-id="${agent.id}" data-agent-name="${agent.id}">
+                  <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden" />
+                  <label for="agent-${agent.id}">
+                    <div class="agent-image" style="background-image: url('data:image/png;base64,${agent.image_data}');"></div>
+                    <div class="mt-2 text-center">
+                      <div class="text-lg font-bold">${agent.id}</div>
+                      <div class="text-sm">${agent.jobtitle}</div>
+                    </div>
+                  </label>
+                </div>
+              `;
+              agentList.append(agentHTML);
+            });
+          }
+
+          $('#loading').hide();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          $('#agent-list').html(`<div>Error loading agents: ${textStatus}</div>`);
+          console.error('Error loading agents:', errorThrown);
         }
       });
+    }
 
-      $('#select-all').on('click', function() {
-        selectedAgents = [];
-        $('.agent-item').each(function() {
-          var agentId = $(this).data('agent-id');
-          selectedAgents.push(agentId);
-          $(this).addClass('selected');
-        });
-      });
-
-      $('#clear-all').on('click', function() {
-        selectedAgents = [];
-        $('.agent-item').removeClass('selected');
-      });
-
-      $('#meetingForm').on('submit', function() {
-        $('#selected_agents').val(selectedAgents.join(','));
-      });
+    // Initialize with main agents on document ready
+    $(document).ready(function() {
+      loadAgents();
     });
-  </script>
+
+    $('#agent-list').on('click', '.agent-card', function() {
+      var agentId = $(this).data('agent-id');
+      var index = selectedAgents.indexOf(agentId);
+      if (index > -1) {
+        selectedAgents.splice(index, 1);
+        $(this).removeClass('selected');
+      } else {
+        selectedAgents.push(agentId);
+        $(this).addClass('selected');
+      }
+    });
+
+    $('#meetingForm').on('submit', function() {
+      $('#selected_agents').val(selectedAgents.join(','));
+    });
+
+    // Function to filter agents based on search
+    function filterAgents() {
+      const searchTerm = searchInput.value.toLowerCase();
+
+      agentCards.forEach((card) => {
+        const agentName = card.dataset.agentName.toLowerCase();
+        const matchesSearch = searchTerm === "" || agentName.includes(searchTerm);
+
+        if (matchesSearch) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    }
+
+    // Event listener for search input
+    const searchInput = document.getElementById("search");
+    searchInput.addEventListener("input", filterAgents);
+  });
+</script>
 </body>
 </html>

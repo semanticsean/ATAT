@@ -157,10 +157,7 @@ def home():
     meeting_results = []
 
   timeframes = current_user.timeframes if current_user.is_authenticated else []
-  return render_template('index.html',
-                         agents_content=agents_content,
-                         meeting_results=meeting_results,
-                         timeframes=timeframes)
+  return render_template('index.html', agents_content=agents_content, meeting_results=meeting_results, timeframes=timeframes, timeframe=None)
 
 
 @app.route('/images/<filename>')
