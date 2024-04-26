@@ -162,6 +162,14 @@ def home():
     meeting_results = []
 
   timeframes = current_user.timeframes if current_user.is_authenticated else []
+  
+  # Decode the base64-encoded image data for each timeframe
+  for timeframe in timeframes:
+      if timeframe.image_data:
+          timeframe.decoded_image_data = base64.b64decode(timeframe.image_data)
+      else:
+          timeframe.decoded_image_data = None
+  
   return render_template('index.html',
                          agents_content=agents_content,
                          meeting_results=meeting_results,
@@ -169,6 +177,14 @@ def home():
                          timeframe=None)
 
 
+@app.route('/timeframe_images/<int:timeframe_id>')
+def serve_timeframe_image(timeframe_id):
+    timeframe = Timeframe.query.get(timeframe_id)
+    if timeframe and timeframe.image_data:
+        if current_user.is_authenticated and timeframe.user_id == current_user.id:
+            image_data = timeframe.image_data
+            return Response(base64.b64decode(image_data), mimetype='image/png')
+    abort(404)
 
 
 @app.route('/images/<filename>')
