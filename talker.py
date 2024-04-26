@@ -234,8 +234,16 @@ def text_to_speech():
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     file_path = os.path.join(user_folder, f'response_{timestamp}.mp3')
 
+    agent_id = request.form["agent_id"]
+    agent = get_agent_by_id(agent_id, current_user)
+
+    if agent:
+        voice = agent.voice
+    else:
+        voice = 'echo'  # Default voice if agent not found
+
     with client.audio.speech.with_streaming_response.create(
-        model="tts-1", voice="nova", input=text) as response:
+        model="tts-1", voice=voice, input=text) as response:
       with open(file_path, 'wb') as audio_file:
         for chunk in response.iter_bytes():
           audio_file.write(chunk)
@@ -294,3 +302,21 @@ def update_conversation_name(conversation_id):
         return jsonify({"success": True})
     else:
         return jsonify({"error": "Conversation not found"}), 404
+
+
+def get_agent_by_id(agent_id, user):
+    agent = Agent.query.filter_by(user_id=user.id, id=str(agent_id)).first()
+    if agent:
+        return agent
+    
+    user_agent_data = next((agent for agent in user.agents_data if str(agent.get('id', '')) == str(agent_id)), None)
+    if user_agent_data:
+        return Agent(id=user_agent_data['id'], user_id=user.id, data=user_agent_data, voice=user_agent_data.get('voice', 'echo'))
+    
+    for timeframe in user.timeframes:
+        timeframe_agents_data = json.loads(timeframe.agents_data)
+        timeframe_agent_data = next((agent for agent in timeframe_agents_data if str(agent.get('id', '')) == str(agent_id)), None)
+        if timeframe_agent_data:
+            return Agent(id=timeframe_agent_data['id'], user_id=user.id, data=timeframe_agent_data, voice=timeframe_agent_data.get('voice', 'echo'))
+    
+    return None
