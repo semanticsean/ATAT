@@ -94,95 +94,100 @@ def talker(agent_id):
 @talker_blueprint.route("/transcribe", methods=["POST"])
 @login_required
 def transcribe():
-  if 'audio' not in request.files:
-    return jsonify({"error": "No audio file provided"}), 400
+    if 'audio' not in request.files:
+        return jsonify({"error": "No audio file provided"}), 400
 
-  audio_file = request.files['audio']
-  user_folder = current_user.folder_path
-  os.makedirs(user_folder, exist_ok=True)
-  audio_file_path = os.path.join(user_folder, 'temp_audio.mp3')
-  audio_file.save(audio_file_path)
+    audio_file = request.files['audio']
+    user_folder = current_user.folder_path
+    os.makedirs(user_folder, exist_ok=True)
+    audio_file_path = os.path.join(user_folder, 'temp_audio.mp3')
+    audio_file.save(audio_file_path)
 
-  try:
-    with open(audio_file_path, 'rb') as f:
-      transcription = client.audio.transcriptions.create(model="whisper-1",
-                                                         file=f,
-                                                         language="en")
+    try:
+        with open(audio_file_path, 'rb') as f:
+            transcription = client.audio.transcriptions.create(model="whisper-1",
+                                                               file=f,
+                                                               language="en")
 
-    agent_id = request.form["agent_id"]
-    agent = None
-    agent_data = None
+        agent_id = request.form["agent_id"]
+        agent = None
+        agent_data = None
 
-    # Check if the agent exists in the User's agents_data
-    user_agent_data = next((agent for agent in current_user.agents_data
-                            if str(agent.get('id', '')) == str(agent_id)),
-                           None)
-    if user_agent_data:
-      agent = Agent(id=user_agent_data['id'],
-                    user_id=current_user.id,
-                    data=user_agent_data)
-      agent_data = user_agent_data
+        # Check if the agent exists in the User's agents_data
+        user_agent_data = next((agent for agent in current_user.agents_data if str(agent.get('id', '')) == str(agent_id)), None)
+        if user_agent_data:
+            agent = Agent(id=user_agent_data['id'], user_id=current_user.id, data=user_agent_data)
+            agent_data = user_agent_data
 
-    # Check if the agent exists in the Agent model
-    if not agent:
-      agent = Agent.query.filter_by(user_id=current_user.id,
-                                    id=str(agent_id)).first()
-      if agent:
-        agent_data = agent.data
+        # Check if the agent exists in the Agent model
+        if not agent:
+            agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
+            if agent:
+                agent_data = agent.data
 
-    # Check if the agent exists in any of the user's timeframes
-    if not agent:
-      for timeframe in current_user.timeframes:
-        timeframe_agents_data = json.loads(timeframe.agents_data)
-        timeframe_agent_data = next(
-            (agent for agent in timeframe_agents_data
-             if str(agent.get('id', '')) == str(agent_id)), None)
-        if timeframe_agent_data:
-          agent = Agent(id=timeframe_agent_data['id'],
-                        user_id=current_user.id,
-                        data=timeframe_agent_data)
-          agent_data = timeframe_agent_data
-          break
+        # Check if the agent exists in any of the user's timeframes
+        if not agent:
+            for timeframe in current_user.timeframes:
+                timeframe_agents_data = json.loads(timeframe.agents_data)
+                timeframe_agent_data = next((agent for agent in timeframe_agents_data if str(agent.get('id', '')) == str(agent_id)), None)
+                if timeframe_agent_data:
+                    agent = Agent(id=timeframe_agent_data['id'], user_id=current_user.id, data=timeframe_agent_data)
+                    agent_data = timeframe_agent_data
+                    break
 
-    if not agent or not agent_data:
-      return jsonify({"error": "Agent not found"}), 404
+        if not agent or not agent_data:
+            return jsonify({"error": "Agent not found"}), 404
 
-    response_text = chat_with_model(transcription.text, agent_data)
-    
-    response_data = {"user_text": transcription.text, "ai_text": response_text}
-    
-    conversation_id = request.form.get("conversation_id")
-    conversation_name = request.form.get("conversation_name")
-    
-    if conversation_id:
-        conversation = Conversation.query.get(conversation_id)
-        if conversation.user_id != current_user.id:
-            return jsonify({"error": "Unauthorized"}), 401
-    else:
-        conversation = Conversation(
-            user_id=current_user.id,
-            name=conversation_name or f"Conversation {random.randint(1000, 9999)}",
-            agents=[agent_id],
-            messages=[])
-    
-    conversation.messages.append({"role": "user", "content": transcription.text})
-    db.session.add(conversation)
-    db.session.commit()
-    
-    response_text = chat_with_model(transcription.text, agent_data)
-    conversation.messages.append({"role": "assistant", "content": response_text})
-    db.session.commit()
-    
-    return jsonify(response_data)
+        response_text = chat_with_model(transcription.text, agent_data)
 
-  except Exception as e:
-    logger.error(f"Transcription error: {str(e)}")
-    return jsonify({"error": str(e)}), 500
+        response_data = {"user_text": transcription.text, "ai_text": response_text}
+
+        conversation_id = request.form.get("conversation_id")
+        conversation_name = request.form.get("conversation_name")
+
+        if not conversation_id:
+            conversation = Conversation(user_id=current_user.id,
+                                        name=conversation_name or f"Conversation {random.randint(1000, 9999)}",
+                                        agents=[agent_id],
+                                        messages=[])
+            db.session.add(conversation)
+            db.session.commit()
+            conversation_id = conversation.id
+
+            # Save the new messages to the conversation
+            conversation.messages.append({"role": "user", "content": transcription.text})
+            db.session.commit()
+
+            response_text = chat_with_model(conversation.messages[-5:], agent_data)  # Limit to last 5 messages
+            conversation.messages.append({"role": "assistant", "content": response_text})
+            db.session.commit()
+        else:
+            conversation = Conversation.query.get(conversation_id)
+            if conversation and conversation.user_id == current_user.id:
+                # Save the new messages to the existing conversation
+                conversation.messages.append({"role": "user", "content": transcription.text})
+                db.session.commit()
+
+                response_text = chat_with_model(conversation.messages[-5:], agent_data)  # Limit to last 5 messages
+                conversation.messages.append({"role": "assistant", "content": response_text})
+                db.session.commit()
+            else:
+                return jsonify({"error": "Conversation not found"}), 404
+
+        return jsonify({"conversation_id": conversation_id, "user_text": transcription.text, "ai_text": response_text})
+
+    except Exception as e:
+        logger.error(f"Transcription error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 
-def chat_with_model(user_message, agent_data, max_tokens=250, top_p=0.5, temperature=0.9):
+def chat_with_model(user_message,
+                    agent_data,
+                    max_tokens=250,
+                    top_p=0.5,
+                    temperature=0.9):
   with open("abe/talker.json", "r") as f:
-      prompts = json.load(f)
+    prompts = json.load(f)
 
   gpt_system_prompt = prompts['gpt_system_prompt'].format(
       agent_id=agent_data['id'],
@@ -192,16 +197,24 @@ def chat_with_model(user_message, agent_data, max_tokens=250, top_p=0.5, tempera
       agent_relationships=agent_data.get('relationships', ''))
 
   try:
-      response = client.chat.completions.create(model="gpt-4-turbo",
-                                                messages=[{"role": "system", "content": gpt_system_prompt},
-                                                          {"role": "user", "content": user_message}],
-                                                max_tokens=max_tokens,
-                                                top_p=top_p,
-                                                temperature=temperature)
-      return response.choices[0].message.content
+    response = client.chat.completions.create(model="gpt-4-turbo",
+                                              messages=[{
+                                                  "role":
+                                                  "system",
+                                                  "content":
+                                                  gpt_system_prompt
+                                              }, {
+                                                  "role": "user",
+                                                  "content": user_message
+                                              }],
+                                              max_tokens=max_tokens,
+                                              top_p=top_p,
+                                              temperature=temperature)
+    return response.choices[0].message.content
   except Exception as e:
-      logger.error(f"Chat error: {str(e)}")
-      return "Failed to generate response."
+    logger.error(f"Chat error: {str(e)}")
+    return "Failed to generate response."
+
 
 @talker_blueprint.route('/audio/<path:filename>')
 def serve_audio(filename):
@@ -257,6 +270,9 @@ def truncate_messages(messages, max_chars):
 @talker_blueprint.route('/get_conversation_messages/<conversation_id>')
 @login_required
 def get_conversation_messages(conversation_id):
+    if conversation_id == 'null' or conversation_id is None:
+        return jsonify({'error': 'Invalid conversation ID'}), 400
+
     conversation = Conversation.query.get(conversation_id)
     if conversation and conversation.user_id == current_user.id:
         return jsonify({'messages': conversation.messages})
