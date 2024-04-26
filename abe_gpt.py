@@ -810,7 +810,7 @@ def summarize_process_agents(new_timeframe, payload, current_user):
 
   image_url = dalle_response.data[0].url
   img_data = requests.get(image_url).content
-  new_timeframe.image_data = base64.b64encode(img_data).decode('utf-8')  # Store the encoded image data
+  
 
   thumbnail_size = (200, 200)
   img = Image.open(BytesIO(img_data))
@@ -818,9 +818,17 @@ def summarize_process_agents(new_timeframe, payload, current_user):
   thumbnail_buffer = BytesIO()
   img.save(thumbnail_buffer, format='PNG')
   thumbnail_data = thumbnail_buffer.getvalue()
+  
+  new_timeframe.image_data = base64.b64encode(img_data).decode('utf-8')
   new_timeframe.thumbnail_image_data = base64.b64encode(thumbnail_data).decode('utf-8')
 
-  db.session.commit()  # Commit the changes to the database
+  try:
+    db.session.commit()
+    logging.info(f"Process agents image data and thumbnail image data committed to the database for Timeframe ID: {new_timeframe.id}")
+  except Exception as e:
+    db.session.rollback()
+    logging.error(f"Error occurred while committing image data to the database: {str(e)}")
+  
   logging.info(f"Process agents image data and thumbnail image data committed to the database for Timeframe ID: {new_timeframe.id}")
 
   logging.info(f"Verifying stored data for Timeframe ID: {new_timeframe.id}")
