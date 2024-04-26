@@ -33,9 +33,9 @@
 </head>
 <body class="bg-gray-100">
     <div class="phone-container">
-        <h1 class="text-2xl font-bold mb-4 text-center">{{ agent.id }}</h1>
-        <h2 class="text-xl font-bold mb-2 text-center">{{ agent.data.get('jobtitle', '') }}</h2>
-        <p class="text-center mb-4">{{ agent.data.get('summary', '') }}</p>
+      <h1 class="text-2xl font-bold mb-4 text-center">{{ agent_id }}</h1>
+      <h2 class="text-xl font-bold mb-2 text-center">{{ agent_jobtitle }}</h2>
+      <p class="text-center mb-4">{{ agent_summary }}</p>
         <div id="conversation" class="mb-4 flex flex-col">
             <!-- Conversation will be displayed here -->
         </div>
