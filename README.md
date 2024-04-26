@@ -586,7 +586,7 @@ GROUP BY
 
 --------
 
-timeframe agent summary details
+## timeframe agent summary details
 
   SELECT 
       u.id AS user_id, 
