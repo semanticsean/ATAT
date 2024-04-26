@@ -139,11 +139,12 @@
     <div class="flex-grow">
       <main class="flex-1">
         <div class="container mx-auto px-4 mt-4">
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <div class="bg-white rounded-lg shadow-lg">
             <h2 class="text-3xl font-bold mb-4 mt-4">Welcome</h2>
             <p class="mb-4 text-xl lg:w-2/3 md:w-full">
               Welcome to your suite of tools to manage AI agents. <br />
-              We call them "synths" when they roleplay as synthetic people.
+              We call them "synths" when they roleplay as synthetic people. This
+              is beta software - if you have an issue, try refresing the page.
             </p>
             <div class="flex gap-4">
               <a
@@ -159,7 +160,7 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <div class="bg-white rounded-lg shadow-lg">
             <h2 class="text-2xl font-bold mb-4 tooltip">
               Base Synths<span class="tooltiptext"
                 >AI-generated synthetic agents</span
@@ -236,7 +237,7 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <div class="bg-white rounded-lg shadow-lg">
             <h2 class="text-2xl font-bold mb-4 tooltip">
               Meetings<span class="tooltiptext"
                 >Collaborate with your AI agents</span
@@ -275,7 +276,7 @@
             {% endif %}
           </div>
 
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <div class="bg-white rounded-lg shadow-lg">
             <h2 class="text-2xl font-bold mb-4 tooltip">
               Timeframes<span class="tooltiptext"
                 >Manage your AI agent timelines</span
@@ -292,21 +293,23 @@
                   New Timeframe
                 </div>
               </a>
-              {% for timeframe in timeframes %}
-                {% if timeframe.agents_count > 0 %}
-                  <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
-                     class="grid-item relative bg-center bg-cover"
-                     style="background-image: url('data:image/png;base64,{{ timeframe.image_data }}');">
-                    <div class="absolute inset-0 bg-black bg-opacity-70 flex flex-col justify-end items-center p-4 hover:bg-opacity-100 transition-opacity duration-300">
-                      <div class="text-center w-full">
-                        <span class="agent-title">{{ timeframe.name }}</span>
-                      </div>
-                    </div>
-                  </a>
-                {% endif %}
-              {% endfor %}
 
-              
+              {% for timeframe in timeframes %} {% if timeframe.agents_count > 0
+              %}
+              <a
+                href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
+                class="grid-item relative bg-center bg-cover"
+                style="background-image: url('{{ url_for('serve_timeframe_image', timeframe_id=timeframe.id) }}');"
+              >
+                <div
+                  class="absolute inset-0 bg-black bg-opacity-70 flex flex-col justify-end items-center p-4 hover:bg-opacity-100 transition-opacity duration-300"
+                >
+                  <div class="text-center w-full">
+                    <span class="agent-title">{{ timeframe.name }}</span>
+                  </div>
+                </div>
+              </a>
+              {% endif %} {% endfor %}
             </div>
             {% if not timeframes %}
             <p class="text-gray-600 mt-4">No timeframes yet.</p>
