@@ -1,3 +1,4 @@
+<!--templates/talker.html-->
 <!doctype html>
 <html>
   <head>
@@ -30,26 +31,38 @@
       }
     </style>
   </head>
-  <body class="bg-gray-100">
-    <div class="phone-container">
-      <h1 class="text-2xl font-bold mb-4 text-center">{{ agent_id }}</h1>
-      <h2 class="text-xl font-bold mb-2 text-center">{{ agent_jobtitle }}</h2>
-      <p class="text-center mb-4">{{ agent_summary }}</p>
-      <div id="conversation" class="mb-4 flex flex-col">
-        <!-- Conversation will be displayed here -->
-      </div>
-      <div class="flex justify-center">
-        <button
-          id="record-button"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full"
-        >
-          Tap to Talk
-        </button>
-      </div>
-      <div id="status" class="mt-4 text-center text-gray-600"></div>
-      <audio id="response-audio" style="display: none"></audio>
-    </div>
-    <script>
+      <body class="bg-gray-100">
+        <div class="phone-container">
+          <h1 class="text-2xl font-bold mb-4 text-center">{{ agent_id }}</h1>
+          <h2 class="text-xl font-bold mb-2 text-center">{{ agent_jobtitle }}</h2>
+          <p class="text-center mb-4">{{ agent_summary }}</p>
+          <div id="conversation" class="mb-4 flex flex-col">
+            <!-- Conversation messages will be dynamically added here -->
+          </div>
+          <div class="flex justify-center">
+            <button
+              id="record-button"
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full"
+            >
+              Tap to Talk
+            </button>
+          </div>
+          <div id="status" class="mt-4 text-center text-gray-600"></div>
+          <audio id="response-audio" style="display: none"></audio>
+        </div>
+
+        <div class="conversations mt-8">
+          <h3 class="text-xl font-bold mb-4">Conversations:</h3>
+          {% for conversation in conversations %}
+            <a href="{{ url_for('talker_blueprint.talker', agent_id=agent_id, conversation_id=conversation.id) }}"
+               class="block mb-2 text-blue-500 hover:text-blue-700 conversation-link"
+               data-conversation-id="{{ conversation.id }}">
+              {{ conversation.name }}
+            </a>
+          {% endfor %}
+        </div>
+
+        <script>
       $(document).ready(function () {
         const recordButton = $("#record-button");
         const statusDiv = $("#status");
@@ -91,10 +104,67 @@
           mediaRecorder.stop();
         }
 
+        let currentConversationId = null;
+        let currentConversationName = null;
+
+        // Check if a conversation ID is provided in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const conversationId = urlParams.get('conversation_id');
+
+        if (conversationId) {
+          // Load the selected conversation
+          loadConversation(conversationId);
+        } else {
+          // Create a new conversation
+          createNewConversation();
+        }
+
+        // Event listener for conversation links
+        $('.conversation-link').on('click', function (event) {
+          event.preventDefault();
+          const conversationId = $(this).data('conversation-id');
+          loadConversation(conversationId);
+        });
+
+        function loadConversation(conversationId) {
+          currentConversationId = conversationId;
+          currentConversationName = null;
+
+          // Clear the conversation div
+          conversationDiv.empty();
+
+          // Load the conversation messages from the server
+          $.ajax({
+            url: `/get_conversation_messages/${conversationId}`,
+            type: 'GET',
+            success: function (response) {
+              if (response.messages) {
+                response.messages.forEach(function (message) {
+                  displayConversation(message.content, message.role === 'user' ? 'You' : 'AI');
+                });
+              }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              console.error('Error loading conversation:', textStatus, errorThrown);
+            }
+          });
+        }
+
+        function createNewConversation() {
+          currentConversationId = null;
+          currentConversationName = null;
+
+          // Clear the conversation div
+          conversationDiv.empty();
+        }
+        
+
         function handleDataAvailable(audioBlob) {
           const formData = new FormData();
           formData.append("audio", audioBlob, "audio.wav");
           formData.append("agent_id", "{{ agent_id }}");
+          formData.append('conversation_id', currentConversationId);
+          formData.append('conversation_name', currentConversationName);
 
           $.ajax({
             url: "/transcribe",

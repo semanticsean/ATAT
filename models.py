@@ -1,3 +1,4 @@
+#models.py 
 import os
 import datetime
 import random
@@ -8,11 +9,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous.url_safe import URLSafeSerializer as Serializer
 from flask import current_app
 
+
 def add_monthly_credits():
   users = User.query.all()
   for user in users:
-      user.credits += 10
+    user.credits += 10
   db.session.commit()
+
 
 class User(db.Model, UserMixin):
   id = db.Column(db.Integer, primary_key=True)
@@ -158,3 +161,18 @@ class Meeting(db.Model):
   summary = db.Column(db.Text)
   image_data = db.Column(db.Text)
   thumbnail_image_data = db.Column(db.Text)
+
+
+class Conversation(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+  name = db.Column(db.String(100), nullable=False)
+  agents = db.Column(db.JSON)
+  messages = db.Column(db.JSON)
+  timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+  def __init__(self, user_id, name, agents, messages):
+    self.user_id = user_id
+    self.name = name
+    self.agents = agents
+    self.messages = messages
