@@ -1,4 +1,4 @@
-#models.py 
+#models.py
 import os
 import datetime
 import random
@@ -137,9 +137,9 @@ class Timeframe(db.Model):
   images_data = db.Column(db.Text, default='{}')
   thumbnail_images_data = db.Column(db.Text, default='{}')
   agent_type = db.Column(db.String(20), default='timeframe')
-  summary = db.Column(db.Text)  # Added summary field
-  image_data = db.Column(db.Text)  # Added image_data field
-  thumbnail_image_data = db.Column(db.Text)  # Added thumbnail_image_data field
+  summary = db.Column(db.Text)
+  image_data = db.Column(db.Text)
+  thumbnail_image_data = db.Column(db.Text)
 
   @property
   def agents_count(self):
