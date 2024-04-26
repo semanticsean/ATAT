@@ -153,16 +153,12 @@ def transcribe():
                 if conversation and conversation.user_id == current_user.id:
                     conversation.messages.append({"role": "user", "content": transcription.text})
                     db.session.commit()
-  
-                    response_text = chat_with_model(conversation.messages, agent_data)
-                    conversation.messages.append({"role": "assistant", "content": response_text})
-                    db.session.commit()
                 else:
                     return jsonify({"error": "Conversation not found"}), 404
             except ValueError:
                 return jsonify({"error": "Invalid conversation ID"}), 400
 
-        response_text = chat_with_model(conversation.messages, agent_data)
+        response_text = chat_with_model(conversation.messages, agent_data, transcription.text)
         conversation.messages.append({"role": "assistant", "content": response_text})
         db.session.commit()
 
@@ -173,37 +169,49 @@ def transcribe():
         return jsonify({"error": str(e)}), 500
 
 
-def chat_with_model(conversation_messages, agent_data, max_tokens=250, top_p=0.5, temperature=0.9):
-    with open("abe/talker.json", "r") as f:
-        prompts = json.load(f)
+def chat_with_model(conversation_messages, agent_data, user_message, max_tokens=250, top_p=0.5, temperature=0.9):
+  logger.info(f"Entering chat_with_model for agent {agent_data['id']}")
 
-    gpt_system_prompt = prompts['gpt_system_prompt'].format(
-        agent_id=agent_data['id'],
-        agent_jobtitle=agent_data.get('jobtitle', ''),
-        agent_summary=agent_data.get('summary', ''),
-        agent_persona=agent_data.get('persona', ''),
-        agent_relationships=agent_data.get('relationships', '')
-    )
+  with open("abe/talker.json", "r") as f:
+      prompts = json.load(f)
 
-    messages = [{"role": "system", "content": gpt_system_prompt}]
-    for message in conversation_messages:
-        if message["role"] == "user":
-            messages.append({"role": "user", "content": f"User: {message['content']}"})
-        else:
-            messages.append({"role": "assistant", "content": f"Assistant: {message['content']}"})
+  gpt_system_prompt = prompts['gpt_system_prompt'].format(
+      agent_id=agent_data['id'],
+      agent_jobtitle=agent_data.get('jobtitle', ''),
+      agent_summary=agent_data.get('summary', ''),
+      agent_persona=agent_data.get('persona', ''),
+      agent_relationships=agent_data.get('relationships', '')
+  )
 
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4-turbo",
-            messages=messages,
-            max_tokens=max_tokens,
-            top_p=top_p,
-            temperature=temperature
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        logger.error(f"Chat error: {str(e)}")
-        return "Failed to generate response."
+  messages = [{"role": "system", "content": gpt_system_prompt}]
+
+  # Add the transcribed user message as the first part of the user prompt
+  messages.append({"role": "user", "content": f"User's transcribed message: {user_message}\n\nConversation context:\n{conversation_messages}"})
+
+  logger.info(f"Sending {len(messages)} messages to the model")
+  logger.debug(f"System prompt: {gpt_system_prompt}")
+  logger.debug(f"User prompt: {messages[-1]['content']}")
+
+  try:
+      response = client.chat.completions.create(
+          model="gpt-4-turbo",
+          messages=messages,
+          max_tokens=max_tokens,
+          top_p=top_p,
+          temperature=temperature
+      )
+
+      logger.info("Model response received successfully")
+      logger.debug(f"Model response: {response}")
+
+      return response.choices[0].message.content
+
+  except Exception as e:
+      logger.exception(f"Error in chat_with_model: {str(e)}")
+      return "Failed to generate response."
+
+  finally:
+      logger.info("Exiting chat_with_model")
 
 
 @talker_blueprint.route('/audio/<path:filename>')
