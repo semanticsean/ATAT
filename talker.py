@@ -68,7 +68,8 @@ def talker(agent_id):
                                agent_id=agent.id,
                                agent_jobtitle=agent.data.get('jobtitle', ''),
                                agent_summary=agent.data.get('summary', ''),
-                               agent_image_data=agent_image_data)
+                               agent_image_data=agent_image_data,
+                               agent_type='agent')  # Add this line
 
     except Exception as e:
         logger.exception(f"Error in talker route: {str(e)}")
@@ -78,70 +79,73 @@ def talker(agent_id):
 @talker_blueprint.route("/transcribe", methods=["POST"])
 @login_required
 def transcribe():
-  if 'audio' not in request.files:
-    logger.error("No audio file provided")
-    return jsonify({"error": "No audio file provided"}), 400
+    if 'audio' not in request.files:
+        logger.error("No audio file provided")
+        return jsonify({"error": "No audio file provided"}), 400
 
-  audio_file = request.files['audio']
-  user_folder = current_user.folder_path
-  os.makedirs(user_folder, exist_ok=True)
-  audio_file_path = os.path.join(user_folder, 'temp_audio.mp3')
-  audio_file.save(audio_file_path)
-  logger.info(f"Audio file saved at: {audio_file_path}")
+    audio_file = request.files['audio']
+    user_folder = current_user.folder_path
+    os.makedirs(user_folder, exist_ok=True)
+    audio_file_path = os.path.join(user_folder, 'temp_audio.mp3')
+    audio_file.save(audio_file_path)
+    logger.info(f"Audio file saved at: {audio_file_path}")
 
-  try:
-    with open(audio_file_path, 'rb') as f:
-      transcription = client.audio.transcriptions.create(model="whisper-1",
-                                                         file=f,
-                                                         language="en")
-    logger.info("Transcription successful")
-    logger.info(f"Transcription result: {transcription.text}")
+    try:
+        with open(audio_file_path, 'rb') as f:
+            transcription = client.audio.transcriptions.create(model="whisper-1",
+                                                               file=f,
+                                                               language="en")
+        logger.info("Transcription successful")
+        logger.info(f"Transcription result: {transcription.text}")
 
-    agent_id = request.form["agent_id"]
-    agent_type = request.form["agent_type"]
-    agent = None
+        agent_id = request.form["agent_id"]
+        agent = None
 
-    if agent_type == "agent":
-        agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
-    elif agent_type == "user":
-        agent = current_user
-    elif agent_type == "timeframe":
-        timeframe = Timeframe.query.filter_by(user_id=current_user.id, id=int(agent_id)).first()
-        if timeframe:
-            agent = Agent(id=timeframe.id, user_id=current_user.id, data=json.loads(timeframe.agents_data))
+        # Check if the agent exists in the User's agents_data
+        user_agent_data = next((agent for agent in current_user.agents_data if str(agent.get('id', '')) == str(agent_id)), None)
+        if user_agent_data:
+            agent = Agent(id=user_agent_data['id'], user_id=current_user.id, data=user_agent_data)
+            logger.debug(f"Agent found in user's agents_data: {agent}")
 
-    if not agent:
-        logger.error(f"Agent not found for ID: {agent_id}")
-        return jsonify({"error": "Agent not found"}), 404
+        # Check if the agent exists in the Agent model
+        if not agent:
+            agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
+            if agent:
+                logger.debug(f"Agent found in Agent model: {agent}")
 
-    # Check if the agent exists in any of the user's timeframes
-    if not agent:
-      for timeframe in current_user.timeframes:
-        timeframe_agents_data = json.loads(timeframe.agents_data)
-        timeframe_agent_data = next(
-            (agent for agent in timeframe_agents_data
-             if str(agent.get('id', '')) == str(agent_id)), None)
-        if timeframe_agent_data:
-          agent = Agent(id=timeframe_agent_data['id'],
-                        user_id=current_user.id,
-                        data=timeframe_agent_data)
-          break
+        # Check if the agent exists in any of the user's timeframes
+        if not agent:
+            for timeframe in current_user.timeframes:
+                timeframe_agents_data = json.loads(timeframe.agents_data)
+                timeframe_agent_data = next((agent for agent in timeframe_agents_data if str(agent.get('id', '')) == str(agent_id)), None)
+                if timeframe_agent_data:
+                    agent = Agent(id=timeframe_agent_data['id'], user_id=current_user.id, data=timeframe_agent_data)
+                    logger.debug(f"Agent found in timeframe: {timeframe}")
+                    break
 
-    if not agent:
-      logger.error(f"Agent not found for ID: {agent_id}")
-      return jsonify({"error": "Agent not found"}), 404
+        if not agent:
+            logger.error(f"Agent not found for ID: {agent_id}")
+            return jsonify({"error": "Agent not found"}), 404
 
-    response_text = chat_with_model(transcription.text, agent)
-    logger.info(f"Generated response: {response_text}")
+        response_text = chat_with_model(transcription.text, agent)
+        logger.info(f"Generated response: {response_text}")
 
-    response_data = {"user_text": transcription.text, "ai_text": response_text}
-    logger.info(f"Response data: {response_data}")  # Add this line
+        response_data = {"user_text": transcription.text, "ai_text": response_text}
+        logger.info(f"Response data: {response_data}")
 
-    return jsonify(response_data)
+        # Generate audio response
+        audio_file_path = text_to_speech_sync(response_text, agent)
+        if audio_file_path:
+            response_data["audio_file_path"] = audio_file_path
+        else:
+            logger.warning("Failed to generate audio response")
+            response_data["audio_file_path"] = None  # Add this line
+  
+        return jsonify(response_data)
 
-  except Exception as e:
-    logger.error(f"Transcription error: {str(e)}")
-    return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        logger.error(f"Transcription error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 
 def chat_with_model(user_message,
@@ -189,46 +193,20 @@ def serve_audio(filename):
     abort(404)
 
 
-@talker_blueprint.route("/text-to-speech", methods=["POST"])
-@login_required
-def text_to_speech():
-  text = request.form["text"]
-  user_folder = current_user.folder_path
-  os.makedirs(user_folder, exist_ok=True)
-  timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-  audio_file_path = os.path.join(user_folder, f'response_{timestamp}.mp3')
-
-  with open("abe/talker.json", "r") as f:
-    prompts = json.load(f)
-
-  agent_id = request.form["agent_id"]
-  agent_type = request.form["agent_type"]
-  agent = None
-
-  if agent_type == "agent":
-      agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
-  elif agent_type == "user":
-      agent = current_user
-  elif agent_type == "timeframe":
-      timeframe = Timeframe.query.filter_by(user_id=current_user.id, id=int(agent_id)).first()
-      if timeframe:
-          agent = Agent(id=timeframe.id, user_id=current_user.id, data=json.loads(timeframe.agents_data))
-
-  if not agent:
-      logger.error(f"Agent not found for ID: {agent_id}")
-      return jsonify({"error": "Agent not found"}), 404
-
-  tts_system_prompt = prompts['tts_system_prompt'].format(agent_id=agent.id)
-
+def text_to_speech_sync(text, agent):
   try:
-    with client.audio.speech.with_streaming_response.create(
-        model="tts-1", voice="nova", input=text,
-        prompt=tts_system_prompt) as response:
-      with open(audio_file_path, 'wb') as audio_file:
-        for chunk in response.iter_bytes():
-          audio_file.write(chunk)
-    logger.info(f"Generated audio file saved at: {audio_file_path}")
-    return jsonify({"audio_file_path": audio_file_path})
+      user_folder = current_user.folder_path
+      os.makedirs(user_folder, exist_ok=True)
+      timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+      audio_file_path = os.path.join(user_folder, f'response_{timestamp}.mp3')
+
+      with client.audio.speech.with_streaming_response.create(
+          model="tts-1", voice="nova", input=text) as response:
+          with open(audio_file_path, 'wb') as audio_file:
+              for chunk in response.iter_bytes():
+                  audio_file.write(chunk)
+      logger.info(f"Generated audio file saved at: {audio_file_path}")
+      return audio_file_path
   except Exception as e:
-    logger.error(f"Text-to-speech error: {str(e)}")
-    return jsonify({"error": str(e)}), 500
+      logger.error(f"Text-to-speech error: {str(e)}")
+      return None
