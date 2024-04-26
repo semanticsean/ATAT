@@ -169,7 +169,7 @@ def transcribe():
         return jsonify({"error": str(e)}), 500
 
 
-def chat_with_model(conversation_messages, agent_data, user_message, max_tokens=250, top_p=0.5, temperature=0.9):
+def chat_with_model(conversation_messages, agent_data, user_message, max_tokens=2000, top_p=0.5, temperature=0.9):
   logger.info(f"Entering chat_with_model for agent {agent_data['id']}")
 
   with open("abe/talker.json", "r") as f:
