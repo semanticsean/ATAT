@@ -10,7 +10,7 @@ from abe import login_manager
 from talker import talker_blueprint
 import email_client
 
-from PIL import Image
+from PIL import Image 
 from io import BytesIO
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -462,7 +462,33 @@ def get_prev_next_agent_ids(agents, agent):
                              1].id if agent_index < len(agents) - 1 else None
   return prev_agent_id, next_agent_id
 
+@dashboard_blueprint.route('/timeframe_images/<int:timeframe_id>')
+def serve_timeframe_image(timeframe_id):
+    timeframe = Timeframe.query.get(timeframe_id)
+    if timeframe and timeframe.image_data:
+        if current_user.is_authenticated and timeframe.user_id == current_user.id:
+            image_data = base64.b64decode(timeframe.image_data)
+            return Response(image_data, mimetype='image/png')
+    abort(404)
 
+
+@dashboard_blueprint.route('/timeframes')
+@login_required
+def timeframes():
+    timeframes = current_user.timeframes
+
+    for timeframe in timeframes:
+        parsed_agents_data = json.loads(timeframe.agents_data)
+        for agent in parsed_agents_data:
+            if 'photo_path' in agent:
+                photo_filename = agent['photo_path'].split('/')[-1]
+                agent['image_data'] = json.loads(timeframe.images_data).get(photo_filename, '')
+            else:
+                agent['image_data'] = ''  # Assign a default value if 'photo_path' is not present
+
+        timeframe.parsed_agents_data = parsed_agents_data
+
+    return render_template('timeframes.html', timeframes=timeframes)
 @profile_blueprint.route('/profile')
 @login_required
 def profile():
