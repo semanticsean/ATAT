@@ -45,7 +45,7 @@
     <div class="message-container relative">
       <div class="message-bubble outgoing mb-4 text-lg">
         How did this meeting go? <br />
-        <p class="font-bold">{{ meeting.name }}</p>
+        <p class="font-bold">&nbsp;&nbsp;&nbsp;&nbsp;{{ meeting.name }}</p>
       </div>
       {% if meeting.image_data %}
       <img src="{{ url_for('meeting_blueprint.serve_meeting_image', meeting_id=meeting.id) }}" alt="Meeting Image" class="w-full h-auto mb-4 rounded-lg shadow-md" onload="imageLoaded()">
