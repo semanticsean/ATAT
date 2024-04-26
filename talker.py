@@ -135,10 +135,6 @@ def transcribe():
         if not agent or not agent_data:
             return jsonify({"error": "Agent not found"}), 404
 
-        response_text = chat_with_model(transcription.text, agent_data)
-
-        response_data = {"user_text": transcription.text, "ai_text": response_text}
-
         conversation_id = request.form.get("conversation_id")
         conversation_name = request.form.get("conversation_name")
 
@@ -157,14 +153,18 @@ def transcribe():
                 if conversation and conversation.user_id == current_user.id:
                     conversation.messages.append({"role": "user", "content": transcription.text})
                     db.session.commit()
-
-                    response_text = chat_with_model(conversation.messages[-5:], agent_data)  # Limit to last 5 messages
+  
+                    response_text = chat_with_model(conversation.messages, agent_data)
                     conversation.messages.append({"role": "assistant", "content": response_text})
                     db.session.commit()
                 else:
                     return jsonify({"error": "Conversation not found"}), 404
             except ValueError:
                 return jsonify({"error": "Invalid conversation ID"}), 400
+
+        response_text = chat_with_model(conversation.messages, agent_data)
+        conversation.messages.append({"role": "assistant", "content": response_text})
+        db.session.commit()
 
         return jsonify({"conversation_id": conversation_id, "conversation_name": conversation.name, "user_text": transcription.text, "ai_text": response_text})
 
@@ -173,39 +173,37 @@ def transcribe():
         return jsonify({"error": str(e)}), 500
 
 
-def chat_with_model(user_message,
-                    agent_data,
-                    max_tokens=250,
-                    top_p=0.5,
-                    temperature=0.9):
-  with open("abe/talker.json", "r") as f:
-    prompts = json.load(f)
+def chat_with_model(conversation_messages, agent_data, max_tokens=250, top_p=0.5, temperature=0.9):
+    with open("abe/talker.json", "r") as f:
+        prompts = json.load(f)
 
-  gpt_system_prompt = prompts['gpt_system_prompt'].format(
-      agent_id=agent_data['id'],
-      agent_jobtitle=agent_data.get('jobtitle', ''),
-      agent_summary=agent_data.get('summary', ''),
-      agent_persona=agent_data.get('persona', ''),
-      agent_relationships=agent_data.get('relationships', ''))
+    gpt_system_prompt = prompts['gpt_system_prompt'].format(
+        agent_id=agent_data['id'],
+        agent_jobtitle=agent_data.get('jobtitle', ''),
+        agent_summary=agent_data.get('summary', ''),
+        agent_persona=agent_data.get('persona', ''),
+        agent_relationships=agent_data.get('relationships', '')
+    )
 
-  try:
-    response = client.chat.completions.create(model="gpt-4-turbo",
-                                              messages=[{
-                                                  "role":
-                                                  "system",
-                                                  "content":
-                                                  gpt_system_prompt
-                                              }, {
-                                                  "role": "user",
-                                                  "content": user_message
-                                              }],
-                                              max_tokens=max_tokens,
-                                              top_p=top_p,
-                                              temperature=temperature)
-    return response.choices[0].message.content
-  except Exception as e:
-    logger.error(f"Chat error: {str(e)}")
-    return "Failed to generate response."
+    messages = [{"role": "system", "content": gpt_system_prompt}]
+    for message in conversation_messages:
+        if message["role"] == "user":
+            messages.append({"role": "user", "content": f"User: {message['content']}"})
+        else:
+            messages.append({"role": "assistant", "content": f"Assistant: {message['content']}"})
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4-turbo",
+            messages=messages,
+            max_tokens=max_tokens,
+            top_p=top_p,
+            temperature=temperature
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        logger.error(f"Chat error: {str(e)}")
+        return "Failed to generate response."
 
 
 @talker_blueprint.route('/audio/<path:filename>')
@@ -275,3 +273,16 @@ def get_conversation_messages(conversation_id):
             return jsonify({'error': 'Conversation not found'}), 404
     except ValueError:
         return jsonify({'error': 'Invalid conversation ID'}), 400
+
+
+@talker_blueprint.route('/update_conversation_name/<conversation_id>', methods=["POST"])
+@login_required
+def update_conversation_name(conversation_id):
+    new_name = request.form.get("name")
+    conversation = Conversation.query.get(conversation_id)
+    if conversation and conversation.user_id == current_user.id:
+        conversation.name = new_name
+        db.session.commit()
+        return jsonify({"success": True})
+    else:
+        return jsonify({"error": "Conversation not found"}), 404
