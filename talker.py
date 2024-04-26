@@ -21,39 +21,57 @@ logger.addHandler(handler)
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-@talker_blueprint.route("/talker/<agent_type>/<agent_id>")
+@talker_blueprint.route("/talker/<agent_id>")
 @login_required
-def talker(agent_type, agent_id):
+def talker(agent_id):
     agent = None
     agent_image_data = None
 
     try:
-        if agent_type == "agent":
-            agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
-        elif agent_type == "user":
-            agent = current_user
-        elif agent_type == "timeframe":
-            timeframe = Timeframe.query.filter_by(user_id=current_user.id, id=int(agent_id)).first()
-            if timeframe:
-                agent = Agent(id=timeframe.id, user_id=current_user.id, data=json.loads(timeframe.agents_data))
-
-        if agent:
+        # Check if the agent exists in the User's agents_data
+        user_agent_data = next((agent for agent in current_user.agents_data if str(agent.get('id', '')) == str(agent_id)), None)
+        if user_agent_data:
+            agent = Agent(id=user_agent_data['id'], user_id=current_user.id, data=user_agent_data)
             photo_path = agent.data.get('photo_path', '')
             photo_filename = photo_path.split('/')[-1]
-            if agent_type == "user":
+            agent_image_data = current_user.images_data.get(photo_filename, '')
+            logger.debug(f"Agent found in user's agents_data: {agent}")
+
+        # Check if the agent exists in the Agent model
+        if not agent:
+            agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
+            if agent:
+                photo_path = agent.data.get('photo_path', '')
+                photo_filename = photo_path.split('/')[-1]
                 agent_image_data = current_user.images_data.get(photo_filename, '')
-            elif agent_type == "timeframe":
-                agent_image_data = json.loads(timeframe.images_data).get(photo_filename, '')
-            else:
-                agent_image_data = current_user.images_data.get(photo_filename, '')
+                logger.debug(f"Agent found in Agent model: {agent}")
+
+        # Check if the agent exists in any of the user's timeframes
+        if not agent:
+            for timeframe in current_user.timeframes:
+                timeframe_agents_data = json.loads(timeframe.agents_data)
+                timeframe_agent_data = next((agent for agent in timeframe_agents_data if str(agent.get('id', '')) == str(agent_id)), None)
+                if timeframe_agent_data:
+                    agent = Agent(id=timeframe_agent_data['id'], user_id=current_user.id, data=timeframe_agent_data)
+                    photo_path = agent.data.get('photo_path', '')
+                    photo_filename = photo_path.split('/')[-1]
+                    agent_image_data = json.loads(timeframe.images_data).get(photo_filename, '')
+                    logger.debug(f"Agent found in timeframe: {timeframe}")
+                    break
 
         if not agent:
+            logger.warning(f"Agent not found for ID: {agent_id}")
             return "Agent not found", 404
 
-        return render_template("talker.html", agent=agent, agent_image_data=agent_image_data, agent_id=agent_id, agent_type=agent_type)
+        logger.info(f"Rendering talker.html for agent: {agent}")
+        return render_template("talker.html",
+                               agent_id=agent.id,
+                               agent_jobtitle=agent.data.get('jobtitle', ''),
+                               agent_summary=agent.data.get('summary', ''),
+                               agent_image_data=agent_image_data)
 
     except Exception as e:
-        logger.error(f"Error in talker route: {str(e)}")
+        logger.exception(f"Error in talker route: {str(e)}")
         return "An error occurred", 500
 
 

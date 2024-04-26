@@ -491,19 +491,27 @@ def profile():
             flash('Invalid timeframe.', 'error')
             return redirect(url_for('dashboard_blueprint.dashboard'))
     else:
-        agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
+        agent = Agent.query.filter(
+            (Agent.user_id == current_user.id) &
+            ((Agent.id == str(agent_id)) | (Agent.id == agent_id.replace('_', '.')))
+        ).first()
+
         if not agent:
-            agent_data = next((agent for agent in current_user.agents_data if str(agent.get('id', '')) == str(agent_id)), None)
+            agent_data = next(
+                (agent for agent in current_user.agents_data
+                 if str(agent.get('id', '')) in [str(agent_id), agent_id.replace('_', '.')]),
+                None
+            )
             if agent_data:
                 agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
                 agent.agent_type = 'agent'
                 photo_filename = agent.data.get('photo_path', '').split('/')[-1]
                 agent_image_data = current_user.images_data.get(photo_filename, '')
             else:
-                agent.agent_type = agent.data.get('agent_type', 'agent')
                 flash('Agent not found.', 'error')
                 return redirect(url_for('dashboard_blueprint.dashboard'))
         else:
+            agent.agent_type = agent.data.get('agent_type', 'agent')
             photo_filename = agent.data.get('photo_path', '').split('/')[-1]
             agent_image_data = current_user.images_data.get(photo_filename, '')
             if not agent_image_data:
@@ -518,7 +526,9 @@ def profile():
 
         return render_template('profile.html', agent=agent, agent_image_data=agent_image_data, main_agent=main_agent,
                                timeframe_agents=timeframe_agents, timeframe_id=timeframe_id, prev_agent_id=prev_agent_id,
-                               next_agent_id=next_agent_id, talk_to_agent_url=url_for('talker_blueprint.talker', agent_type=agent.agent_type, agent_id=agent_id))
+                               next_agent_id=next_agent_id, talk_to_agent_url=url_for('talker_blueprint.talker',
+                                                                                       agent_type=agent.agent_type,
+                                                                                       agent_id=agent.id))
     else:
         flash('Agent not found.', 'error')
         return redirect(url_for('dashboard_blueprint.dashboard'))
