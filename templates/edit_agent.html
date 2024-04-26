@@ -102,6 +102,14 @@
             <label for="relationships" class="block text-gray-700 text-sm font-bold mb-2">Relationships:</label>
             <textarea id="relationships" name="relationships" rows="6" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.relationships | tojson }}</textarea>
         </div>
+        <div class="mb-4">
+            <label for="voice" class="block text-gray-700 text-sm font-bold mb-2">Voice:</label>
+            <select id="voice" name="voice" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                {% for voice in voices %}
+                <option value="{{ voice }}" {% if agent.voice == voice %}selected{% endif %}>{{ voice }}</option>
+                {% endfor %}
+            </select>
+        </div>
         <div class="flex justify-between items-center">
             <div>
                 <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Save Changes</button>

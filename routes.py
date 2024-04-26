@@ -936,10 +936,12 @@ def edit_agent(agent_id):
     agent['keywords'] = request.form.get('keywords').split(',')
     agent['image_prompt'] = request.form.get('image_prompt')
     agent['relationships'] = get_relationships(agent)
+    agent['voice'] = request.form.get('voice', 'echo')
     db.session.commit()
     return redirect(url_for('profile_blueprint.profile', agent_id=agent_id))
 
-  return render_template('edit_agent.html', agent=agent)
+  voices = ['echo', 'alloy', 'fable', 'onyx', 'nova', 'shimmer']
+  return render_template('edit_agent.html', agent=agent, voices=voices)
 
 
 @profile_blueprint.route('/delete_agent/<agent_id>', methods=['POST'])
