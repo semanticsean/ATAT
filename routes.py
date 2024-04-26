@@ -926,22 +926,32 @@ def create_new_agent():
 @profile_blueprint.route('/edit_agent/<agent_id>', methods=['GET', 'POST'])
 @login_required
 def edit_agent(agent_id):
-  agents_data = current_user.agents_data or []
-  agent = get_agent_by_id(agents_data, agent_id)
+    agent = Agent.query.filter(
+        (Agent.user_id == current_user.id) &
+        ((Agent.id == str(agent_id)) | (Agent.id == agent_id.replace('_', '.')))
+    ).first()
 
-  if request.method == 'POST':
-    # Update the agent data based on the form submission
-    agent['persona'] = request.form.get('persona')
-    agent['summary'] = request.form.get('summary')
-    agent['keywords'] = request.form.get('keywords').split(',')
-    agent['image_prompt'] = request.form.get('image_prompt')
-    agent['relationships'] = get_relationships(agent)
-    agent['voice'] = request.form.get('voice', 'echo')
-    db.session.commit()
-    return redirect(url_for('profile_blueprint.profile', agent_id=agent_id))
+    if not agent:
+        agents_data = current_user.agents_data or []
+        agent = get_agent_by_id(agents_data, agent_id)
 
-  voices = ['echo', 'alloy', 'fable', 'onyx', 'nova', 'shimmer']
-  return render_template('edit_agent.html', agent=agent, voices=voices)
+    if not agent:
+        flash('Agent not found.', 'error')
+        return redirect(url_for('dashboard_blueprint.dashboard'))
+
+    if request.method == 'POST':
+        # Update the agent data based on the form submission
+        agent.data['persona'] = request.form.get('persona')
+        agent.data['summary'] = request.form.get('summary')
+        agent.data['keywords'] = request.form.get('keywords').split(',')
+        agent.data['image_prompt'] = request.form.get('image_prompt')
+        agent.data['relationships'] = get_relationships(agent.data)
+        agent.voice = request.form.get('voice', 'echo')
+        db.session.commit()
+        return redirect(url_for('profile_blueprint.profile', agent_id=agent_id))
+
+    voices = ['echo', 'alloy', 'fable', 'onyx', 'nova', 'shimmer']
+    return render_template('edit_agent.html', agent=agent, voices=voices)
 
 
 @profile_blueprint.route('/delete_agent/<agent_id>', methods=['POST'])
