@@ -10,9 +10,7 @@ import json
 import datetime
 import random
 
-talker_blueprint = Blueprint('talker_blueprint',
-                             __name__,
-                             template_folder='templates')
+talker_blueprint = Blueprint('talker_blueprint', __name__, template_folder='templates')
 
 handler = RotatingFileHandler('logs/talker.log', maxBytes=10000, backupCount=3)
 logger = logging.getLogger(__name__)
@@ -20,7 +18,6 @@ logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 
 @talker_blueprint.route("/talker/<agent_id>")
 @login_required
@@ -145,36 +142,31 @@ def transcribe():
         conversation_id = request.form.get("conversation_id")
         conversation_name = request.form.get("conversation_name")
 
-        if not conversation_id:
+        if not conversation_id or conversation_id == 'null':
             conversation = Conversation(user_id=current_user.id,
-                                        name=conversation_name or f"Conversation {random.randint(1000, 9999)}",
+                                        name=conversation_name,
                                         agents=[agent_id],
                                         messages=[])
             db.session.add(conversation)
             db.session.commit()
             conversation_id = conversation.id
-
-            # Save the new messages to the conversation
-            conversation.messages.append({"role": "user", "content": transcription.text})
-            db.session.commit()
-
-            response_text = chat_with_model(conversation.messages[-5:], agent_data)  # Limit to last 5 messages
-            conversation.messages.append({"role": "assistant", "content": response_text})
-            db.session.commit()
         else:
-            conversation = Conversation.query.get(conversation_id)
-            if conversation and conversation.user_id == current_user.id:
-                # Save the new messages to the existing conversation
-                conversation.messages.append({"role": "user", "content": transcription.text})
-                db.session.commit()
+            try:
+                conversation_id = int(conversation_id)
+                conversation = Conversation.query.get(conversation_id)
+                if conversation and conversation.user_id == current_user.id:
+                    conversation.messages.append({"role": "user", "content": transcription.text})
+                    db.session.commit()
 
-                response_text = chat_with_model(conversation.messages[-5:], agent_data)  # Limit to last 5 messages
-                conversation.messages.append({"role": "assistant", "content": response_text})
-                db.session.commit()
-            else:
-                return jsonify({"error": "Conversation not found"}), 404
+                    response_text = chat_with_model(conversation.messages[-5:], agent_data)  # Limit to last 5 messages
+                    conversation.messages.append({"role": "assistant", "content": response_text})
+                    db.session.commit()
+                else:
+                    return jsonify({"error": "Conversation not found"}), 404
+            except ValueError:
+                return jsonify({"error": "Invalid conversation ID"}), 400
 
-        return jsonify({"conversation_id": conversation_id, "user_text": transcription.text, "ai_text": response_text})
+        return jsonify({"conversation_id": conversation_id, "conversation_name": conversation.name, "user_text": transcription.text, "ai_text": response_text})
 
     except Exception as e:
         logger.error(f"Transcription error: {str(e)}")
@@ -267,14 +259,19 @@ def truncate_messages(messages, max_chars):
   return truncated_messages
 
 
+
 @talker_blueprint.route('/get_conversation_messages/<conversation_id>')
 @login_required
 def get_conversation_messages(conversation_id):
-    if conversation_id == 'null' or conversation_id is None:
+    try:
+        # Convert conversation_id to int if not 'null', else handle the error or use a default.
+        if conversation_id.lower() == 'null':
+            return jsonify({'error': 'Invalid conversation ID'}), 400
+        conversation_id = int(conversation_id)  # This will raise ValueError if conversion fails
+        conversation = Conversation.query.get(conversation_id)
+        if conversation and conversation.user_id == current_user.id:
+            return jsonify({'messages': conversation.messages, 'name': conversation.name})
+        else:
+            return jsonify({'error': 'Conversation not found'}), 404
+    except ValueError:
         return jsonify({'error': 'Invalid conversation ID'}), 400
-
-    conversation = Conversation.query.get(conversation_id)
-    if conversation and conversation.user_id == current_user.id:
-        return jsonify({'messages': conversation.messages})
-    else:
-        return jsonify({'error': 'Conversation not found'}), 404
