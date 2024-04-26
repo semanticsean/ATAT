@@ -1,355 +1,402 @@
+<!--templates/talker.html-->
 <!doctype html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Semantic Life - AI Agent Dashboard</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css"
-    />
+    <title>Semantic Life - Talker</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      html {
-        height: 100%;
-        margin: 0;
+      :root {
+        --header-footer-height: 4rem;
       }
-      body {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
-      main {
-        flex: 1;
-      }
-      .flex-grow {
-        flex: 1;
-      }
-      #footer-push {
-        height: 4rem;
-      }
-      footer {
-        height: 4rem;
-      }
-      .tooltip {
-        position: relative;
-        display: inline-block;
-      }
-      .tooltip .tooltiptext {
-        visibility: hidden;
-        background-color: black;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 5px;
-        position: absolute;
-        z-index: 1;
-        bottom: 125%;
-        left: 50%;
-        transform: translateX(-50%);
-        opacity: 0;
-        transition: opacity 0.3s;
-      }
-      .tooltip:hover .tooltiptext {
-        visibility: visible;
-        opacity: 1;
-      }
-      .grid-container {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-      }
-      @media (max-width: 768px) {
-        .grid-container {
-          grid-template-columns: 1fr;
-        }
-      }
-      .grid-item {
-        position: relative;
-        overflow: hidden;
-        background-size: cover;
-        background-position: center;
-        padding: 10rem;
-        border-radius: 0.5rem;
-      }
-      .grid-item::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-      }
-      .grid-item-content {
-        position: relative;
-        z-index: 1;
-        color: white;
-      }
-      .grid-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 0.5rem;
-      }
-      .new-button {
-        background-color: #007bff;
-        color: white;
-      }
-      .dashboard-button {
-        background-color: #6c757d;
-        color: white;
-      }
-    </style>
-  </head>
+      .content-container {
+    min-height: calc(100vh - var(--header-footer-height));
+    padding-bottom: 4rem;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+  }
+
+  #content {
+    min-height: 100%;
+    margin-bottom: -4rem;
+  }
+
+  #footer-push {
+    height: 12rem;
+  }
+
+  footer {
+    height: 4rem;
+  }
+
+  .chat-container {
+    display: flex;
+    height: 100%;
+  }
+
+  .conversation-list {
+    width: 300px;
+    background-color: #f2f2f2;
+    padding: 20px;
+    overflow-y: auto;
+    transition: transform 0.3s;
+  }
+
+  @media (max-width: 768px) {
+    .conversation-list {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      height: 100%;
+      z-index: 100;
+      transform: translateX(0);
+    }
+
+    .conversation-list.open {
+      transform: translateX(300px);
+    }
+  }
+
+  .conversation-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .conversation-item:hover {
+    background-color: #e6e6e6;
+  }
+
+  .chat-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 50%;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 768px) {
+    .chat-box {
+      max-width: 100%;
+    }
+  }
+
+  .message-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+  }
+
+  .message-bubble {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+  }
+
+  .user-message {
+    background-color: #007bff;
+    color: white;
+    align-self: flex-end;
+  }
+
+  .ai-message {
+    background-color: #e6e6e6;
+    color: black;
+    align-self: flex-start;
+  }
+
+  .input-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .input-container button {
+    margin-left: 10px;
+  }
+
+  .loading {
+    display: none;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .loading img {
+    width: 30px;
+    height: 30px;
+  }
+
+  @media (max-width: 768px) {
+    .chat-container {
+      flex-direction: column;
+    }
+
+    .conversation-list {
+      order: 2;
+      width: 100%;
+      position: static;
+      transform: none;
+    }
+  }
+</style>
+
+</head>
   <body>
     {% include 'header.html' %}
-    <div
-      id="loadingPlaceholder"
-      style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: white;
-        z-index: 1000;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      "
-    >
-      <img
-        id="loading"
-        src="static/loading.gif"
-        style="max-width: 180px"
-        alt="Loading"
-      />
-    </div>
-    <div class="flex-grow">
-      <main class="flex-1">
-        <div class="container mx-auto px-4 mt-4">
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-3xl font-bold mb-4 mt-4">Welcome</h2>
-            <p class="mb-4 text-xl lg:w-2/3 md:w-full">
-              Welcome to your suite of tools to manage AI agents. <br />
-              We call them "synths" when they roleplay as synthetic people.
-            </p>
-            <div class="flex gap-4">
-              <a
-                href="{{ url_for('meeting_blueprint.create_meeting') }}"
-                class="bg-blue-500 text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-                >New Meeting</a
-              >
-              <a
-                href="{{ url_for('profile_blueprint.create_new_agent') }}"
-                class="bg-black text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-                >New Agent</a
-              >
-            </div>
-          </div>
 
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold mb-4 tooltip">
-              Synths<span class="tooltiptext"
-                >AI-generated synthetic agents</span
-              >
-            </h2>
-            <div class="grid-container">
-              <a
-                href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
-                class="grid-item relative bg-center bg-cover"
-                style="background-image: url('data:image/png;base64,{{ timeframe.image_data }}');"
-              >
-                <div
-                  class="grid-item-content text-2xl flex justify-center items-center h-full"
-                >
-                  Dashboard
-                </div>
-              </a>
-              {% if current_user.agents_data %} {% for agent in
-              current_user.agents_data %}
-              <a
-                href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type='agent') }}"
-                class="grid-item relative bg-center bg-cover"
-                style="background-image: url('data:image/png;base64,{{ current_user.images_data[agent.photo_path.split('/')[-1]] }}')"
-              >
-                <div
-                  class="absolute inset-0 bg-black bg-opacity-10 flex flex-col justify-end items-center p-4 hover:bg-opacity-1"
-                >
-                  <div class="text-center w-full">
-                    <span class="text-3xl font-bold text-white self-end"
-                      >{{ agent.id }}</span
-                    >
-                    <span class="text-lg text-gray-300 self-start mt-2"
-                      >{{ agent.jobtitle }}</span
-                    >
-                  </div>
-                </div>
-              </a>
-              {% endfor %} {% endif %} {% for agent in current_user.agents %}
-              <a
-                href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type=agent.agent_type) }}"
-                class="grid-item relative bg-center bg-cover"
-                style="background-image: url('{{ url_for('serve_image', filename=agent.data.get('photo_path', '').split('/')[-1]) }}')"
-              >
-                <div
-                  class="absolute inset-0 bg-black bg-opacity-10 flex flex-col justify-end items-center p-4 hover:bg-opacity-1"
-                >
-                  <div class="text-center w-full">
-                    <span class="text-3xl font-bold text-white self-end"
-                      >{{ agent.id }}</span
-                    >
-                    <span class="text-lg text-gray-300 self-start mt-2"
-                      >{{ agent.data.jobtitle }}</span
-                    >
-                  </div>
-                </div>
-              </a>
-              {% endfor %} {% if not current_user.agents_data and not
-              current_user.agents %}
-              <form
-                action="{{ url_for('auth_blueprint.add_base_agents') }}"
-                method="post"
-              >
-                <button
-                  type="submit"
-                  class="grid-item dashboard-button text-white text-xl"
-                >
-                  Add Base Synths<br />
-                  <span class="my-4 text-sm">May take several minutes</span>
-                </button>
-              </form>
-              {% endif %}
-            </div>
-          </div>
 
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold mb-4 tooltip">
-              Meetings<span class="tooltiptext"
-                >Collaborate with your AI agents</span
-              >
-            </h2>
-            <div class="grid-container">
-              <a
-                href="{{ url_for('meeting_blueprint.create_meeting') }}"
-                class="grid-item dashboard-button"
-              >
-                <div
-                  class="grid-item-content text-2xl flex justify-center items-center h-full"
-                >
-                  New Meeting
-                </div>
-              </a>
-              {% for meeting in current_user.meetings %} {% if meeting.answers
-              %}
-              <a
-                href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}"
-                class="grid-item relative bg-center bg-cover"
-                style="background-image: url('data:image/png;base64,{{ meeting.image_data if meeting.image_data else url_for('static', filename='placeholder.jpg') }}')"
-              >
-                <div
-                  class="absolute inset-0 bg-black bg-opacity-20 flex flex-col justify-end items-center p-4 hover:bg-opacity-1 transition-opacity duration-100"
-                >
-                  <div class="text-center w-full">
-                    <span class="text-3xl font-bold text-white"
-                      >{{ meeting.name }}</span
-                    >
-                    <span class="text-sm text-gray-300 mt-2"
-                      >{{ meeting.agents|length }} agents</span
-                    >
-                  </div>
-                </div>
-              </a>
-              {% endif %} {% endfor %}
+    <div class="content-container">
+    <div id="content">
+      <div class="chat-container">
+        <div class="conversation-list">
+          <h2 class="text-xl font-bold mb-4">Conversations</h2>
+          <button id="new-conversation-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+            New Conversation
+          </button>
+          <div id="conversation-items">
+            {% for conversation in conversations %}
+            <div class="conversation-item" data-conversation-id="{{ conversation.id }}">
+              <span class="conversation-name">{{ conversation.name }}</span>
+              <input type="text" class="conversation-name-edit" value="{{ conversation.name }}" style="display: none;">
             </div>
-            {% if not current_user.meetings %}
-            <p class="text-gray-600 mt-4">No meetings yet.</p>
-            {% endif %}
-          </div>
-
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold mb-4 tooltip">
-              Timeframes<span class="tooltiptext"
-                >Manage your AI agent timelines</span
-              >
-            </h2>
-            3
-            <div class="grid-container">
-              <a
-                href="{{ url_for('auth_blueprint.create_timeframe') }}"
-                class="grid-item dashboard-button"
-              >
-                <div
-                  class="grid-item-content text-2xl flex justify-center items-center h-full"
-                >
-                  New Timeframe
-                </div>
-              </a>
-              {% for timeframe in timeframes %} {% if timeframe.agents_count > 0
-              %}
-              <a
-                href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
-                class="grid-item relative bg-center bg-cover"
-                style="background-image: url('data:image/png;base64,{{ timeframe.image_data if timeframe.image_data else url_for('static', filename='placeholder.jpg') }}');"
-              >
-                <div
-                  class="absolute inset-0 bg-black bg-opacity-70 flex flex-col justify-end items-center p-4 hover:bg-opacity-100 transition-opacity duration-300"
-                >
-                  <div class="text-center w-full">
-                    <span class="text-3xl font-bold text-white"
-                      >{{ timeframe.name }}</span
-                    >
-                    <span class="text-sm text-gray-300 mt-2"
-                      >{{ timeframe.agents_count }} agents</span
-                    >
-                  </div>
-                </div>
-              </a>
-              {% endif %} {% endfor %}
-            </div>
-            {% if not timeframes %}
-            <p class="text-gray-600 mt-4">No timeframes yet.</p>
-            {% endif %}
+            {% endfor %}
           </div>
         </div>
-      </main>
-      <div id="footer-push"></div>
+        <div class="chat-box">
+          <h1 class="text-2xl font-bold mb-4">{{ agent_id }}</h1>
+          <h2 class="text-xl font-bold mb-2">{{ agent_jobtitle }}</h2>
+          <p class="mb-4">{{ agent_summary }}</p>
+          <div id="message-list" class="message-list">
+            <!-- Messages will be dynamically added here -->
+          </div>
+          <div class="loading">
+            <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+          </div>
+          <div class="input-container">
+            <input type="text" id="message-input" class="border border-gray-300 rounded px-4 py-2 flex-grow">
+            <button id="record-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              Tap to Talk
+            </button>
+            <button id="stop-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" style="display: none;">
+              Stop
+            </button>
+          </div>
+          <div id="status" class="mt-4 text-center text-gray-600"></div>
+          <audio id="response-audio" style="display: none;"></audio>
+        </div>
+      </div>
     </div>
-    {% include 'footer.html' %}
-    <script>
-      {% include 'footer.html' %}
-      <script>
-        window.onload = function () {
-          hideLoading(); // Hide loading image after initial page load
-        };
 
-        $(document).ready(function () {
-          $("form").submit(function () {
-            $("#loadingPlaceholder").css({ display: "flex", opacity: "1" });
-          });
-        });
-    </script>
-    <script>
-      // This function hides the loading placeholder
-      function hideLoading() {
-        var loadingPlaceholder = document.getElementById("loadingPlaceholder");
-        if (loadingPlaceholder) {
-          loadingPlaceholder.style.opacity = "0";
-          setTimeout(function () {
-            loadingPlaceholder.style.display = "none";
-          }, 600); // A smooth fade out transition
-        }
-      }
-      window.onload = function () {
-        hideLoading(); // Hide loading image after initial page load
-      };
-      $(document).ready(function () {
-        $("form").submit(function () {
-          // Show loading image on form submit (Optional: if you want to show loading on form submit again)
-          $("#loadingPlaceholder").css({ display: "flex", opacity: "1" });
-        });
+    <div id="footer-push"></div>
+  </div>
+
+  {% include 'footer.html' %}
+
+<script>
+  $(document).ready(function () {
+    const recordButton = $("#record-button");
+    const stopButton = $("#stop-button");
+    const messageInput = $("#message-input");
+    const statusDiv = $("#status");
+    const messageList = $("#message-list");
+    const responseAudio = $("#response-audio");
+    const conversationItems = $("#conversation-items");
+    const loadingIndicator = $(".loading");
+
+    let mediaRecorder;
+    let isRecording = false;
+    let currentConversationId = null;
+    let currentConversationName = null;
+
+    // Event listeners
+    recordButton.on("click", startRecording);
+    stopButton.on("click", stopRecording);
+    $("#new-conversation-button").on("click", createNewConversation);
+    conversationItems.on("click", ".conversation-item", function () {
+      const conversationId = $(this).data("conversation-id");
+      loadConversation(conversationId);
+    });
+
+    // Start a new conversation on page load
+    createNewConversation();
+
+    // Event listener for editing conversation name
+    conversationItems.on("dblclick", ".conversation-item", function () {
+      const conversationNameSpan = $(this).find(".conversation-name");
+      const conversationNameEdit = $(this).find(".conversation-name-edit");
+      conversationNameSpan.hide();
+      conversationNameEdit.show().focus();
+    });
+
+    // Event listener for saving edited conversation name
+    conversationItems.on("blur", ".conversation-name-edit", function () {
+      const conversationItem = $(this).closest(".conversation-item");
+      const conversationId = conversationItem.data("conversation-id");
+      const newName = $(this).val();
+      const conversationNameSpan = conversationItem.find(".conversation-name");
+      const conversationNameEdit = $(this);
+
+      $.ajax({
+        url: `/update_conversation_name/${conversationId}`,
+        type: "POST",
+        data: { name: newName },
+        success: function () {
+          conversationNameSpan.text(newName);
+          conversationNameSpan.show();
+          conversationNameEdit.hide();
+          if (conversationId === currentConversationId) {
+            currentConversationName = newName;
+          }
+        },
+        error: function () {
+          alert("Error updating conversation name");
+        },
       });
-    </script>
+    });
+
+    function startRecording() {
+      if (responseAudio[0].currentTime > 0 && !responseAudio[0].paused) {
+        responseAudio[0].pause();
+        responseAudio[0].currentTime = 0;
+      }
+
+      isRecording = true;
+      recordButton.hide();
+      stopButton.show();
+      statusDiv.text("Recording...");
+
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function (stream) {
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.start();
+          mediaRecorder.ondataavailable = function (e) {
+            handleDataAvailable(e.data);
+          };
+        });
+    }
+
+    function stopRecording() {
+      isRecording = false;
+      stopButton.hide();
+      recordButton.show();
+      statusDiv.text("Processing...");
+      mediaRecorder.stop();
+    }
+
+    function createNewConversation() {
+      currentConversationId = null;
+      currentConversationName = `Conversation ${Date.now()}`;
+
+      messageList.empty();
+      conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
+      statusDiv.text(`Created new conversation: ${currentConversationName}`);
+
+      history.pushState({}, "", "/talker/{{ agent_id }}");
+    }
+
+    function loadConversation(conversationId) {
+      if (!conversationId || conversationId === "null") {
+        console.error("Invalid conversation ID");
+        return;
+      }
+
+      currentConversationId = conversationId;
+      currentConversationName = null;
+
+      messageList.empty();
+      statusDiv.text(`Loading conversation...`);
+
+      $.ajax({
+        url: `/get_conversation_messages/${conversationId}`,
+        type: "GET",
+        success: function (response) {
+          if (response.messages) {
+            response.messages.forEach(function (message) {
+              displayMessage(message.content, message.role === "user" ? "You" : "AI");
+            });
+            statusDiv.text(`Loaded conversation: ${response.name}`);
+            currentConversationName = response.name;
+          }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.error("Error loading conversation:", textStatus, errorThrown);
+          statusDiv.text("Error loading conversation");
+        },
+      });
+    }
+
+    function handleDataAvailable(audioBlob) {
+      const formData = new FormData();
+      formData.append("audio", audioBlob, "audio.wav");
+      formData.append("agent_id", "{{ agent_id }}");
+      formData.append("conversation_id", currentConversationId);
+      formData.append("conversation_name", currentConversationName);
+
+      displayMessage(messageInput.val(), "You");
+      messageInput.val("");
+
+      loadingIndicator.show();
+
+      $.ajax({
+        url: "/transcribe",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          if (response.error) {
+            console.error("Transcription error:", response.error);
+            statusDiv.text("Error: " + response.error);
+          } else {
+            if (response.conversation_id && response.conversation_id !== currentConversationId) {
+              currentConversationId = response.conversation_id;
+              currentConversationName = response.conversation_name;
+              conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
+              statusDiv.text(`Created new conversation: ${currentConversationName}`);
+            }
+
+            displayMessage(response.user_text, "You");
+
+            $.ajax({
+              url: "/text-to-speech",
+              type: "POST",
+              data: { text: response.ai_text },
+              success: function (data) {
+                responseAudio.attr("src", data.audio_url);
+                responseAudio[0].play();
+                displayMessage(response.ai_text, "AI");
+                statusDiv.text("Ready");
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                console.error("Text-to-speech error:", textStatus, errorThrown);
+                statusDiv.text("Error: " + textStatus);
+              },
+            });
+          }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.error("Transcription error:", textStatus, errorThrown);
+          statusDiv.text("Error: " + textStatus);
+        },
+        complete: function () {
+          stopButton.hide();
+          recordButton.show();
+          loadingIndicator.hide();
+        },
+      });
+    }
+
+    function displayMessage(text, sender) {
+      messageList.append(`<div class="message-bubble ${sender.toLowerCase()}-message">${text}</div>`);
+      messageList.scrollTop(messageList[0].scrollHeight);
+    }
+  });
+</script>
   </body>
 </html>
