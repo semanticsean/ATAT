@@ -76,6 +76,7 @@ def talker(agent_id):
         return "An error occurred", 500
 
 
+
 @talker_blueprint.route("/transcribe", methods=["POST"])
 @login_required
 def transcribe():
@@ -133,19 +134,12 @@ def transcribe():
         response_data = {"user_text": transcription.text, "ai_text": response_text}
         logger.info(f"Response data: {response_data}")
 
-        # Generate audio response
-        audio_file_path = text_to_speech_sync(response_text, agent)
-        if audio_file_path:
-            response_data["audio_file_path"] = audio_file_path
-        else:
-            logger.warning("Failed to generate audio response")
-            response_data["audio_file_path"] = None  # Add this line
-  
         return jsonify(response_data)
 
     except Exception as e:
         logger.error(f"Transcription error: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
 
 
 def chat_with_model(user_message,
@@ -185,28 +179,31 @@ def chat_with_model(user_message,
 
 @talker_blueprint.route('/audio/<path:filename>')
 def serve_audio(filename):
-  user_folder = current_user.folder_path
-  file_path = os.path.join(user_folder, filename)
-  if os.path.exists(file_path):
-    return send_file(file_path, mimetype='audio/mpeg')
-  else:
-    abort(404)
+    user_folder = current_user.folder_path
+    file_path = os.path.join(user_folder, filename)
+    if os.path.exists(file_path):
+        return send_file(file_path, mimetype='audio/mpeg')
+    else:
+        abort(404)
 
 
-def text_to_speech_sync(text, agent):
-  try:
-      user_folder = current_user.folder_path
-      os.makedirs(user_folder, exist_ok=True)
-      timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-      audio_file_path = os.path.join(user_folder, f'response_{timestamp}.mp3')
+@talker_blueprint.route("/text-to-speech", methods=["POST"])
+@login_required
+def text_to_speech():
+    text = request.form["text"]
+    try:
+        user_folder = current_user.folder_path
+        os.makedirs(user_folder, exist_ok=True)
+        file_path = os.path.join(user_folder, 'response.mp3')
 
-      with client.audio.speech.with_streaming_response.create(
-          model="tts-1", voice="nova", input=text) as response:
-          with open(audio_file_path, 'wb') as audio_file:
-              for chunk in response.iter_bytes():
-                  audio_file.write(chunk)
-      logger.info(f"Generated audio file saved at: {audio_file_path}")
-      return audio_file_path
-  except Exception as e:
-      logger.error(f"Text-to-speech error: {str(e)}")
-      return None
+        with client.audio.speech.with_streaming_response.create(
+            model="tts-1", voice="nova", input=text) as response:
+            with open(file_path, 'wb') as audio_file:
+                for chunk in response.iter_bytes():
+                    audio_file.write(chunk)
+
+        audio_url = url_for('talker_blueprint.serve_audio', filename='response.mp3')
+        return jsonify({"audio_url": audio_url})
+    except Exception as e:
+        logger.error(f"Text-to-speech error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
