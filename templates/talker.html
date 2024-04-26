@@ -115,6 +115,7 @@
                   type: "POST",
                   data: { text: response.ai_text },
                   success: function (data) {
+                    responseAudio.attr("src", "");  // Clear the previous source
                     responseAudio.attr("src", data.audio_url);
                     responseAudio[0].play();
                     displayConversation(response.ai_text, "AI");

@@ -194,7 +194,8 @@ def text_to_speech():
     try:
         user_folder = current_user.folder_path
         os.makedirs(user_folder, exist_ok=True)
-        file_path = os.path.join(user_folder, 'response.mp3')
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_path = os.path.join(user_folder, f'response_{timestamp}.mp3')
 
         with client.audio.speech.with_streaming_response.create(
             model="tts-1", voice="nova", input=text) as response:
@@ -202,7 +203,7 @@ def text_to_speech():
                 for chunk in response.iter_bytes():
                     audio_file.write(chunk)
 
-        audio_url = url_for('talker_blueprint.serve_audio', filename='response.mp3')
+        audio_url = url_for('talker_blueprint.serve_audio', filename=f'response_{timestamp}.mp3')
         return jsonify({"audio_url": audio_url})
     except Exception as e:
         logger.error(f"Text-to-speech error: {str(e)}")
