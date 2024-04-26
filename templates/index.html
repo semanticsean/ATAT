@@ -151,45 +151,75 @@
 
           <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
             <h2 class="text-2xl font-bold mb-4 tooltip">
-              Synths<span class="tooltiptext">AI-generated synthetic agents</span>
+              Synths<span class="tooltiptext"
+                >AI-generated synthetic agents</span
+              >
             </h2>
             <div class="grid-container">
-              <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
-               class="grid-item relative bg-center bg-cover"
-               style="background-image: url('data:image/png;base64,{{ timeframe.image_data }}');">
-                <div class="grid-item-content text-2xl flex justify-center items-center h-full">
+              <a
+                href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
+                class="grid-item relative bg-center bg-cover"
+                style="background-image: url('data:image/png;base64,{{ timeframe.image_data }}');"
+              >
+                <div
+                  class="grid-item-content text-2xl flex justify-center items-center h-full"
+                >
                   Dashboard
                 </div>
               </a>
-              {% if current_user.agents_data %}
-                {% for agent in current_user.agents_data %}
-                  <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type='agent') }}" class="grid-item relative bg-center bg-cover" style="background-image: url('data:image/png;base64,{{ current_user.images_data[agent.photo_path.split('/')[-1]] }}')">
-                    <div class="absolute inset-0 bg-black bg-opacity-10 flex flex-col justify-end items-center p-4 hover:bg-opacity-1">
-                      <div class="text-center w-full">
-                        <span class="text-3xl font-bold text-white self-end">{{ agent.id }}</span>
-                        <span class="text-lg text-gray-300 self-start mt-2">{{ agent.jobtitle }}</span>
-                      </div>
-                    </div>
-                  </a>
-                {% endfor %}
-              {% endif %}
-              {% for agent in current_user.agents %}
-                <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type=agent.agent_type) }}" class="grid-item relative bg-center bg-cover" style="background-image: url('{{ url_for('serve_image', filename=agent.data.get('photo_path', '').split('/')[-1]) }}')">
-                  <div class="absolute inset-0 bg-black bg-opacity-10 flex flex-col justify-end items-center p-4 hover:bg-opacity-1">
-                    <div class="text-center w-full">
-                      <span class="text-3xl font-bold text-white self-end">{{ agent.id }}</span>
-                      <span class="text-lg text-gray-300 self-start mt-2">{{ agent.data.jobtitle }}</span>
-                    </div>
+              {% if current_user.agents_data %} {% for agent in
+              current_user.agents_data %}
+              <a
+                href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type='agent') }}"
+                class="grid-item relative bg-center bg-cover"
+                style="background-image: url('data:image/png;base64,{{ current_user.images_data[agent.photo_path.split('/')[-1]] }}')"
+              >
+                <div
+                  class="absolute inset-0 bg-black bg-opacity-10 flex flex-col justify-end items-center p-4 hover:bg-opacity-1"
+                >
+                  <div class="text-center w-full">
+                    <span class="text-3xl font-bold text-white self-end"
+                      >{{ agent.id }}</span
+                    >
+                    <span class="text-lg text-gray-300 self-start mt-2"
+                      >{{ agent.jobtitle }}</span
+                    >
                   </div>
-                </a>
-              {% endfor %}
-              {% if not current_user.agents_data and not current_user.agents %}
-                <form action="{{ url_for('auth_blueprint.add_base_agents') }}" method="post">
-                  <button type="submit" class="grid-item dashboard-button text-white text-xl">
-                    Add Base Synths<br />
-                    <span class="my-4 text-sm">May take several minutes</span>
-                  </button>
-                </form>
+                </div>
+              </a>
+              {% endfor %} {% endif %} {% for agent in current_user.agents %}
+              <a
+                href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type=agent.agent_type) }}"
+                class="grid-item relative bg-center bg-cover"
+                style="background-image: url('{{ url_for('serve_image', filename=agent.data.get('photo_path', '').split('/')[-1]) }}')"
+              >
+                <div
+                  class="absolute inset-0 bg-black bg-opacity-10 flex flex-col justify-end items-center p-4 hover:bg-opacity-1"
+                >
+                  <div class="text-center w-full">
+                    <span class="text-3xl font-bold text-white self-end"
+                      >{{ agent.id }}</span
+                    >
+                    <span class="text-lg text-gray-300 self-start mt-2"
+                      >{{ agent.data.jobtitle }}</span
+                    >
+                  </div>
+                </div>
+              </a>
+              {% endfor %} {% if not current_user.agents_data and not
+              current_user.agents %}
+              <form
+                action="{{ url_for('auth_blueprint.add_base_agents') }}"
+                method="post"
+              >
+                <button
+                  type="submit"
+                  class="grid-item dashboard-button text-white text-xl"
+                >
+                  Add Base Synths<br />
+                  <span class="my-4 text-sm">May take several minutes</span>
+                </button>
+              </form>
               {% endif %}
             </div>
           </div>
@@ -234,9 +264,7 @@
               {% endif %} {% endfor %}
             </div>
             {% if not current_user.meetings %}
-            <p class="text-gray-600 mt-4">
-              No meetings yet. 
-            </p>
+            <p class="text-gray-600 mt-4">No meetings yet.</p>
             {% endif %}
           </div>
 
@@ -245,11 +273,16 @@
               Timeframes<span class="tooltiptext"
                 >Manage your AI agent timelines</span
               >
-            </h2>3
+            </h2>
+            3
             <div class="grid-container">
-              <a href="{{ url_for('auth_blueprint.create_timeframe') }}"
-                class="grid-item dashboard-button">
-                <div class="grid-item-content text-2xl flex justify-center items-center h-full">
+              <a
+                href="{{ url_for('auth_blueprint.create_timeframe') }}"
+                class="grid-item dashboard-button"
+              >
+                <div
+                  class="grid-item-content text-2xl flex justify-center items-center h-full"
+                >
                   New Timeframe
                 </div>
               </a>
