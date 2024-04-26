@@ -1,4 +1,3 @@
-<!-- templates/dashboard.html -->
 <!doctype html>
 <html>
   <head>
@@ -46,13 +45,6 @@
         >
           Tap to Talk
         </button>
-        <button
-          id="stop-audio-button"
-          class="bg-red-500 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-full ml-4"
-          style="display: none"
-        >
-          Stop
-        </button>
       </div>
       <div id="status" class="mt-4 text-center text-gray-600"></div>
       <audio id="response-audio" style="display: none"></audio>
@@ -63,13 +55,6 @@
         const statusDiv = $("#status");
         const conversationDiv = $("#conversation");
         const responseAudio = $("#response-audio");
-        const stopAudioButton = $("#stop-audio-button");
-
-        stopAudioButton.on("click", function () {
-          responseAudio[0].pause();
-          responseAudio[0].currentTime = 0;
-          stopAudioButton.hide();
-        });
 
         let mediaRecorder;
         let isRecording = false;
@@ -124,18 +109,28 @@
                 recordButton.text("Tap to Talk");
               } else {
                 displayConversation(response.user_text, "You");
-                displayConversation(response.ai_text, "AI");
 
-                if (response.audio_file_path) {
-                    const audioUrl = "/audio/" + encodeURIComponent(response.audio_file_path);
-                    responseAudio.attr("src", audioUrl);
+                $.ajax({
+                  url: "/text-to-speech",
+                  type: "POST",
+                  data: { text: response.ai_text },
+                  success: function (data) {
+                    responseAudio.attr("src", data.audio_url);
                     responseAudio[0].play();
-                } else {
-                    console.error("Audio file path not found in response");
-                }
-
-                recordButton.text("Tap to Talk");
-                statusDiv.text("Ready");
+                    displayConversation(response.ai_text, "AI");
+                    recordButton.text("Tap to Talk");
+                    statusDiv.text("Ready");
+                  },
+                  error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(
+                      "Text-to-speech error:",
+                      textStatus,
+                      errorThrown
+                    );
+                    statusDiv.text("Error: " + textStatus);
+                    recordButton.text("Tap to Talk");
+                  },
+                });
               }
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -148,7 +143,7 @@
 
         function displayConversation(text, speaker) {
           conversationDiv.append(
-            `<div class="message-bubble ${speaker.toLowerCase()}-message">${text}</div>`,
+            `<div class="message-bubble ${speaker.toLowerCase()}-message">${text}</div>`
           );
         }
       });
