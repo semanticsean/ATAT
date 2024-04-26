@@ -1,6 +1,6 @@
 #talker.py
 from flask import Blueprint, render_template, request, jsonify, url_for, send_from_directory, abort, send_file
-from models import Agent, User, Timeframe
+from models import Agent, User, Timeframe, Conversation, db
 from flask_login import login_required, current_user
 import openai
 import os
@@ -8,6 +8,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 import json
 import datetime
+import random
 
 talker_blueprint = Blueprint('talker_blueprint',
                              __name__,
@@ -24,187 +25,240 @@ client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 @talker_blueprint.route("/talker/<agent_id>")
 @login_required
 def talker(agent_id):
-    agent = None
-    agent_image_data = None
+  agent = None
+  agent_image_data = None
+  agent_type = None
 
-    try:
-        # Check if the agent exists in the User's agents_data
-        user_agent_data = next((agent for agent in current_user.agents_data if str(agent.get('id', '')) == str(agent_id)), None)
-        if user_agent_data:
-            agent = Agent(id=user_agent_data['id'], user_id=current_user.id, data=user_agent_data)
-            photo_path = agent.data.get('photo_path', '')
-            photo_filename = photo_path.split('/')[-1]
-            agent_image_data = current_user.images_data.get(photo_filename, '')
-            logger.debug(f"Agent found in user's agents_data: {agent}")
+  try:
+    # Check if the agent exists in the User's agents_data
+    user_agent_data = next((agent for agent in current_user.agents_data
+                            if str(agent.get('id', '')) == str(agent_id)),
+                           None)
+    if user_agent_data:
+      agent = Agent(id=user_agent_data['id'],
+                    user_id=current_user.id,
+                    data=user_agent_data)
+      agent_type = 'agent'
+      photo_path = agent.data.get('photo_path', '')
+      photo_filename = photo_path.split('/')[-1]
+      agent_image_data = current_user.images_data.get(photo_filename, '')
 
-        # Check if the agent exists in the Agent model
-        if not agent:
-            agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
-            if agent:
-                photo_path = agent.data.get('photo_path', '')
-                photo_filename = photo_path.split('/')[-1]
-                agent_image_data = current_user.images_data.get(photo_filename, '')
-                logger.debug(f"Agent found in Agent model: {agent}")
+    # Check if the agent exists in the Agent model
+    if not agent:
+      agent = Agent.query.filter_by(user_id=current_user.id,
+                                    id=str(agent_id)).first()
+      if agent:
+        agent_type = 'agent'
+        photo_path = agent.data.get('photo_path', '')
+        photo_filename = photo_path.split('/')[-1]
+        agent_image_data = current_user.images_data.get(photo_filename, '')
 
-        # Check if the agent exists in any of the user's timeframes
-        if not agent:
-            for timeframe in current_user.timeframes:
-                timeframe_agents_data = json.loads(timeframe.agents_data)
-                timeframe_agent_data = next((agent for agent in timeframe_agents_data if str(agent.get('id', '')) == str(agent_id)), None)
-                if timeframe_agent_data:
-                    agent = Agent(id=timeframe_agent_data['id'], user_id=current_user.id, data=timeframe_agent_data)
-                    photo_path = agent.data.get('photo_path', '')
-                    photo_filename = photo_path.split('/')[-1]
-                    agent_image_data = json.loads(timeframe.images_data).get(photo_filename, '')
-                    logger.debug(f"Agent found in timeframe: {timeframe}")
-                    break
+    # Check if the agent exists in any of the user's timeframes
+    if not agent:
+      for timeframe in current_user.timeframes:
+        timeframe_agents_data = json.loads(timeframe.agents_data)
+        timeframe_agent_data = next(
+            (agent for agent in timeframe_agents_data
+             if str(agent.get('id', '')) == str(agent_id)), None)
+        if timeframe_agent_data:
+          agent = Agent(id=timeframe_agent_data['id'],
+                        user_id=current_user.id,
+                        data=timeframe_agent_data)
+          agent_type = 'timeframe'
+          photo_path = agent.data.get('photo_path', '')
+          photo_filename = photo_path.split('/')[-1]
+          agent_image_data = json.loads(timeframe.images_data).get(
+              photo_filename, '')
+          break
 
-        if not agent:
-            logger.warning(f"Agent not found for ID: {agent_id}")
-            return "Agent not found", 404
+    if not agent:
+      return "Agent not found", 404
 
-        logger.info(f"Rendering talker.html for agent: {agent}")
-        return render_template("talker.html",
-                               agent_id=agent.id,
-                               agent_jobtitle=agent.data.get('jobtitle', ''),
-                               agent_summary=agent.data.get('summary', ''),
-                               agent_image_data=agent_image_data,
-                               agent_type='agent')  # Add this line
+    conversations = Conversation.query.filter(
+        Conversation.user_id == current_user.id,
+        Conversation.agents.cast(db.Text).contains(agent.id)).all()
 
-    except Exception as e:
-        logger.exception(f"Error in talker route: {str(e)}")
-        return "An error occurred", 500
+    return render_template("talker.html",
+                           agent_id=agent.id,
+                           agent_jobtitle=agent.data.get('jobtitle', ''),
+                           agent_summary=agent.data.get('summary', ''),
+                           agent_image_data=agent_image_data,
+                           agent_type=agent_type,
+                           conversations=conversations)
 
+  except Exception as e:
+    logger.exception(f"Error in talker route: {str(e)}")
+    return "An error occurred", 500
 
 
 @talker_blueprint.route("/transcribe", methods=["POST"])
 @login_required
 def transcribe():
-    if 'audio' not in request.files:
-        logger.error("No audio file provided")
-        return jsonify({"error": "No audio file provided"}), 400
+  if 'audio' not in request.files:
+    return jsonify({"error": "No audio file provided"}), 400
 
-    audio_file = request.files['audio']
-    user_folder = current_user.folder_path
-    os.makedirs(user_folder, exist_ok=True)
-    audio_file_path = os.path.join(user_folder, 'temp_audio.mp3')
-    audio_file.save(audio_file_path)
-    logger.info(f"Audio file saved at: {audio_file_path}")
-
-    try:
-        with open(audio_file_path, 'rb') as f:
-            transcription = client.audio.transcriptions.create(model="whisper-1",
-                                                               file=f,
-                                                               language="en")
-        logger.info("Transcription successful")
-        logger.info(f"Transcription result: {transcription.text}")
-
-        agent_id = request.form["agent_id"]
-        agent = None
-
-        # Check if the agent exists in the User's agents_data
-        user_agent_data = next((agent for agent in current_user.agents_data if str(agent.get('id', '')) == str(agent_id)), None)
-        if user_agent_data:
-            agent = Agent(id=user_agent_data['id'], user_id=current_user.id, data=user_agent_data)
-            logger.debug(f"Agent found in user's agents_data: {agent}")
-
-        # Check if the agent exists in the Agent model
-        if not agent:
-            agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
-            if agent:
-                logger.debug(f"Agent found in Agent model: {agent}")
-
-        # Check if the agent exists in any of the user's timeframes
-        if not agent:
-            for timeframe in current_user.timeframes:
-                timeframe_agents_data = json.loads(timeframe.agents_data)
-                timeframe_agent_data = next((agent for agent in timeframe_agents_data if str(agent.get('id', '')) == str(agent_id)), None)
-                if timeframe_agent_data:
-                    agent = Agent(id=timeframe_agent_data['id'], user_id=current_user.id, data=timeframe_agent_data)
-                    logger.debug(f"Agent found in timeframe: {timeframe}")
-                    break
-
-        if not agent:
-            logger.error(f"Agent not found for ID: {agent_id}")
-            return jsonify({"error": "Agent not found"}), 404
-
-        response_text = chat_with_model(transcription.text, agent)
-        logger.info(f"Generated response: {response_text}")
-
-        response_data = {"user_text": transcription.text, "ai_text": response_text}
-        logger.info(f"Response data: {response_data}")
-
-        return jsonify(response_data)
-
-    except Exception as e:
-        logger.error(f"Transcription error: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-
-
-
-def chat_with_model(user_message,
-                    agent,
-                    max_tokens=250,
-                    top_p=0.5,
-                    temperature=0.9):
-  with open("abe/talker.json", "r") as f:
-    prompts = json.load(f)
-
-  gpt_system_prompt = prompts['gpt_system_prompt'].format(
-      agent_id=agent.id,
-      agent_jobtitle=agent.data.get('jobtitle', ''),
-      agent_summary=agent.data.get('summary', ''),
-      agent_persona=agent.data.get('persona', ''),
-      agent_relationships=agent.data.get('relationships', ''))
+  audio_file = request.files['audio']
+  user_folder = current_user.folder_path
+  os.makedirs(user_folder, exist_ok=True)
+  audio_file_path = os.path.join(user_folder, 'temp_audio.mp3')
+  audio_file.save(audio_file_path)
 
   try:
-    response = client.chat.completions.create(model="gpt-4-turbo",
-                                              messages=[{
-                                                  "role":
-                                                  "system",
-                                                  "content":
-                                                  gpt_system_prompt
-                                              }, {
-                                                  "role": "user",
-                                                  "content": user_message
-                                              }],
-                                              max_tokens=max_tokens,
-                                              top_p=top_p,
-                                              temperature=temperature)
-    return response.choices[0].message.content
-  except Exception as e:
-    logger.error(f"Chat error: {str(e)}")
-    return "Failed to generate response."
+    with open(audio_file_path, 'rb') as f:
+      transcription = client.audio.transcriptions.create(model="whisper-1",
+                                                         file=f,
+                                                         language="en")
 
+    agent_id = request.form["agent_id"]
+    agent = None
+    agent_data = None
+
+    # Check if the agent exists in the User's agents_data
+    user_agent_data = next((agent for agent in current_user.agents_data
+                            if str(agent.get('id', '')) == str(agent_id)),
+                           None)
+    if user_agent_data:
+      agent = Agent(id=user_agent_data['id'],
+                    user_id=current_user.id,
+                    data=user_agent_data)
+      agent_data = user_agent_data
+
+    # Check if the agent exists in the Agent model
+    if not agent:
+      agent = Agent.query.filter_by(user_id=current_user.id,
+                                    id=str(agent_id)).first()
+      if agent:
+        agent_data = agent.data
+
+    # Check if the agent exists in any of the user's timeframes
+    if not agent:
+      for timeframe in current_user.timeframes:
+        timeframe_agents_data = json.loads(timeframe.agents_data)
+        timeframe_agent_data = next(
+            (agent for agent in timeframe_agents_data
+             if str(agent.get('id', '')) == str(agent_id)), None)
+        if timeframe_agent_data:
+          agent = Agent(id=timeframe_agent_data['id'],
+                        user_id=current_user.id,
+                        data=timeframe_agent_data)
+          agent_data = timeframe_agent_data
+          break
+
+    if not agent or not agent_data:
+      return jsonify({"error": "Agent not found"}), 404
+
+    response_text = chat_with_model(transcription.text, agent_data)
+    
+    response_data = {"user_text": transcription.text, "ai_text": response_text}
+    
+    conversation_id = request.form.get("conversation_id")
+    conversation_name = request.form.get("conversation_name")
+    
+    if conversation_id:
+        conversation = Conversation.query.get(conversation_id)
+        if conversation.user_id != current_user.id:
+            return jsonify({"error": "Unauthorized"}), 401
+    else:
+        conversation = Conversation(
+            user_id=current_user.id,
+            name=conversation_name or f"Conversation {random.randint(1000, 9999)}",
+            agents=[agent_id],
+            messages=[])
+    
+    conversation.messages.append({"role": "user", "content": transcription.text})
+    db.session.add(conversation)
+    db.session.commit()
+    
+    response_text = chat_with_model(transcription.text, agent_data)
+    conversation.messages.append({"role": "assistant", "content": response_text})
+    db.session.commit()
+    
+    return jsonify(response_data)
+
+  except Exception as e:
+    logger.error(f"Transcription error: {str(e)}")
+    return jsonify({"error": str(e)}), 500
+
+
+def chat_with_model(user_message, agent_data, max_tokens=250, top_p=0.5, temperature=0.9):
+  with open("abe/talker.json", "r") as f:
+      prompts = json.load(f)
+
+  gpt_system_prompt = prompts['gpt_system_prompt'].format(
+      agent_id=agent_data['id'],
+      agent_jobtitle=agent_data.get('jobtitle', ''),
+      agent_summary=agent_data.get('summary', ''),
+      agent_persona=agent_data.get('persona', ''),
+      agent_relationships=agent_data.get('relationships', ''))
+
+  try:
+      response = client.chat.completions.create(model="gpt-4-turbo",
+                                                messages=[{"role": "system", "content": gpt_system_prompt},
+                                                          {"role": "user", "content": user_message}],
+                                                max_tokens=max_tokens,
+                                                top_p=top_p,
+                                                temperature=temperature)
+      return response.choices[0].message.content
+  except Exception as e:
+      logger.error(f"Chat error: {str(e)}")
+      return "Failed to generate response."
 
 @talker_blueprint.route('/audio/<path:filename>')
 def serve_audio(filename):
-    user_folder = current_user.folder_path
-    file_path = os.path.join(user_folder, filename)
-    if os.path.exists(file_path):
-        return send_file(file_path, mimetype='audio/mpeg')
-    else:
-        abort(404)
+  user_folder = current_user.folder_path
+  file_path = os.path.join(user_folder, filename)
+  if os.path.exists(file_path):
+    return send_file(file_path, mimetype='audio/mpeg')
+  else:
+    abort(404)
 
 
 @talker_blueprint.route("/text-to-speech", methods=["POST"])
 @login_required
 def text_to_speech():
-    text = request.form["text"]
-    try:
-        user_folder = current_user.folder_path
-        os.makedirs(user_folder, exist_ok=True)
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_path = os.path.join(user_folder, f'response_{timestamp}.mp3')
+  text = request.form["text"]
+  try:
+    user_folder = current_user.folder_path
+    os.makedirs(user_folder, exist_ok=True)
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    file_path = os.path.join(user_folder, f'response_{timestamp}.mp3')
 
-        with client.audio.speech.with_streaming_response.create(
-            model="tts-1", voice="nova", input=text) as response:
-            with open(file_path, 'wb') as audio_file:
-                for chunk in response.iter_bytes():
-                    audio_file.write(chunk)
+    with client.audio.speech.with_streaming_response.create(
+        model="tts-1", voice="nova", input=text) as response:
+      with open(file_path, 'wb') as audio_file:
+        for chunk in response.iter_bytes():
+          audio_file.write(chunk)
 
-        audio_url = url_for('talker_blueprint.serve_audio', filename=f'response_{timestamp}.mp3')
-        return jsonify({"audio_url": audio_url})
-    except Exception as e:
-        logger.error(f"Text-to-speech error: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+    audio_url = url_for('talker_blueprint.serve_audio',
+                        filename=f'response_{timestamp}.mp3')
+    return jsonify({"audio_url": audio_url})
+  except Exception as e:
+    logger.error(f"Text-to-speech error: {str(e)}")
+    return jsonify({"error": str(e)}), 500
+
+
+def truncate_messages(messages, max_chars):
+  total_chars = sum(len(msg["content"]) for msg in messages)
+  if total_chars <= max_chars:
+    return messages
+
+  truncated_messages = []
+  remaining_chars = max_chars
+  for msg in reversed(messages):
+    if len(msg["content"]) <= remaining_chars:
+      truncated_messages.insert(0, msg)
+      remaining_chars -= len(msg["content"])
+    else:
+      break
+
+  return truncated_messages
+
+
+@talker_blueprint.route('/get_conversation_messages/<conversation_id>')
+@login_required
+def get_conversation_messages(conversation_id):
+    conversation = Conversation.query.get(conversation_id)
+    if conversation and conversation.user_id == current_user.id:
+        return jsonify({'messages': conversation.messages})
+    else:
+        return jsonify({'error': 'Conversation not found'}), 404

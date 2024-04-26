@@ -154,7 +154,9 @@
               Synths<span class="tooltiptext">AI-generated synthetic agents</span>
             </h2>
             <div class="grid-container">
-              <a href="{{ url_for('dashboard_blueprint.dashboard') }}" class="grid-item dashboard-button">
+              <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
+               class="grid-item relative bg-center bg-cover"
+               style="background-image: url('data:image/png;base64,{{ timeframe.image_data }}');">
                 <div class="grid-item-content text-2xl flex justify-center items-center h-full">
                   Dashboard
                 </div>
