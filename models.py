@@ -80,6 +80,7 @@ class Agent(db.Model):
   data = db.Column(db.JSON)
   user = db.relationship('User', backref=db.backref('agents', lazy=True))
   agent_type = db.Column(db.String(20), default='agent')
+  voice = db.Column(db.String(20), default='echo')
 
   @property
   def persona(self):

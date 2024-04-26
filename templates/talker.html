@@ -355,7 +355,10 @@
                 $.ajax({
                   url: "/text-to-speech",
                   type: "POST",
-                  data: { text: response.ai_text },
+                  data: { 
+                    text: response.ai_text,
+                    agent_id: "{{ agent_id }}"
+                  },
                   success: function (data) {
                     responseAudio.attr("src", data.audio_url);
                     responseAudio[0].play();
