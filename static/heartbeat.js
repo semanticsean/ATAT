@@ -17,5 +17,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Check session status every 5 minutes as an example; adjust the interval as needed
-    setInterval(checkSession, 60 * 60 * 1000);
+    setInterval(checkSession, 5 * 24 * 60 * 60 * 1000);
 });

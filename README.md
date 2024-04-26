@@ -581,3 +581,21 @@ FROM
   JOIN "user" u ON t.user_id = u.id
 GROUP BY
   t.id, t.name, t.agents_data, u.images_data;
+
+
+
+--------
+
+timeframe agent summary details
+
+  SELECT 
+      u.id AS user_id, 
+      u.username, 
+      CASE WHEN LENGTH(t.image_data) > 0 THEN 'Non-zero' ELSE 'Zero' END AS image_data_status,
+      CASE WHEN LENGTH(t.thumbnail_image_data) > 0 THEN 'Non-zero' ELSE 'Zero' END AS thumbnail_image_data_status
+  FROM 
+      "user" u
+  LEFT JOIN 
+      timeframe t ON t.user_id = u.id
+  WHERE 
+      u.username = 'realityinspector82';
