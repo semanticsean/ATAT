@@ -177,65 +177,69 @@ def home():
                          timeframe=None)
 
 
-@app.route('/timeframe_images/<int:timeframe_id>')
-def serve_timeframe_image(timeframe_id):
-    timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe and timeframe.image_data:
-        if current_user.is_authenticated and timeframe.user_id == current_user.id:
-            image_data = timeframe.image_data
-            return Response(base64.b64decode(image_data), mimetype='image/png')
-    abort(404)
 
 
 @app.route('/images/<filename>')
 def serve_image(filename):
-  if current_user.is_authenticated:
-    user_id = current_user.id
-    user = User.query.get(user_id)
+    if current_user.is_authenticated:
+        user_id = current_user.id
+        user = User.query.get(user_id)
 
-    # Check if the image is in the user's images_data
-    if user.images_data and filename in user.images_data:
-      print("Image found in user's images_data")  # Print if the image is found
-      image_data = user.images_data.get(filename)
-      return Response(base64.b64decode(image_data), mimetype='image/png')
+        # Check if the image is in the user's images_data
+        if user.images_data and filename in user.images_data:
+            print("Image found in user's images_data")  # Print if the image is found
+            image_data = user.images_data.get(filename)
+            return Response(base64.b64decode(image_data), mimetype='image/png')
 
-    # Check if the image is in any of the user's timeframes
-    for timeframe in user.timeframes:
-      timeframe_images_data = json.loads(timeframe.images_data)
-      if filename in timeframe_images_data:
-        image_data = timeframe_images_data.get(filename)
-        return Response(base64.b64decode(image_data), mimetype='image/png')
+        # Check if the image is in any of the user's timeframes
+        for timeframe in user.timeframes:
+            timeframe_images_data = json.loads(timeframe.images_data)
+            if filename in timeframe_images_data:
+                image_data = timeframe_images_data.get(filename)
+                return Response(base64.b64decode(image_data), mimetype='image/png')
 
-    # Check if the image is in any of the user's agents
-    agent = Agent.query.filter(
-        Agent.user_id == user_id,
-        Agent.data.cast(
-            db.Text).contains(f'"photo_path": "/images/{filename}"')).first()
-    if agent:
-      image_data = agent.data.get('image_data', {}).get(f"/images/{filename}")
-      if image_data:
-        return Response(base64.b64decode(image_data), mimetype='image/png')
+        # Check if the image is in any of the user's agents
+        agent = Agent.query.filter(
+            Agent.user_id == user_id,
+            Agent.data.cast(db.Text).contains(f'"photo_path": "/images/{filename}"')
+        ).first()
+        if agent:
+            image_data = agent.data.get('image_data', {}).get(f"/images/{filename}")
+            if image_data:
+                return Response(base64.b64decode(image_data), mimetype='image/png')
 
-  # Check if the image belongs to a public meeting
-  public_meeting = Meeting.query.filter_by(is_public=True).join(
-      Meeting.agents).filter(
-          Meeting.agents.any(
-              cast(Agent.data['photo_path'], String) == filename)).first()
-  if public_meeting:
-    image_data = public_meeting.images_data.get(filename)
-    if image_data:
-      return Response(base64.b64decode(image_data), mimetype='image/png')
+        # Check if the image belongs to a timeframe agent
+        timeframe_agent = db.session.query(Timeframe).filter(
+            Timeframe.user_id == user_id,
+            Timeframe.agents_data.cast(db.Text).contains(f'"photo_path": "/images/{filename}"')
+        ).first()
+        if timeframe_agent:
+            timeframe_images_data = json.loads(timeframe_agent.images_data)
+            image_data = timeframe_images_data.get(filename)
+            if image_data:
+                return Response(base64.b64decode(image_data), mimetype='image/png')
 
-  # Check if the image belongs to a meeting summary
-  meeting = Meeting.query.filter(
-      Meeting.image_data.isnot(None)).filter_by(image_data=filename).first()
-  if meeting:
-    image_data = meeting.image_data
-    if image_data:
-      return Response(base64.b64decode(image_data), mimetype='image/png')
+        # Check if the image belongs to a public meeting
+        public_meeting = Meeting.query.filter_by(is_public=True).join(
+            Meeting.agents).filter(
+                Meeting.agents.any(
+                    cast(Agent.data['photo_path'], String) == filename)
+        ).first()
+        if public_meeting:
+            image_data = public_meeting.images_data.get(filename)
+            if image_data:
+                return Response(base64.b64decode(image_data), mimetype='image/png')
 
-  print("Image not found")
-  abort(404)
+        # Check if the image belongs to a meeting summary
+        meeting = Meeting.query.filter(
+            Meeting.image_data.isnot(None)).filter_by(image_data=filename).first()
+        if meeting:
+            image_data = meeting.image_data
+            if image_data:
+                return Response(base64.b64decode(image_data), mimetype='image/png')
+
+    print("Image not found")
+    abort(404)
 
 
 @app.errorhandler(404)
