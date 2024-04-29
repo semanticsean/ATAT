@@ -1,54 +1,118 @@
-<!--templates/timeframes.html--> 
+<!--templates/timeframes.html-->
 
 <!doctype html>
 <html lang="en" class="h-full">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Timeframes</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <style>
-      /* Add any custom styles here */
-    </style>
-  </head>
-  <body class="bg-gray-100 min-h-screen flex flex-col">
-    {% include 'header.html' %}
-    <main class="container mx-auto px-4 py-12 flex-grow">
-      <h1 class="text-4xl font-bold mb-6 mt-6">Timeframes</h1>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timeframes</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    /* Add any custom styles here */
+    .agent-image {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+  {% include 'header.html' %}
+
+  <main class="container mx-auto px-4 py-12 flex-grow">
+    <h1 class="text-4xl font-bold mb-6 mt-6">Timeframes</h1>
+
+    <div id="loading-spinner" class="text-center">
+      <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." class="mx-auto">
+    </div>
+
+    <div id="timeframes-container" class="hidden">
       {% if timeframes %}
-        {% for timeframe in timeframes %}
-          <div class="bg-white rounded-lg shadow-md p-4 mb-8">
-            <div class="flex items-center mb-4">
-              <img src="{{ url_for('dashboard_blueprint.serve_timeframe_image', timeframe_id=timeframe.id) }}" alt="{{ timeframe.name }}" class="w-32 h-32 rounded-lg object-cover mr-4">
-              <div>
-                <h2 class="text-3xl font-bold">{{ timeframe.name }}</h2>
-                <p class="text-lg text-gray-700">{{ timeframe.summary }}</p>
-              </div>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {% for agent in timeframe.parsed_agents_data %}
-              <div class="bg-white rounded-lg shadow-md p-4">
-                  <a href="{{ url_for('profile_blueprint.profile', agent_id=agent['id'], timeframe_id=timeframe.id) }}" class="block text-center">
-                      {% if 'photo_path' in agent %}
-                      <img src="{{ url_for('serve_image', filename=agent['photo_path'].split('/')[-1]) }}" alt="{{ agent['id'] }}" class="w-24 h-24 rounded-full mx-auto mb-2">
-                      {% else %}
-                      <div class="w-24 h-24 rounded-full mx-auto mb-2 bg-gray-200"></div>
-                      {% endif %}
-                      <h3 class="text-xl font-bold">{{ agent['id'] }}</h3>
-                      <p class="text-gray-600">{{ agent['jobtitle'] }}</p>
-                  </a>
-              </div>
-              {% endfor %}
+        <div class="mb-4">
+          <input type="text" id="search-input" placeholder="Search agents..." class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+        </div>
+      {% for timeframe in timeframes %}
+        <div class="bg-white rounded-lg shadow-md p-4 mb-8 timeframe-item">
+          <div class="flex items-center mb-4">
+            <img src="{{ url_for('timeframes_blueprint.serve_timeframe_image', timeframe_id=timeframe.id) }}" alt="{{ timeframe.name }}" class="w-32 h-32 rounded-lg object-cover mr-4">
+            <div>
+              <h2 class="text-3xl font-bold">{{ timeframe.name }}</h2>
+              <p class="text-lg text-gray-700">{{ timeframe.summary }}</p>
             </div>
           </div>
-        {% endfor %}
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {% for agent in timeframe.parsed_agents_data %}
+              {% if 'photo_path' in agent %}
+                <div class="bg-white rounded-lg shadow-md p-4 agent-item">
+                  <a href="{{ url_for('profile_blueprint.profile', agent_id=agent['id'], timeframe_id=timeframe.id) }}" class="block text-center">
+                    <img src="{{ url_for('serve_image', filename=agent['photo_path'].split('/')[-1]) }}" alt="{{ agent['id'] }}" class="agent-image mx-auto mb-2">
+                    <h3 class="text-xl font-bold">{{ agent['id'] }}</h3>
+                    <p class="text-gray-600">{{ agent['jobtitle'] }}</p>
+                  </a>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
       {% else %}
         <p class="text-gray-500">No timeframes found.</p>
       {% endif %}
-    </main>
-    {% include 'footer.html' %}
-  </body>
+    </div>
+  </main>
+
+  {% include 'footer.html' %}
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const loadingSpinner = document.getElementById('loading-spinner');
+      const timeframesContainer = document.getElementById('timeframes-container');
+      const searchInput = document.getElementById('search-input');
+      const timeframeItems = document.querySelectorAll('.timeframe-item');
+
+      // Function to filter agents based on search input
+      function filterAgents() {
+        const searchTerm = searchInput.value.toLowerCase();
+        timeframeItems.forEach(function(timeframeItem) {
+          const agentItems = timeframeItem.querySelectorAll('.agent-item');
+          let hasVisibleAgents = false;
+          agentItems.forEach(function(agentItem) {
+            const agentName = agentItem.querySelector('h3').textContent.toLowerCase();
+            if (agentName.includes(searchTerm)) {
+              agentItem.style.display = 'block';
+              hasVisibleAgents = true;
+            } else {
+              agentItem.style.display = 'none';
+            }
+          });
+          if (hasVisibleAgents) {
+            timeframeItem.style.display = 'block';
+          } else {
+            timeframeItem.style.display = 'none';
+          }
+        });
+      }
+
+      // Event listener for search input
+      searchInput.addEventListener('input', filterAgents);
+
+      // Function to load timeframes progressively
+      function loadTimeframes() {
+        timeframeItems.forEach(function(timeframeItem, index) {
+          setTimeout(function() {
+            timeframeItem.style.display = 'block';
+            if (index === timeframeItems.length - 1) {
+              loadingSpinner.style.display = 'none';
+              timeframesContainer.classList.remove('hidden');
+            }
+          }, index * 500);
+        });
+      }
+
+      // Start loading timeframes
+      loadTimeframes();
+    });
+  </script>
+</body>
 </html>

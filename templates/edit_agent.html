@@ -1,158 +1,131 @@
 <!-- templates/edit_agent.html -->
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agent Profile</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css"
-    />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Agent Profile Editor</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css"/>
     <style>
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-      }
-      #content {
-        min-height: 100%;
-        margin-bottom: -4rem;
-      }
-      #footer-push {
-        height: 4rem;
-      }
-      footer {
-        height: 4rem;
-      }
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-size: 16px; /* Increased text size */
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px; /* Suitable for desktop */
+            margin: auto;
+            padding: 20px; /* Increased padding */
+            box-sizing: border-box;
+        }
+        @media (max-width: 768px) {
+            .container {
+                width: 100%; /* Full width on mobile */
+            }
+        }
+        section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+            padding: 20px;
+        }
+        h2 {
+            font-size: 1.5em; /* Larger headers */
+            color: #333;
+        }
+        p {
+            margin-top: 0;
+            margin-bottom: 1em;
+            font-size: 1em;
+        }
     </style>
-  </head>
-  <body class="bg-blue-50">
-    {% include 'header.html' %}
-    <div class="container mx-auto px-4 py-8 mt-12">
-      {% if agent %}
-      <form
-        action="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}"
-        method="post"
-      >
-        <div class="mb-4">
-          <label
-            for="persona"
-            class="block text-gray-700 text-sm font-bold mb-2"
-            >Persona:</label
-          >
-          <textarea
-            id="persona"
-            name="persona"
-            rows="4"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          >
-{{ agent.persona }}</textarea
-          >
-        </div>
-        <div class="mb-4">
-          <label
-            for="summary"
-            class="block text-gray-700 text-sm font-bold mb-2"
-            >Summary:</label
-          >
-          <textarea
-            id="summary"
-            name="summary"
-            rows="4"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          >
-{{ agent.summary }}</textarea
-          >
-        </div>
-        <div class="mb-4">
-          <label
-            for="keywords"
-            class="block text-gray-700 text-sm font-bold mb-2"
-            >Keywords:</label
-          >
-          <textarea
-            id="keywords"
-            name="keywords"
-            rows="2"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          >
-{{ agent.keywords | join(', ') }}</textarea
-          >
-        </div>
-        <div class="mb-4">
-          <label
-            for="image_prompt"
-            class="block text-gray-700 text-sm font-bold mb-2"
-            >Image Prompt:</label
-          >
-          <textarea
-            id="image_prompt"
-            name="image_prompt"
-            rows="4"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          >
-{{ agent.image_prompt }}</textarea
-          >
-        </div>
-        <!-- templates/edit_agent.html -->
-        ...
-        <div class="mb-4">
+</head>
+<body class="bg-blue-50">
+{% include 'header.html' %}
+<div class="container mx-auto">
+    {% if agent %}
+    <form action="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}" method="post">
+        <section>
+            <h2>Persona</h2>
+            <p>Please enter the persona details for the agent.</p>
+            <label for="persona" class="block text-gray-700 text-sm font-bold mb-2">Persona:</label>
+            <textarea id="persona" name="persona" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.persona }}</textarea>
+        </section>
+
+        <section>
+            <h2>Summary</h2>
+            <p>Provide a brief summary of the agent's profile.</p>
+            <label for="summary" class="block text-gray-700 text-sm font-bold mb-2">Summary:</label>
+            <textarea id="summary" name="summary" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.summary }}</textarea>
+        </section>
+
+        <section>
+            <h2>Keywords</h2>
+            <p>Specify relevant keywords for the agent.</p>
+            <label for="keywords" class="block text-gray-700 text-sm font-bold mb-2">Keywords:</label>
+            <textarea id="keywords" name="keywords" rows="2" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.keywords | join(', ') }}</textarea>
+        </section>
+
+        <section>
+            <h2>Image Prompt</h2>
+            <p>Describe the desired imagery for the agent's profile.</p>
+            <label for="image_prompt" class="block text-gray-700 text-sm font-bold mb-2">Image Prompt:</label>
+            <textarea id="image_prompt" name="image_prompt" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.image_prompt }}</textarea>
+        </section>
+
+        <section>
+            <h2>Relationships</h2>
+            <p>Detail the agent's professional and personal relationships.</p>
             <label for="relationships" class="block text-gray-700 text-sm font-bold mb-2">Relationships:</label>
             <textarea id="relationships" name="relationships" rows="6" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.relationships | tojson }}</textarea>
-        </div>
-        <div class="mb-4">
+        </section>
+
+        <section>
+            <h2>Voice</h2>
+            <p>Select the voice used for communications by the agent.</p>
             <label for="voice" class="block text-gray-700 text-sm font-bold mb-2">Voice:</label>
             <select id="voice" name="voice" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                 {% for voice in voices %}
                 <option value="{{ voice }}" {% if agent.voice == voice %}selected{% endif %}>{{ voice }}</option>
                 {% endfor %}
             </select>
-        </div>
+        </section>
+
         <div class="flex justify-between items-center">
-            <div>
-                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Save Changes</button>
-                <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Cancel</a>
-            </div>
+            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Save Changes</button>
+            <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id) }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Cancel</a>
             <button type="button" id="deleteButton" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Delete Agent</button>
         </div>
-      
-      </form>
-      {% else %}
-      <p>Agent not found.</p>
-      {% endif %}
-    </div>
-    <div id="footer-push"></div>
-    {% include 'footer.html' %}
-
-    <script>
-      $(document).ready(function () {
+    </form>
+    {% else %}
+    <p>Agent not found.</p>
+    {% endif %}
+</div>
+{% include 'footer.html' %}
+<script>
+    $(document).ready(function () {
         $("#deleteButton").click(function () {
-          if (
-            confirm(
-              "Are you sure you want to delete this agent? This action is permanent.",
-            )
-          ) {
-            $.ajax({
-              url: '{{ url_for("profile_blueprint.delete_agent", agent_id=agent.id) }}',
-              method: "POST",
-              success: function (response) {
-                if (response.success) {
-                  alert("Agent deleted successfully.");
-                  window.location.href =
-                    '{{ url_for("dashboard_blueprint.dashboard") }}';
-                } else {
-                  alert("Error deleting agent: " + response.error);
-                }
-              },
-              error: function () {
-                alert("Error deleting agent. Please try again.");
-              },
-            });
-          }
+            if (confirm("Are you sure you want to delete this agent? This action is permanent.")) {
+                $.ajax({
+                    url: '{{ url_for("profile_blueprint.delete_agent", agent_id=agent.id) }}',
+                    method: "POST",
+                    success: function (response) {
+                        if (response.success) {
+                            alert("Agent deleted successfully.");
+                            window.location.href = '{{ url_for("dashboard_blueprint.dashboard") }}';
+                        } else {
+                            alert("Error deleting agent: " + response.error);
+                        }
+                    },
+                    error: function () {
+                        alert("Error deleting agent. Please try again.");
+                    }
+                });
+            }
         });
-      });
-    </script>
-  </body>
+    });
+</script>
+</body>
 </html>
