@@ -5,209 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Help - Semantic Life</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-      html, body {
-          height: 100%;
-          margin: 0;
-      }
-
-      @media (max-width: 768px) {
-          body {
-              display: flex;
-              flex-direction: column;
-              min-height: 600vh;
-          }
-      }
-
-      @media (min-width: 769px) {
-          body {
-              display: flex;
-              flex-direction: column;
-              min-height: 290vh;
-          }
-      }
-
-      main {
-          flex: 1; /* This will make the main content expand */
-      }
-
-    
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        @media (max-width: 768px) {
+            body {
+                display: flex;
+                flex-direction: column;
+                min-height: 600vh;
+            }
+        }
+        @media (min-width: 769px) {
+            body {
+                display: flex;
+                flex-direction: column;
+                min-height: 290vh;
+            }
+        }
+        main {
+            flex: 1; /* This will make the main content expand */
+        }
+        footer {
+            height: 4rem; /* Keep your footer styling as is */
+        }
         #footer-push {
             height: 44rem; /* Equal to footer height */
-        }
-
-      footer {
-          height: 4rem; /* Keep your footer styling as is */
-      }
-
-
-        main {
-            flex: 1;
         }
     </style>
 </head>
 <body class="flex flex-col h-full">
     {% include 'header.html' %}
-    <main class="flex-1" style="min-height: calc(100vh - 4rem);">
+    <main class="flex-1">
         <div class="container mx-auto px-4 mt-16">
-            <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="bg-white rounded-lg shadow-lg p-6" id="help-container">
                 <h2 class="text-2xl font-bold mb-4">Help & Support</h2>
                 <h1 class="text-3xl font-semibold mb-4">Welcome to the Semantic Life - AI Agent Dashboard!</h1>
-                <p class="mb-8">This guide will walk you through the key features and functionalities of the dashboard, helping you get started with creating and managing your AI agents, timeframes, and meetings.</p>
-
-                <h2 class="text-2xl font-semibold mb-4">Table of Contents</h2>
-                <ul class="list-disc pl-4 mb-8">
-                    <li><a href="#overview">Overview</a></li>
-                    <li><a href="#principal-agents">Principal Agents</a></li>
-                    <li><a href="#timeframes">Timeframes</a></li>
-                    <li><a href="#creating-new-timeframe">Creating a New Timeframe</a></li>
-                    <li><a href="#modifying-agents">Modifying Agents in a Timeframe</a></li>
-                    <li><a href="#meetings">Meetings</a></li>
-                    <li><a href="#creating-new-meeting">Creating a New Meeting</a></li>
-                    <li><a href="#conducting-survey">Conducting a Survey</a></li>
-                    <li><a href="#viewing-survey-results">Viewing Survey Results</a></li>
-                    <li><a href="#help-and-support">Help and Support</a></li>
-                </ul>
-
-                <section id="overview" class="mb-8">
-                    <h2 class="text-xl font-semibold mb-4">Overview</h2>
-                    <p class="mb-4">The Semantic Life - AI Agent Dashboard is a powerful tool that allows you to create, manage, and interact with AI agents. You can create principal agents, establish timeframes, and conduct meetings with the agents to gather insights and make informed decisions.</p>
-                </section>
-
-                <section id="principal-agents" class="mb-8">
-                    <h2 class="text-xl font-semibold mb-4">Principal Agents</h2>
-                    <p class="mb-4">Principal agents are the core entities in the dashboard. They represent the AI agents that you can interact with and assign to different timeframes and meetings. To view and manage your principal agents, click on the "Principal Agents" button in the "Synths" section of the dashboard.</p>
-                </section>
-
-                <section id="timeframes" class="mb-8">
-                    <h2 class="text-xl font-semibold mb-4">Timeframes</h2>
-                    <p class="mb-4">Timeframes allow you to create different scenarios or contexts for your AI agents. You can create a new timeframe, modify the agents within a timeframe, and conduct meetings based on specific timeframes.</p>
-                </section>
-
-                <section id="creating-new-timeframe" class="mb-8">
-                    <h2 class="text-xl font-semibold mb-4">Creating a New Timeframe</h2>
-                    <ol class="list-decimal pl-6 mb-4">
-                        <li>In the "Times" section of the dashboard, click on the "New Timeframe" button.</li>
-                        <li>Select the agents you want to include in the timeframe from the list of principal agents.</li>
-                        <li>Provide instructions or prompts to modify the selected agents for the timeframe.</li>
-                        <li>Enter a name for the timeframe and click on the "Create" button.</li>
-                    </ol>
-                    <p class="mb-4">The new timeframe will be created, and the selected agents will be modified based on the provided instructions. You can access the modified agents in the "Timeframes" section of the dashboard.</p>
-                </section>
-
-                <section id="modifying-agents" class="mb-8">
-                    <h2 class="text-xl font-semibold mb-4">Modifying Agents in a Timeframe</h2>
-                    <p class="mb-4">When you create a new timeframe, the selected agents are automatically modified based on the instructions you provide. The modifications are performed using the OpenAI API and DALL-E image generation.</p>
-                    <ol class="list-decimal pl-6 mb-4">
-                        <li>The specified fields (e.g., 'id', 'email', 'unique_id', 'timestamp', 'photo_path') are removed from the agent data.</li>
-                        <li>The agent data is sent to the OpenAI API along with the modification instructions.</li>
-                        <li>The OpenAI API returns the updated agent data in JSON format.</li>
-                        <li>The excluded fields are added back to the updated agent data.</li>
-                        <li>The agent's profile picture is processed using the Vision API to generate a detailed description.</li>
-                        <li>The DALL-E API is used to generate a new profile picture based on the modification instructions and the vision description.</li>
-                        <li>The new profile picture is saved, and the agent's photo path is updated.</li>
-                        <li>The modified agent data is stored in the timeframe.</li>
-                    </ol>
-                    <p class="mb-4">You can view the modified agents by clicking on the timeframe in the "Timeframes" section of the dashboard.</p>
-                </section>
-
-                <section id="meetings" class="mb-8">
-                    <h2 class="text-xl font-semibold mb-4">Meetings</h2>
-                    <p class="mb-4">Meetings allow you to interact with the AI agents and gather insights through surveys. You can create a new meeting, conduct a survey with the agents, and view the survey results.</p>
-                </section>
-
-                <section id="creating-new-meeting" class="mb-8">
-                    <h2 class="text-xl font-semibold mb-4">Creating a New Meeting</h2>
-                    <ol class="list-decimal pl-6 mb-4">
-                        <li>In the "Times" section of the dashboard, click on the "New Meeting" button.</li>
-                        <li>Select the timeframe for the meeting from the available options.</li>
-                        <li>Choose the agents you want to include in the meeting from the selected timeframe.</li>
-                        <li>Provide a name for the meeting and click on the "Create" button.</li>
-                    </ol>
-                    <p class="mb-4">The new meeting will be created, and you will be redirected to the survey form.</p>
-                </section>
-
-                <section id="conducting-survey" class="mb-8">
-                    <h2 class="text-xl font-semibold mb-4">Conducting a Survey</h2>
-                    <p class="mb-4">Once you have created a meeting, you can conduct a survey with the selected agents. The survey form allows you to define questions and gather responses from the agents.</p>
-                    <ol class="list-decimal pl-6 mb-4">
-                        <li>In the survey form, enter the questions you want to ask the agents.</li>
-                        <li>Specify the question type (e.g., open-ended, multiple-choice) and provide additional details if required.</li>
-                        <li>Optionally, provide instructions or prompts for the agents to consider while answering the questions.</li>
-                        <li>Select the agents you want to include in the survey.</li>
-                        <li>Choose the survey mode (iterative or simultaneous) and click on the "Conduct Survey" button.</li>
-                    </ol>
-                    <p class="mb-4">The survey will be conducted using the OpenAI API, and the responses from the agents will be collected.</p>
-                </section>
-
-                <section id="viewing-survey-results" class="mb-8">
-                    <h2 class="text-xl font-semibold mb-4">Viewing Survey Results</h2>
-                    <p class="mb-4">After conducting a survey, you can view the survey results in the dashboard. The survey results include the responses from each agent for the defined questions.</p>
-                    <ol class="list-decimal pl-6 mb-4">
-                        <li>In the "Meetings" section of the dashboard, click on the desired meeting.</li>
-                    </ol>
-                    <p class="mb-4">The survey results will be displayed, showing the responses from each agent. You can analyze the responses, compare insights from different agents, and make informed decisions based on the survey results.</p>
-                </section>
-
-                <section id="help-and-support" class="mb-8">
-                    <h2 class="text-xl font-semibold mb-4">Help and Support</h2>
-                    <p class="mb-4">If you need any assistance or have questions regarding the Semantic Life - AI Agent Dashboard, you can refer to the help documentation by clicking on the "Help" button in the "Tools" section of the dashboard.</p>
-                    <p class="mb-4">The help documentation provides detailed information about various features, troubleshooting steps, and frequently asked questions.</p>
-                    <p class="mb-4">If you encounter any issues or require further support, please contact our support team at <a href="mailto:support@semanticlife.com">support@semanticlife.com</a>.</p>
-                    <p class="mb-4">We hope this guide has been helpful in getting you started with the Semantic Life - AI Agent Dashboard. Feel free to explore the different features, create engaging timeframes and meetings, and leverage the power of AI agents to gain valuable insights.</p>
-                </section>
+                <p>Loading help content...</p>
             </div>
-          <div>
-            <section>
-              <div id="shortcodes-section" class="bg-white rounded-lg shadow px-6 py-4 mx-auto max-w-4xl relative">
-                    <button id="close-shortcodes" class="absolute top-0 right-0 mt-2 mr-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-800 p-1 focus:outline-none">
-                        <svg class="h-6 w-6" viewBox="0 0 24 24">
-                            <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                    </button>
-
-                    <div class="text-xl font-bold text-gray-800">Shortcodes</div>
-
-                  <div class="mt-4">
-                      <h4 class="font-semibold text-lg text-blue-600">Call Agents from Email Body</h4>
-                      <div> class="text-gray-600">@@(Agent Name)</div>
-                  </div>
-
-                  <div class="mt-4">
-                      <h4 class="font-semibold text-lg text-blue-600">Create a Temporary Synth</h4>
-                      <div class="text-gray-600">@@.creator(Embody a synth that...)</div>
-                  </div>
-
-                  <div class="mt-4">
-                      <h4 class="font-semibold text-lg text-blue-600">Long Responses (Multi-Chunk)</h4>
-                      <div class="text-gray-600">!detail_start!<br>instruction or content<br>!split!<br>instruction or content<br>!detail_stop!</div>
-                  </div>
-
-                  <div class="mt-4">
-                      <h4 class="font-semibold text-lg text-blue-600">Summarize</h4>
-                      <div class="text-gray-600">!summarize_start!<br>content<br>!summarize_stop!</div>
-                  </div>
-
-                  <div class="mt-4">
-                      <h4 class="font-semibold text-lg text-blue-600">Summarize with Modifier e.g. JSON Return</h4>
-                      <div class="text-gray-600">!summarize.json_start!<br>content<br>!summarize.json_stop!</div>
-                  </div>
-
-                  <!-- Code Links Section -->
-                  <div class="pb-12 mt-6 mb-12">
-                      <h3 class="text-lg font-bold text-gray-800">Code:</h3>
-                      <p class="text-blue-600 hover:text-blue-800 visited:text-purple-600">
-                          <a href="https://github.com/semanticsean/ATAT" target="_blank">Github / Readme</a><br>
-                          <a href="https://replit.com/@realityinspector/ATAT-Email-Client-for-AI-Agents-v03-ALPHA-public" target="_blank">Setup on Replit in 5 Minutes</a><br>
-                          <a href="https://x.com/seanmcdonaldxyz" target="_blank">Follow Sean</a><br>
-                          <a href="https://x.com/semanticlife" target="_blank">Follow Semantic Life</a>
-                      </p>
-                  </div>
-              </div>
-            </section>
         </div>
-        <div id="footer-push"></div>
     </main>
     {% include 'footer.html' %}
+    <script>
+        $(document).ready(function () {
+            $.getJSON('/static/help.json', function (data) {
+                $('#help-container').empty();
+                $('#help-container').append('<h2 class="text-2xl font-bold mb-4">' + data.title + '</h2>');
+                $('#help-container').append('<p class="mb-8">' + data.description + '</p>');
+                $('#help-container').append('<h2 class="text-2xl font-semibold mb-4">Table of Contents</h2>');
+                const ul = $('<ul class="list-disc pl-4 mb-8"></ul>');
+                data.sections.forEach(function (section) {
+                    ul.append('<li><a href="#' + section.id + '">' + section.title + '</a></li>');
+                });
+                $('#help-container').append(ul);
+                data.sections.forEach(function (section) {
+                    const sectionDiv = $('<section id="' + section.id + '" class="mb-8"></section>');
+                    sectionDiv.append('<h2 class="text-xl font-semibold mb-4">' + section.title + '</h2>');
+                    sectionDiv.append('<p class="mb-4">' + section.content + '</p>');
+                    $('#help-container').append(sectionDiv);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

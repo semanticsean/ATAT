@@ -13,10 +13,11 @@ from datetime import datetime
 from extensions import db, login_manager
 from models import db, User, Survey, Timeframe, Meeting, Agent, Image
 import start
-from routes import auth_blueprint, meeting_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint, talker_blueprint
+from routes import auth_blueprint, meeting_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint, talker_blueprint, timeframes_blueprint
 from werkzeug.utils import secure_filename
 from sqlalchemy import cast, String
 from talker import talker_blueprint
+
 
 
 
