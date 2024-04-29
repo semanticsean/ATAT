@@ -7,6 +7,8 @@ import time
 import uuid
 import datetime
 import os
+import tempfile
+
 from models import db, User, Survey, Timeframe, Meeting, Agent, Image
 from openai import OpenAI, APIError
 from PIL import Image
@@ -238,6 +240,8 @@ def process_agents(payload, current_user):
   db.session.commit()
 
   summarize_process_agents(new_timeframe, payload, current_user)
+  monitor_summarize_process_agents(new_timeframe, payload, current_user, process_agents_summary, image_url, img_data, thumbnail_data)
+
 
   return new_timeframe
 
@@ -839,3 +843,69 @@ def summarize_process_agents(new_timeframe, payload, current_user):
   logging.info(f"Process agents thumbnail image data from database: {new_timeframe.thumbnail_image_data[:100]}...")
 
   logging.info("Process agents summary and image generated successfully")
+
+
+
+  def monitor_summarize_process_agents(new_timeframe, payload, current_user, process_agents_summary, image_url, img_data, thumbnail_data):
+    # Create a unique log file for each invocation
+    log_filename = f"summarize_process_agents_{uuid.uuid4()}.log"
+    log_filepath = os.path.join("logs", log_filename)
+
+    # Configure logging to write to the log file
+    logging.basicConfig(filename=log_filepath, level=logging.DEBUG)
+
+    # Log the input parameters
+    logging.debug(f"Timeframe ID: {new_timeframe.id}")
+    logging.debug(f"Payload: {payload}")
+    logging.debug(f"Current User ID: {current_user.id}")
+
+    # Log the process agents summary generation
+    logging.debug("Generating process agents summary...")
+    logging.debug(f"Process agents summary generated: {process_agents_summary}")
+
+    # Log the storing of the process agents summary
+    logging.debug(f"Storing process agents summary in new_timeframe.summary for Timeframe ID: {new_timeframe.id}")
+    new_timeframe.summary = process_agents_summary
+    db.session.commit()
+    logging.debug(f"Process agents summary committed to the database for Timeframe ID: {new_timeframe.id}")
+
+    # Log the image generation process
+    logging.debug("Generating process agents image...")
+    logging.debug(f"Image URL: {image_url}")
+
+    # Download the image data
+    logging.debug(f"Image data downloaded. Size: {len(img_data)} bytes")
+
+    # Save a copy of the image to a temporary file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as temp_img_file:
+        temp_img_file.write(img_data)
+        temp_img_path = temp_img_file.name
+    logging.debug(f"Image saved to temporary file: {temp_img_path}")
+
+    # Log the thumbnail generation process
+    logging.debug("Generating thumbnail image...")
+    logging.debug(f"Thumbnail image generated. Size: {len(thumbnail_data)} bytes")
+
+    # Log the encoding of image data
+    logging.debug("Encoding image data...")
+    new_timeframe.image_data = base64.b64encode(img_data).decode('utf-8')
+    logging.debug(f"Image data encoded. Length: {len(new_timeframe.image_data)}")
+
+    # Log the encoding of thumbnail image data
+    logging.debug("Encoding thumbnail image data...")
+    new_timeframe.thumbnail_image_data = base64.b64encode(thumbnail_data).decode('utf-8')
+    logging.debug(f"Thumbnail image data encoded. Length: {len(new_timeframe.thumbnail_image_data)}")
+
+    # Log the committing of image data to the database
+    logging.debug("Committing image data to the database...")
+    db.session.add(new_timeframe)
+    db.session.commit()
+    logging.debug(f"Process agents image data and thumbnail image data committed to the database for Timeframe ID: {new_timeframe.id}")
+
+    # Log the verification of stored data
+    logging.debug(f"Verifying stored data for Timeframe ID: {new_timeframe.id}")
+    logging.debug(f"Process agents summary from database: {new_timeframe.summary[:100]}...")
+    logging.debug(f"Process agents image data from database: {new_timeframe.image_data[:100]}...")
+    logging.debug(f"Process agents thumbnail image data from database: {new_timeframe.thumbnail_image_data[:100]}...")
+
+    logging.debug("Process agents summary and image generated successfully")
