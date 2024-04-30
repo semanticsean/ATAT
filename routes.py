@@ -1242,28 +1242,57 @@ def before_request_func():
 @auth_blueprint.route('/get_agents', methods=['GET'])
 @login_required
 def get_agents():
-  timeframe_id = request.args.get('timeframe_id')
+    timeframe_id = request.args.get('timeframe_id')
 
-  if timeframe_id:
-    timeframe = Timeframe.query.get(timeframe_id)
-    if not timeframe or timeframe.user_id != current_user.id:
-      return jsonify({'error': 'Invalid timeframe'}), 400
+    if timeframe_id:
+        timeframe = Timeframe.query.get(timeframe_id)
+        if not timeframe or timeframe.user_id != current_user.id:
+            return jsonify({'error': 'Invalid timeframe'}), 400
 
-    agents_data = json.loads(timeframe.agents_data)
-    images_data = json.loads(timeframe.images_data)
-  else:
-    agents_data = current_user.agents_data or []
-    images_data = current_user.images_data or {}
+        agents_data = json.loads(timeframe.agents_data)
+        images_data = json.loads(timeframe.images_data)
 
-  agents = []
-  for agent in agents_data:
-    if 'id' in agent:
-      photo_filename = agent['photo_path'].split('/')[-1]
-      agent_data = {
-          'id': agent['id'],
-          'jobtitle': agent.get('jobtitle', ''),
-          'image_data': images_data.get(photo_filename, '')
-      }
-      agents.append(agent_data)
+        agents = []
+        for agent in agents_data:
+            if 'id' in agent:
+                photo_filename = agent['photo_path'].split('/')[-1]
+                agent_data = {
+                    'id': agent['id'],
+                    'jobtitle': agent.get('jobtitle', ''),
+                    'image_data': images_data.get(photo_filename, ''),
+                    'type': 'timeframe',
+                    'timeframe_id': timeframe_id
+                }
+                agents.append(agent_data)
 
-  return jsonify({'agents': agents})
+    else:
+        main_agents = current_user.agents_data or []
+        timeframe_agents = []
+        agent_agents = []
+
+        for timeframe in current_user.timeframes:
+            agents_data = json.loads(timeframe.agents_data)
+            for agent in agents_data:
+                if 'id' in agent:
+                    photo_filename = agent['photo_path'].split('/')[-1]
+                    agent_data = {
+                        'id': agent['id'],
+                        'jobtitle': agent.get('jobtitle', ''),
+                        'image_data': json.loads(timeframe.images_data).get(photo_filename, ''),
+                        'type': 'timeframe',
+                        'timeframe_id': str(timeframe.id)
+                    }
+                    timeframe_agents.append(agent_data)
+
+        agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
+        for agent in agent_class_agents:
+            agent_data = {
+                'id': agent.id,
+                'jobtitle': agent.data.get('jobtitle', ''),
+                'image_data': agent.data.get('image_data', {}).get(agent.data.get('photo_path', ''), ''),
+                'type': 'agent',
+                'timeframe_id': None
+            }
+            agent_agents.append(agent_data)
+
+        return jsonify({'main_agents': main_agents, 'timeframe_agents': timeframe_agents, 'agent_agents': agent_agents})
