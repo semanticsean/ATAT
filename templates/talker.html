@@ -40,7 +40,7 @@
         display: flex;
         flex-direction: column;
         padding: 20px;
-        max-width: 100%;
+        max-width: 800px;
         margin: 0 auto;
       }
 
@@ -60,27 +60,27 @@
       }
 
       .conversation-list {
+        position: absolute;
+        top: var(--header-footer-height);
+        left: 0;
         width: 300px;
+        height: calc(100% - var(--header-footer-height));
         background-color: #f2f2f2;
         padding: 20px;
         overflow-y: auto;
         transition: transform 0.3s;
         border-radius: 1rem;
         margin: 1rem;
+        z-index: 100;
       }
 
       @media (max-width: 768px) {
         .conversation-list {
-          position: fixed;
-          top: var(--header-footer-height);
-          left: -300px;
-          height: calc(100% - var(--header-footer-height));
-          z-index: 100;
-          transform: translateX(0);
+          transform: translateX(-100%);
         }
 
         .conversation-list.open {
-          transform: translateX(300px);
+          transform: translateX(0);
         }
       }
 
@@ -91,6 +91,10 @@
         border-radius: 5px;
         cursor: pointer;
         background-color: #e6e6e6;
+      }
+
+      #new-conversation-button {
+        margin-bottom: 1rem;
       }
 
       .message-bubble {
@@ -108,7 +112,7 @@
       }
 
       .ai-message {
-        align-self: flex-start;
+        align-self: flex-start; 
         background-color: #f0f0f0;
       }
 
@@ -117,7 +121,7 @@
       }
 
       #footer-push {
-        height: 4rem;
+        height: 4rem; 
       }
     </style>
   </head>
@@ -151,9 +155,9 @@
           </div>
         </div>
       </div>
-      <div class="conversation-list md:-mt-24">
+      <div class="conversation-list">
         <h2 class="text-xl font-bold mb-4">Conversations</h2>
-        <button id="new-conversation-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+        <button id="new-conversation-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
           New Conversation
         </button>
         <div id="conversation-items">
@@ -169,6 +173,7 @@
     </div>
 
     <script>
+     
       $(document).ready(function() {
         const messageList = $("#message-list");
         messageList.scrollTop(messageList.prop("scrollHeight"));
