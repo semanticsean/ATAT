@@ -103,75 +103,80 @@
 </main>
 <div id="footer-push"></div>
 {% include 'footer.html' %}
-<script>
-  $(document).ready(function() {
-    var selectedAgents = [];
-    var allAgents = [];
+    <script>
+      $(document).ready(function() {
+        var selectedAgents = [];
+        var allAgents = [];
 
-    $('#agent_source').change(function() {
-      var source = $(this).val();
-      if (source.startsWith('timeframe_')) {
-        var timeframeId = source.split('_')[1];
-        loadAgents(timeframeId);
-      } else {
-        loadAgents();
-      }
-    });
-
-    function loadAgents(timeframeId) {
-      $.ajax({
-        url: '/get_agents',
-        data: { timeframe_id: timeframeId },
-        success: function(data) {
-          if (timeframeId) {
-            allAgents = data.agents;
+        $('#agent_source').change(function() {
+          var source = $(this).val();
+          if (source.startsWith('timeframe_')) {
+            var timeframeId = source.split('_')[1];
+            loadAgents(timeframeId);
           } else {
-            allAgents = data.main_agents.concat(data.timeframe_agents, data.agent_agents);
+            loadAgents();
           }
-          displayAgents(allAgents);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          $('#agent-list').html(`<div>Error loading agents: ${textStatus}</div>`);
-          console.error('Error loading agents:', errorThrown);
-        }
-      });
-    }
-
-    function displayAgents(agents) {
-      const agentList = $('#agent-list');
-      agentList.empty();
-
-      if (agents.length === 0) {
-        agentList.html('<div>No agents found.</div>');
-      } else {
-        agents.forEach(function(agent, index) {
-          const isSelected = selectedAgents.includes(agent.id);
-          const selectedClass = isSelected ? 'selected' : '';
-          const checkedAttr = isSelected ? 'checked' : '';
-
-          const agentHTML = `
-            <div class="agent-card ${selectedClass}" data-agent-id="${agent.id}" data-agent-name="${agent.id}" data-agent-type="${agent.type}">
-              <input type="checkbox" id="agent-${agent.id}" class="agent-checkbox hidden" ${checkedAttr} />
-              <label for="agent-${agent.id}">
-                <div class="agent-image" style="background-image: url('data:image/png;base64,${agent.image_data}');"></div>
-                <div class="mt-2 text-center">
-                  <div class="text-lg font-bold">${agent.id}</div>
-                  <div class="text-sm">${agent.jobtitle}</div>
-                </div>
-              </label>
-            </div>
-          `;
-
-          setTimeout(function() {
-            agentList.append(agentHTML);
-            if (index === agents.length - 1) {
-              $('#loading').hide();
-              agentList.removeClass('hidden');
-            }
-          }, index * 100);
         });
-      }
-    }
+
+        function loadAgents(timeframeId) {
+          $.ajax({
+            url: '/get_agents',
+            data: { timeframe_id: timeframeId },
+            success: function(data) {
+              if (timeframeId) {
+                allAgents = data.agents;
+              } else {
+                allAgents = data.main_agents.concat(data.timeframe_agents, data.agent_agents);
+              }
+              displayAgents(allAgents);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              $('#agent-list').html(`<div>Error loading agents: ${textStatus}</div>`);
+              console.error('Error loading agents:', errorThrown);
+            }
+          });
+        }
+
+        function displayAgents(agents) {
+          const agentList = $('#agent-list');
+          agentList.empty();
+
+          if (agents.length === 0) {
+            agentList.html('<div>No agents found.</div>');
+            $('#loading').hide();
+            agentList.removeClass('hidden');
+          } else {
+            var agentsDisplayed = 0;
+            agents.forEach(function(agent, index) {
+              const isSelected = selectedAgents.includes(agent.id);
+              const selectedClass = isSelected ? 'selected' : '';
+              const checkedAttr = isSelected ? 'checked' : '';
+
+              const agentHTML = `
+                <div class="agent-card ${selectedClass}" data-agent-id="${agent.id}" data-agent-name="${agent.id}" data-agent-type="${agent.type}">
+                  <input type="checkbox" id="agent-${agent.id}" class="agent-checkbox hidden" ${checkedAttr} />
+                  <label for="agent-${agent.id}">
+                    <div class="agent-image" style="background-image: url('data:image/png;base64,${agent.image_data}');"></div>
+                    <div class="mt-2 text-center">
+                      <div class="text-lg font-bold">${agent.id}</div>
+                      <div class="text-sm">${agent.jobtitle}</div>
+                    </div>
+                  </label>
+                </div>
+              `;
+
+              setTimeout(function() {
+                agentList.append(agentHTML);
+                agentsDisplayed++;
+                if (agentsDisplayed === 1) {
+                  $('#loading').hide();
+                  agentList.removeClass('hidden');
+                }
+              }, index * 100);
+            });
+          }
+        }
+
 
     // Initialize with main agents on document ready
     $(document).ready(function() {

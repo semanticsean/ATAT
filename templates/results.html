@@ -47,26 +47,8 @@
         cursor: pointer;
         transition: background-color 0.3s;
       }
-      .public-badge:hover {
-        background-color: #f59e0b;
-      }
-      .public-badge.copied {
-        background-color: #f59e0b;
-      }
-      @keyframes glowEffect {
-        0% {
-          box-shadow: 0 0 5px #fbbf24;
-        }
-        50% {
-          box-shadow: 0 0 20px #fbbf24;
-        }
-        100% {
-          box-shadow: 0 0 5px #fbbf24;
-        }
-      }
-
-      .public-badge.glow {
-        animation: glowEffect 3s ease-in-out;
+      .public-badge:hover, .public-badge.copied {
+        background-color: #f59e0b; /* Simple color change on hover and copy */
       }
     </style>
   </head>
@@ -212,21 +194,19 @@
         img.addEventListener('load', imageLoaded);
       });
 
+      
       function copyPublicUrl(button) {
         var publicUrl = "{{ request.host_url }}public/meeting/{{ meeting.public_url }}";
         navigator.clipboard.writeText(publicUrl).then(function() {
-          button.classList.add('glow');
-          setTimeout(function() {
-            button.classList.remove('glow');
-          }, 3000);
           button.classList.add('copied');
           setTimeout(function() {
             button.classList.remove('copied');
-          }, 2000);
+          }, 2000); // Color changes for 2 seconds after copying
         }, function(err) {
           console.error('Could not copy text: ', err);
         });
       }
+
 
       document.getElementById('download-csv').addEventListener('click', function() {
           var csvRows = [];
