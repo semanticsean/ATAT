@@ -1,4 +1,26 @@
-<div style="text-align: center">
-  <h1>404 Not Found</h1>
-  <p>Sorry, it's a 404 Error</p>
+{% include 'header.html' %}
+
+<div class="container mx-auto px-4 mt-4">
+  <div class="bg-white rounded-lg shadow-lg">
+    <div style="text-align: center">
+      <h1>404 Not Found</h1>
+      <p class="mb-4 text-xl lg:w-2/3 md:w-full">
+        Sorry, that page is not available at this time
+      </p>
+      <div class="flex gap-4">
+        <a
+          href="{{ url_for('auth_blueprint.login') }}"
+          class="bg-blue-500 text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+          >Login</a
+        >
+        <a
+          href="{{ url_for('auth_blueprint.register') }}"
+          class="bg-black text-white text-xl font-bold py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+          >Register</a
+        >
+      </div>
+    </div>
+  </div>
+
+  {% include 'footer.html' %}
 </div>
