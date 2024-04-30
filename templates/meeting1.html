@@ -117,9 +117,13 @@
               agentList.html('<div>No agents found.</div>');
             } else {
               data.agents.forEach(agent => {
+                const isSelected = selectedAgents.includes(agent.id);
+                const selectedClass = isSelected ? 'selected' : '';
+                const checkedAttr = isSelected ? 'checked' : '';
+
                 const agentHTML = `
-                  <div class="agent-card" data-agent-id="${agent.id}" data-agent-name="${agent.id}">
-                    <input type="checkbox" id="agent-${agent.id}" class="agent-checkbox hidden" />
+                  <div class="agent-card ${selectedClass}" data-agent-id="${agent.id}" data-agent-name="${agent.id}">
+                    <input type="checkbox" id="agent-${agent.id}" class="agent-checkbox hidden" ${checkedAttr} />
                     <label for="agent-${agent.id}">
                       <div class="agent-image" style="background-image: url('data:image/png;base64,${agent.image_data}');"></div>
                       <div class="mt-2 text-center">
@@ -150,17 +154,16 @@
       $('#agent-list').on('click', '.agent-card', function() {
         var agentId = $(this).data('agent-id');
         var checkbox = $(this).find('.agent-checkbox');
-        checkbox.prop('checked', !checkbox.prop('checked'));
-        $(this).toggleClass('selected');
+        var isChecked = checkbox.prop('checked');
 
-        if (checkbox.prop('checked')) {
-          selectedAgents.push(agentId);
+        if (isChecked) {
+          selectedAgents = selectedAgents.filter(id => id !== agentId);
         } else {
-          var index = selectedAgents.indexOf(agentId);
-          if (index > -1) {
-            selectedAgents.splice(index, 1);
-          }
+          selectedAgents.push(agentId);
         }
+
+        checkbox.prop('checked', !isChecked);
+        $(this).toggleClass('selected', !isChecked);
       });
 
       $('#meetingForm').on('submit', function() {
