@@ -1,7 +1,9 @@
+# doc2api.py
 import os
 import json
 import bleach
 import uuid
+import logging
 from werkzeug.utils import secure_filename
 from flask import Blueprint, request, jsonify, redirect, url_for
 from models import db, User, Timeframe, Meeting, Agent, Document
@@ -14,180 +16,222 @@ doc2api_blueprint = Blueprint('doc2api_blueprint', __name__)
 ALLOWED_EXTENSIONS = {'doc', 'pdf', 'md', 'txt', 'json'}
 client = OpenAI()
 
+# Configure logging
+logs_directory = 'logs'
+os.makedirs(logs_directory, exist_ok=True)
+log_file = os.path.join(logs_directory, 'doc2api.log')
+
+logging.basicConfig(filename=log_file,
+                    level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+  return '.' in filename and filename.rsplit(
+      '.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 def clean_text(text):
-    # Clean and bleach the text to remove any errant characters
-    cleaned_text = bleach.clean(text, tags=[], strip=True)
-    return cleaned_text
+  # Clean and bleach the text to remove any errant characters
+  cleaned_text = bleach.clean(text, tags=[], strip=True)
+  return cleaned_text
+
 
 @doc2api_blueprint.route('/upload_document', methods=['POST'])
 def upload_document():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file uploaded'}), 400
+  logging.info("Received request to upload document")
 
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
+  if 'file' not in request.files:
+    logging.error("No file uploaded")
+    return jsonify({'error': 'No file uploaded'}), 400
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join('uploads', filename)
-        file.save(file_path)
+  file = request.files['file']
+  if file.filename == '':
+    logging.error("No file selected")
+    return jsonify({'error': 'No file selected'}), 400
 
-        with open(file_path, 'r') as f:
-            document_text = f.read()
+  if file and allowed_file(file.filename):
+    filename = secure_filename(file.filename)
+    file_path = os.path.join('uploads', filename)
+    file.save(file_path)
 
-        # Clean the document text
-        cleaned_text = clean_text(document_text)
+    with open(file_path, 'r') as f:
+      document_text = f.read()
 
-        # Save the cleaned document text to the user's record in the database
-        current_user = User.query.get(1)  # Replace with the appropriate user retrieval logic
-        current_user.document_text = cleaned_text
-        db.session.commit()
+    # Clean the document text
+    cleaned_text = clean_text(document_text)
 
-        # Prepare the API payload for GPT-4-turbo
-        with open('abe/doc2api_instructions.json', 'r') as f:
-            doc2api_instructions = json.load(f)
+    # Save the cleaned document text to the user's record in the database
+    current_user = User.query.get(
+        1)  # Replace with the appropriate user retrieval logic
+    current_user.document_text = cleaned_text
+    db.session.commit()
 
-        system_prompt = doc2api_instructions['system_prompt']
-        user_prompt = f"Document text:\n{cleaned_text}\n\n"
+    # Prepare the API payload for GPT-4-turbo
+    with open('abe/doc2api_instructions.json', 'r') as f:
+      doc2api_instructions = json.load(f)
 
-        # Append the agent list, timeframe list, and meeting list to the user prompt
-        agents = Agent.query.all()
-        timeframes = Timeframe.query.all()
-        meetings = Meeting.query.all()
+    system_prompt = doc2api_instructions['system_prompt']
+    user_prompt = f"Document text:\n{cleaned_text}\n\n"
 
-        user_prompt += "Agents:\n"
-        for agent in agents:
-            user_prompt += f"- ID: {agent.id}, Name: {agent.data.get('name', '')}, Job Title: {agent.data.get('jobtitle', '')}\n"
+    # Append the agent list, timeframe list, and meeting list to the user prompt
+    agents = Agent.query.all()
+    timeframes = Timeframe.query.all()
+    meetings = Meeting.query.all()
 
-        user_prompt += "\nTimeframes:\n"
-        for timeframe in timeframes:
-            user_prompt += f"- ID: {timeframe.id}, Name: {timeframe.name}\n"
+    user_prompt += "Agents:\n"
+    for agent in agents:
+      user_prompt += f"- ID: {agent.id}, Name: {agent.data.get('name', '')}, Job Title: {agent.data.get('jobtitle', '')}\n"
 
-        user_prompt += "\nMeetings:\n"
-        for meeting in meetings:
-            user_prompt += f"- ID: {meeting.id}, Name: {meeting.name}\n"
+    user_prompt += "\nTimeframes:\n"
+    for timeframe in timeframes:
+      user_prompt += f"- ID: {timeframe.id}, Name: {timeframe.name}\n"
 
-        payload = {
-            "model": "gpt-4-turbo-preview",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": user_prompt
-                }
-            ]
-        }
+    user_prompt += "\nMeetings:\n"
+    for meeting in meetings:
+      user_prompt += f"- ID: {meeting.id}, Name: {meeting.name}\n"
 
-        # Call the GPT-4-turbo API with the payload
-        response = client.chat.completions.create(**payload)
+    payload = {
+        "model":
+        "gpt-4-turbo-preview",
+        "messages": [{
+            "role": "system",
+            "content": system_prompt
+        }, {
+            "role": "user",
+            "content": user_prompt
+        }]
+    }
 
-        # Extract the structured JSON response
-        structured_response = json.loads(response.choices[0].message.content)
+    # Call the GPT-4-turbo API with the payload
+    response = client.chat.completions.create(**payload)
 
-        # Store the structured response in the database
-        document_data = {
-            'user_id': current_user.id,
-            'filename': filename,
-            'data': structured_response
-        }
-        document = Document(**document_data)
-        db.session.add(document)
-        db.session.commit()
+    # Extract the structured JSON response
+    structured_response = json.loads(response.choices[0].message.content)
 
-        return jsonify({'document_id': document.id}), 200
+    # Store the structured response in the database
+    document_data = {
+        'user_id': current_user.id,
+        'filename': filename,
+        'data': structured_response
+    }
+    document = Document(**document_data)
+    db.session.add(document)
+    db.session.commit()
 
-    return jsonify({'error': 'Invalid file type'}), 400
+    logging.info(f"Document uploaded successfully. Document ID: {document.id}")
+    return jsonify({'document_id': document.id}), 200
 
-@doc2api_blueprint.route('/edit_document/<int:document_id>', methods=['GET', 'POST'])
+  logging.error("Invalid file type")
+  return jsonify({'error': 'Invalid file type'}), 400
+
+
+@doc2api_blueprint.route('/edit_document/<int:document_id>',
+                         methods=['GET', 'POST'])
 def edit_document(document_id):
-    document = Document.query.get(document_id)
-    if not document:
-        return jsonify({'error': 'Document not found'}), 404
+  logging.info(f"Received request to edit document with ID: {document_id}")
 
-    if request.method == 'POST':
-        # Update the document data based on the form submission
-        document.data = request.json
-        db.session.commit()
+  document = Document.query.get(document_id)
+  if not document:
+    logging.error(f"Document with ID {document_id} not found")
+    return jsonify({'error': 'Document not found'}), 404
 
-        return jsonify({'message': 'Document updated successfully'}), 200
+  if request.method == 'POST':
+    # Update the document data based on the form submission
+    document.data = request.json
+    db.session.commit()
 
-    # Render the form for editing the document data
-    return jsonify(document.data), 200
+    logging.info(f"Document with ID {document_id} updated successfully")
+    return jsonify({'message': 'Document updated successfully'}), 200
 
-  @doc2api_blueprint.route('/submit_document/<int:document_id>', methods=['POST'])
-  def submit_document(document_id):
-      document = Document.query.get(document_id)
-      if not document:
-          return jsonify({'error': 'Document not found'}), 404
+  # Render the form for editing the document data
+  logging.debug(f"Returning document data for editing: {document.data}")
+  return jsonify(document.data), 200
 
-      current_user = User.query.get(1)  # Replace with the appropriate user retrieval logic
 
-      # Process the document data and make API calls
-      for agent_data in document.data.get('agents', []):
-          agent_id = agent_data.get('id')
-          if not agent_id:
-              # Create a new agent if the agent ID doesn't exist
-              new_agent = generate_new_agent(
-                  agent_name=agent_data.get('name', ''),
-                  jobtitle=agent_data.get('jobtitle', ''),
-                  agent_description=agent_data.get('description', ''),
-                  current_user=current_user
-              )
-              agent_id = new_agent.id
-              agent_data['id'] = agent_id
+@doc2api_blueprint.route('/submit_document/<int:document_id>',
+                         methods=['POST'])
+def submit_document(document_id):
+  logging.info(f"Received request to submit document with ID: {document_id}")
 
-          # Create an API request for the agent
-          agent_request = AgentRequest(**agent_data)
-          api_request = APIRequest(request_type='new_agent', agent_request=agent_request)
+  document = Document.query.get(document_id)
+  if not document:
+    logging.error(f"Document with ID {document_id} not found")
+    return jsonify({'error': 'Document not found'}), 404
 
-          # Make the API call to process the agent request
-          try:
-              response = requests.post(
-                  url_for('api.create_request', _external=True),
-                  json=api_request.dict(),
-                  headers={'Content-Type': 'application/json'}
-              )
-              response.raise_for_status()
-          except requests.exceptions.RequestException as e:
-              return jsonify({'error': f'Error processing agent request: {str(e)}'}), 500
+  current_user = User.query.get(
+      1)  # Replace with the appropriate user retrieval logic
 
-      for timeframe_data in document.data.get('timeframes', []):
-          # Create an API request for the timeframe
-          timeframe_request = TimeframeRequest(**timeframe_data)
-          api_request = APIRequest(request_type='process_agents', timeframe_request=timeframe_request)
+  # Process the document data and make API calls
+  for agent_data in document.data.get('agents', []):
+    agent_id = agent_data.get('id')
+    if not agent_id:
+      # Create a new agent if the agent ID doesn't exist
+      new_agent = generate_new_agent(agent_name=agent_data.get('name', ''),
+                                     jobtitle=agent_data.get('jobtitle', ''),
+                                     agent_description=agent_data.get(
+                                         'description', ''),
+                                     current_user=current_user)
+      agent_id = new_agent.id
+      agent_data['id'] = agent_id
 
-          # Make the API call to process the timeframe request
-          try:
-              response = requests.post(
-                  url_for('api.create_request', _external=True),
-                  json=api_request.dict(),
-                  headers={'Content-Type': 'application/json'}
-              )
-              response.raise_for_status()
-          except requests.exceptions.RequestException as e:
-              return jsonify({'error': f'Error processing timeframe request: {str(e)}'}), 500
+    # Create an API request for the agent
+    agent_request = AgentRequest(**agent_data)
+    api_request = APIRequest(request_type='new_agent',
+                             agent_request=agent_request)
 
-      for meeting_data in document.data.get('meetings', []):
-          # Create an API request for the meeting
-          meeting_request = MeetingRequest(**meeting_data)
-          api_request = APIRequest(request_type='conduct_meeting', meeting_request=meeting_request)
+    # Make the API call to process the agent request
+    try:
+      response = requests.post(url_for('api.create_request', _external=True),
+                               json=api_request.dict(),
+                               headers={'Content-Type': 'application/json'})
+      response.raise_for_status()
+      logging.info(
+          f"Agent request processed successfully. Response: {response.json()}")
+    except requests.exceptions.RequestException as e:
+      logging.error(f"Error processing agent request: {str(e)}")
+      return jsonify({'error':
+                      f'Error processing agent request: {str(e)}'}), 500
 
-          # Make the API call to process the meeting request
-          try:
-              response = requests.post(
-                  url_for('api.create_request', _external=True),
-                  json=api_request.dict(),
-                  headers={'Content-Type': 'application/json'}
-              )
-              response.raise_for_status()
-          except requests.exceptions.RequestException as e:
-              return jsonify({'error': f'Error processing meeting request: {str(e)}'}), 500
+  for timeframe_data in document.data.get('timeframes', []):
+    # Create an API request for the timeframe
+    timeframe_request = TimeframeRequest(**timeframe_data)
+    api_request = APIRequest(request_type='process_agents',
+                             timeframe_request=timeframe_request)
 
-      return jsonify({'message': 'Document submitted successfully'}), 200
+    # Make the API call to process the timeframe request
+    try:
+      response = requests.post(url_for('api.create_request', _external=True),
+                               json=api_request.dict(),
+                               headers={'Content-Type': 'application/json'})
+      response.raise_for_status()
+      logging.info(
+          f"Timeframe request processed successfully. Response: {response.json()}"
+      )
+    except requests.exceptions.RequestException as e:
+      logging.error(f"Error processing timeframe request: {str(e)}")
+      return jsonify(
+          {'error': f'Error processing timeframe request: {str(e)}'}), 500
+
+  for meeting_data in document.data.get('meetings', []):
+    # Create an API request for the meeting
+    meeting_request = MeetingRequest(**meeting_data)
+    api_request = APIRequest(request_type='conduct_meeting',
+                             meeting_request=meeting_request)
+
+    # Make the API call to process the meeting request
+    try:
+      response = requests.post(url_for('api.create_request', _external=True),
+                               json=api_request.dict(),
+                               headers={'Content-Type': 'application/json'})
+      response.raise_for_status()
+      logging.info(
+          f"Meeting request processed successfully. Response: {response.json()}"
+      )
+    except requests.exceptions.RequestException as e:
+      logging.error(f"Error processing meeting request: {str(e)}")
+      return jsonify({'error':
+                      f'Error processing meeting request: {str(e)}'}), 500
+
+  logging.info(f"Document with ID {document_id} submitted successfully")
+  return jsonify({'message': 'Document submitted successfully'}), 200
