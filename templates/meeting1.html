@@ -123,7 +123,11 @@
         url: '/get_agents',
         data: { timeframe_id: timeframeId },
         success: function(data) {
-          allAgents = data.agents;
+          if (timeframeId) {
+            allAgents = data.agents;
+          } else {
+            allAgents = data.main_agents.concat(data.timeframe_agents, data.agent_agents);
+          }
           displayAgents(allAgents);
         },
         error: function(jqXHR, textStatus, errorThrown) {
