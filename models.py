@@ -177,3 +177,11 @@ class Conversation(db.Model):
     self.name = name
     self.agents = agents
     self.messages = messages
+
+
+class Document(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+  filename = db.Column(db.String(255), nullable=False)
+  data = db.Column(db.JSON)
+  user = db.relationship('User', backref=db.backref('documents', lazy=True))
