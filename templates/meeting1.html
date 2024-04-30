@@ -91,98 +91,103 @@
 </main>
 <div id="footer-push"></div>
 {% include 'footer.html' %}
-<script>
-  $(document).ready(function() {
-    var selectedAgents = [];
-
-    $('#agent_source').change(function() {
-      var source = $(this).val();
-      if (source.startsWith('timeframe_')) {
-        var timeframeId = source.split('_')[1];
-        loadAgents(timeframeId);
-      } else {
-        loadAgents();
-      }
-    });
-
-    function loadAgents(timeframeId) {
-      $.ajax({
-        url: '/get_agents',
-        data: { timeframe_id: timeframeId },
-        success: function(data) {
-          const agentList = $('#agent-list');
-          agentList.empty();
-
-          if (data.agents.length === 0) {
-            agentList.html('<div>No agents found.</div>');
-          } else {
-            data.agents.forEach(agent => {
-              const agentHTML = `
-                <div class="agent-card" data-agent-id="${agent.id}" data-agent-name="${agent.id}">
-                  <input type="checkbox" id="agent-${agent.id}" name="selected_agents" value="${agent.id}" class="hidden" />
-                  <label for="agent-${agent.id}">
-                    <div class="agent-image" style="background-image: url('data:image/png;base64,${agent.image_data}');"></div>
-                    <div class="mt-2 text-center">
-                      <div class="text-lg font-bold">${agent.id}</div>
-                      <div class="text-sm">${agent.jobtitle}</div>
-                    </div>
-                  </label>
-                </div>
-              `;
-              agentList.append(agentHTML);
-            });
-          }
-
-          $('#loading').hide();
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          $('#agent-list').html(`<div>Error loading agents: ${textStatus}</div>`);
-          console.error('Error loading agents:', errorThrown);
-        }
-      });
-    }
-
-    // Initialize with main agents on document ready
+  <script>
     $(document).ready(function() {
-      loadAgents();
-    });
+      var selectedAgents = [];
 
-    $('#agent-list').on('click', '.agent-card', function() {
-      var agentId = $(this).data('agent-id');
-      var index = selectedAgents.indexOf(agentId);
-      if (index > -1) {
-        selectedAgents.splice(index, 1);
-        $(this).removeClass('selected');
-      } else {
-        selectedAgents.push(agentId);
-        $(this).addClass('selected');
-      }
-    });
-
-    $('#meetingForm').on('submit', function() {
-      $('#selected_agents').val(selectedAgents.join(','));
-    });
-
-    // Function to filter agents based on search
-    function filterAgents() {
-      const searchTerm = searchInput.value.toLowerCase();
-
-      agentCards.forEach((card) => {
-        const agentName = card.dataset.agentName.toLowerCase();
-        const matchesSearch = searchTerm === "" || agentName.includes(searchTerm);
-
-        if (matchesSearch) {
-          card.style.display = "block";
+      $('#agent_source').change(function() {
+        var source = $(this).val();
+        if (source.startsWith('timeframe_')) {
+          var timeframeId = source.split('_')[1];
+          loadAgents(timeframeId);
         } else {
-          card.style.display = "none";
+          loadAgents();
         }
       });
-    }
 
-    // Event listener for search input
-    const searchInput = document.getElementById("search");
-    searchInput.addEventListener("input", filterAgents);
-  });
-</script>
+      function loadAgents(timeframeId) {
+        $.ajax({
+          url: '/get_agents',
+          data: { timeframe_id: timeframeId },
+          success: function(data) {
+            const agentList = $('#agent-list');
+            agentList.empty();
+
+            if (data.agents.length === 0) {
+              agentList.html('<div>No agents found.</div>');
+            } else {
+              data.agents.forEach(agent => {
+                const agentHTML = `
+                  <div class="agent-card" data-agent-id="${agent.id}" data-agent-name="${agent.id}">
+                    <input type="checkbox" id="agent-${agent.id}" class="agent-checkbox hidden" />
+                    <label for="agent-${agent.id}">
+                      <div class="agent-image" style="background-image: url('data:image/png;base64,${agent.image_data}');"></div>
+                      <div class="mt-2 text-center">
+                        <div class="text-lg font-bold">${agent.id}</div>
+                        <div class="text-sm">${agent.jobtitle}</div>
+                      </div>
+                    </label>
+                  </div>
+                `;
+                agentList.append(agentHTML);
+              });
+            }
+
+            $('#loading').hide();
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            $('#agent-list').html(`<div>Error loading agents: ${textStatus}</div>`);
+            console.error('Error loading agents:', errorThrown);
+          }
+        });
+      }
+
+      // Initialize with main agents on document ready
+      $(document).ready(function() {
+        loadAgents();
+      });
+
+      $('#agent-list').on('click', '.agent-card', function() {
+        var agentId = $(this).data('agent-id');
+        var checkbox = $(this).find('.agent-checkbox');
+        checkbox.prop('checked', !checkbox.prop('checked'));
+        $(this).toggleClass('selected');
+
+        if (checkbox.prop('checked')) {
+          selectedAgents.push(agentId);
+        } else {
+          var index = selectedAgents.indexOf(agentId);
+          if (index > -1) {
+            selectedAgents.splice(index, 1);
+          }
+        }
+      });
+
+      $('#meetingForm').on('submit', function() {
+        $('#selected_agents').val(selectedAgents.join(','));
+      });
+
+      // Function to filter agents based on search
+      function filterAgents() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const agentCards = document.querySelectorAll('.agent-card');
+
+        agentCards.forEach((card) => {
+          const agentName = card.dataset.agentName.toLowerCase();
+          const matchesSearch = searchTerm === "" || agentName.includes(searchTerm);
+
+          if (matchesSearch) {
+            card.style.display = "block";
+          } else {
+            card.style.display = "none";
+          }
+        });
+      }
+
+      // Event listener for search input
+      const searchInput = document.getElementById("search");
+      searchInput.addEventListener("input", filterAgents);
+    });
+  </script>
 </body>
 </html>
