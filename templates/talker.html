@@ -1,196 +1,176 @@
-<!--templates/talker.html-->
-<!doctype html>
-<html>
-  <head>
-    <title>Semantic Life - Talker</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      :root {
-        --header-footer-height: 4rem;
-      }
+    <!--templates/talker.html-->
+    <!doctype html>
+    <html>
+      <head>
+        <title>Semantic Life - Talker</title>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+          :root {
+            --header-footer-height: 4rem;
+          }
 
-      .content-container {
-        min-height: calc(100vh - var(--header-footer-height));
-        padding-bottom: 4rem;
-      }
+          .content-container {
+            min-height: calc(100vh - var(--header-footer-height));
+            padding-bottom: var(--header-footer-height);
+            display: flex;
+            flex-direction: column;
+          }
 
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-      }
+          html, body {
+            height: 100%;
+            margin: 0;
+          }
 
-      #content {
-        min-height: 100%;
-        margin-bottom: -4rem;
-      }
+          #content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+          }
 
-      #footer-push {
-        height: 12rem;
-      }
+          .chat-container {
+            display: flex;
+            flex: 1;
+            height: 50%;
+          }
 
-      footer {
-        height: 4rem;
-      }
+          .chat-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            max-width: 50%;
+            margin: 0 auto;
+          }
 
-      .chat-container {
-        display: flex;
-        height: 100%;
-      }
+          @media (max-width: 768px) {
+            .chat-box {
+              max-width: 100%;
+            }
+          }
 
-      .conversation-list {
-        width: 300px;
-        background-color: #f2f2f2;
-        padding: 20px;
-        overflow-y: auto;
-        transition: transform 0.3s;
-      }
+          .message-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 4px;
+          }
 
-      @media (max-width: 768px) {
-        .conversation-list {
-          position: fixed;
-          top: 0;
-          left: -300px;
-          height: 100%;
-          z-index: 100;
-          transform: translateX(0);
-        }
+          .input-container {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+          }
 
-        .conversation-list.open {
-          transform: translateX(300px);
-        }
-      }
+          @media (max-width: 768px) {
+            .chat-container {
+              flex-direction: column;
+            }
+          }
 
-      .conversation-item {
-        padding: 10px;
-        margin-bottom: 10px;
-        background-color: #fff;
-        border-radius: 5px;
-        cursor: pointer;
-      }
+          .conversation-list {
+            width: 300px;
+            background-color: #f2f2f2;
+            padding: 20px;
+            overflow-y: auto;
+            transition: transform 0.3s;
+          }
 
-      .conversation-item:hover {
-        background-color: #e6e6e6;
-      }
+          @media (max-width: 768px) {
+            .conversation-list {
+              position: fixed;
+              top: 0;
+              left: -300px;
+              height: 100%;
+              z-index: 100;
+              transform: translateX(0);
+            }
 
-      .chat-box {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        padding: 20px;
-        max-width: 50%;
-        margin: 0 auto;
-      }
+            .conversation-list.open {
+              transform: translateX(300px);
+            }
+          }
 
-      @media (max-width: 768px) {
-        .chat-box {
-          max-width: 100%;
-        }
-      }
+          .conversation-item, .conversation-item:hover {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #e6e6e6;
+          }
 
-      .message-list {
-        flex: 1;
-        overflow-y: auto;
-        margin-bottom: 20px;
-      }
+          .user-message {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+          }
 
-      .message-bubble {
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 10px;
-      }
+          .ai-message {
+            background-color: #e6e6e6;
+            color: black;
+            align-self: flex-start;
+          }
 
-      .user-message {
-        background-color: #007bff;
-        color: white;
-        align-self: flex-end;
-      }
+          footer {
+            height: var(--header-footer-height);
+          }
 
-      .ai-message {
-        background-color: #e6e6e6;
-        color: black;
-        align-self: flex-start;
-      }
+          #footer-push {
+            height: 4rem;
+          }
+        </style>
+      </head>
+      <body>
+        {% include 'header.html' %}
 
-      .input-container {
-        display: flex;
-        align-items: center;
-      }
-
-      .input-container button {
-        margin-left: 10px;
-      }
-
-      .loading {
-        display: none;
-        text-align: center;
-        margin-top: 20px;
-      }
-
-      @media (max-width: 768px) {
-        .chat-container {
-          flex-direction: column;
-        }
-
-        .conversation-list {
-          width: 100%;
-          position: static;
-          transform: none;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    {% include 'header.html' %}
-
-
-      <div class="content-container">
-        <div id="content">
-          <div class="chat-container">
-            <div class="chat-box">
-              <h1 class="text-2xl font-bold mb-4">{{ agent_id }}</h1>
-              <h2 class="text-xl font-bold mb-2">{{ agent_jobtitle }}</h2>
-              <p class="mb-4">{{ agent_summary }}</p>
-              <div id="message-list" class="message-list">
-                <!-- Messages will be dynamically added here -->
-              </div>
-              <div class="input-container">
-                <input type="text" id="message-input" class="border border-gray-300 rounded px-4 py-2 flex-grow">
-                <button id="record-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                  Tap to Talk
-                </button>
-                <button id="stop-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" style="display: none;">
-                  Stop
-                </button>
-              </div>
-              <div id="status" class="mt-4 text-center text-gray-600"></div>
-              <div class="loading">
-                <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
-              </div>
-              <audio id="response-audio" style="display: none;"></audio>
-            </div>
-            <div class="conversation-list">
-              <h2 class="text-xl font-bold mb-4">Conversations</h2>
-              <button id="new-conversation-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
-                New Conversation
-              </button>
-              <div id="conversation-items">
-                {% for conversation in conversations %}
-                <div class="conversation-item" data-conversation-id="{{ conversation.id }}">
-                  <span class="conversation-name">{{ conversation.name }}</span>
-                  <input type="text" class="conversation-name-edit" value="{{ conversation.name }}" style="display: none;">
+        <div class="content-container">
+          <div id="content">
+            <div class="chat-container">
+              <div class="chat-box">
+                <h1 class="text-2xl font-bold mb-4">{{ agent_id }}</h1>
+                <h2 class="text-xl font-bold mb-2">{{ agent_jobtitle }}</h2>
+                <p class="mb-4">{{ agent_summary }}</p>
+                <div id="message-list" class="message-list">
+                  <!-- Messages will be dynamically added here -->
                 </div>
-                {% endfor %}
+                <div class="input-container">
+                  <input type="text" id="message-input" class="border border-gray-300 rounded px-4 py-2 flex-grow">
+                  <button id="record-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Tap to Talk
+                  </button>
+                  <button id="stop-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" style="display: none;">
+                    Stop
+                  </button>
+                </div>
+                <div id="status" class="mt-4 text-center text-gray-600"></div>
+                <div class="loading">
+                  <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+                </div>
+                <audio id="response-audio" style="display: none;"></audio>
+              </div>
+              <div class="conversation-list">
+                <h2 class="text-xl font-bold mb-4">Conversations</h2>
+                <button id="new-conversation-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+                  New Conversation
+                </button>
+                <div id="conversation-items">
+                  {% for conversation in conversations %}
+                  <div class="conversation-item" data-conversation-id="{{ conversation.id }}">
+                    <span class="conversation-name">{{ conversation.name }}</span>
+                    <input type="text" class="conversation-name-edit" value="{{ conversation.name }}" style="display: none;">
+                  </div>
+                  {% endfor %}
+                </div>
               </div>
             </div>
           </div>
+          {% include 'footer.html' %}
         </div>
 
-        <div id="footer-push"></div>
-      </div>
+        <!-- JavaScript for behavior omitted for brevity -->
+      </body>
+    </html>
 
-      {% include 'footer.html' %}
 
     <script>
       $(document).ready(function () {

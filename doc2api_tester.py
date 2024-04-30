@@ -6,7 +6,7 @@ import requests
 from flask import url_for
 from unittest.mock import MagicMock
 
-from abe import app
+# from abe import app
 
 # Set the SERVER_NAME configuration for testing
 app.config['SERVER_NAME'] = 'localhost:5000'
