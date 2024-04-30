@@ -11,7 +11,7 @@ from abe_api_internal import APIRequest, AgentRequest, TimeframeRequest, Meeting
 from abe_gpt import generate_new_agent
 from openai import OpenAI
 
-doc2api_blueprint = Blueprint('doc2api_blueprint', __name__)
+from abe import app, db, User, Timeframe, Meeting, Agent, Document
 
 ALLOWED_EXTENSIONS = {'doc', 'pdf', 'md', 'txt', 'json'}
 client = OpenAI()

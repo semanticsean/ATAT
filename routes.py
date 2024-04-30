@@ -4,7 +4,7 @@ import abe_gpt
 import start
 import base64
 
-from models import db, User, Survey, Timeframe, Meeting, Agent, Image
+from models import db, User, Survey, Timeframe, Meeting, Agent, Image, Document
 from abe_gpt import generate_new_agent
 from abe import login_manager
 from talker import talker_blueprint
@@ -71,8 +71,11 @@ talker_blueprint = Blueprint('talker_blueprint',
                              __name__,
                              template_folder='templates')
 
+timeframes_blueprint = Blueprint('timeframes_blueprint',
+                                 __name__,
+                                 template_folder='templates')
 
-timeframes_blueprint = Blueprint('timeframes_blueprint', __name__, template_folder='templates')
+doc2api_blueprint = Blueprint('doc2api_blueprint', __name__)
 
 #API LIMITER
 limiter = Limiter(key_func=get_remote_address,
@@ -467,37 +470,39 @@ def get_prev_next_agent_ids(agents, agent):
 
 @timeframes_blueprint.route('/timeframe_images/<int:timeframe_id>')
 def serve_timeframe_image(timeframe_id):
-    timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe and timeframe.image_data:
-        image_data = base64.b64decode(timeframe.image_data)
-        return Response(image_data, mimetype='image/png')
-    else:
-        abort(404)
+  timeframe = Timeframe.query.get(timeframe_id)
+  if timeframe and timeframe.image_data:
+    image_data = base64.b64decode(timeframe.image_data)
+    return Response(image_data, mimetype='image/png')
+  else:
+    abort(404)
+
 
 @dashboard_blueprint.route('/timeframes')
 @login_required
 def timeframes():
-    timeframes = current_user.timeframes
+  timeframes = current_user.timeframes
 
-    for timeframe in timeframes:
-        parsed_agents_data = json.loads(timeframe.agents_data)
-        for agent in parsed_agents_data:
-            if 'photo_path' in agent:
-                photo_filename = agent['photo_path'].split('/')[-1]
-                agent['image_data'] = json.loads(timeframe.images_data).get(photo_filename, '')
+  for timeframe in timeframes:
+    parsed_agents_data = json.loads(timeframe.agents_data)
+    for agent in parsed_agents_data:
+      if 'photo_path' in agent:
+        photo_filename = agent['photo_path'].split('/')[-1]
+        agent['image_data'] = json.loads(timeframe.images_data).get(
+            photo_filename, '')
 
-        timeframe.parsed_agents_data = parsed_agents_data
+    timeframe.parsed_agents_data = parsed_agents_data
 
-        # Decode the base64-encoded image data for the timeframe
-        if timeframe.image_data:
-            timeframe.decoded_image_data = base64.b64decode(timeframe.image_data)
-        else:
-            timeframe.decoded_image_data = None
+    # Decode the base64-encoded image data for the timeframe
+    if timeframe.image_data:
+      timeframe.decoded_image_data = base64.b64decode(timeframe.image_data)
+    else:
+      timeframe.decoded_image_data = None
 
-        # Log the timeframe summary
-        logging.info(f"Timeframe {timeframe.id} summary: {timeframe.summary}")
+    # Log the timeframe summary
+    logging.info(f"Timeframe {timeframe.id} summary: {timeframe.summary}")
 
-    return render_template('timeframes.html', timeframes=timeframes)
+  return render_template('timeframes.html', timeframes=timeframes)
 
 
 @profile_blueprint.route('/profile')
@@ -979,107 +984,121 @@ def create_new_agent():
 @profile_blueprint.route('/edit_agent/<agent_id>', methods=['GET', 'POST'])
 @login_required
 def edit_agent(agent_id):
-    logging.info(f"Editing agent with ID: {agent_id}")
+  logging.info(f"Editing agent with ID: {agent_id}")
 
-    # Try to find the agent in the database
-    agent = Agent.query.filter((Agent.user_id == current_user.id) & (
-        (Agent.id == str(agent_id))
-        | (Agent.id == agent_id.replace('_', '.')))).first()
+  # Try to find the agent in the database
+  agent = Agent.query.filter((Agent.user_id == current_user.id) & (
+      (Agent.id == str(agent_id))
+      | (Agent.id == agent_id.replace('_', '.')))).first()
 
-    if not agent:
-        logging.info("Agent not found in the database")
-        # If agent not found in the database, check in agents_data
-        agents_data = current_user.agents_data or []
-        agent_data = get_agent_by_id(agents_data, agent_id)
-        if agent_data:
-            logging.info("Agent found in agents_data")
-            logging.debug(f"Agent data: {agent_data}")
-            # Create an Agent object from the agent_data dictionary
-            agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
+  if not agent:
+    logging.info("Agent not found in the database")
+    # If agent not found in the database, check in agents_data
+    agents_data = current_user.agents_data or []
+    agent_data = get_agent_by_id(agents_data, agent_id)
+    if agent_data:
+      logging.info("Agent found in agents_data")
+      logging.debug(f"Agent data: {agent_data}")
+      # Create an Agent object from the agent_data dictionary
+      agent = Agent(id=agent_data['id'],
+                    user_id=current_user.id,
+                    data=agent_data)
+    else:
+      logging.info("Agent not found in agents_data")
+      # If agent not found in agents_data, check if it's a user or timeframe
+      if current_user.id == int(agent_id):
+        logging.info("Editing user")
+        # If agent_id matches the current user's id, edit the user
+        agent = current_user
+      else:
+        # Check if it's a timeframe
+        timeframe = Timeframe.query.filter_by(id=agent_id,
+                                              user_id=current_user.id).first()
+        if timeframe:
+          logging.info("Editing timeframe")
+          agent = timeframe
         else:
-            logging.info("Agent not found in agents_data")
-            # If agent not found in agents_data, check if it's a user or timeframe
-            if current_user.id == int(agent_id):
-                logging.info("Editing user")
-                # If agent_id matches the current user's id, edit the user
-                agent = current_user
-            else:
-                # Check if it's a timeframe
-                timeframe = Timeframe.query.filter_by(id=agent_id, user_id=current_user.id).first()
-                if timeframe:
-                    logging.info("Editing timeframe")
-                    agent = timeframe
-                else:
-                    logging.error("Agent not found")
-                    flash('Agent not found.', 'error')
-                    return redirect(url_for('dashboard_blueprint.dashboard'))
+          logging.error("Agent not found")
+          flash('Agent not found.', 'error')
+          return redirect(url_for('dashboard_blueprint.dashboard'))
 
-    if request.method == 'POST':
-        logging.info("Handling POST request")
-        logging.debug(f"Request form data: {request.form}")
-        # Update the agent data based on the form submission
-        try:
-            if isinstance(agent, Agent):
-                logging.info("Updating Agent object")
-                agent.data['persona'] = request.form.get('persona')
-                agent.data['summary'] = request.form.get('summary')
-                agent.data['keywords'] = request.form.get('keywords', '').split(',')
-                agent.data['image_prompt'] = request.form.get('image_prompt')
-                agent.data['relationships'] = get_relationships(agent.data)
-                agent.voice = request.form.get('voice', 'echo')
-                logging.debug(f"Updated Agent data: {str(agent.data)[:140]}")
-                db.session.add(agent)  # Add the modified instance to the session
-            elif isinstance(agent, User):
-                logging.info("Updating User's agents_data")
-                # Update the user's agents_data
-                agents_data = current_user.agents_data or []
-                for agent_data in agents_data:
-                    if agent_data['id'] == agent_id:
-                        agent_data['persona'] = request.form.get('persona')
-                        agent_data['summary'] = request.form.get('summary')
-                        agent_data['keywords'] = request.form.get('keywords', '').split(',')
-                        agent_data['image_prompt'] = request.form.get('image_prompt')
-                        agent_data['relationships'] = get_relationships(agent_data)
-                        logging.debug(f"Updated User's agents_data: {str(agent_data)[:140]}")
-                        break
-                current_user.agents_data = agents_data
-                db.session.add(current_user)  # Add the modified user instance to the session
-            elif isinstance(agent, Timeframe):
-                logging.info("Updating Timeframe's agents_data")
-                # Update the timeframe's agents_data
-                agents_data = json.loads(agent.agents_data)
-                for agent_data in agents_data:
-                    if agent_data['id'] == agent_id:
-                        agent_data['persona'] = request.form.get('persona')
-                        agent_data['summary'] = request.form.get('summary')
-                        agent_data['keywords'] = request.form.get('keywords', '').split(',')
-                        agent_data['image_prompt'] = request.form.get('image_prompt')
-                        agent_data['relationships'] = get_relationships(agent_data)
-                        logging.debug(f"Updated Timeframe's agents_data: {str(agent_data)[:140]}")
-                        break
-                agent.agents_data = json.dumps(agents_data)
-                db.session.add(agent)  # Add the modified timeframe instance to the session
-            else:
-                logging.error("Unknown agent type")
-                # Handle the case when the agent type is unknown
-                flash('Unknown agent type. Changes not saved.', 'error')
-                return redirect(url_for('profile_blueprint.profile', agent_id=agent_id))
+  if request.method == 'POST':
+    logging.info("Handling POST request")
+    logging.debug(f"Request form data: {request.form}")
+    # Update the agent data based on the form submission
+    try:
+      if isinstance(agent, Agent):
+        logging.info("Updating Agent object")
+        agent.data['persona'] = request.form.get('persona')
+        agent.data['summary'] = request.form.get('summary')
+        agent.data['keywords'] = request.form.get('keywords', '').split(',')
+        agent.data['image_prompt'] = request.form.get('image_prompt')
+        agent.data['relationships'] = get_relationships(agent.data)
+        agent.voice = request.form.get('voice', 'echo')
+        logging.debug(f"Updated Agent data: {str(agent.data)[:140]}")
+        db.session.add(agent)  # Add the modified instance to the session
+      elif isinstance(agent, User):
+        logging.info("Updating User's agents_data")
+        # Update the user's agents_data
+        agents_data = current_user.agents_data or []
+        for agent_data in agents_data:
+          if agent_data['id'] == agent_id:
+            agent_data['persona'] = request.form.get('persona')
+            agent_data['summary'] = request.form.get('summary')
+            agent_data['keywords'] = request.form.get('keywords',
+                                                      '').split(',')
+            agent_data['image_prompt'] = request.form.get('image_prompt')
+            agent_data['relationships'] = get_relationships(agent_data)
+            logging.debug(
+                f"Updated User's agents_data: {str(agent_data)[:140]}")
+            break
+        current_user.agents_data = agents_data
+        db.session.add(
+            current_user)  # Add the modified user instance to the session
+      elif isinstance(agent, Timeframe):
+        logging.info("Updating Timeframe's agents_data")
+        # Update the timeframe's agents_data
+        agents_data = json.loads(agent.agents_data)
+        for agent_data in agents_data:
+          if agent_data['id'] == agent_id:
+            agent_data['persona'] = request.form.get('persona')
+            agent_data['summary'] = request.form.get('summary')
+            agent_data['keywords'] = request.form.get('keywords',
+                                                      '').split(',')
+            agent_data['image_prompt'] = request.form.get('image_prompt')
+            agent_data['relationships'] = get_relationships(agent_data)
+            logging.debug(
+                f"Updated Timeframe's agents_data: {str(agent_data)[:140]}")
+            break
+        agent.agents_data = json.dumps(agents_data)
+        db.session.add(
+            agent)  # Add the modified timeframe instance to the session
+      else:
+        logging.error("Unknown agent type")
+        # Handle the case when the agent type is unknown
+        flash('Unknown agent type. Changes not saved.', 'error')
+        return redirect(url_for('profile_blueprint.profile',
+                                agent_id=agent_id))
 
-            db.session.commit()  # Commit the changes to the database
-        except Exception as e:
-            db.session.rollback()  # Rollback the transaction if an exception occurs
-            logging.error(f"Error updating agent: {str(e)}")
-            flash('An error occurred while updating the agent. Please try again.', 'error')
-            return redirect(url_for('profile_blueprint.edit_agent', agent_id=agent_id))
+      db.session.commit()  # Commit the changes to the database
+    except Exception as e:
+      db.session.rollback()  # Rollback the transaction if an exception occurs
+      logging.error(f"Error updating agent: {str(e)}")
+      flash('An error occurred while updating the agent. Please try again.',
+            'error')
+      return redirect(
+          url_for('profile_blueprint.edit_agent', agent_id=agent_id))
 
-        logging.info("Changes committed to the database")
-        logging.info(f"Redirecting to the profile page: {url_for('profile_blueprint.profile', agent_id=agent_id)}")
-        return redirect(url_for('profile_blueprint.profile', agent_id=agent_id))
+    logging.info("Changes committed to the database")
+    logging.info(
+        f"Redirecting to the profile page: {url_for('profile_blueprint.profile', agent_id=agent_id)}"
+    )
+    return redirect(url_for('profile_blueprint.profile', agent_id=agent_id))
 
-    logging.info("Rendering edit_agent.html template")
-    logging.debug(f"Agent data loaded into edit_agent.html: {agent.data}")
-    voices = ['echo', 'alloy', 'fable', 'onyx', 'nova', 'shimmer']
-    return render_template('edit_agent.html', agent=agent, voices=voices)
+  logging.info("Rendering edit_agent.html template")
+  logging.debug(f"Agent data loaded into edit_agent.html: {agent.data}")
+  voices = ['echo', 'alloy', 'fable', 'onyx', 'nova', 'shimmer']
+  return render_template('edit_agent.html', agent=agent, voices=voices)
 
 
 @profile_blueprint.route('/delete_agent/<agent_id>', methods=['POST'])
@@ -1243,8 +1262,14 @@ def before_request_func():
 @login_required
 def get_agents():
     timeframe_id = request.args.get('timeframe_id')
+    response_data = {
+        'main_agents': [],
+        'timeframe_agents': [],
+        'agent_agents': []
+    }
 
     if timeframe_id:
+        # Fetch agents from a specific timeframe
         timeframe = Timeframe.query.get(timeframe_id)
         if not timeframe or timeframe.user_id != current_user.id:
             return jsonify({'error': 'Invalid timeframe'}), 400
@@ -1252,47 +1277,45 @@ def get_agents():
         agents_data = json.loads(timeframe.agents_data)
         images_data = json.loads(timeframe.images_data)
 
-        agents = []
-        for agent in agents_data:
-            if 'id' in agent:
-                photo_filename = agent['photo_path'].split('/')[-1]
-                agent_data = {
-                    'id': agent['id'],
-                    'jobtitle': agent.get('jobtitle', ''),
-                    'image_data': images_data.get(photo_filename, ''),
-                    'type': 'timeframe',
-                    'timeframe_id': timeframe_id
-                }
-                agents.append(agent_data)
+        response_data['timeframe_agents'] = [
+            {
+                'id': agent['id'],
+                'jobtitle': agent.get('jobtitle', ''),
+                'image_data': images_data.get(agent['photo_path'].split('/')[-1], ''),
+                'type': 'timeframe',
+                'timeframe_id': timeframe_id
+            }
+            for agent in agents_data if 'id' in agent
+        ]
 
     else:
-        main_agents = current_user.agents_data or []
-        timeframe_agents = []
-        agent_agents = []
+        # Fetch all main agents and agent class agents
+        images_data = json.loads(current_user.images_data or "{}")
 
-        for timeframe in current_user.timeframes:
-            agents_data = json.loads(timeframe.agents_data)
-            for agent in agents_data:
-                if 'id' in agent:
-                    photo_filename = agent['photo_path'].split('/')[-1]
-                    agent_data = {
-                        'id': agent['id'],
-                        'jobtitle': agent.get('jobtitle', ''),
-                        'image_data': json.loads(timeframe.images_data).get(photo_filename, ''),
-                        'type': 'timeframe',
-                        'timeframe_id': str(timeframe.id)
-                    }
-                    timeframe_agents.append(agent_data)
+        # Main agents typically from current_user's stored data
+        if current_user.agents_data:
+            main_agents_data = json.loads(current_user.agents_data)
+            response_data['main_agents'] = [
+                {
+                    'id': agent['id'],
+                    'jobtitle': agent.get('jobtitle', ''),
+                    'image_data': images_data.get(agent['photo_path'].split('/')[-1], ''),
+                    'type': 'main',
+                    'timeframe_id': None
+                }
+                for agent in main_agents_data if 'id' in agent
+            ]
 
+        # Agent class agents are individual records in the Agent model
         agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
         for agent in agent_class_agents:
-            agent_data = {
+            photo_filename = agent.data.get('photo_path', '').split('/')[-1]
+            response_data['agent_agents'].append({
                 'id': agent.id,
                 'jobtitle': agent.data.get('jobtitle', ''),
-                'image_data': agent.data.get('image_data', {}).get(agent.data.get('photo_path', ''), ''),
+                'image_data': images_data.get(photo_filename, ''),
                 'type': 'agent',
                 'timeframe_id': None
-            }
-            agent_agents.append(agent_data)
+            })
 
-        return jsonify({'main_agents': main_agents, 'timeframe_agents': timeframe_agents, 'agent_agents': agent_agents})
+    return jsonify(response_data)
