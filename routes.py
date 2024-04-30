@@ -1258,64 +1258,32 @@ def before_request_func():
     return jsonify({'error': 'Unauthorized or insufficient credits'}), 401
 
 
+
 @auth_blueprint.route('/get_agents', methods=['GET'])
 @login_required
 def get_agents():
-    timeframe_id = request.args.get('timeframe_id')
-    response_data = {
-        'main_agents': [],
-        'timeframe_agents': [],
-        'agent_agents': []
-    }
+  timeframe_id = request.args.get('timeframe_id')
 
-    if timeframe_id:
-        # Fetch agents from a specific timeframe
-        timeframe = Timeframe.query.get(timeframe_id)
-        if not timeframe or timeframe.user_id != current_user.id:
-            return jsonify({'error': 'Invalid timeframe'}), 400
+  if timeframe_id:
+    timeframe = Timeframe.query.get(timeframe_id)
+    if not timeframe or timeframe.user_id != current_user.id:
+      return jsonify({'error': 'Invalid timeframe'}), 400
 
-        agents_data = json.loads(timeframe.agents_data)
-        images_data = json.loads(timeframe.images_data)
+    agents_data = json.loads(timeframe.agents_data)
+    images_data = json.loads(timeframe.images_data)
+  else:
+    agents_data = current_user.agents_data or []
+    images_data = current_user.images_data or {}
 
-        response_data['timeframe_agents'] = [
-            {
-                'id': agent['id'],
-                'jobtitle': agent.get('jobtitle', ''),
-                'image_data': images_data.get(agent['photo_path'].split('/')[-1], ''),
-                'type': 'timeframe',
-                'timeframe_id': timeframe_id
-            }
-            for agent in agents_data if 'id' in agent
-        ]
+  agents = []
+  for agent in agents_data:
+    if 'id' in agent:
+      photo_filename = agent['photo_path'].split('/')[-1]
+      agent_data = {
+          'id': agent['id'],
+          'jobtitle': agent.get('jobtitle', ''),
+          'image_data': images_data.get(photo_filename, '')
+      }
+      agents.append(agent_data)
 
-    else:
-        # Fetch all main agents and agent class agents
-        images_data = json.loads(current_user.images_data or "{}")
-
-        # Main agents typically from current_user's stored data
-        if current_user.agents_data:
-            main_agents_data = json.loads(current_user.agents_data)
-            response_data['main_agents'] = [
-                {
-                    'id': agent['id'],
-                    'jobtitle': agent.get('jobtitle', ''),
-                    'image_data': images_data.get(agent['photo_path'].split('/')[-1], ''),
-                    'type': 'main',
-                    'timeframe_id': None
-                }
-                for agent in main_agents_data if 'id' in agent
-            ]
-
-        # Agent class agents are individual records in the Agent model
-        agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
-        for agent in agent_class_agents:
-            photo_filename = agent.data.get('photo_path', '').split('/')[-1]
-            response_data['agent_agents'].append({
-                'id': agent.id,
-                'jobtitle': agent.data.get('jobtitle', ''),
-                'image_data': images_data.get(photo_filename, ''),
-                'type': 'agent',
-                'timeframe_id': None
-            })
-
-    return jsonify(response_data)
+  return jsonify({'agents': agents})

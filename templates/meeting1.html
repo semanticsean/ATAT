@@ -40,10 +40,6 @@
       background-size: cover;
       background-position: center;
     }
-    .filter-button {
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
   </style>
 </head>
 <body class="bg-blue-50 h-full">
@@ -78,20 +74,12 @@
                   {% endfor %}
                 </select>
               </div>
-              <div id="filter-buttons" class="mb-4 flex flex-wrap">
-                <button type="button" class="filter-button px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" data-filter="all">All</button>
-                <button type="button" class="filter-button px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" data-filter="main">Main</button>
-                {% for timeframe in timeframes %}
-                  <button type="button" class="filter-button px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" data-filter="timeframe_{{ timeframe.id }}">{{ timeframe.name }}</button>
-                {% endfor %}
-              </div>
               <div class="mb-4">
                 <input type="text" id="search" placeholder="Search agents..." class="w-full py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
               </div>
-              <div id="loading" class="text-center">
-                <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." class="mx-auto">
+              <div id="agent-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div id="loading" class="text-center w-full">Loading...</div>
               </div>
-              <div id="agent-list" class="grid grid-cols-1 md:grid-cols-3 gap-4 hidden"></div>
             </div>
             <input type="hidden" id="selected_agents" name="selected_agents" value="">
             <button type="submit" class="px-6 py-4 md:px-8 md:py-5 bg-black text-white rounded-lg hover:bg-green-700 w-full text-lg md:text-xl font-bold">Next Step</button>
@@ -103,131 +91,106 @@
 </main>
 <div id="footer-push"></div>
 {% include 'footer.html' %}
-    <script>
-      $(document).ready(function() {
-        var selectedAgents = [];
-        var allAgents = [];
+  <script>
+    $(document).ready(function() {
+      var selectedAgents = [];
 
-        $('#agent_source').change(function() {
-          var source = $(this).val();
-          if (source.startsWith('timeframe_')) {
-            var timeframeId = source.split('_')[1];
-            loadAgents(timeframeId);
-          } else {
-            loadAgents();
+      $('#agent_source').change(function() {
+        var source = $(this).val();
+        if (source.startsWith('timeframe_')) {
+          var timeframeId = source.split('_')[1];
+          loadAgents(timeframeId);
+        } else {
+          loadAgents();
+        }
+      });
+
+      function loadAgents(timeframeId) {
+        $.ajax({
+          url: '/get_agents',
+          data: { timeframe_id: timeframeId },
+          success: function(data) {
+            const agentList = $('#agent-list');
+            agentList.empty();
+
+            if (data.agents.length === 0) {
+              agentList.html('<div>No agents found.</div>');
+            } else {
+              data.agents.forEach(agent => {
+                const isSelected = selectedAgents.includes(agent.id);
+                const selectedClass = isSelected ? 'selected' : '';
+                const checkedAttr = isSelected ? 'checked' : '';
+
+                const agentHTML = `
+                  <div class="agent-card ${selectedClass}" data-agent-id="${agent.id}" data-agent-name="${agent.id}">
+                    <input type="checkbox" id="agent-${agent.id}" class="agent-checkbox hidden" ${checkedAttr} />
+                    <label for="agent-${agent.id}">
+                      <div class="agent-image" style="background-image: url('data:image/png;base64,${agent.image_data}');"></div>
+                      <div class="mt-2 text-center">
+                        <div class="text-lg font-bold">${agent.id}</div>
+                        <div class="text-sm">${agent.jobtitle}</div>
+                      </div>
+                    </label>
+                  </div>
+                `;
+                agentList.append(agentHTML);
+              });
+            }
+
+            $('#loading').hide();
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            $('#agent-list').html(`<div>Error loading agents: ${textStatus}</div>`);
+            console.error('Error loading agents:', errorThrown);
           }
         });
+      }
 
-        function loadAgents(timeframeId) {
-          $.ajax({
-            url: '/get_agents',
-            data: { timeframe_id: timeframeId },
-            success: function(data) {
-              if (timeframeId) {
-                allAgents = data.agents;
-              } else {
-                allAgents = data.main_agents.concat(data.timeframe_agents, data.agent_agents);
-              }
-              displayAgents(allAgents);
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-              $('#agent-list').html(`<div>Error loading agents: ${textStatus}</div>`);
-              console.error('Error loading agents:', errorThrown);
-            }
-          });
+      // Initialize with main agents on document ready
+      $(document).ready(function() {
+        loadAgents();
+      });
+
+      $('#agent-list').on('click', '.agent-card', function() {
+        var agentId = $(this).data('agent-id');
+        var checkbox = $(this).find('.agent-checkbox');
+        var isChecked = checkbox.prop('checked');
+
+        if (isChecked) {
+          selectedAgents = selectedAgents.filter(id => id !== agentId);
+        } else {
+          selectedAgents.push(agentId);
         }
 
-        function displayAgents(agents) {
-          const agentList = $('#agent-list');
-          agentList.empty();
+        checkbox.prop('checked', !isChecked);
+        $(this).toggleClass('selected', !isChecked);
+      });
 
-          if (agents.length === 0) {
-            agentList.html('<div>No agents found.</div>');
-            $('#loading').hide();
-            agentList.removeClass('hidden');
+      $('#meetingForm').on('submit', function() {
+        $('#selected_agents').val(selectedAgents.join(','));
+      });
+
+      // Function to filter agents based on search
+      function filterAgents() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const agentCards = document.querySelectorAll('.agent-card');
+
+        agentCards.forEach((card) => {
+          const agentName = card.dataset.agentName.toLowerCase();
+          const matchesSearch = searchTerm === "" || agentName.includes(searchTerm);
+
+          if (matchesSearch) {
+            card.style.display = "block";
           } else {
-            var agentsDisplayed = 0;
-            agents.forEach(function(agent, index) {
-              const isSelected = selectedAgents.includes(agent.id);
-              const selectedClass = isSelected ? 'selected' : '';
-              const checkedAttr = isSelected ? 'checked' : '';
-
-              const agentHTML = `
-                <div class="agent-card ${selectedClass}" data-agent-id="${agent.id}" data-agent-name="${agent.id}" data-agent-type="${agent.type}">
-                  <input type="checkbox" id="agent-${agent.id}" class="agent-checkbox hidden" ${checkedAttr} />
-                  <label for="agent-${agent.id}">
-                    <div class="agent-image" style="background-image: url('data:image/png;base64,${agent.image_data}');"></div>
-                    <div class="mt-2 text-center">
-                      <div class="text-lg font-bold">${agent.id}</div>
-                      <div class="text-sm">${agent.jobtitle}</div>
-                    </div>
-                  </label>
-                </div>
-              `;
-
-              setTimeout(function() {
-                agentList.append(agentHTML);
-                agentsDisplayed++;
-                if (agentsDisplayed === 1) {
-                  $('#loading').hide();
-                  agentList.removeClass('hidden');
-                }
-              }, index * 100);
-            });
+            card.style.display = "none";
           }
-        }
-
-
-    // Initialize with main agents on document ready
-    $(document).ready(function() {
-      loadAgents();
-    });
-
-    $('#filter-buttons').on('click', '.filter-button', function() {
-      var filter = $(this).data('filter');
-      if (filter === 'all') {
-        displayAgents(allAgents);
-      } else if (filter === 'main') {
-        var filteredAgents = allAgents.filter(agent => agent.type === 'main');
-        displayAgents(filteredAgents);
-      } else if (filter.startsWith('timeframe_')) {
-        var timeframeId = filter.split('_')[1];
-        var filteredAgents = allAgents.filter(agent => agent.timeframe_id === timeframeId);
-        displayAgents(filteredAgents);
-      }
-    });
-
-    $('#agent-list').on('click', '.agent-card', function() {
-      var agentId = $(this).data('agent-id');
-      var checkbox = $(this).find('.agent-checkbox');
-      var isChecked = checkbox.prop('checked');
-
-      if (isChecked) {
-        selectedAgents = selectedAgents.filter(id => id !== agentId);
-      } else {
-        selectedAgents.push(agentId);
+        });
       }
 
-      checkbox.prop('checked', !isChecked);
-      $(this).toggleClass('selected', !isChecked);
+      // Event listener for search input
+      const searchInput = document.getElementById("search");
+      searchInput.addEventListener("input", filterAgents);
     });
-
-    $('#meetingForm').on('submit', function() {
-      $('#selected_agents').val(selectedAgents.join(','));
-    });
-
-    // Function to filter agents based on search
-    function filterAgents() {
-      const searchTerm = searchInput.value.toLowerCase();
-      const filteredAgents = allAgents.filter(agent => agent.id.toLowerCase().includes(searchTerm));
-      displayAgents(filteredAgents);
-    }
-
-    // Event listener for search input
-    const searchInput = document.getElementById("search");
-    searchInput.addEventListener("input", filterAgents);
-
-    });
-    </script>
-    </body>
-    </html>
+  </script>
+</body>
+</html>
