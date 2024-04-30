@@ -1,7 +1,15 @@
 import logging
 import uuid
+from datetime import datetime
 
-logging.basicConfig(level=logging.INFO,
+# Generate a unique filename for each run
+unique_filename = datetime.now().strftime("%Y%m%d%H%M%S") + "_" + str(
+    uuid.uuid4())
+log_filename = f"logs/abe_api_{unique_filename}.log"
+
+# Configure logging to write to a file
+logging.basicConfig(filename=log_filename,
+                    level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
 
