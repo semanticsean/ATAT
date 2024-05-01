@@ -81,7 +81,7 @@ app.register_blueprint(meeting_blueprint)
 app.register_blueprint(dashboard_blueprint)
 app.register_blueprint(profile_blueprint)
 app.register_blueprint(start_blueprint)
-
+app.register_blueprint(timeframes_blueprint)
 app.register_blueprint(talker_blueprint)
 
 
