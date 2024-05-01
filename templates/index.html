@@ -281,29 +281,24 @@
           
           <div class="bg-white rounded-lg shadow-lg">
             <h2 class="text-2xl font-bold mb-4 mt-4 tooltip">
-              Timeframes<span class="tooltiptext"
-                >Manage your AI agent timelines</span
-              >
+              Timeframes<span class="tooltiptext">Manage your AI agent timelines</span>
             </h2>
             <div class="grid-container">
-              <a
-                href="{{ url_for('auth_blueprint.create_timeframe') }}"
-                class="bg-black text-white text-xl font-bold grid-item relative bg-center bg-cover"
-              >
-                <div
-                  class="grid-item-content text-2xl flex justify-center items-center h-full"
-                >
+              <a href="{{ url_for('auth_blueprint.create_timeframe') }}"
+                 class="bg-black text-white text-xl font-bold grid-item relative bg-center bg-cover">
+                <div class="grid-item-content text-2xl flex justify-center items-center h-full">
                   New Timeframe
                 </div>
               </a>
 
               {% for timeframe in timeframes %}
               <a href="{{ url_for('dashboard_blueprint.dashboard', timeframe_id=timeframe.id) }}"
-               class="grid-item relative bg-center bg-cover"
-               style="background-image: url('data:image/png;base64,{{ timeframe.decoded_image_data }}');">
-                <div
-                  class="absolute inset-0 bg-black bg-opacity-70 flex flex-col justify-end items-center p-4 hover:bg-opacity-100 transition-opacity duration-300"
-                >
+                 class="grid-item relative bg-center bg-cover"
+                 style="background-image: url('data:image/png;base64,{{ timeframe.image_data }}');">
+
+
+                
+                <div class="absolute inset-0 bg-black bg-opacity-70 flex flex-col justify-end items-center p-4 hover:bg-opacity-100 transition-opacity duration-300">
                   <div class="text-center w-full">
                     <span class="agent-title">{{ timeframe.name }}</span>
                   </div>
@@ -315,7 +310,6 @@
             <p class="text-gray-600 mt-4">No timeframes yet.</p>
             {% endif %}
           </div>
-        </div>
 
         
       </main>

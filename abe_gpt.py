@@ -77,7 +77,11 @@ def process_agents(payload, current_user):
       user_id=current_user.id,
       agents_data=json.dumps(new_agents_data),
       images_data=json.dumps(new_images_data),
-      thumbnail_images_data=json.dumps(new_thumbnail_images_data))
+      thumbnail_images_data=json.dumps(new_thumbnail_images_data),
+      summary=None,
+      image_data=None,
+      thumbnail_image_data=None
+  )
   db.session.add(new_timeframe)
   db.session.commit()
 
@@ -796,12 +800,10 @@ def summarize_process_agents(new_timeframe, payload, current_user):
               raise e
 
   process_agents_summary = response.choices[0].message.content.strip()
-  new_timeframe.summary = process_agents_summary# Store the process agents summary
-
-  logging.info(f"Process agents summary generated: {process_agents_summary[:100]}...")
-  logging.info(f"Storing process agents summary in new_timeframe.summary for Timeframe ID: {new_timeframe.id}")
-
-  db.session.commit()  # Commit the changes to the database
+  new_timeframe.summary = process_agents_summary
+  new_timeframe.image_data = base64.b64encode(img_data).decode('utf-8')
+  new_timeframe.thumbnail_image_data = base64.b64encode(thumbnail_data).decode('utf-8')
+  db.session.commit()
   logging.info(f"Process agents summary committed to the database for Timeframe ID: {new_timeframe.id}")
 
   # Prepare the API payload for process agents image

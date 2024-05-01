@@ -470,40 +470,37 @@ def get_prev_next_agent_ids(agents, agent):
 
 @timeframes_blueprint.route('/timeframe_images/<int:timeframe_id>')
 def serve_timeframe_image(timeframe_id):
-  timeframe = Timeframe.query.get(timeframe_id)
-  if timeframe and timeframe.image_data:
-    image_data = base64.b64decode(timeframe.image_data)
-    return Response(image_data, mimetype='image/png')
-  else:
-    abort(404)
+    timeframe = Timeframe.query.get(timeframe_id)
+    if timeframe and timeframe.image_data:
+        image_data = base64.b64decode(timeframe.image_data)
+        return Response(image_data, mimetype='image/png')
+    else:
+        abort(404)
 
-
-@dashboard_blueprint.route('/timeframes')
+@timeframes_blueprint.route('/timeframes')
 @login_required
 def timeframes():
-  timeframes = current_user.timeframes
+    timeframes = current_user.timeframes
 
-  for timeframe in timeframes:
-    parsed_agents_data = json.loads(timeframe.agents_data)
-    for agent in parsed_agents_data:
-      if 'photo_path' in agent:
-        photo_filename = agent['photo_path'].split('/')[-1]
-        agent['image_data'] = json.loads(timeframe.images_data).get(
-            photo_filename, '')
+    for timeframe in timeframes:
+        parsed_agents_data = json.loads(timeframe.agents_data)
+        for agent in parsed_agents_data:
+            if 'photo_path' in agent:
+                photo_filename = agent['photo_path'].split('/')[-1]
+                agent['image_data'] = json.loads(timeframe.images_data).get(photo_filename, '')
 
-    timeframe.parsed_agents_data = parsed_agents_data
+        timeframe.parsed_agents_data = parsed_agents_data
 
-    # Decode the base64-encoded image data for the timeframe
-    if timeframe.image_data:
-      timeframe.decoded_image_data = base64.b64decode(timeframe.image_data)
-    else:
-      timeframe.decoded_image_data = None
+        # Decode the base64-encoded image data for the timeframe
+        if timeframe.image_data:
+            timeframe.decoded_image_data = base64.b64decode(timeframe.image_data)
+        else:
+            timeframe.decoded_image_data = None
 
-    # Log the timeframe summary
-    logging.info(f"Timeframe {timeframe.id} summary: {timeframe.summary}")
+        # Log the timeframe summary
+        logging.info(f"Timeframe {timeframe.id} summary: {timeframe.summary}")
 
-  return render_template('timeframes.html', timeframes=timeframes)
-
+    return render_template('timeframes.html', timeframes=timeframes)
 
 @profile_blueprint.route('/profile')
 @login_required
@@ -1257,14 +1254,6 @@ def before_request_func():
   if not current_user and request.path.startswith('/api/'):
     return jsonify({'error': 'Unauthorized or insufficient credits'}), 401
 
-@timeframes_blueprint.route('/timeframe_images/<int:timeframe_id>')
-def serve_timeframe_image(timeframe_id):
-    timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe and timeframe.image_data:
-        image_data = base64.b64decode(timeframe.image_data)
-        return Response(image_data, mimetype='image/png')
-    else:
-        abort(404)
 
 @auth_blueprint.route('/get_agents', methods=['GET'])
 @login_required
