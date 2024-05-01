@@ -61,20 +61,6 @@
             <div class="mb-8">
               <h2 class="text-2xl md:text-3xl font-bold mb-4">Select Synths:</h2>
               <div class="mb-4">
-                <label for="agent_source" class="block text-base font-bold text-gray-700 mb-2">Agent Source:</label>
-                <select id="agent_source" name="agent_source" class="w-full py-2 px-4 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                  <option value="main_agents">Main Agents</option>
-                  {% for timeframe in timeframes %}
-                  {% if timeframe.agents_data %}
-                    {% set agents = timeframe.agents_data | from_json %}
-                    {% if agents | selectattr('id') | list | length > 0 %}
-                      <option value="timeframe_{{ timeframe.id }}">{{ timeframe.name }}</option>
-                    {% endif %}
-                  {% endif %}
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="mb-4">
                 <input type="text" id="search" placeholder="Search agents..." class="w-full py-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
               </div>
               <div id="agent-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -93,22 +79,15 @@
 {% include 'footer.html' %}
   <script>
     $(document).ready(function() {
-      var selectedAgents = [];
+      var selectedAgents = {
+        agents: [],
+        user: [],
+        timeframe: []
+      };
 
-      $('#agent_source').change(function() {
-        var source = $(this).val();
-        if (source.startsWith('timeframe_')) {
-          var timeframeId = source.split('_')[1];
-          loadAgents(timeframeId);
-        } else {
-          loadAgents();
-        }
-      });
-
-      function loadAgents(timeframeId) {
+      function loadAgents() {
         $.ajax({
           url: '/get_agents',
-          data: { timeframe_id: timeframeId },
           success: function(data) {
             const agentList = $('#agent-list');
             agentList.empty(); // Clear the agent list
@@ -117,18 +96,20 @@
               agentList.html('<div>No agents found.</div>');
             } else {
               data.agents.forEach(agent => {
-                const isSelected = selectedAgents.includes(agent.id);
+                const agentType = agent.type || 'agents';
+                const isSelected = selectedAgents[agentType].includes(agent.id);
                 const selectedClass = isSelected ? 'selected' : '';
                 const checkedAttr = isSelected ? 'checked' : '';
 
                 const agentHTML = `
-                  <div class="agent-card ${selectedClass}" data-agent-id="${agent.id}" data-agent-name="${agent.id}">
+                  <div class="agent-card ${selectedClass}" data-agent-id="${agent.id}" data-agent-name="${agent.id}" data-agent-type="${agent.type}">
                     <input type="checkbox" id="agent-${agent.id}" class="agent-checkbox hidden" ${checkedAttr} />
                     <label for="agent-${agent.id}">
                       <div class="agent-image" style="background-image: url('data:image/png;base64,${agent.image_data}');"></div>
                       <div class="mt-2 text-center">
                         <div class="text-lg font-bold">${agent.id}</div>
                         <div class="text-sm">${agent.jobtitle}</div>
+                        <div class="text-xs text-gray-500">${agent.timeframe ? agent.timeframe.name : ''}</div>
                       </div>
                     </label>
                   </div>
@@ -136,14 +117,6 @@
                 agentList.append(agentHTML);
               });
             }
-
-            // Keep selected agents visible
-            selectedAgents.forEach(agentId => {
-              const agentCard = agentList.find(`[data-agent-id="${agentId}"]`);
-              if (agentCard.length > 0) {
-                agentCard.removeClass('hidden');
-              }
-            });
 
             $('#loading').hide();
           },
@@ -154,28 +127,31 @@
         });
       }
 
-      // Initialize with main agents on document ready
+      // Initialize with all agents on document ready
       $(document).ready(function() {
         loadAgents();
       });
 
       $('#agent-list').on('click', '.agent-card', function() {
         var agentId = $(this).data('agent-id');
+        var agentType = $(this).data('agent-type');
         var checkbox = $(this).find('.agent-checkbox');
         var isChecked = checkbox.prop('checked');
 
         if (isChecked) {
-          selectedAgents = selectedAgents.filter(id => id !== agentId);
+          selectedAgents[agentType] = selectedAgents[agentType].filter(id => id !== agentId);
         } else {
-          selectedAgents.push(agentId);
+          selectedAgents[agentType] = [agentId];
         }
 
+        $('.agent-card[data-agent-type="' + agentType + '"]').not(this).removeClass('selected').find('.agent-checkbox').prop('checked', false);
         checkbox.prop('checked', !isChecked);
         $(this).toggleClass('selected', !isChecked);
       });
 
       $('#meetingForm').on('submit', function() {
-        $('#selected_agents').val(selectedAgents.join(','));
+        var selectedAgentIds = Object.values(selectedAgents).flat().join(',');
+        $('#selected_agents').val(selectedAgentIds);
       });
 
       // Function to filter agents based on search
