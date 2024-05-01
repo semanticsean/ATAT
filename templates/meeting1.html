@@ -111,7 +111,7 @@
           data: { timeframe_id: timeframeId },
           success: function(data) {
             const agentList = $('#agent-list');
-            agentList.empty();
+            agentList.empty(); // Clear the agent list
 
             if (data.agents.length === 0) {
               agentList.html('<div>No agents found.</div>');
@@ -136,6 +136,14 @@
                 agentList.append(agentHTML);
               });
             }
+
+            // Keep selected agents visible
+            selectedAgents.forEach(agentId => {
+              const agentCard = agentList.find(`[data-agent-id="${agentId}"]`);
+              if (agentCard.length > 0) {
+                agentCard.removeClass('hidden');
+              }
+            });
 
             $('#loading').hide();
           },
