@@ -1257,7 +1257,14 @@ def before_request_func():
   if not current_user and request.path.startswith('/api/'):
     return jsonify({'error': 'Unauthorized or insufficient credits'}), 401
 
-
+@timeframes_blueprint.route('/timeframe_images/<int:timeframe_id>')
+def serve_timeframe_image(timeframe_id):
+    timeframe = Timeframe.query.get(timeframe_id)
+    if timeframe and timeframe.image_data:
+        image_data = base64.b64decode(timeframe.image_data)
+        return Response(image_data, mimetype='image/png')
+    else:
+        abort(404)
 
 @auth_blueprint.route('/get_agents', methods=['GET'])
 @login_required

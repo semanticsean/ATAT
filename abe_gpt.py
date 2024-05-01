@@ -259,8 +259,7 @@ def conduct_meeting(payload, current_user):
     question_instructions = abe_instructions.get("question_instructions", "")
 
   # Combine form-provided llm_instructions with question_instructions
-  llm_instructions_combined = f"{question_instructions} {form_llm_instructions}".strip(
-  )
+  llm_instructions_combined = f"{question_instructions} {form_llm_instructions}".strip()
 
   logging.info(f"Agents data: {agents_data[:142]}")
   logging.info(f"Questions: {str(questions)[:142]}")
@@ -272,6 +271,9 @@ def conduct_meeting(payload, current_user):
   meeting_name = original_name.replace(" ", "_")
 
   meeting_responses = []
+
+  # Initialize a dictionary to store previous responses
+  previous_responses = {}
 
   for agent in agents_data:
     agent_response = {}
@@ -300,6 +302,15 @@ def conduct_meeting(payload, current_user):
                 },
             ],
         }
+
+        # Append previous responses to the agent_payload
+        for prev_agent_id, prev_responses in previous_responses.items():
+          if question_id in prev_responses:
+            agent_payload["messages"].append({
+                "role": "assistant",
+                "content": f"Agent {prev_agent_id}'s response: {prev_responses[question_id]}"
+            })
+
         max_retries = 12
         retry_delay = 5
         retry_count = 0
@@ -332,6 +343,9 @@ def conduct_meeting(payload, current_user):
               raise e
         responses[question_id] = response.choices[0].message.content.strip()
 
+      # Store the current agent's responses for future reference
+      previous_responses[agent["id"]] = responses
+
     else:
       questions_text = "\n".join([
           f"Question {question_id}: {question_text}"
@@ -353,6 +367,14 @@ def conduct_meeting(payload, current_user):
               },
           ],
       }
+
+      # Append previous responses to the agent_payload
+      for prev_agent_id, prev_responses in previous_responses.items():
+        agent_payload["messages"].append({
+            "role": "assistant",
+            "content": f"Agent {prev_agent_id}'s responses:\n{json.dumps(prev_responses, indent=2)}"
+        })
+
       max_retries = 12
       retry_delay = 5
       retry_count = 0
@@ -383,6 +405,9 @@ def conduct_meeting(payload, current_user):
             raise e
 
       responses = json.loads(response.choices[0].message.content.strip())
+
+      # Store the current agent's responses for future reference
+      previous_responses[agent["id"]] = responses
 
     agent_response["responses"] = responses
     meeting_responses.append(agent_response)
