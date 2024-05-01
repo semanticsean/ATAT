@@ -8,7 +8,7 @@
   <title>Timeframes</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <style>
-    /* Add any custom styles here */
+   
     .agent-image {
       width: 100px;
       height: 100px;
@@ -33,28 +33,28 @@
           <input type="text" id="search-input" placeholder="Search agents..." class="w-full px-4 py-2 border border-gray-300 rounded-lg">
         </div>
       {% for timeframe in timeframes %}
-        <div class="bg-white rounded-lg shadow-md p-4 mb-8 timeframe-item">
-          <div class="flex items-center mb-4">
-            <img src="{{ url_for('timeframes_blueprint.serve_timeframe_image', timeframe_id=timeframe.id) }}" alt="{{ timeframe.name }}" class="w-32 h-32 rounded-lg object-cover mr-4">
-            <div>
-              <h2 class="text-3xl font-bold">{{ timeframe.name }}</h2>
-              <p class="text-lg text-gray-700">{{ timeframe.summary }}</p>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {% for agent in timeframe.parsed_agents_data %}
-              {% if 'photo_path' in agent %}
-                <div class="bg-white rounded-lg shadow-md p-4 agent-item">
-                  <a href="{{ url_for('profile_blueprint.profile', agent_id=agent['id'], timeframe_id=timeframe.id) }}" class="block text-center">
-                    <img src="{{ url_for('serve_image', filename=agent['photo_path'].split('/')[-1]) }}" alt="{{ agent['id'] }}" class="agent-image mx-auto mb-2">
-                    <h3 class="text-xl font-bold">{{ agent['id'] }}</h3>
-                    <p class="text-gray-600">{{ agent['jobtitle'] }}</p>
-                  </a>
-                </div>
-              {% endif %}
-            {% endfor %}
+      <div class="bg-white rounded-lg shadow-md p-4 mb-8 timeframe-item">
+        <div class="flex items-center mb-4">
+          <img src="{{ url_for('timeframes_blueprint.serve_timeframe_image', timeframe_id=timeframe.id) }}" alt="{{ timeframe.name }}" class="w-32 h-32 rounded-lg object-cover mr-4">
+          <div>
+            <h2 class="text-3xl font-bold">{{ timeframe.name }}</h2>
+            <p class="text-lg text-gray-700">{{ timeframe.summary }}</p>
           </div>
         </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {% for agent in timeframe.parsed_agents_data %}
+            {% if 'photo_path' in agent %}
+              <div class="bg-white rounded-lg shadow-md p-4 agent-item">
+                <a href="{{ url_for('profile_blueprint.profile', agent_id=agent['id'], timeframe_id=timeframe.id) }}" class="block text-center">
+                  <img src="data:image/png;base64,{{ agent['image_data'] }}" alt="{{ agent['id'] }}" class="agent-image mx-auto mb-2">
+                  <h3 class="text-xl font-bold">{{ agent['id'] }}</h3>
+                  <p class="text-gray-600">{{ agent['jobtitle'] }}</p>
+                </a>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
       {% endfor %}
       {% else %}
         <p class="text-gray-500">No timeframes found.</p>
