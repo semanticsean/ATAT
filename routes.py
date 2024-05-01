@@ -477,6 +477,14 @@ def serve_timeframe_image(timeframe_id):
     else:
         abort(404)
 
+@timeframes_blueprint.route('/timeframe/<int:timeframe_id>')
+def single_timeframe(timeframe_id):
+    timeframe = Timeframe.query.get(timeframe_id)
+    if timeframe:
+        return render_template('single_timeframe.html', timeframe=timeframe)
+    else:
+        abort(404)
+
 @timeframes_blueprint.route('/timeframes')
 @login_required
 def timeframes():
