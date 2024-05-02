@@ -796,13 +796,10 @@ def summarize_process_agents(new_timeframe, payload, current_user):
               raise e
 
   process_agents_summary = response.choices[0].message.content.strip()
-  new_timeframe.summary = process_agents_summary# Store the process agents summary
+  new_timeframe.summary = process_agents_summary # Store the process agents summary
 
   logging.info(f"Process agents summary generated: {process_agents_summary[:100]}...")
   logging.info(f"Storing process agents summary in new_timeframe.summary for Timeframe ID: {new_timeframe.id}")
-
-  db.session.commit()  # Commit the changes to the database
-  logging.info(f"Process agents summary committed to the database for Timeframe ID: {new_timeframe.id}")
 
   # Prepare the API payload for process agents image
   image_prompt = f"{summarize_process_agents_dalle}\n\nProcess Agents Summary: {process_agents_summary}\n\nAgents Data:\n"
@@ -813,7 +810,7 @@ def summarize_process_agents(new_timeframe, payload, current_user):
   max_retries = 12
   retry_delay = 5
   retry_count = 0
-  
+
   while retry_count < max_retries:
       try:
           if current_user.credits is None or current_user.credits < 10:
@@ -826,7 +823,7 @@ def summarize_process_agents(new_timeframe, payload, current_user):
               size="1024x1024",
               n=1,
           )
-          current_user.credits -= 10  # Deduct 10 credits for DALL-E models
+          current_user.credits -= 10
           db.session.commit()
           break
       except APIError as e:
@@ -841,6 +838,10 @@ def summarize_process_agents(new_timeframe, payload, current_user):
   image_url = dalle_response.data[0].url
   img_data = requests.get(image_url).content
 
+  # Encode the image data as base64
+  new_timeframe.image_data = base64.b64encode(img_data).decode('utf-8')
+
+  # Generate thumbnail image
   thumbnail_size = (200, 200)
   img = Image.open(BytesIO(img_data))
   img.thumbnail(thumbnail_size)
@@ -848,17 +849,12 @@ def summarize_process_agents(new_timeframe, payload, current_user):
   img.save(thumbnail_buffer, format='PNG')
   thumbnail_data = thumbnail_buffer.getvalue()
 
-  new_timeframe.image_data = base64.b64encode(img_data).decode('utf-8')
+  # Encode the thumbnail image data as base64
   new_timeframe.thumbnail_image_data = base64.b64encode(thumbnail_data).decode('utf-8')
 
   db.session.add(new_timeframe)
   db.session.commit()
-  # try:
-  #     db.session.commit()
-  #     logging.info(f"Process agents image data and thumbnail image data committed to the database for Timeframe ID: {new_timeframe.id}")
-  # except Exception as e:
-  #     db.session.rollback()
-  #     logging.error(f"Error occurred while committing image data to the database: {str(e}")
+
   logging.info(f"Process agents image data and thumbnail image data committed to the database for Timeframe ID: {new_timeframe.id}")
 
   logging.info(f"Verifying stored data for Timeframe ID: {new_timeframe.id}")
@@ -867,4 +863,3 @@ def summarize_process_agents(new_timeframe, payload, current_user):
   logging.info(f"Process agents thumbnail image data from database: {new_timeframe.thumbnail_image_data[:100]}...")
 
   logging.info("Process agents summary and image generated successfully")
-
