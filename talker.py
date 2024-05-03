@@ -238,20 +238,23 @@ def chat_with_model(conversation_messages, agent_data, user_message, max_tokens=
 
   messages = [{"role": "system", "content": gpt_system_prompt}]
 
-  # Append the conversation history to the messages list with a label
+  # Append the conversation history to the messages list with labels
   if conversation_messages:
       messages.append({"role": "system", "content": "Conversation History:"})
-      for message in conversation_messages:
-          messages.append({"role": message["role"], "content": message["content"]})
+      for i, message in enumerate(conversation_messages, start=1):
+          if message["role"] == "user":
+              messages.append({"role": "system", "content": f"User Message {i}: {message['content']}"})
+          else:
+              messages.append({"role": "system", "content": f"AI Response {i}: {message['content']}"})
       messages.append({"role": "system", "content": "Current User Message:"})
 
   # Add the current user message to the messages list
   messages.append({"role": "user", "content": user_message})
 
-
   logger.info(f"Sending {len(messages)} messages to the model")
   logger.debug(f"System prompt: {gpt_system_prompt}")
   logger.debug(f"User prompt: {messages[-1]['content']}")
+
 
   try:
       response = client.chat.completions.create(
@@ -273,7 +276,7 @@ def chat_with_model(conversation_messages, agent_data, user_message, max_tokens=
 
   finally:
       logger.info("Exiting chat_with_model")
-
+  
 
 @talker_blueprint.route('/audio/<path:filename>')
 def serve_audio(filename):
