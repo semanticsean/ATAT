@@ -169,8 +169,6 @@ def transcribe():
         return jsonify({"error": str(e)}), 500
 
 
-
-
 @talker_blueprint.route("/chat", methods=["POST"])
 @login_required
 def chat():
@@ -206,10 +204,12 @@ def chat():
 
     try:
         response_text = chat_with_model(conversation.messages, agent.data, user_message)
+        conversation.messages.append({"role": "user", "content": user_message})
         conversation.messages.append({"role": "assistant", "content": response_text})
         db.session.commit()
 
         audio_url = text_to_speech(response_text, agent_id)
+
         return jsonify({
             "conversation_id": conversation_id,
             "conversation_name": conversation.name,
@@ -220,7 +220,6 @@ def chat():
     except Exception as e:
         logger.error(f"Chat error: {str(e)}")
         return jsonify({"error": str(e)}), 500
-
 
 
 def chat_with_model(conversation_messages, agent_data, user_message, max_tokens=2000, top_p=0.5, temperature=0.9):
@@ -239,8 +238,16 @@ def chat_with_model(conversation_messages, agent_data, user_message, max_tokens=
 
   messages = [{"role": "system", "content": gpt_system_prompt}]
 
-  # Add the transcribed user message as the first part of the user prompt
-  messages.append({"role": "user", "content": f"User's transcribed message: {user_message}\n\nConversation context:\n{conversation_messages}"})
+  # Append the conversation history to the messages list with a label
+  if conversation_messages:
+      messages.append({"role": "system", "content": "Conversation History:"})
+      for message in conversation_messages:
+          messages.append({"role": message["role"], "content": message["content"]})
+      messages.append({"role": "system", "content": "Current User Message:"})
+
+  # Add the current user message to the messages list
+  messages.append({"role": "user", "content": user_message})
+
 
   logger.info(f"Sending {len(messages)} messages to the model")
   logger.debug(f"System prompt: {gpt_system_prompt}")
@@ -298,8 +305,7 @@ def text_to_speech(text, agent_id):
               for chunk in response.iter_bytes():
                   audio_file.write(chunk)
 
-      audio_url = url_for('talker_blueprint.serve_audio',
-                          filename=f'response_{timestamp}.mp3')
+      audio_url = url_for('talker_blueprint.serve_audio', filename=f'response_{timestamp}.mp3', _external=True)
       return audio_url
   except Exception as e:
       logger.error(f"Text-to-speech error: {str(e)}")
