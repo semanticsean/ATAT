@@ -5,6 +5,7 @@
     <title>Semantic Life - Talker</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.0/dist/alpine.js"></script>
     <style>
       :root {
         --header-footer-height: 4rem;
@@ -29,73 +30,83 @@
       }
 
       .chat-container {
-        display: flex;
-        flex: 1;
-        height: 100%;
-        flex-direction: column;
-      }
+          display: flex;
+          flex-direction: column;
+          height: calc(100vh - var(--header-footer-height));
+        }
 
-      .chat-box {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        padding: 20px;
-        max-width: 800px;
-        margin: 0 auto;
-      }
+        .chat-box {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+          max-width: 100%;
+          margin: 0 auto;
+          overflow-y: auto;
+        }
 
-      .message-list {
-        overflow-y: auto;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        padding-bottom: 1rem;
-      }
+        .input-container {
+          display: flex;
+          gap: 1rem;
+          padding: 1rem;
+          background-color: #f0f0f0;
+        }
 
-      .input-container {
-        margin-top: auto;
-        display: flex;
-        gap: 1rem;
-      }
-
-      .conversation-list {
-        position: absolute;
-        top: var(--header-footer-height);
-        left: 0;
-        width: 300px;
-        height: calc(100% - var(--header-footer-height));
-        background-color: #f2f2f2;
-        padding: 20px;
-        overflow-y: auto;
-        transition: transform 0.3s;
-        border-radius: 1rem;
-        margin: 1rem;
-        z-index: 100;
-      }
-
-      @media (max-width: 768px) {
         .conversation-list {
-          transform: translateX(-100%);
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 60px;
+          background-color: #f2f2f2;
+          padding: 10px;
+          overflow-x: auto;
+          white-space: nowrap;
+          z-index: 100;
+          display: flex;
+          align-items: center;
         }
 
-        .conversation-list.open {
-          transform: translateX(0);
+        .conversation-item, .conversation-item:hover {
+          display: inline-block;
+          padding: 10px;
+          margin-right: 10px;
+          background-color: #e6e6e6;
+          border-radius: 5px;
+          cursor: pointer;
         }
-      }
 
-      .conversation-item, .conversation-item:hover {
-        padding: 10px;
-        margin-bottom: 10px;
-        background-color: #fff;
-        border-radius: 5px;
-        cursor: pointer;
-        background-color: #e6e6e6;
-      }
+        #new-conversation-button {
+          margin-right: 1rem;
+        }
 
-      #new-conversation-button {
-        margin-bottom: 1rem;
-      }
+        @media (min-width: 768px) {
+          .chat-container {
+            flex-direction: row;
+          }
+
+          .chat-box {
+            max-width: calc(100% - 320px);
+            margin-left: 320px;
+          }
+
+          .conversation-list {
+            position: fixed;
+            top: var(--header-footer-height);
+            left: 0;
+            width: 300px;
+            height: calc(100% - var(--header-footer-height));
+            flex-direction: column;
+            align-items: stretch;
+            padding: 20px;
+          }
+
+          .conversation-item {
+            display: block;
+            margin-right: 0;
+            margin-bottom: 10px;
+          }
+      
 
       .message-bubble {
         max-width: 75%;
@@ -120,59 +131,75 @@
         height: var(--header-footer-height);
       }
 
+      .loading {
+        display: none;
+      }
+
       #footer-push {
         height: 4rem; 
       }
+
+      @media (max-width: 767px) {
+        .conversation-list {
+          display: none;
+        }
+      }
+
+          
     </style>
   </head>
-  <body>
-    {% include 'header.html' %}
+      <body>
+        {% include 'header.html' %}
 
-    <div class="content-container">
-      <div id="content">
-        <div class="chat-container">
-          <div class="chat-box">
-            <h1 class="text-2xl font-bold mb-4">{{ agent_id }}</h1>
-            <h2 class="text-xl font-bold mb-2">{{ agent_jobtitle }}</h2>
-            <p class="mb-4">{{ agent_summary }}</p>
-            <div id="message-list" class="message-list">
-              <!-- Messages will be dynamically added here -->
+        <div class="content-container">
+          <div id="content">
+            <div class="chat-container">
+              <div class="chat-box">
+                <h1 class="text-2xl font-bold mb-4">{{ agent_id }}</h1>
+                <h2 class="text-xl font-bold mb-2">{{ agent_jobtitle }}</h2>
+                <p class="mb-4">{{ agent_summary }}</p>
+                <div id="message-list" class="message-list">
+                  <!-- Messages will be dynamically added here -->
+                </div>
+                <div class="input-container">
+                  <input type="text" id="message-input" class="border border-gray-300 rounded px-4 py-2 flex-grow">
+                  <button id="send-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Send
+                  </button>
+                  <button id="record-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Tap to Talk
+                  </button>
+                  <button id="stop-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" style="display: none;">
+                    Stop
+                  </button>
+                </div>
+                <div id="status" class="mt-4 text-center text-gray-600"></div>
+                <div class="loading">
+                  <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+                </div>
+                <audio id="response-audio" style="display: none;"></audio>
+              </div>
             </div>
-            <div class="input-container">
-              <input type="text" id="message-input" class="border border-gray-300 rounded px-4 py-2 flex-grow">
-              <button id="record-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Tap to Talk
-              </button>
-              <button id="stop-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" style="display: none;">
-                Stop
-              </button>
-            </div>
-            <div id="status" class="mt-4 text-center text-gray-600"></div>
-            <div class="loading">
-              <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
-            </div>
-            <audio id="response-audio" style="display: none;"></audio>
           </div>
-        </div>
-      </div>
-      <div class="conversation-list">
-        <h2 class="text-xl font-bold mb-4">Conversations</h2>
-        <button id="new-conversation-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          New Conversation
-        </button>
-        <div id="conversation-items">
-          {% for conversation in conversations %}
-          <div class="conversation-item" data-conversation-id="{{ conversation.id }}">
-            <span class="conversation-name">{{ conversation.name }}</span>
-            <input type="text" class="conversation-name-edit" value="{{ conversation.name }}" style="display: none;">
+          <div class="conversation-list">
+            <h2 class="text-xl font-bold mb-4">Conversations</h2>
+            <button id="new-conversation-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              New Conversation
+            </button>
+            <div id="conversation-items">
+              {% for conversation in conversations %}
+              <div class="conversation-item" data-conversation-id="{{ conversation.id }}">
+                <span class="conversation-name">{{ conversation.name }}</span>
+                <input type="text" class="conversation-name-edit" value="{{ conversation.name }}" style="display: none;">
+              <          {% endfor %}
+            </div>
           </div>
-          {% endfor %}
+          
         </div>
-      </div>
-      {% include 'footer.html' %}
-    </div>
-
-    <script>
+        
+            {% include 'footer.html' %}
+          </div>
+        <script>
      
       $(document).ready(function() {
         const messageList = $("#message-list");
@@ -189,7 +216,9 @@
         const conversationItems = $("#conversation-items");
         const loadingIndicator = $(".loading");
         loadingIndicator.hide(); 
-
+        const sendButton = $("#send-button");
+        sendButton.on("click", sendMessage);
+        
         let mediaRecorder;
         let isRecording = false;
         let currentConversationId = null;
@@ -254,8 +283,7 @@
               mediaRecorder.start();
               mediaRecorder.ondataavailable = function (e) {
                 handleDataAvailable(e.data);
-              };
-            });
+              };            });
         }
 
         function stopRecording() {
@@ -267,48 +295,6 @@
           mediaRecorder.stop();
         }
 
-        function createNewConversation() {
-          currentConversationId = null;
-          currentConversationName = `Conversation ${Date.now()}`;
-
-          messageList.empty();
-          conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
-          statusDiv.text(`Created new conversation: ${currentConversationName}`);
-
-          history.pushState({}, "", "/talker/{{ agent_id }}");
-        }
-
-        function loadConversation(conversationId) {
-          if (!conversationId || conversationId === "null") {
-            console.error("Invalid conversation ID");
-            return;
-          }
-
-          currentConversationId = conversationId;
-          currentConversationName = null;
-
-          messageList.empty();
-          statusDiv.text(`Loading conversation...`);
-
-          $.ajax({
-            url: `/get_conversation_messages/${conversationId}`,
-            type: "GET",
-            success: function (response) {
-              if (response.messages) {
-                response.messages.forEach(function (message) {
-                  displayMessage(message.content, message.role === "user" ? "You" : "AI");
-                });
-                statusDiv.text(`Loaded conversation: ${response.name}`);
-                currentConversationName = response.name;
-              }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.error("Error loading conversation:", textStatus, errorThrown);
-              statusDiv.text("Error loading conversation");
-            },
-          });
-        }
-
         function handleDataAvailable(audioBlob) {
           loadingIndicator.show();
           const formData = new FormData();
@@ -316,9 +302,6 @@
           formData.append("agent_id", "{{ agent_id }}");
           formData.append("conversation_id", currentConversationId);
           formData.append("conversation_name", currentConversationName);
-
-          displayMessage(messageInput.val(), "You");
-          messageInput.val("");
 
           loadingIndicator.show();
 
@@ -339,27 +322,12 @@
                   conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
                   statusDiv.text(`Created new conversation: ${currentConversationName}`);
                 }
-  
+
                 displayMessage(response.user_text, "You");
-  
-                $.ajax({
-                  url: "/text-to-speech",
-                  type: "POST",
-                  data: { 
-                    text: response.ai_text,
-                    agent_id: "{{ agent_id }}"
-                  },
-                  success: function (data) {
-                    responseAudio.attr("src", data.audio_url);
-                    responseAudio[0].play();
-                    displayMessage(response.ai_text, "AI");
-                    statusDiv.text("Ready");
-                  },
-                  error: function (jqXHR, textStatus, errorThrown) {
-                    console.error("Text-to-speech error:", textStatus, errorThrown);
-                    statusDiv.text("Error: " + textStatus);
-                  },
-                });
+                displayMessage(response.ai_text, "AI");
+                responseAudio.attr("src", response.audio_url);
+                responseAudio[0].play();
+                statusDiv.text("Ready");
               }
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -373,7 +341,83 @@
             },
           });
         }
-        
+
+        function sendMessage() {
+        const userMessage = messageInput.val();
+        if (userMessage.trim() !== "") {
+          displayMessage(userMessage, "You");
+          messageInput.val("");
+
+          $.ajax({
+              url: "/chat",
+              type: "POST",
+              data: {
+                user_message: userMessage,
+                agent_id: "{{ agent_id }}",
+                conversation_id: currentConversationId,
+                conversation_name: currentConversationName
+              },
+              success: function (response) {
+                if (response.conversation_id && response.conversation_id !== currentConversationId) {
+                  currentConversationId = response.conversation_id;
+                  currentConversationName = response.conversation_name;
+                  conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
+                  statusDiv.text(`Created new conversation: ${currentConversationName}`);
+                }
+
+                displayMessage(response.ai_text, "AI");
+                responseAudio.attr("src", response.audio_url);
+                responseAudio[0].play();
+                statusDiv.text("Ready");
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                console.error("Chat error:", textStatus, errorThrown);
+                statusDiv.text("Error: " + textStatus);              }
+            });
+          }
+        }
+
+                        function createNewConversation() {
+                          currentConversationId = null;
+                          currentConversationName = `Conversation ${Date.now()}`;
+
+                          messageList.empty();
+                          conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
+                          statusDiv.text(`Created new conversation: ${currentConversationName}`);
+
+                          history.pushState({}, "", "/talker/{{ agent_id }}");
+                        }
+
+                        function loadConversation(conversationId) {
+                          if (!conversationId || conversationId === "null") {
+                            console.error("Invalid conversation ID");
+                            return;
+                          }
+
+                          currentConversationId = conversationId;
+                          currentConversationName = null;
+
+                          messageList.empty();
+                          statusDiv.text(`Loading conversation...`);
+
+                          $.ajax({
+                            url: `/get_conversation_messages/${conversationId}`,
+                            type: "GET",
+                            success: function (response) {
+                              if (response.messages) {
+                                response.messages.forEach(function (message) {
+                                  displayMessage(message.content, message.role === "user" ? "You" : "AI");
+                                });
+                                statusDiv.text(`Loaded conversation: ${response.name}`);
+                                currentConversationName = response.name;
+                              }
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+                              console.error("Error loading conversation:", textStatus, errorThrown);
+                              statusDiv.text("Error loading conversation");
+                            },
+                          });
+                        }
 
         function displayMessage(text, sender) {
           const messageBubble = $('<div>').addClass('message-bubble ' + sender.toLowerCase() + '-message').text(text);

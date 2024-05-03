@@ -760,3 +760,175 @@ def process_meeting_summary(meeting, current_user):
   logging.info("Meeting summary and image generated successfully")
 
 
+  def summarize_process_agents(new_timeframe, payload, current_user):
+    logging.info("Entering summarize_process_agents function")
+
+    # Load instructions from abe/abe-instructions.json
+    with open("abe/abe-instructions.json", "r") as file:
+        abe_instructions = json.load(file)
+        process_agents_summary_instructions = abe_instructions.get("process_agents_summary_instructions", "")
+        process_agents_summary_dalle = abe_instructions.get("process_agents_summary_dalle", "")
+
+    agents_data = json.loads(new_timeframe.agents_data)
+    instructions = payload["instructions"]
+
+    # Prepare the API payload for process_agents summary
+    summary_payload = {
+        "model": "gpt-4-turbo-preview",
+        "messages": [
+            {"role": "system", "content": process_agents_summary_instructions},
+            {
+                "role": "user",
+                "content": f"Timeframe Name: {new_timeframe.name}\nInstructions: {json.dumps(instructions)}\n\nAgents Data:\n{json.dumps(agents_data, indent=2)}\n\nPlease generate a concise summary of the process_agents function."
+            },
+        ],
+    }
+
+    # Call the OpenAI API with exponential backoff and retries
+    max_retries = 12
+    retry_delay = 5
+    retry_count = 0
+    while retry_count < max_retries:
+        try:
+            logging.info(f"User credit balance before summary API call: {current_user.credits}")
+            if current_user.credits is None or current_user.credits < 5:
+                raise InsufficientCreditsError("Insufficient credits for summary generation, please add more")
+
+            logging.info("Sending request to OpenAI API for process_agents summary")
+            response = client.chat.completions.create(**summary_payload)
+            logging.info("Received response from OpenAI API for process_agents summary")
+
+            # Deduct credits based on the API call
+            credits_used = 5  # Deduct 5 credits for gpt-4 models
+
+            current_user.credits -= credits_used
+            db.session.commit()
+            logging.info(f"User credit balance after summary API call: {current_user.credits}")
+            break
+        except APIError as e:
+            logging.error(f"OpenAI API error during summary generation: {e}")
+            retry_count += 1
+            if retry_count < max_retries:
+                time.sleep(retry_delay)
+                retry_delay *= 2
+            else:
+                logging.error("Max retries exceeded for summary generation")
+                raise SummaryGenerationError("Failed to generate summary after multiple retries") from e
+        except InsufficientCreditsError as e:
+            logging.error(str(e))
+            raise
+        except Exception as e:
+            logging.error(f"Unexpected error during summary generation: {str(e)}")
+            raise
+
+    process_agents_summary = response.choices[0].message.content.strip()
+    new_timeframe.summary = process_agents_summary  # Store the process_agents summary
+
+    logging.info(f"Process agents summary generated: {process_agents_summary[:100]}...")
+    logging.info(f"Storing process agents summary in new_timeframe.summary for Timeframe ID: {new_timeframe.id}")
+
+    db.session.commit()  # Commit the changes to the database
+    logging.info(f"Process agents summary committed to the database for Timeframe ID: {new_timeframe.id}")
+
+    # Prepare the API payload for process_agents image
+    image_prompt = f"{process_agents_summary_dalle}\n\nProcess Agents Summary: {process_agents_summary}\n\nAgents Data:\n"
+    for agent in agents_data:
+        image_prompt += f"ID: {agent['id']}, Job Title: {agent['jobtitle']}, Summary: {agent['summary']}, Image Prompt: {agent['image_prompt']}\n"
+
+    logging.info(f"Prepared image prompt for DALL-E: {image_prompt[:100]}...")
+
+    # DALL-E - Generate process_agents image
+    max_retries = 12
+    retry_delay = 5
+    retry_count = 0
+    while retry_count < max_retries:
+        try:
+            logging.info(f"User credit balance before image generation API call: {current_user.credits}")
+            if current_user.credits is None or current_user.credits < 10:
+                raise InsufficientCreditsError("Insufficient credits for image generation, please add more")
+
+            logging.info("Starting image generation process")
+            logging.info("Sending request to OpenAI API for image generation")
+            dalle_response = client.images.generate(
+                model="dall-e-3",
+                prompt=image_prompt[:5000],
+                quality="standard",
+                size="1024x1024",
+                n=1,
+            )
+            logging.info("Received response from OpenAI API for image generation")
+
+            current_user.credits -= 10  # Deduct 10 credits for DALL-E models
+            db.session.commit()
+            logging.info(f"User credit balance after image generation API call: {current_user.credits}")
+
+            image_url = dalle_response.data[0].url
+            logging.info(f"Generated image URL: {image_url[:142]}...")
+
+            logging.info("Starting image data retrieval")
+            img_data = requests.get(image_url).content
+            logging.info("Image data retrieved successfully")
+            new_timeframe.summary_image_data = base64.b64encode(img_data).decode('utf-8')  # Store the encoded image data
+
+            logging.info(f"Process agents image data generated from URL: {image_url[:142]}...")
+            logging.info(f"Storing process agents image data in new_timeframe.summary_image_data for Timeframe ID: {new_timeframe.id}")
+            logging.info(f"Sample of stored process agents image data: {new_timeframe.summary_image_data[:100]}...")
+
+            logging.info("Starting thumbnail generation")
+            # Generate thumbnail image
+            thumbnail_size = (200, 200)
+            img = Image.open(BytesIO(img_data))
+            img.thumbnail(thumbnail_size)
+            thumbnail_buffer = BytesIO()
+            img.save(thumbnail_buffer, format='PNG')
+            thumbnail_data = thumbnail_buffer.getvalue()
+            new_timeframe.summary_thumbnail_image_data = base64.b64encode(thumbnail_data).decode('utf-8')
+            logging.info("Thumbnail generation completed")
+
+            logging.info(f"Process agents thumbnail image data generated")
+            logging.info(f"Storing process agents thumbnail image data in new_timeframe.summary_thumbnail_image_data for Timeframe ID: {new_timeframe.id}")
+            logging.info(f"Sample of stored process agents thumbnail image data: {new_timeframe.summary_thumbnail_image_data[:100]}...")
+
+            db.session.commit()  # Commit the changes to the database
+            logging.info(f"Process agents image data and thumbnail image data committed to the database for Timeframe ID: {new_timeframe.id}")
+
+            break
+        except APIError as e:
+            logging.error(f"OpenAI API error during image generation: {e}")
+            retry_count += 1
+            if retry_count < max_retries:
+                logging.info(f"Retrying image generation (attempt {retry_count})")
+                time.sleep(retry_delay)
+                retry_delay *= 2
+            else:
+                logging.error("Max retries exceeded for image generation")
+                raise ImageGenerationError("Failed to generate image after multiple retries") from e
+        except InsufficientCreditsError as e:
+            logging.error(str(e))
+            raise
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error retrieving image data: {str(e)}")
+            raise ImageRetrievalError("Failed to retrieve image data") from e
+        except Exception as e:
+            logging.error(f"Unexpected error during image generation: {str(e)}")
+            raise
+
+    logging.info(f"Verifying stored data for Timeframe ID: {new_timeframe.id}")
+    logging.info(f"Process agents summary from database: {new_timeframe.summary[:100]}...")
+    logging.info(f"Process agents image data from database: {new_timeframe.summary_image_data[:100]}...")
+    logging.info(f"Process agents thumbnail image data from database: {new_timeframe.summary_thumbnail_image_data[:100]}...")
+
+    logging.info("Process agents summary and image generated successfully")
+
+  # Custom exception classes
+  class InsufficientCreditsError(Exception):
+    pass
+
+  class SummaryGenerationError(Exception):
+    pass
+
+  class ImageGenerationError(Exception):
+    pass
+
+  class ImageRetrievalError(Exception):
+    pass

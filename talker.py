@@ -169,6 +169,60 @@ def transcribe():
         return jsonify({"error": str(e)}), 500
 
 
+
+
+@talker_blueprint.route("/chat", methods=["POST"])
+@login_required
+def chat():
+    user_message = request.form["user_message"]
+    agent_id = request.form["agent_id"]
+    conversation_id = request.form.get("conversation_id")
+    conversation_name = request.form.get("conversation_name")
+
+    agent = get_agent_by_id(agent_id, current_user)
+
+    if not agent:
+        return jsonify({"error": "Agent not found"}), 404
+
+    if not conversation_id or conversation_id == 'null':
+        conversation = Conversation(user_id=current_user.id,
+                                    name=conversation_name,
+                                    agents=[agent_id],
+                                    messages=[])
+        db.session.add(conversation)
+        db.session.commit()
+        conversation_id = conversation.id
+    else:
+        try:
+            conversation_id = int(conversation_id)
+            conversation = Conversation.query.get(conversation_id)
+            if conversation and conversation.user_id == current_user.id:
+                conversation.messages.append({"role": "user", "content": user_message})
+                db.session.commit()
+            else:
+                return jsonify({"error": "Conversation not found"}), 404
+        except ValueError:
+            return jsonify({"error": "Invalid conversation ID"}), 400
+
+    try:
+        response_text = chat_with_model(conversation.messages, agent.data, user_message)
+        conversation.messages.append({"role": "assistant", "content": response_text})
+        db.session.commit()
+
+        audio_url = text_to_speech(response_text, agent_id)
+        return jsonify({
+            "conversation_id": conversation_id,
+            "conversation_name": conversation.name,
+            "user_text": user_message,
+            "ai_text": response_text,
+            "audio_url": audio_url
+        })
+    except Exception as e:
+        logger.error(f"Chat error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+
 def chat_with_model(conversation_messages, agent_data, user_message, max_tokens=2000, top_p=0.5, temperature=0.9):
   logger.info(f"Entering chat_with_model for agent {agent_data['id']}")
 
@@ -224,36 +278,32 @@ def serve_audio(filename):
     abort(404)
 
 
-@talker_blueprint.route("/text-to-speech", methods=["POST"])
-@login_required
-def text_to_speech():
-  text = request.form["text"]
+def text_to_speech(text, agent_id):
   try:
-    user_folder = current_user.folder_path
-    os.makedirs(user_folder, exist_ok=True)
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    file_path = os.path.join(user_folder, f'response_{timestamp}.mp3')
+      user_folder = current_user.folder_path
+      os.makedirs(user_folder, exist_ok=True)
+      timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+      file_path = os.path.join(user_folder, f'response_{timestamp}.mp3')
 
-    agent_id = request.form["agent_id"]
-    agent = get_agent_by_id(agent_id, current_user)
+      agent = get_agent_by_id(agent_id, current_user)
 
-    if agent:
-        voice = agent.voice
-    else:
-        voice = 'echo'  # Default voice if agent not found
+      if agent:
+          voice = agent.voice
+      else:
+          voice = 'echo'  # Default voice if agent not found
 
-    with client.audio.speech.with_streaming_response.create(
-        model="tts-1", voice=voice, input=text) as response:
-      with open(file_path, 'wb') as audio_file:
-        for chunk in response.iter_bytes():
-          audio_file.write(chunk)
+      with client.audio.speech.with_streaming_response.create(
+          model="tts-1", voice=voice, input=text) as response:
+          with open(file_path, 'wb') as audio_file:
+              for chunk in response.iter_bytes():
+                  audio_file.write(chunk)
 
-    audio_url = url_for('talker_blueprint.serve_audio',
-                        filename=f'response_{timestamp}.mp3')
-    return jsonify({"audio_url": audio_url})
+      audio_url = url_for('talker_blueprint.serve_audio',
+                          filename=f'response_{timestamp}.mp3')
+      return audio_url
   except Exception as e:
-    logger.error(f"Text-to-speech error: {str(e)}")
-    return jsonify({"error": str(e)}), 500
+      logger.error(f"Text-to-speech error: {str(e)}")
+      return None
 
 
 def truncate_messages(messages, max_chars):

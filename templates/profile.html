@@ -92,7 +92,7 @@
                                         <a href="mailto:{{ agent.email }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Email Agent</a>
 
                                   
-                                    <button id="copy-email-btn" class="btn btn-secondary" data-email="{{ agent.data.email }}">Copy Email Address</button>
+                                    <button id="copy-email-btn" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2" data-email="{{ agent.data.email }}">Copy Email Address</button>
                                   
                                     {% else %}
                                         <a href="{{ url_for('talker_blueprint.talker', agent_type='agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Talk to Synth</a>

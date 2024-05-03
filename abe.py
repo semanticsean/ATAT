@@ -122,60 +122,57 @@ def inject_secrets():
 
 @app.route('/')
 def home():
-  if current_user.is_authenticated:
-    user_agents = current_user.agents_data or []
-    agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
+    if current_user.is_authenticated:
+        user_agents = current_user.agents_data or []
+        agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
 
-    agents_content = []
-    for agent in user_agents:
-      agent_data = {
-          'id':
-          agent['id'],
-          'jobtitle':
-          agent.get('jobtitle', ''),
-          'image_data':
-          current_user.images_data.get(agent['photo_path'].split('/')[-1], '')
-      }
-      agents_content.append(agent_data)
+        agents_content = []
+        for agent in user_agents:
+            agent_data = {
+                'id': agent['id'],
+                'jobtitle': agent.get('jobtitle', ''),
+                'image_data': current_user.images_data.get(agent['photo_path'].split('/')[-1], '')
+            }
+            agents_content.append(agent_data)
 
-    for agent in agent_class_agents:
-      agent_data = {
-          'id':
-          agent.id,
-          'jobtitle':
-          agent.data.get('jobtitle', ''),
-          'image_data':
-          current_user.images_data.get(agent.data['photo_path'].split('/')[-1],
-                                       '')
-      }
-      agents_content.append(agent_data)
+        for agent in agent_class_agents:
+            agent_data = {
+                'id': agent.id,
+                'jobtitle': agent.data.get('jobtitle', ''),
+                'image_data': current_user.images_data.get(agent.data['photo_path'].split('/')[-1], '')
+            }
+            agents_content.append(agent_data)
 
-    agents_content = json.dumps(agents_content) if agents_content else None
-    meeting_results = []
-    for meeting in current_user.meetings:
-      if meeting.agents and meeting.questions and meeting.answers:
-        for agent_data in meeting.agents:
-          if isinstance(agent_data, dict) and 'id' in agent_data:
-            meeting_results.append((meeting.name, agent_data['id']))
-  else:
-    agents_content = None
-    meeting_results = []
+        agents_content = json.dumps(agents_content) if agents_content else None
 
-  timeframes = current_user.timeframes if current_user.is_authenticated else []
-
-  # Decode the base64-encoded image data for each timeframe
-  for timeframe in timeframes:
-    if timeframe.image_data:
-      timeframe.decoded_image_data = base64.b64decode(timeframe.image_data)
+        meeting_results = []
+        for meeting in current_user.meetings:
+            if meeting.agents and meeting.questions and meeting.answers:
+                for agent_data in meeting.agents:
+                    if isinstance(agent_data, dict) and 'id' in agent_data:
+                        meeting_results.append((meeting.name, agent_data['id']))
     else:
-      timeframe.decoded_image_data = None
+        agents_content = None
+        meeting_results = []
 
-  return render_template('index.html',
-                         agents_content=agents_content,
-                         meeting_results=meeting_results,
-                         timeframes=timeframes,
-                         timeframe=None)
+    timeframes = current_user.timeframes if current_user.is_authenticated else []
 
+    # Load the summary image and thumbnail data for each timeframe
+    for timeframe in timeframes:
+        if timeframe.summary_image_data:
+            timeframe.decoded_summary_image_data = base64.b64decode(timeframe.summary_image_data)
+        else:
+            timeframe.decoded_summary_image_data = None
+
+        if timeframe.summary_thumbnail_image_data:
+            timeframe.decoded_summary_thumbnail_image_data = base64.b64decode(timeframe.summary_thumbnail_image_data)
+        else:
+            timeframe.decoded_summary_thumbnail_image_data = None
+
+    return render_template('index.html',
+                           agents_content=agents_content,
+                           meeting_results=meeting_results,
+                           timeframes=timeframes)
 
 @app.route('/images/<filename>')
 def serve_image(filename):
