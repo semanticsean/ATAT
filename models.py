@@ -137,8 +137,8 @@ class Timeframe(db.Model):
   images_data = db.Column(db.Text, nullable=False)
   thumbnail_images_data = db.Column(db.Text, nullable=False)
   summary = db.Column(db.Text)
-  image_data = db.Column(db.Text)
-  thumbnail_image_data = db.Column(db.Text)
+  summary_image_data = db.Column(db.Text)
+  summary_thumbnail_image_data = db.Column(db.Text)
 
   @property
   def agents_count(self):
