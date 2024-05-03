@@ -33,6 +33,19 @@
           display: flex;
           flex-direction: column;
           height: calc(100vh - var(--header-footer-height));
+          
+          @media (min-width: 768px) {
+            .chat-container {
+              max-width: 50%;
+            }
+          }
+
+          @media (max-width: 767px) {
+            .chat-container {
+              max-width: 100%;
+            }
+          }
+
         }
 
         .chat-box {
@@ -148,13 +161,13 @@
           
     </style>
   </head>
-      <body>
+      <body class="mt-24">
         {% include 'header.html' %}
 
         <div class="content-container">
           <div id="content">
-            <div class="chat-container">
-              <div class="chat-box">
+            <div class="chat-container md:max-w-1/2">
+              <div class="chat-box md:mt-12">
                 <h1 class="text-2xl font-bold mb-4">{{ agent_id }}</h1>
                 <h2 class="text-xl font-bold mb-2">{{ agent_jobtitle }}</h2>
                 <p class="mb-4">{{ agent_summary }}</p>
@@ -181,24 +194,24 @@
               </div>
             </div>
           </div>
-          <div class="conversation-list">
-            <h2 class="text-xl font-bold mb-4">Conversations</h2>
-            <button id="new-conversation-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-              New Conversation
-            </button>
-            <div id="conversation-items">
-              {% for conversation in conversations %}
-              <div class="conversation-item" data-conversation-id="{{ conversation.id }}">
-                <span class="conversation-name">{{ conversation.name }}</span>
-                <input type="text" class="conversation-name-edit" value="{{ conversation.name }}" style="display: none;">
-              <          {% endfor %}
+          <div class="conversation-list mt-16 rounded-lg hidden md:block">
+              <h2 class="text-xl font-bold mb-4">Conversations</h2>
+              <button id="new-conversation-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+                New Conversation
+              </button>
+              <div id="conversation-items" class="space-y-2">
+                {% for conversation in conversations %}
+                <div class="conversation-item bg-gray-200 rounded-lg p-2 cursor-pointer" data-conversation-id="{{ conversation.id }}">
+                  <span class="conversation-name">{{ conversation.name }}</span>
+                  <input type="text" class="conversation-name-edit" value="{{ conversation.name }}" style="display: none;">
+                </div>
+                {% endfor %}
+              </div>
             </div>
+
           </div>
-          
-        </div>
-        
-            {% include 'footer.html' %}
-          </div>
+        {% include 'footer.html' %}
+      
         <script>
      
       $(document).ready(function() {
@@ -323,11 +336,11 @@
                   statusDiv.text(`Created new conversation: ${currentConversationName}`);
                 }
 
-                displayMessage(response.user_text, "You");
-                displayMessage(response.ai_text, "AI");
-                responseAudio.attr("src", response.audio_url);
-                responseAudio[0].play();
-                statusDiv.text("Ready");
+              displayMessage(response.user_text, "You");
+              displayMessage(response.ai_text, "AI");
+              responseAudio.attr("src", response.audio_url + "?t=" + Date.now());
+              responseAudio[0].play();
+              statusDiv.text("Ready");
               }
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -366,7 +379,7 @@
                 }
 
                 displayMessage(response.ai_text, "AI");
-                responseAudio.attr("src", response.audio_url);
+                responseAudio.attr("src", response.audio_url + "?t=" + Date.now());
                 responseAudio[0].play();
                 statusDiv.text("Ready");
               },
