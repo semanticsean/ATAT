@@ -20,24 +20,26 @@ openai_api_key = os.environ['OPENAI_API_KEY']
 
 def save_image_to_database(image_url, timeframe_id, photo_filename):
   try:
-    # Download the image from the URL
     response = requests.get(image_url)
+    if response.status_code != 200:
+      raise Exception(
+          f"Failed to download image with status code {response.status_code}")
     img_data = response.content
-
-    # Convert the image to base64
     encoded_string = base64.b64encode(img_data).decode('utf-8')
 
-    # Save the base64 image to the database
     timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe:
-      timeframe_images_data = json.loads(timeframe.images_data)
-      timeframe_images_data[photo_filename] = encoded_string
-      timeframe.images_data = json.dumps(timeframe_images_data)
-      db.session.commit()
-      return True
-    else:
+    if not timeframe:
       raise ValueError(f"Timeframe with ID {timeframe_id} not found.")
 
+    if not timeframe.images_data:
+      timeframe.images_data = json.dumps({})
+
+    timeframe_images_data = json.loads(timeframe.images_data)
+    timeframe_images_data[photo_filename] = encoded_string
+    timeframe.images_data = json.dumps(timeframe_images_data)
+    db.session.commit()
+    logging.info(f"Successfully saved image for timeframe {timeframe_id}.")
+    return True
   except Exception as e:
     logging.error(f"Error occurred while saving image data: {e}")
     return False
@@ -240,8 +242,6 @@ def process_agents(payload, current_user):
   db.session.commit()
 
   summarize_process_agents(new_timeframe, payload, current_user)
-  #monitor_summarize_process_agents(new_timeframe, payload, current_user, process_agents_summary, image_url, img_data, thumbnail_data)
-
 
   return new_timeframe
 
@@ -259,7 +259,8 @@ def conduct_meeting(payload, current_user):
     question_instructions = abe_instructions.get("question_instructions", "")
 
   # Combine form-provided llm_instructions with question_instructions
-  llm_instructions_combined = f"{question_instructions} {form_llm_instructions}".strip()
+  llm_instructions_combined = f"{question_instructions} {form_llm_instructions}".strip(
+  )
 
   logging.info(f"Agents data: {agents_data[:142]}")
   logging.info(f"Questions: {str(questions)[:142]}")
@@ -307,8 +308,10 @@ def conduct_meeting(payload, current_user):
         for prev_agent_id, prev_responses in previous_responses.items():
           if question_id in prev_responses:
             agent_payload["messages"].append({
-                "role": "assistant",
-                "content": f"Agent {prev_agent_id}'s response: {prev_responses[question_id]}"
+                "role":
+                "assistant",
+                "content":
+                f"Agent {prev_agent_id}'s response: {prev_responses[question_id]}"
             })
 
         max_retries = 12
@@ -371,8 +374,10 @@ def conduct_meeting(payload, current_user):
       # Append previous responses to the agent_payload
       for prev_agent_id, prev_responses in previous_responses.items():
         agent_payload["messages"].append({
-            "role": "assistant",
-            "content": f"Agent {prev_agent_id}'s responses:\n{json.dumps(prev_responses, indent=2)}"
+            "role":
+            "assistant",
+            "content":
+            f"Agent {prev_agent_id}'s responses:\n{json.dumps(prev_responses, indent=2)}"
         })
 
       max_retries = 12
@@ -419,17 +424,17 @@ def conduct_meeting(payload, current_user):
   meeting = Meeting.query.get(payload["meeting_id"])
 
   if meeting:
-      # Update the meeting with the generated responses
-      meeting.agents = json.dumps(agents_data)
-      meeting.questions = json.dumps(questions)
-      meeting.answers = json.dumps(meeting_responses)
-      db.session.commit()
+    # Update the meeting with the generated responses
+    meeting.agents = json.dumps(agents_data)
+    meeting.questions = json.dumps(questions)
+    meeting.answers = json.dumps(meeting_responses)
+    db.session.commit()
 
-      process_meeting_summary(meeting, current_user)
+    process_meeting_summary(meeting, current_user)
 
-      return meeting_responses
+    return meeting_responses
   else:
-      raise ValueError(f"Meeting with ID {payload['meeting_id']} not found")
+    raise ValueError(f"Meeting with ID {payload['meeting_id']} not found")
 
 
 def generate_new_agent(agent_name, jobtitle, agent_description, current_user):
@@ -665,10 +670,14 @@ def process_meeting_summary(meeting, current_user):
   meeting.summary = meeting_summary  # Store the meeting summary
 
   logging.info(f"Meeting summary generated: {meeting_summary[:100]}...")
-  logging.info(f"Storing meeting summary in meeting.summary for Meeting ID: {meeting.id}")
+  logging.info(
+      f"Storing meeting summary in meeting.summary for Meeting ID: {meeting.id}"
+  )
 
   db.session.commit()  # Commit the changes to the database
-  logging.info(f"Meeting summary committed to the database for Meeting ID: {meeting.id}")
+  logging.info(
+      f"Meeting summary committed to the database for Meeting ID: {meeting.id}"
+  )
 
   # Prepare the API payload for meeting image
   image_prompt = f"{meeting_summary_dalle}\n\nMeeting Summary: {meeting_summary}\n\nAgents Data:\n"
@@ -707,11 +716,15 @@ def process_meeting_summary(meeting, current_user):
   logging.info(f"Generated image URL: {image_url[:142]}")
 
   img_data = requests.get(image_url).content
-  meeting.image_data = base64.b64encode(img_data).decode('utf-8')  # Store the encoded image data
+  meeting.image_data = base64.b64encode(img_data).decode(
+      'utf-8')  # Store the encoded image data
 
   logging.info(f"Meeting image data generated from URL: {image_url[:142]}")
-  logging.info(f"Storing meeting image data in meeting.image_data for Meeting ID: {meeting.id}")
-  logging.info(f"Sample of stored meeting image data: {meeting.image_data[:100]}...")
+  logging.info(
+      f"Storing meeting image data in meeting.image_data for Meeting ID: {meeting.id}"
+  )
+  logging.info(
+      f"Sample of stored meeting image data: {meeting.image_data[:100]}...")
 
   # Generate thumbnail image
   thumbnail_size = (200, 200)
@@ -720,19 +733,29 @@ def process_meeting_summary(meeting, current_user):
   thumbnail_buffer = BytesIO()
   img.save(thumbnail_buffer, format='PNG')
   thumbnail_data = thumbnail_buffer.getvalue()
-  meeting.thumbnail_image_data = base64.b64encode(thumbnail_data).decode('utf-8')
+  meeting.thumbnail_image_data = base64.b64encode(thumbnail_data).decode(
+      'utf-8')
 
   logging.info(f"Meeting thumbnail image data generated")
-  logging.info(f"Storing meeting thumbnail image data in meeting.thumbnail_image_data for Meeting ID: {meeting.id}")
-  logging.info(f"Sample of stored meeting thumbnail image data: {meeting.thumbnail_image_data[:100]}...")
+  logging.info(
+      f"Storing meeting thumbnail image data in meeting.thumbnail_image_data for Meeting ID: {meeting.id}"
+  )
+  logging.info(
+      f"Sample of stored meeting thumbnail image data: {meeting.thumbnail_image_data[:100]}..."
+  )
 
   db.session.commit()  # Commit the changes to the database
-  logging.info(f"Meeting image data and thumbnail image data committed to the database for Meeting ID: {meeting.id}")
+  logging.info(
+      f"Meeting image data and thumbnail image data committed to the database for Meeting ID: {meeting.id}"
+  )
 
   logging.info(f"Verifying stored data for Meeting ID: {meeting.id}")
   logging.info(f"Meeting summary from database: {meeting.summary[:100]}...")
-  logging.info(f"Meeting image data from database: {meeting.image_data[:100]}...")
-  logging.info(f"Meeting thumbnail image data from database: {meeting.thumbnail_image_data[:100]}...")
+  logging.info(
+      f"Meeting image data from database: {meeting.image_data[:100]}...")
+  logging.info(
+      f"Meeting thumbnail image data from database: {meeting.thumbnail_image_data[:100]}..."
+  )
 
   logging.info("Meeting summary and image generated successfully")
 
@@ -742,29 +765,28 @@ def summarize_process_agents(new_timeframe, payload, current_user):
 
   # Load instructions from abe/abe-instructions.json
   with open("abe/abe-instructions.json", "r") as file:
-      abe_instructions = json.load(file)
-      summarize_process_agents_instructions = abe_instructions.get("summarize_process_agents_instructions", "")
-      summarize_process_agents_dalle = abe_instructions.get("summarize_process_agents_dalle", "")
+    abe_instructions = json.load(file)
+    summarize_process_agents_instructions = abe_instructions.get(
+        "summarize_process_agents_instructions", "")
+    summarize_process_agents_dalle = abe_instructions.get(
+        "summarize_process_agents_dalle", "")
 
   agents_data = json.loads(new_timeframe.agents_data)
   instructions = payload["instructions"]
 
   # Prepare the API payload for process agents summary
   summary_payload = {
-      "model": "gpt-4-turbo-preview",
-      "messages": [
-          {
-              "role": "system",
-              "content": summarize_process_agents_instructions
-          },
-          {
-              "role": "user",
-              "content": f"Timeframe Name: {new_timeframe.name}\nInstructions: {json.dumps(instructions)}\n\nAgents Data:\n{json.dumps(agents_data, indent=2)}\n\nPlease generate a concise summary of the process agents operation."
-          }
-      ],
-      "max_tokens": 250,  # Set the limit of response length
-      "temperature": 0.8,  # Set the randomness of the response
-      "top_p": 0.7  # Set the nucleus sampling cutoff
+      "model":
+      "gpt-4-turbo-preview",
+      "messages": [{
+          "role": "system",
+          "content": summarize_process_agents_instructions
+      }, {
+          "role":
+          "user",
+          "content":
+          f"Timeframe Name: {new_timeframe.name}\nInstructions: {json.dumps(instructions)}\n\nAgents Data:\n{json.dumps(agents_data, indent=2)}\n\nPlease generate a concise summary of the process agents operation."
+      }],
   }
 
   # Call the OpenAI API with exponential backoff and retries
@@ -772,94 +794,132 @@ def summarize_process_agents(new_timeframe, payload, current_user):
   retry_delay = 5
   retry_count = 0
   while retry_count < max_retries:
-      try:
-          if current_user.credits is None or current_user.credits < 5:
-              raise Exception("Insufficient credits, please add more")
+    try:
+      if current_user.credits is None or current_user.credits < 5:
+        raise Exception("Insufficient credits, please add more")
 
-          logging.info("Sending request to OpenAI API for process agents summary")
-          response = client.chat.completions.create(**summary_payload)
-          logging.info("Received response from OpenAI API for process agents summary")
+      logging.info("Sending request to OpenAI API for process agents summary")
+      response = client.chat.completions.create(**summary_payload)
+      logging.info(
+          "Received response from OpenAI API for process agents summary")
 
-          # Deduct credits based on the API call
-          credits_used = 5  # Deduct 5 credits for gpt-4 models
+      # Deduct credits based on the API call
+      credits_used = 5  # Deduct 5 credits for gpt-4 models
 
-          current_user.credits -= credits_used
-          db.session.commit()
-          break
-      except APIError as e:
-          logging.error(f"OpenAI API error: {e}")
-          retry_count += 1
-          if retry_count < max_retries:
-              time.sleep(retry_delay)
-              retry_delay *= 2
-          else:
-              raise e
+      current_user.credits -= credits_used
+      db.session.commit()
+      break
+    except APIError as e:
+      logging.error(f"OpenAI API error: {e}")
+      retry_count += 1
+      if retry_count < max_retries:
+        time.sleep(retry_delay)
+        retry_delay *= 2
+      else:
+        raise e
 
   process_agents_summary = response.choices[0].message.content.strip()
-  new_timeframe.summary = process_agents_summary # Store the process agents summary
+  new_timeframe.summary = process_agents_summary  # Store the process agents summary
 
-  logging.info(f"Process agents summary generated: {process_agents_summary[:100]}...")
-  logging.info(f"Storing process agents summary in new_timeframe.summary for Timeframe ID: {new_timeframe.id}")
+  logging.info(
+      f"Process agents summary generated: {process_agents_summary[:100]}...")
+  logging.info(
+      f"Storing process agents summary in new_timeframe.summary for Timeframe ID: {new_timeframe.id}"
+  )
 
-  # Prepare the API payload for process agents image
+  # Prepare the prompt for process agents image
   image_prompt = f"{summarize_process_agents_dalle}\n\nProcess Agents Summary: {process_agents_summary}\n\nAgents Data:\n"
   for agent in agents_data:
-      image_prompt += f"ID: {agent['id']}, Job Title: {agent['jobtitle']}, Summary: {agent['summary']}, Image Prompt: {agent['image_prompt']}\n"
+    image_prompt += f"ID: {agent['id']}, Job Title: {agent['jobtitle']}, Summary: {agent['summary']}, Image Prompt: {agent['image_prompt']}\n"
 
   # DALL-E - Generate process agents image
   max_retries = 12
   retry_delay = 5
   retry_count = 0
-
   while retry_count < max_retries:
-      try:
-          if current_user.credits is None or current_user.credits < 10:
-              raise Exception("Insufficient credits, please add more")
+    try:
+      if current_user.credits is None or current_user.credits < 10:
+        raise Exception("Insufficient credits, please add more")
 
-          dalle_response = client.images.generate(
-              model="dall-e-3",
-              prompt=image_prompt[:5000],
-              quality="standard",
-              size="1024x1024",
-              n=1,
-          )
-          current_user.credits -= 10
-          db.session.commit()
-          break
-      except APIError as e:
-          logging.error(f"OpenAI API error: {e}")
-          retry_count += 1
-          if retry_count < max_retries:
-              time.sleep(retry_delay)
-              retry_delay *= 2
-          else:
-              raise e
+      logging.info("Sending request to OpenAI API for process agents image")
+      dalle_response = client.images.generate(
+          model="dall-e-3",
+          prompt=image_prompt[:5000],
+          quality="standard",
+          size="1024x1024",
+          n=1,
+      )
+      logging.info(
+          "Received response from OpenAI API for process agents image")
 
-  image_url = dalle_response.data[0].url
-  img_data = requests.get(image_url).content
+      current_user.credits -= 10  # Deduct 10 credits for DALL-E models
+      db.session.commit()
+      break
+    except APIError as e:
+      logging.error(f"OpenAI API error: {e}")
+      logging.error(f"DALL-E prompt: {image_prompt}")
+      retry_count += 1
+      if retry_count < max_retries:
+        time.sleep(retry_delay)
+        retry_delay *= 2
+      else:
+        logging.error("Max retries reached. Skipping image generation.")
+        new_timeframe.image_data = None
+        new_timeframe.thumbnail_image_data = None
+        break
 
-  # Encode the image data as base64
-  new_timeframe.image_data = base64.b64encode(img_data).decode('utf-8')
+  if dalle_response:
+    image_url = dalle_response.data[0].url
+    logging.info(f"Generated image URL: {image_url}")
 
-  # Generate thumbnail image
-  thumbnail_size = (200, 200)
-  img = Image.open(BytesIO(img_data))
-  img.thumbnail(thumbnail_size)
-  thumbnail_buffer = BytesIO()
-  img.save(thumbnail_buffer, format='PNG')
-  thumbnail_data = thumbnail_buffer.getvalue()
+    img_data = requests.get(image_url).content
+    new_timeframe.image_data = base64.b64encode(img_data).decode(
+        'utf-8')  # Store the image data
 
-  # Encode the thumbnail image data as base64
-  new_timeframe.thumbnail_image_data = base64.b64encode(thumbnail_data).decode('utf-8')
+    logging.info(f"Process agents image data generated from URL: {image_url}")
+    logging.info(
+        f"Storing process agents image data in new_timeframe.image_data for Timeframe ID: {new_timeframe.id}"
+    )
+    logging.info(
+        f"Sample of stored process agents image data: {new_timeframe.image_data[:100]}..."
+    )
 
-  db.session.add(new_timeframe)
-  db.session.commit()
+    # Generate thumbnail image
+    thumbnail_size = (200, 200)
+    img = Image.open(BytesIO(img_data))
+    img.thumbnail(thumbnail_size)
+    thumbnail_buffer = BytesIO()
+    img.save(thumbnail_buffer, format='PNG')
+    thumbnail_data = thumbnail_buffer.getvalue()
+    new_timeframe.thumbnail_image_data = base64.b64encode(
+        thumbnail_data).decode('utf-8')  # Store the thumbnail image data
 
-  logging.info(f"Process agents image data and thumbnail image data committed to the database for Timeframe ID: {new_timeframe.id}")
+    logging.info(f"Process agents thumbnail image data generated")
+    logging.info(
+        f"Storing process agents thumbnail image data in new_timeframe.thumbnail_image_data for Timeframe ID: {new_timeframe.id}"
+    )
+    logging.info(
+        f"Sample of stored process agents thumbnail image data: {new_timeframe.thumbnail_image_data[:100]}..."
+    )
+  else:
+    logging.warning("No image generated for process agents summary")
+    new_timeframe.image_data = None
+    new_timeframe.thumbnail_image_data = None
+
+  db.session.commit()  # Commit the changes to the database
+  logging.info(
+      f"Process agents summary, image data, and thumbnail image data committed to the database for Timeframe ID: {new_timeframe.id}"
+  )
 
   logging.info(f"Verifying stored data for Timeframe ID: {new_timeframe.id}")
-  logging.info(f"Process agents summary from database: {new_timeframe.summary[:100]}...")
-  logging.info(f"Process agents image data from database: {new_timeframe.image_data[:100]}...")
-  logging.info(f"Process agents thumbnail image data from database: {new_timeframe.thumbnail_image_data[:100]}...")
+  logging.info(
+      f"Process agents summary from database: {new_timeframe.summary[:100]}..."
+  )
+  logging.info(
+      f"Process agents image data from database: {new_timeframe.image_data[:100] if new_timeframe.image_data else None}..."
+  )
+  logging.info(
+      f"Process agents thumbnail image data from database: {new_timeframe.thumbnail_image_data[:100] if new_timeframe.thumbnail_image_data else None}..."
+  )
 
-  logging.info("Process agents summary and image generated successfully")
+  logging.info("Process agents summary and image generation completed")
