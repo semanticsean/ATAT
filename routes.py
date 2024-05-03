@@ -470,32 +470,53 @@ def get_prev_next_agent_ids(agents, agent):
 
 @timeframes_blueprint.route('/timeframe_images/<int:timeframe_id>')
 def serve_timeframe_image(timeframe_id):
-    logging.info(f"Attempting to serve image for timeframe {timeframe_id}")
-    timeframe = Timeframe.query.get(timeframe_id)
-    if not timeframe:
-        logging.error(f"Timeframe with ID {timeframe_id} not found.")
-        abort(404)
+  logging.info(f"Attempting to serve image for timeframe {timeframe_id}")
+  timeframe = Timeframe.query.get(timeframe_id)
+  if not timeframe:
+    logging.error(f"Timeframe with ID {timeframe_id} not found.")
+    abort(404)
 
-    if not timeframe.image_data:
-        logging.error(f"No image data found for timeframe {timeframe_id}. Data: {timeframe.image_data}")
-        abort(404)
+  if not timeframe.image_data:
+    logging.error(
+        f"No image data found for timeframe {timeframe_id}. Data: {timeframe.image_data}"
+    )
+    abort(404)
 
-    try:
-        logging.info(f"Found image data for timeframe {timeframe_id}, attempting to decode. Data snippet: {timeframe.image_data[:50]}")
-        image_data = base64.b64decode(timeframe.image_data)
-        logging.info(f"Image data decoded successfully for timeframe {timeframe_id}.")
-        return Response(image_data, mimetype='image/png')
-    except Exception as e:
-        logging.error(f"Failed to serve image for timeframe {timeframe_id}: {e}. Data snippet: {timeframe.image_data[:50]}")
-        abort(500)
+  try:
+    logging.info(
+        f"Found image data for timeframe {timeframe_id}, attempting to decode. Data snippet: {timeframe.image_data[:50]}"
+    )
+    image_data = base64.b64decode(timeframe.image_data)
+    logging.info(
+        f"Image data decoded successfully for timeframe {timeframe_id}.")
+    return Response(image_data, mimetype='image/png')
+  except Exception as e:
+    logging.error(
+        f"Failed to serve image for timeframe {timeframe_id}: {e}. Data snippet: {timeframe.image_data[:50]}"
+    )
+    abort(500)
 
 
 @timeframes_blueprint.route('/timeframe/<int:timeframe_id>')
 def single_timeframe(timeframe_id):
   timeframe = Timeframe.query.get(timeframe_id)
   if timeframe:
-    logging.info(f"Timeframe image data: {timeframe.image_data[:100]}...")
+    if timeframe.summary_image_data:
+      logging.info(
+          f"Timeframe summary image data: {timeframe.summary_image_data[:100]}..."
+      )
+    else:
+      logging.info("Timeframe summary image data is None")
+
     logging.info(f"Timeframe summary: {timeframe.summary}")
+
+    if timeframe.summary_thumbnail_image_data:
+      logging.info(
+          f"Timeframe summary thumbnail image data: {timeframe.summary_thumbnail_image_data[:100]}..."
+      )
+    else:
+      logging.info("Timeframe summary thumbnail image data is None")
+
     return render_template('single_timeframe.html', timeframe=timeframe)
   else:
     abort(404)
@@ -988,7 +1009,7 @@ def create_new_agent():
   if request.method == 'POST':
     logging.info("Processing POST request for creating a new agent")
     agent_name = request.form['agent_name']
-    agent_name = re.sub(r'[^a-zA-Z0-9\s]', '', agent_name).replace(' ', '_')
+    agent_name = re.sub(r'[^a-zA-Z0-9\s]', '', agent_name).strip()
     jobtitle = request.form['jobtitle']
     agent_description = request.form['agent_description']
 
