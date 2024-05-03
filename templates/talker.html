@@ -148,6 +148,23 @@
         display: none;
       }
 
+      .audio-controls {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      #stop-audio-button {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      #stop-audio-button.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
       #footer-push {
         height: 4rem; 
       }
@@ -186,6 +203,14 @@
                     Stop
                   </button>
                 </div>
+                <div class="audio-controls">
+                  <button id="stop-audio-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" style="display: none;">
+                    Stop Audio
+                  </button>
+                  <button id="mute-button" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+                    Mute
+                  </button>
+                </div>
                 <div id="status" class="mt-4 text-center text-gray-600"></div>
                 <div class="loading">
                   <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
@@ -213,232 +238,255 @@
         {% include 'footer.html' %}
       
         <script>
-     
-      $(document).ready(function() {
-        const messageList = $("#message-list");
-        messageList.scrollTop(messageList.prop("scrollHeight"));
-      });
+        $(document).ready(function () {
+          const messageList = $("#message-list");
+          const recordButton = $("#record-button");
+          const stopButton = $("#stop-button");
+          const messageInput = $("#message-input");
+          const statusDiv = $("#status");
+          const responseAudio = $("#response-audio");
+          const conversationItems = $("#conversation-items");
+          const loadingIndicator = $(".loading");
+          const sendButton = $("#send-button");
+          const stopAudioButton = $("#stop-audio-button");
+          const muteButton = $("#mute-button");
 
-      $(document).ready(function () {
-        const recordButton = $("#record-button");
-        const stopButton = $("#stop-button");
-        const messageInput = $("#message-input");
-        const statusDiv = $("#status");
-        const messageList = $("#message-list");
-        const responseAudio = $("#response-audio");
-        const conversationItems = $("#conversation-items");
-        const loadingIndicator = $(".loading");
-        loadingIndicator.hide(); 
-        const sendButton = $("#send-button");
-        sendButton.on("click", sendMessage);
-        
-        let mediaRecorder;
-        let isRecording = false;
-        let currentConversationId = null;
-        let currentConversationName = null;
+          let isMuted = false;
+          let mediaRecorder;
+          let isRecording = false;
+          let currentConversationId = null;
+          let currentConversationName = null;
 
-        // Event listeners
-        recordButton.on("click", startRecording);
-        stopButton.on("click", stopRecording);
-        $("#new-conversation-button").on("click", createNewConversation);
-        conversationItems.on("click", ".conversation-item", function () {
-          const conversationId = $(this).data("conversation-id");
-          loadConversation(conversationId);
-        });
+          // Event listeners
+          recordButton.on("click", startRecording);
+          stopButton.on("click", stopRecording);
+          $("#new-conversation-button").on("click", createNewConversation);
+          conversationItems.on("click", ".conversation-item", loadConversation);
+          sendButton.on("click", sendMessage);
+          stopAudioButton.on("click", stopAudio);
+          muteButton.on("click", toggleMute);
+          conversationItems.on("dblclick", ".conversation-item", editConversationName);
+          conversationItems.on("blur", ".conversation-name-edit", saveConversationName);
 
-        // Start a new conversation on page load
-        createNewConversation();
+          // Start a new conversation on page load
+          createNewConversation();
 
-        // Event listener for editing conversation name
-        conversationItems.on("dblclick", ".conversation-item", function () {
-          const conversationNameSpan = $(this).find(".conversation-name");
-          const conversationNameEdit = $(this).find(".conversation-name-edit");
-          conversationNameSpan.hide();
-          conversationNameEdit.show().focus();
-        });
+          function startRecording() {
+            loadingIndicator.show();
+            isRecording = true;
+            recordButton.hide();
+            stopButton.show();
+            statusDiv.text("Recording...");
 
-        // Event listener for saving edited conversation name
-        conversationItems.on("blur", ".conversation-name-edit", function () {
-          const conversationItem = $(this).closest(".conversation-item");
-          const conversationId = conversationItem.data("conversation-id");
-          const newName = $(this).val();
-          const conversationNameSpan = conversationItem.find(".conversation-name");
-          const conversationNameEdit = $(this);
+            navigator.mediaDevices.getUserMedia({ audio: true })
+              .then(function (stream) {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+                mediaRecorder.ondataavailable = handleDataAvailable;
+              });
+          }
 
-          $.ajax({
-            url: `/update_conversation_name/${conversationId}`,
-            type: "POST",
-            data: { name: newName },
-            success: function () {
-              conversationNameSpan.text(newName);
-              conversationNameSpan.show();
-              conversationNameEdit.hide();
-              if (conversationId === currentConversationId) {
-                currentConversationName = newName;
-              }
-            },
-            error: function () {
-              alert("Error updating conversation name");
-            },
-          });
-        });
+          function stopRecording() {
+            loadingIndicator.hide();
+            isRecording = false;
+            stopButton.hide();
+            recordButton.show();
+            statusDiv.text("Processing...");
+            mediaRecorder.stop();
+          }
 
-        function startRecording() {
-          loadingIndicator.show();
-          isRecording = true;
-          recordButton.hide();
-          stopButton.show();
-          statusDiv.text("Recording...");
+          function handleDataAvailable(event) {
+            loadingIndicator.show();
+            const formData = new FormData();
+            formData.append("audio", event.data, "audio.wav");
+            formData.append("agent_id", "{{ agent_id }}");
+            formData.append("conversation_id", currentConversationId);
+            formData.append("conversation_name", currentConversationName);
 
-          navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(function (stream) {
-              mediaRecorder = new MediaRecorder(stream);
-              mediaRecorder.start();
-              mediaRecorder.ondataavailable = function (e) {
-                handleDataAvailable(e.data);
-              };            });
-        }
-
-        function stopRecording() {
-          loadingIndicator.hide();
-          isRecording = false;
-          stopButton.hide();
-          recordButton.show();
-          statusDiv.text("Processing...");
-          mediaRecorder.stop();
-        }
-
-        function handleDataAvailable(audioBlob) {
-          loadingIndicator.show();
-          const formData = new FormData();
-          formData.append("audio", audioBlob, "audio.wav");
-          formData.append("agent_id", "{{ agent_id }}");
-          formData.append("conversation_id", currentConversationId);
-          formData.append("conversation_name", currentConversationName);
-
-          loadingIndicator.show();
-
-          $.ajax({
-            url: "/transcribe",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-              if (response.error) {
-                console.error("Transcription error:", response.error);
-                statusDiv.text("Error: " + response.error);
-              } else {
-                if (response.conversation_id && response.conversation_id !== currentConversationId) {
-                  currentConversationId = response.conversation_id;
-                  currentConversationName = response.conversation_name;
-                  conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
-                  statusDiv.text(`Created new conversation: ${currentConversationName}`);
-                }
-
-              displayMessage(response.user_text, "You");
-              displayMessage(response.ai_text, "AI");
-              responseAudio.attr("src", response.audio_url + "?t=" + Date.now());
-              responseAudio[0].play();
-              statusDiv.text("Ready");
-              }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.error("Transcription error:", textStatus, errorThrown);
-              statusDiv.text("Error: " + textStatus);
-            },
-            complete: function () {
-              stopButton.hide();
-              recordButton.show();
-              loadingIndicator.hide();
-            },
-          });
-        }
-
-        function sendMessage() {
-        const userMessage = messageInput.val();
-        if (userMessage.trim() !== "") {
-          displayMessage(userMessage, "You");
-          messageInput.val("");
-
-          $.ajax({
-              url: "/chat",
+            $.ajax({
+              url: "/transcribe",
               type: "POST",
-              data: {
-                user_message: userMessage,
-                agent_id: "{{ agent_id }}",
-                conversation_id: currentConversationId,
-                conversation_name: currentConversationName
-              },
+              data: formData,
+              processData: false,
+              contentType: false,
               success: function (response) {
-                if (response.conversation_id && response.conversation_id !== currentConversationId) {
-                  currentConversationId = response.conversation_id;
-                  currentConversationName = response.conversation_name;
-                  conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
-                  statusDiv.text(`Created new conversation: ${currentConversationName}`);
-                }
+                if (response.error) {
+                  console.error("Transcription error:", response.error);
+                  statusDiv.text("Error: " + response.error);
+                } else {
+                  if (response.conversation_id && response.conversation_id !== currentConversationId) {
+                    currentConversationId = response.conversation_id;
+                    currentConversationName = response.conversation_name;
+                    conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
+                    statusDiv.text(`Created new conversation: ${currentConversationName}`);
+                  }
 
-                displayMessage(response.ai_text, "AI");
-                responseAudio.attr("src", response.audio_url + "?t=" + Date.now());
-                responseAudio[0].play();
-                statusDiv.text("Ready");
+                  displayMessage(response.user_text, "You");
+                  displayMessage(response.ai_text, "AI");
+                  playAudio(response.audio_url);
+                  statusDiv.text("Ready");
+                }
               },
               error: function (jqXHR, textStatus, errorThrown) {
-                console.error("Chat error:", textStatus, errorThrown);
-                statusDiv.text("Error: " + textStatus);              }
+                console.error("Transcription error:", textStatus, errorThrown);
+                statusDiv.text("Error: " + textStatus);
+              },
+              complete: function () {
+                stopButton.hide();
+                recordButton.show();
+                loadingIndicator.hide();
+              },
             });
           }
-        }
 
-                        function createNewConversation() {
-                          currentConversationId = null;
-                          currentConversationName = `Conversation ${Date.now()}`;
+          function sendMessage() {
+            const userMessage = messageInput.val().trim();
+            if (userMessage !== "") {
+              displayMessage(userMessage, "You");
+              messageInput.val("");
 
-                          messageList.empty();
-                          conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
-                          statusDiv.text(`Created new conversation: ${currentConversationName}`);
+              $.ajax({
+                url: "/chat",
+                type: "POST",
+                data: {
+                  user_message: userMessage,
+                  agent_id: "{{ agent_id }}",
+                  conversation_id: currentConversationId,
+                  conversation_name: currentConversationName
+                },
+                success: function (response) {
+                  if (response.conversation_id && response.conversation_id !== currentConversationId) {
+                    currentConversationId = response.conversation_id;
+                    currentConversationName = response.conversation_name;
+                    conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
+                    statusDiv.text(`Created new conversation: ${currentConversationName}`);
+                  }
 
-                          history.pushState({}, "", "/talker/{{ agent_id }}");
-                        }
+                  displayMessage(response.ai_text, "AI");
+                  playAudio(response.audio_url);
+                  statusDiv.text("Ready");
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                  console.error("Chat error:", textStatus, errorThrown);
+                  statusDiv.text("Error: " + textStatus);
+                }
+              });
+            }
+          }
 
-                        function loadConversation(conversationId) {
-                          if (!conversationId || conversationId === "null") {
-                            console.error("Invalid conversation ID");
-                            return;
-                          }
+          function createNewConversation() {
+            currentConversationId = null;
+            currentConversationName = `Conversation ${Date.now()}`;
 
-                          currentConversationId = conversationId;
-                          currentConversationName = null;
+            messageList.empty();
+            conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
+            statusDiv.text(`Created new conversation: ${currentConversationName}`);
 
-                          messageList.empty();
-                          statusDiv.text(`Loading conversation...`);
+            history.pushState({}, "", "/talker/{{ agent_id }}");
+          }
 
-                          $.ajax({
-                            url: `/get_conversation_messages/${conversationId}`,
-                            type: "GET",
-                            success: function (response) {
-                              if (response.messages) {
-                                response.messages.forEach(function (message) {
-                                  displayMessage(message.content, message.role === "user" ? "You" : "AI");
-                                });
-                                statusDiv.text(`Loaded conversation: ${response.name}`);
-                                currentConversationName = response.name;
-                              }
-                            },
-                            error: function (jqXHR, textStatus, errorThrown) {
-                              console.error("Error loading conversation:", textStatus, errorThrown);
-                              statusDiv.text("Error loading conversation");
-                            },
-                          });
-                        }
+          function loadConversation() {
+            const conversationId = $(this).data("conversation-id");
+            if (!conversationId || conversationId === "null") {
+              console.error("Invalid conversation ID");
+              return;
+            }
 
-        function displayMessage(text, sender) {
-          const messageBubble = $('<div>').addClass('message-bubble ' + sender.toLowerCase() + '-message').text(text);
-          $('#message-list').append(messageBubble);
-          $('#message-list').scrollTop($('#message-list')[0].scrollHeight);
-        }
+            currentConversationId = conversationId;
+            currentConversationName = null;
 
-      });
-    </script>
+            messageList.empty();
+            statusDiv.text(`Loading conversation...`);
+
+            $.ajax({
+              url: `/get_conversation_messages/${conversationId}`,
+              type: "GET",
+              success: function (response) {
+                if (response.messages) {
+                  response.messages.forEach(function (message) {
+                    displayMessage(message.content, message.role === "user" ? "You" : "AI");
+                  });
+                  statusDiv.text(`Loaded conversation: ${response.name}`);
+                  currentConversationName = response.name;
+                }
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                console.error("Error loading conversation:", textStatus, errorThrown);
+                statusDiv.text("Error loading conversation");
+              },
+            });
+          }
+
+          function editConversationName() {
+            const conversationNameSpan = $(this).find(".conversation-name");
+            const conversationNameEdit = $(this).find(".conversation-name-edit");
+            conversationNameSpan.hide();
+            conversationNameEdit.show().focus();
+          }
+
+          function saveConversationName() {
+            const conversationItem = $(this).closest(".conversation-item");
+            const conversationId = conversationItem.data("conversation-id");
+            const newName = $(this).val().trim();
+            const conversationNameSpan = conversationItem.find(".conversation-name");
+            const conversationNameEdit = $(this);
+
+            if (newName !== "") {
+              $.ajax({
+                url: `/update_conversation_name/${conversationId}`,
+                type: "POST",
+                data: { name: newName },
+                success: function () {
+                  conversationNameSpan.text(newName);
+                  conversationNameSpan.show();
+                  conversationNameEdit.hide();
+                  if (conversationId === currentConversationId) {
+                    currentConversationName = newName;
+                  }
+                },
+                error: function () {
+                  alert("Error updating conversation name");
+                },
+              });
+            } else {
+              conversationNameSpan.show();
+              conversationNameEdit.hide();
+            }
+          }
+
+          function displayMessage(text, sender) {
+            const messageBubble = $('<div>').addClass('message-bubble ' + sender.toLowerCase() + '-message').text(text);
+            messageList.append(messageBubble);
+            messageList.scrollTop(messageList[0].scrollHeight);
+
+            if (sender === "AI") {
+              stopAudioButton.addClass("active");
+            } else {
+              stopAudioButton.removeClass("active");
+            }
+          }
+
+          function playAudio(audioUrl) {
+            responseAudio.attr("src", audioUrl + "?t=" + Date.now());
+            if (!isMuted) {
+              responseAudio[0].play();
+            }
+          }
+
+          function stopAudio() {
+            responseAudio[0].pause();
+            responseAudio[0].currentTime = 0;
+            stopAudioButton.hide();
+          }
+
+          function toggleMute() {
+            isMuted = !isMuted;
+            muteButton.text(isMuted ? "Unmute" : "Mute");
+          }
+
+          // Scroll to the bottom of the message list on page load
+          messageList.scrollTop(messageList.prop("scrollHeight"));
+        });
+        </script>
   </body>
 </html>
