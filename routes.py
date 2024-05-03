@@ -470,48 +470,63 @@ def get_prev_next_agent_ids(agents, agent):
 
 @timeframes_blueprint.route('/timeframe_images/<int:timeframe_id>')
 def serve_timeframe_image(timeframe_id):
+    logging.info(f"Attempting to serve image for timeframe {timeframe_id}")
     timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe and timeframe.image_data:
-        image_data = base64.b64decode(timeframe.image_data)
-        return Response(image_data, mimetype='image/png')
-    else:
+    if not timeframe:
+        logging.error(f"Timeframe with ID {timeframe_id} not found.")
         abort(404)
+
+    if not timeframe.image_data:
+        logging.error(f"No image data found for timeframe {timeframe_id}. Data: {timeframe.image_data}")
+        abort(404)
+
+    try:
+        logging.info(f"Found image data for timeframe {timeframe_id}, attempting to decode. Data snippet: {timeframe.image_data[:50]}")
+        image_data = base64.b64decode(timeframe.image_data)
+        logging.info(f"Image data decoded successfully for timeframe {timeframe_id}.")
+        return Response(image_data, mimetype='image/png')
+    except Exception as e:
+        logging.error(f"Failed to serve image for timeframe {timeframe_id}: {e}. Data snippet: {timeframe.image_data[:50]}")
+        abort(500)
+
 
 @timeframes_blueprint.route('/timeframe/<int:timeframe_id>')
 def single_timeframe(timeframe_id):
-    timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe:
-        logging.info(f"Timeframe image data: {timeframe.image_data[:100]}...")
-        logging.info(f"Timeframe summary: {timeframe.summary}")
-        return render_template('single_timeframe.html', timeframe=timeframe)
-    else:
-        abort(404)
-      
+  timeframe = Timeframe.query.get(timeframe_id)
+  if timeframe:
+    logging.info(f"Timeframe image data: {timeframe.image_data[:100]}...")
+    logging.info(f"Timeframe summary: {timeframe.summary}")
+    return render_template('single_timeframe.html', timeframe=timeframe)
+  else:
+    abort(404)
+
 
 @timeframes_blueprint.route('/timeframes')
 @login_required
 def timeframes():
-    timeframes = current_user.timeframes
+  timeframes = current_user.timeframes
 
-    for timeframe in timeframes:
-        parsed_agents_data = json.loads(timeframe.agents_data)
-        for agent in parsed_agents_data:
-            if 'photo_path' in agent:
-                photo_filename = agent['photo_path'].split('/')[-1]
-                agent['image_data'] = json.loads(timeframe.images_data).get(photo_filename, '')
+  for timeframe in timeframes:
+    parsed_agents_data = json.loads(timeframe.agents_data)
+    for agent in parsed_agents_data:
+      if 'photo_path' in agent:
+        photo_filename = agent['photo_path'].split('/')[-1]
+        agent['image_data'] = json.loads(timeframe.images_data).get(
+            photo_filename, '')
 
-        timeframe.parsed_agents_data = parsed_agents_data
+    timeframe.parsed_agents_data = parsed_agents_data
 
-        # Decode the base64-encoded image data for the timeframe
-        if timeframe.image_data:
-            timeframe.decoded_image_data = base64.b64decode(timeframe.image_data)
-        else:
-            timeframe.decoded_image_data = None
+    # Decode the base64-encoded image data for the timeframe
+    if timeframe.image_data:
+      timeframe.decoded_image_data = base64.b64decode(timeframe.image_data)
+    else:
+      timeframe.decoded_image_data = None
 
-        # Log the timeframe summary
-        logging.info(f"Timeframe {timeframe.id} summary: {timeframe.summary}")
+    # Log the timeframe summary
+    logging.info(f"Timeframe {timeframe.id} summary: {timeframe.summary}")
 
-    return render_template('timeframes.html', timeframes=timeframes)
+  return render_template('timeframes.html', timeframes=timeframes)
+
 
 @profile_blueprint.route('/profile')
 @login_required

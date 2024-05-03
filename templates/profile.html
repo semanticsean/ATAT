@@ -90,6 +90,10 @@
                                   {% elif agent.agent_type == 'agent' %}
                                         <a href="{{ url_for('talker_blueprint.talker', agent_type='user', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Talk to Synth</a>
                                         <a href="mailto:{{ agent.email }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Email Agent</a>
+
+                                  
+                                    <button id="copy-email-btn" class="btn btn-secondary" data-email="{{ agent.data.email }}">Copy Email Address</button>
+                                  
                                     {% else %}
                                         <a href="{{ url_for('talker_blueprint.talker', agent_type='agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Talk to Synth</a>
                                     {% endif %}
@@ -197,5 +201,17 @@
             });
         });
     </script>
+      <script>
+        $(document).ready(function() {
+          $('#copy-email-btn').on('click', function() {
+            const email = $(this).data('email');
+            navigator.clipboard.writeText(email).then(function() {
+              alert('Email address copied to clipboard!');
+            }, function(err) {
+              console.error('Could not copy email address: ', err);
+            });
+          });
+        });
+      </script>
 </body>
 </html>
