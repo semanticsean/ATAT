@@ -25,7 +25,7 @@ class User(db.Model, UserMixin):
   agents_data = db.Column(db.JSON)
   images_data = db.Column(db.JSON, default={})
   thumbnail_images_data = db.Column(db.JSON, default={})
-  credits = db.Column(db.Integer, default=10)
+  credits = db.Column(db.Integer, default=100)
   meetings = db.relationship('Meeting', backref='creator', lazy=True)
   api_keys = db.relationship('APIKey', backref='owner', lazy='dynamic')
   timeframes = db.relationship('Timeframe', backref='user', lazy=True)
@@ -142,10 +142,10 @@ class Timeframe(db.Model):
 
   @property
   def agents_count(self):
-    if self.agents_data:
-      agents = json.loads(self.agents_data)
-      return len(agents)
-    return 0
+      if self.agents_data:
+          agents = json.loads(self.agents_data)
+          return len(agents)
+      return 0
 
 
 class Meeting(db.Model):
