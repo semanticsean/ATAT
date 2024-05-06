@@ -1,4 +1,4 @@
-<!--templates/timeframes.html-->
+<!-- templates/timeframes.html -->
 
 <!doctype html>
 <html lang="en" class="h-full">
@@ -34,7 +34,7 @@
         {% for timeframe in timeframes %}
         <div class="bg-white rounded-lg shadow-md p-4 mb-8 timeframe-item">
           <div class="flex items-center mb-4">
-            <img src="{{ url_for('timeframes_blueprint.serve_timeframe_image', timeframe_id=timeframe.id) }}" alt="{{ timeframe.name }}" class="w-32 h-32 rounded-lg object-cover mr-4" onerror="console.error('Failed to load image for timeframe:', {{ timeframe.id }})">
+            <img src="{{ url_for('timeframes_blueprint.serve_timeframe_image', timeframe_id=timeframe.id) }}" alt="{{ timeframe.name }}" class="w-32 h-32 rounded-lg object-cover mr-4">
             <div>
               <h2 class="text-3xl font-bold">{{ timeframe.name }}</h2>
               <p class="text-lg text-gray-700">{{ timeframe.summary }}</p>
@@ -57,7 +57,6 @@
         {% endfor %}
       {% else %}
         <p class="text-gray-500">No timeframes found.</p>
-        <script>console.error('No timeframes data found');</script>
       {% endif %}
     </div>
   </main>
@@ -70,8 +69,6 @@
       const timeframesContainer = document.getElementById('timeframes-container');
       const searchInput = document.getElementById('search-input');
       const timeframeItems = document.querySelectorAll('.timeframe-item');
-
-      console.log('DOMContentLoaded: Total timeframes to load:', timeframeItems.length);
 
       // Function to filter agents based on search input
       function filterAgents() {
@@ -89,7 +86,6 @@
             }
           });
           timeframeItem.style.display = hasVisibleAgents ? 'block' : 'none';
-          console.log('Filter applied for:', timeframeItem, 'Visible:', hasVisibleAgents);
         });
       }
 
@@ -98,15 +94,12 @@
 
       // Function to load timeframes progressively
       function loadTimeframes() {
-        console.log('Starting to load timeframes...');
         timeframeItems.forEach(function(timeframeItem, index) {
           setTimeout(function() {
-            console.log('Displaying timeframe:', timeframeItem);
             timeframeItem.style.display = 'block';
             if (index === timeframeItems.length - 1) {
               loadingSpinner.style.display = 'none';
               timeframesContainer.classList.remove('hidden');
-              console.log('All timeframes displayed.');
             }
           }, index * 500);
         });

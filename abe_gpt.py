@@ -1,4 +1,4 @@
-# abe_gpt.py
+3# abe_gpt.py
 import json
 import base64
 import requests
@@ -31,12 +31,12 @@ def save_image_to_database(image_url, timeframe_id, photo_filename):
     if not timeframe:
       raise ValueError(f"Timeframe with ID {timeframe_id} not found.")
 
-    if not timeframe.images_data:
-      timeframe.images_data = json.dumps({})
+    if not timeframe.summary_image_data:
+      timeframe.summary_image_data = json.dumps({})
 
-    timeframe_images_data = json.loads(timeframe.images_data)
+    timeframe_images_data = json.loads(timeframe.summary_image_data)
     timeframe_images_data[photo_filename] = encoded_string
-    timeframe.images_data = json.dumps(timeframe_images_data)
+    timeframe.summary_image_data = json.dumps(timeframe_images_data)
     db.session.commit()
     logging.info(f"Successfully saved image for timeframe {timeframe_id}.")
     return True
@@ -218,7 +218,7 @@ def process_agents(payload, current_user):
     else:
       image_url = dalle_response.data[0].url
       timeframe_id = new_timeframe.id
-      photo_filename = f"{agent['id']}_iteration_{len(json.loads(new_timeframe.images_data))+1}.png"
+      photo_filename = f"{agent['id']}_iteration_{len(json.loads(new_timeframe.summary_image_data))+1}.png"
 
       success = save_image_to_database(image_url, timeframe_id, photo_filename)
       if success:
@@ -920,15 +920,16 @@ def process_meeting_summary(meeting, current_user):
 
     logging.info("Process agents summary and image generated successfully")
 
-  # Custom exception classes
-  class InsufficientCreditsError(Exception):
+
+# Custom exception classes
+class InsufficientCreditsError(Exception):
     pass
 
-  class SummaryGenerationError(Exception):
+class SummaryGenerationError(Exception):
     pass
 
-  class ImageGenerationError(Exception):
+class ImageGenerationError(Exception):
     pass
 
-  class ImageRetrievalError(Exception):
+class ImageRetrievalError(Exception):
     pass
