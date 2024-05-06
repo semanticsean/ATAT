@@ -64,7 +64,7 @@ def talker(agent_id):
           agent_type = 'timeframe'
           photo_path = agent.data.get('photo_path', '')
           photo_filename = photo_path.split('/')[-1]
-          agent_image_data = json.loads(timeframe.images_data).get(
+          agent_image_data = json.loads(summary_image_data).get(
               photo_filename, '')
           break
 
