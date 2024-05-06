@@ -1,16 +1,20 @@
 # routes.py
-import os, json, random, re, glob, shutil, bleach, logging, uuid
+import os
+import json
+import re
+import bleach
+import logging
+import uuid
 import abe_gpt
 import start
 import base64
+import binascii
 
-from models import db, User, Survey, Timeframe, Meeting, Agent, Image, Document
-from abe_gpt import generate_new_agent
+from models import db, User, Survey, Timeframe, Meeting, Agent, Image
 from abe import login_manager
 from talker import talker_blueprint
 import email_client
 
-from PIL import Image
 from io import BytesIO
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -22,7 +26,6 @@ from logging.handlers import RotatingFileHandler
 
 import time
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.orm import joinedload
 
 #LOGGING
 
@@ -483,19 +486,11 @@ def serve_timeframe_image(timeframe_id):
     abort(404)
 
   try:
-    logging.info(
-        f"Found image data for timeframe {timeframe_id}, attempting to decode. Data snippet: {timeframe.image_data[:50]}"
-    )
-    image_data = base64.b64decode(timeframe.image_data)
-    logging.info(
-        f"Image data decoded successfully for timeframe {timeframe_id}.")
+    image_data = base64.b64decode(timeframe.summary_image_data)
     return Response(image_data, mimetype='image/png')
   except Exception as e:
-    logging.error(
-        f"Failed to serve image for timeframe {timeframe_id}: {e}. Data snippet: {timeframe.image_data[:50]}"
-    )
+    logging.error(f"Failed to serve image for timeframe {timeframe_id}: {e}")
     abort(500)
-
 
 @timeframes_blueprint.route('/timeframe/<int:timeframe_id>')
 def single_timeframe(timeframe_id):
@@ -538,13 +533,22 @@ def timeframes():
     timeframe.parsed_agents_data = parsed_agents_data
 
     # Decode the base64-encoded image data for the timeframe
-    if timeframe.image_data:
-      timeframe.decoded_image_data = base64.b64decode(timeframe.image_data)
+    if timeframe.images_data:
+      try:
+          timeframe.decoded_image_data = base64.b64decode(timeframe.images_data, validate=True)
+      except binascii.Error:
+          logging.error(f"Invalid base64 data for timeframe {timeframe.id}. Data: {timeframe.images_data}")
+          timeframe.decoded_image_data = None
     else:
       timeframe.decoded_image_data = None
 
     # Log the timeframe summary
     logging.info(f"Timeframe {timeframe.id} summary: {timeframe.summary}")
+
+    # Load the summary, image data, and thumbnail image data for the timeframe
+    timeframe.summary = timeframe.summary if timeframe.summary else None
+    timeframe.summary_image_data = timeframe.summary_image_data if timeframe.summary_image_data else None
+    timeframe.summary_thumbnail_image_data = timeframe.summary_thumbnail_image_data if timeframe.summary_thumbnail_image_data else None
 
   return render_template('timeframes.html', timeframes=timeframes)
 
@@ -827,7 +831,12 @@ def serve_meeting_image(meeting_id):
   if meeting and meeting.image_data:
     if meeting.is_public or (current_user.is_authenticated
                              and meeting.user_id == current_user.id):
-      image_data = base64.b64decode(meeting.image_data)
+      try:
+        image_data = base64.b64decode(meeting.image_data)
+        return Response(image_data, mimetype='image/png')
+      except Exception as e:
+        logging.error(f"Failed to serve image for meeting {meeting_id}: {e}")
+        abort(500)
       return Response(image_data, mimetype='image/png')
   abort(404)
 
