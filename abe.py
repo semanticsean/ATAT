@@ -19,6 +19,7 @@ from sqlalchemy import cast, String
 from talker import talker_blueprint
 
 
+
 def configure_logging():
   if not os.path.exists('logs'):
     os.makedirs('logs')
@@ -158,15 +159,8 @@ def home():
 
     # Load the summary image and thumbnail data for each timeframe
     for timeframe in timeframes:
-        if timeframe.summary_image_data:
-            timeframe.decoded_summary_image_data = base64.b64decode(timeframe.summary_image_data)
-        else:
-            timeframe.decoded_summary_image_data = None
-
-        if timeframe.summary_thumbnail_image_data:
-            timeframe.decoded_summary_thumbnail_image_data = base64.b64decode(timeframe.summary_thumbnail_image_data)
-        else:
-            timeframe.decoded_summary_thumbnail_image_data = None
+        timeframe.summary_image_data = timeframe.summary_image_data if timeframe.summary_image_data else None
+        timeframe.summary_thumbnail_image_data = timeframe.summary_thumbnail_image_data if timeframe.summary_thumbnail_image_data else None
 
     return render_template('index.html',
                            agents_content=agents_content,
@@ -181,12 +175,13 @@ def serve_image(filename):
 
         # Check if the image is in the user's images_data
         if user.images_data and filename in user.images_data:
+            print("Image found in user's images_data")  # Print if the image is found
             image_data = user.images_data.get(filename)
             return Response(base64.b64decode(image_data), mimetype='image/png')
 
         # Check if the image is in any of the user's timeframes
         for timeframe in user.timeframes:
-            timeframe_images_data = json.loads(timeframe.summary_image_data) if timeframe.summary_image_data else {}
+            timeframe_images_data = json.loads(timeframe.images_data)
             if filename in timeframe_images_data:
                 image_data = timeframe_images_data.get(filename)
                 return Response(base64.b64decode(image_data), mimetype='image/png')
@@ -194,8 +189,8 @@ def serve_image(filename):
         # Check if the image is in any of the user's agents
         agent = Agent.query.filter(
             Agent.user_id == user_id,
-            Agent.data.cast(db.Text).contains(f'"photo_path": "/images/{filename}"')
-        ).first()
+            Agent.data.cast(
+                db.Text).contains(f'"photo_path": "/images/{filename}"')).first()
         if agent:
             image_data = agent.data.get('image_data', {}).get(f"/images/{filename}")
             if image_data:
@@ -204,25 +199,35 @@ def serve_image(filename):
         # Check if the image belongs to a timeframe agent
         timeframe_agent = db.session.query(Timeframe).filter(
             Timeframe.user_id == user_id,
-            Timeframe.agents_data.cast(db.Text).contains(f'"photo_path": "/images/{filename}"')
-        ).first()
+            Timeframe.agents_data.cast(
+                db.Text).contains(f'"photo_path": "/images/{filename}"')).first()
         if timeframe_agent:
-            timeframe_images_data = json.loads(timeframe_agent.summary_image_data) if timeframe_agent.summary_image_data else {}
+            timeframe_images_data = json.loads(timeframe_agent.images_data)
             image_data = timeframe_images_data.get(filename)
             if image_data:
                 return Response(base64.b64decode(image_data), mimetype='image/png')
 
         # Check if the image belongs to a public meeting
-        public_meeting = Meeting.query.filter(
-            Meeting.is_public == True,
-            Meeting.agents.cast(db.Text).contains(f'"{filename}"')
-        ).first()
+        public_meeting = Meeting.query.filter_by(is_public=True).join(
+            Meeting.agents).filter(
+            Meeting.agents.any_(
+                cast(Agent.data['photo_path'], String) == filename)).first()
         if public_meeting:
-            image_data = json.loads(public_meeting.agents).get(filename)
+            image_data = public_meeting.images_data.get(filename)
             if image_data:
                 return Response(base64.b64decode(image_data), mimetype='image/png')
 
+        # Check if the image belongs to a meeting summary
+        meeting = Meeting.query.filter(
+            Meeting.image_data.isnot(None)).filter_by(image_data=filename).first()
+        if meeting:
+            image_data = meeting.image_data
+            if image_data:
+                return Response(base64.b64decode(image_data), mimetype='image/png')
+
+    print("Image not found")
     abort(404)
+
 
 @app.errorhandler(404)
 def page_not_found(e):
