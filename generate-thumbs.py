@@ -1,21 +1,4 @@
 #generate_thumbs.py
-"""
-This script does the following:
-
-The generate_thumbnails function takes an optional user_id parameter. If user_id is provided, it generates thumbnails for that specific user. Otherwise, it generates thumbnails for all users in the database.
-It iterates over each user's images_data, agents, and timeframes to generate thumbnails for all possible image types.
-For images_data, it generates thumbnails and appends them to the user's thumbnail_images_data dictionary with the key format {filename}_thumbnail.
-For agents, it checks if the agent has image_data and generates a thumbnail, storing it in the agent's data as thumbnail_image_data.
-For timeframes, it loads the images_data from the JSON string, generates thumbnails for each image, and appends them to the timeframe's thumbnail_images_data dictionary.
-It keeps a log of all the added thumbnails in a file named added_thumbnails.log. The log format is (user_id, record_type, thumbnail_key) for user and agent records, and (user_id, record_type, timeframe_id, thumbnail_key) for timeframe records.
-The rollback_thumbnails function reads the added_thumbnails.log file and removes the thumbnails that were added by the script. It pops the thumbnail keys from the respective user, agent, or timeframe data.
-The generate_thumbnail function takes the image_data as input, resizes it to a thumbnail size of (200, 200) using the PIL library, and returns the thumbnail data as a base64-encoded string.
-
-To use this script, you can run it with python thumbnail_generator.py (assuming the script is named thumbnail_generator.py). It will generate thumbnails for all users by default. You can uncomment the generate_thumbnails(user_id=1) line to generate thumbnails for a specific user (replace 1 with the desired user ID). To rollback the added thumbnails, you can uncomment the rollback_thumbnails() line.
-Note: Make sure to have the necessary dependencies (PIL library) installed and adjust the import statements based on your project structure.
-
-"""
-#generate_thumbs.py
 import os
 import base64
 import json
@@ -64,7 +47,7 @@ def generate_thumbnails(user_id=None):
 
       # Generate thumbnails for user's timeframes
       for timeframe in user.timeframes:
-          images_data = json.loads(timeframe.summary_image_data) if timeframe.timeframe else {}
+          images_data = json.loads(timeframe.images_data) if timeframe.images_data else {}
           for filename, image_data in images_data.items():
               print(f"Generating thumbnail for user {user.id}, timeframe: {timeframe.id}, image: {filename}")
               thumbnail_data = generate_thumbnail(image_data)
