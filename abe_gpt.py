@@ -1,4 +1,4 @@
-3# abe_gpt.py
+# abe_gpt.py
 import json
 import base64
 import requests
@@ -166,17 +166,14 @@ def process_agents(payload, current_user):
     updated_agent_data[f"{agent['id']}_image_instructions"] = dalle_prompt
     logging.info(f"DALL-E prompt: {dalle_prompt[:142]}")
 
-    # Store the DALL-E prompt in the database
+    # Store the updated agent data in the database
     new_timeframe_agents_data = json.loads(new_timeframe.agents_data)
-    new_timeframe_agents_data.append({
-        'agent_id': agent['id'],
-        'dalle_prompt': dalle_prompt
-    })
+    new_timeframe_agents_data.append(updated_agent_data)
     new_timeframe.agents_data = json.dumps(new_timeframe_agents_data)
     db.session.commit()
 
     # DALL-E - Generate new profile picture
-    max_retries = 1
+    max_retries = 6
     retry_delay = 30
     retry_count = 0
     dalle_response = None
@@ -230,7 +227,7 @@ def process_agents(payload, current_user):
             f"Failed to save image {photo_filename} to timeframe {timeframe_id}"
         )
 
-      updated_agent_data['photo_path'] = photo_filename
+      updated_agent_data['photo_path'] = f"/images/{photo_filename}"
       logging.info(f"Updated photo path: {updated_agent_data['photo_path']}")
 
     # Add the updated agent data to the new_timeframe.agents_data list
