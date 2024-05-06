@@ -208,10 +208,8 @@ def serve_image(filename):
                 return Response(base64.b64decode(image_data), mimetype='image/png')
 
         # Check if the image belongs to a public meeting
-        public_meeting = Meeting.query.filter_by(is_public=True).join(
-            Meeting.agents).filter(
-            Meeting.agents.any_(
-                cast(Agent.data['photo_path'], String) == filename)).first()
+        public_meeting = Meeting.query.filter_by(is_public=True).filter(
+            Meeting.agents.cast(db.Text).contains(f'"/images/{filename}"')).first()
         if public_meeting:
             image_data = public_meeting.images_data.get(filename)
             if image_data:
@@ -227,7 +225,6 @@ def serve_image(filename):
 
     print("Image not found")
     abort(404)
-
 
 @app.errorhandler(404)
 def page_not_found(e):

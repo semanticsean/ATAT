@@ -76,7 +76,7 @@ def summarize_process_agents(new_timeframe, payload, current_user):
             {"role": "system", "content": process_agents_summary_instructions},
             {
                 "role": "user",
-                "content": f"Timeframe Name: {new_timeframe.name}\nInstructions: {json.dumps(instructions)}\n\nAgents Data:\n{json.dumps(agents_data, indent=2)}\n\nPlease generate a concise summary of the process_agents function."
+                "content": f"Timeframe Name: {new_timeframe.name}\nInstructions: {json.dumps(instructions)}\n\nAgents Data:\n{json.dumps(agents_data, indent=2)}."
             },
         ],
     }
