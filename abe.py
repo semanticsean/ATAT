@@ -188,10 +188,11 @@ def serve_image(filename):
 
     # Check if the image is in any of the user's timeframes
     for timeframe in user.timeframes:
-      timeframe_images_data = json.loads(timeframe.images_data)
-      if filename in timeframe_images_data:
-        image_data = timeframe_images_data.get(filename)
-        return Response(base64.b64decode(image_data), mimetype='image/png')
+        if timeframe.summary_image_data:
+            timeframe_images_data = json.loads(timeframe.summary_image_data)
+            if filename in timeframe_images_data:
+              image_data = timeframe_images_data.get(filename)
+              return Response(base64.b64decode(image_data), mimetype='image/png')
 
     # Check if the image is in any of the user's agents
     agent = Agent.query.filter(

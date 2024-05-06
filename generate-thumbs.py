@@ -64,7 +64,7 @@ def generate_thumbnails(user_id=None):
 
       # Generate thumbnails for user's timeframes
       for timeframe in user.timeframes:
-          images_data = json.loads(timeframe.images_data) if timeframe.images_data else {}
+          images_data = json.loads(timeframe.summary_image_data) if timeframe.timeframe else {}
           for filename, image_data in images_data.items():
               print(f"Generating thumbnail for user {user.id}, timeframe: {timeframe.id}, image: {filename}")
               thumbnail_data = generate_thumbnail(image_data)
