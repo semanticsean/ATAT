@@ -1,57 +1,56 @@
+<!--templates/single_timeframe.html-->
+
 <!doctype html>
 <html lang="en" class="h-full">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ timeframe.name }}</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ timeframe.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
-  {% include 'header.html' %}
-
-  <main class="container mx-auto mt-24 px-4 py-8 flex-grow">
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-      <div class="flex flex-col md:flex-row">
-        <div class="md:w-1/3 mb-4 md:mb-0 md:mr-6">
-          {% if timeframe.summary_image_data %}
-            <img src="data:image/png;base64,{{ timeframe.summary_image_data }}" alt="{{ timeframe.name }}" class="w-full h-auto rounded-lg shadow-md">
-          {% else %}
-            <div class="bg-gray-200 h-48 flex items-center justify-center rounded-lg shadow-md">
-              <p class="text-lg text-gray-500">No summary image available</p>
-            </div>
-          {% endif %}
-        </div>
-        <div class="md:w-2/3">
-          <h1 class="text-4xl font-bold mb-4">{{ timeframe.name }}</h1>
-          <h2 class="text-2xl font-bold mb-2">Timeframe Summary</h2>
-          <div class="text-lg whitespace-pre-line">{{ timeframe.summary }}</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white rounded-lg shadow-lg p-6">
-      <h2 class="text-2xl font-bold mb-4">Agents</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {% for agent in timeframe.parsed_agents_data %}
-          {% if agent['image_data'] %}
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-              <a href="{{ url_for('profile_blueprint.profile', agent_id=agent['id'], timeframe_id=timeframe.id) }}" class="block">
-                <div class="relative pb-48 overflow-hidden">
-                  <img class="absolute inset-0 h-full w-full object-cover" src="data:image/png;base64,{{ agent['image_data'] }}" alt="{{ agent['id'] }}">
+    {% include 'header.html' %}
+    <main class="container mx-auto mt-24 px-4 py-8 flex-grow">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex flex-col md:flex-row">
+                <div class="md:w-1/3 mb-4 md:mb-0 md:mr-6">
+                    {% if timeframe.summary_image_data %}
+                        <img src="data:image/png;base64,{{ timeframe.summary_image_data }}" alt="{{ timeframe.name }}" class="w-full h-auto rounded-lg shadow-md">
+                    {% else %}
+                        <div class="bg-gray-200 h-48 flex items-center justify-center rounded-lg shadow-md">
+                            <p class="text-lg text-gray-500">No summary image available</p>
+                        </div>
+                    {% endif %}
                 </div>
-                <div class="p-4">
-                  <h3 class="text-xl font-bold mb-2">{{ agent['id'] }}</h3>
-                  <p class="text-gray-600">{{ agent['jobtitle'] }}</p>
-                  <p class="text-gray-500 text-sm">Type: {{ agent['agent_type'] }}</p>
+                <div class="md:w-2/3">
+                    <h1 class="text-4xl font-bold mb-4">{{ timeframe.name }}</h1>
+                    <h2 class="text-2xl font-bold mb-2">Timeframe Summary</h2>
+                    <div class="text-lg whitespace-pre-line">{{ timeframe.summary }}</div>
                 </div>
-              </a>
             </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
-  </main>
-
-  {% include 'footer.html' %}
+        </div>
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-4">Agents</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {% for agent in timeframe.parsed_agents_data %}
+                    {% if agent['image_data'] %}
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <a href="{{ url_for('profile_blueprint.profile', agent_id=agent['id'], timeframe_id=timeframe.id) }}" class="block">
+                                <div class="relative pb-48 overflow-hidden">
+                                    <img class="absolute inset-0 h-full w-full object-cover" src="data:image/png;base64,{{ agent['image_data'] }}" alt="{{ agent['id'] }}">
+                                </div>
+                                <div class="p-4">
+                                    <h3 class="text-xl font-bold mb-2">{{ agent['id'] }}</h3>
+                                    <p class="text-gray-600">{{ agent['jobtitle'] }}</p>
+                                    <p class="text-gray-500 text-sm">Type: {{ agent['agent_type'] }}</p>
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+    {% include 'footer.html' %}
 </body>
 </html>

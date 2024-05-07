@@ -235,7 +235,7 @@ def process_agents(payload, current_user):
     time.sleep(30)
     new_timeframe = summarize_process_agents(new_timeframe, payload, current_user) 
 
-    return new_timeframe
+    return redirect(url_for('timeframe_blueprint.single_timeframe', timeframe_id=new_timeframe.id))
 
 
 def conduct_meeting(payload, current_user):
