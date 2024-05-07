@@ -124,7 +124,7 @@
               <div class="container mx-auto px-4 mt-4">
                 <div class="bg-white rounded-lg shadow-lg p-6">
 
-                  
+
                   <div class="hero-container">
                     <div>
                       <h2 class="text-3xl font-bold mb-4">Welcome</h2>
@@ -146,7 +146,7 @@
                       </div>
                     {% endif %}
                   </div>
-                  
+
                   <div class="welcome-grid">
                     <div class="welcome-item">
                       <svg><!-- Welcome SVG icon --></svg>
@@ -180,8 +180,8 @@
                 <div class="grid-item">
                   <img src="" data-src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}" class="image-cache">
                   <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type='agent') }}" class="grid-item-content">
-                    <span class="agent-title">{{ agent.id }}</span>
-                    <span class="agent-job">{{ agent.jobtitle }}</span>
+                    <h2 class="agent-title">{{ agent.id }}</h2>
+                    <h3 class="agent-job">{{ agent.jobtitle }}</h3>
                   </a>
                 </div>
                 {% endfor %}
@@ -213,8 +213,7 @@
               </h2>
               <div class="grid-container">
                 {% for meeting in current_user.meetings %} {% if meeting.answers %}
-                <div class="grid-item">
-                  <img src="" data-src="{{ url_for('serve_image', filename=meeting.image_data.split('/')[-1]) if meeting.image_data else '' }}" class="image-cache">
+                <div class="grid-item" style="background-image: url('data:image/png;base64,{{ meeting.image_data if meeting.image_data else url_for('static', filename='placeholder.jpg') }}')">
                   <a href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" class="grid-item-content">
                     <span class="agent-title">{{ meeting.name }}</span>
                   </a>
@@ -234,8 +233,7 @@
               </h2>
               <div class="grid-container">
                 {% for timeframe in timeframes %}
-                <div class="grid-item">
-                  <img src="" data-src="{{ url_for('serve_image', filename=timeframe.summary_image_data.split('/')[-1]) if timeframe.summary_image_data else '' }}" class="image-cache">
+                <div class="grid-item" style="background-image: url('data:image/png;base64,{{ timeframe.summary_thumbnail_image_data or timeframe.summary_image_data }}');">
                   <a href="{{ url_for('timeframes_blueprint.single_timeframe', timeframe_id=timeframe.id) }}" class="grid-item-content">
                     <span class="agent-title">{{ timeframe.name }}</span>
                   </a>
