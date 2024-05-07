@@ -137,7 +137,7 @@
                                             This is beta software - if you have an issue, try refresing the page.
                                           </p>
                                         </div>
-                                        {% if current_user.is_authenticated and current_user.images_data.get('hero_image') %}
+                                       <!--{% if current_user.is_authenticated and current_user.images_data.get('hero_image') %}
                                           <div class="relative">
                                             <img src="" data-src="data:image/png;base64,{{ current_user.images_data['hero_image'] }}" alt="Hero Image" class="hero-image image-cache">
                                             <button id="refreshPhoto" class="absolute bottom-0 right-0 mb-2 mr-2 bg-blue-500 text-white font-bold py-1 px-2 rounded text-sm">Refresh Photo</button>
@@ -148,7 +148,7 @@
                                             <button id="renderTeamPhoto" class="absolute top-0 left-0 mt-2 ml-2 bg-blue-500 text-white font-bold py-2 px-4 rounded">Render Team Photo</button>
                                           </div>
                                         {% endif %}
-                                      </div>
+                                      </div> -->
 
                                       <div class="welcome-grid">
                                         <div class="welcome-item">
@@ -199,9 +199,16 @@
                                     </div>
                                     {% endfor %}
                                     {% if not current_user.agents_data and not current_user.agents %}
+                                    <form action="{{ url_for('start_blueprint.start_route') }}" method="post" class="grid-item bg-gray-200 flex items-center justify-center text-center">
+                                      <button type="submit" class="text-black text-xl font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300">
+                                        Modify Base Synthetics (1st)<br />
+                                        <span class="text-sm">May take several minutes</span>
+                                      </button>
+                                    </form>
+
                                     <form action="{{ url_for('auth_blueprint.add_base_agents') }}" method="post" class="grid-item bg-gray-200 flex items-center justify-center text-center">
                                       <button type="submit" class="text-black text-xl font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300">
-                                        Add Base Synths<br />
+                                        Render Base Synthetics (2nd)<br />
                                         <span class="text-sm">May take several minutes</span>
                                       </button>
                                     </form>
