@@ -1,0 +1,72 @@
+{
+  "title": "Help & Support",
+  "description": "This guide will walk you through the key features and functionalities of the dashboard, helping you get started with creating and managing your AI agents, timeframes, and meetings.",
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Overview",
+      "content": "The Semantic Life - AI Agent Dashboard is a powerful tool that allows you to create, manage, and interact with AI agents. You can create principal agents, establish timeframes, and conduct meetings with the agents to gather insights and make informed decisions."
+    },
+    {
+      "id": "principal-agents",
+      "title": "Principal Agents",
+      "content": "Principal agents are the core entities in the dashboard. They represent the AI agents that you can interact with and assign to different timeframes and meetings. To view and manage your principal agents, click on the \"Principal Agents\" button in the \"Synths\" section of the dashboard."
+    },
+    {
+      "id": "timeframes",
+      "title": "Timeframes",
+      "content": "Timeframes allow you to create different scenarios or contexts for your AI agents. You can create a new timeframe, modify the agents within a timeframe, and conduct meetings based on specific timeframes."
+    },
+    {
+      "id": "creating-new-timeframe",
+      "title": "Creating a New Timeframe",
+      "content": "In the \"Times\" section of the dashboard, click on the \"New Timeframe\" button. Select the agents you want to include in the timeframe from the list of principal agents. Provide instructions or prompts to modify the selected agents for the timeframe. Enter a name for the timeframe and click on the \"Create\" button. The new timeframe will be created, and the selected agents will be modified based on the provided instructions. You can access the modified agents in the \"Timeframes\" section of the dashboard."
+    },
+    {
+      "id": "modifying-agents",
+      "title": "Modifying Agents in a Timeframe",
+      "content": "When you create a new timeframe, the selected agents are automatically modified based on the instructions you provide. The modifications are performed using the OpenAI API and DALL-E image generation. The specified fields (e.g., 'id', 'email', 'unique_id', 'timestamp', 'photo_path') are removed from the agent data. The agent data is sent to the OpenAI API along with the modification instructions. The OpenAI API returns the updated agent data in JSON format. The excluded fields are added back to the updated agent data. The agent's profile picture is processed using the Vision API to generate a detailed description. The DALL-E API is used to generate a new profile picture based on the modification instructions and the vision description. The new profile picture is saved, and the agent's photo path is updated. The modified agent data is stored in the timeframe. You can view the modified agents by clicking on the timeframe in the \"Timeframes\" section of the dashboard."
+    },
+    {
+      "id": "meetings",
+      "title": "Meetings",
+      "content": "Meetings allow you to interact with the AI agents and gather insights through surveys. You can create a new meeting, conduct a survey with the agents, and view the survey results."
+    },
+    {
+      "id": "creating-new-meeting",
+      "title": "Creating a New Meeting",
+      "content": "In the \"Times\" section of the dashboard, click on the \"New Meeting\" button. Select the timeframe for the meeting from the available options. Choose the agents you want to include in the meeting from the selected timeframe. Provide a name for the meeting and click on the \"Create\" button. The new meeting will be created, and you will be redirected to the survey form."
+    },
+    {
+      "id": "conducting-survey",
+      "title": "Conducting a Survey",
+      "content": "Once you have created a meeting, you can conduct a survey with the selected agents. The survey form allows you to define questions and gather responses from the agents. In the survey form, enter the questions you want to ask the agents. Specify the question type (e.g., open-ended, multiple-choice) and provide additional details if required. Optionally, provide instructions or prompts for the agents to consider while answering the questions. Select the agents you want to include in the survey. Choose the survey mode (iterative or simultaneous) and click on the \"Conduct Survey\" button. The survey will be conducted using the OpenAI API, and the responses from the agents will be collected."
+    },
+    {
+      "id": "viewing-survey-results",
+      "title": "Viewing Survey Results",
+      "content": "After conducting a survey, you can view the survey results in the dashboard. The survey results include the responses from each agent for the defined questions. In the \"Meetings\" section of the dashboard, click on the desired meeting. The survey results will be displayed, showing the responses from each agent. You can analyze the responses, compare insights from different agents, and make informed decisions based on the survey results."
+    },
+    {
+      "id": "help-and-support",
+      "title": "Help and Support",
+      "content": "If you need any assistance or have questions regarding the Semantic Life - AI Agent Dashboard, you can refer to the help documentation by clicking on the \"Help\" button in the \"Tools\" section of the dashboard. The help documentation provides detailed information about various features, troubleshooting steps, and frequently asked questions. If you encounter any issues or require further support, please contact our support team at support@semanticlife.com. We hope this guide has been helpful in getting you started with the Semantic Life - AI Agent Dashboard. Feel free to explore the different features, create engaging timeframes and meetings, and leverage the power of AI agents to gain valuable insights."
+    }, 
+    {
+      "id": "shortcodes",
+      "title": "Email Shortcodes",
+      "content": "Shortcodes are quick commands that you can use within the Semantic Life - AI Agent Dashboard to perform specific tasks more efficiently. Below are examples of how you can use shortcodes:"
+    },
+    {
+      "id": "call-agents-from-email",
+      "title": "Call Agents from Email Body",
+      "content": "You can call any agent directly from an email body by using the shortcode @@(Agent Name). Simply replace 'Agent Name' with the name of the agent you wish to call."
+    },
+    {
+      "id": "create-temporary-synth",
+      "title": "Create a Temporary Synth",
+      "content": "To create a temporary synthetic agent, you can use the shortcode provided. This allows you to generate a new agent instance for temporary tasks without affecting your main agents."
+    }
+
+  ]
+}
