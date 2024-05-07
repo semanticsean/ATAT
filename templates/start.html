@@ -12,7 +12,7 @@
   <body class="bg-gray-100">
     {% include 'header.html' %}
     <div class="container mx-auto px-4 py-8">
-      <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-4xl">
+      <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-4xl mt-24">
         <h1 class="text-3xl font-bold mb-4 px-6 pt-6">Start Configuration</h1>
         <h2 class="text-xl font-bold mb-4 px-6">
           STILL IN TESTING, ALPHA FEATURES.
@@ -187,25 +187,13 @@
               >
                 <option
                   value="no"
-                  {%
-                  if
-                  config.clear_json_confirm=""
-                  ="no"
-                  %}selected{%
-                  endif
-                  %}
+                  {% if config.clear_json_confirm == "no" %}selected{% endif %}
                 >
                   No
                 </option>
                 <option
                   value="yes"
-                  {%
-                  if
-                  config.clear_json_confirm=""
-                  ="yes"
-                  %}selected{%
-                  endif
-                  %}
+                  {% if config.clear_json_confirm == "yes" %}selected{% endif %}
                 >
                   Yes
                 </option>
@@ -219,25 +207,13 @@
               >
                 <option
                   value="no"
-                  {%
-                  if
-                  config.clear_pics_confirm=""
-                  ="no"
-                  %}selected{%
-                  endif
-                  %}
+                  {% if config.clear_pics_confirm == "no" %}selected{% endif %}
                 >
                   No
                 </option>
                 <option
                   value="yes"
-                  {%
-                  if
-                  config.clear_pics_confirm=""
-                  ="yes"
-                  %}selected{%
-                  endif
-                  %}
+                  {% if config.clear_pics_confirm == "yes" %}selected{% endif %}
                 >
                   Yes
                 </option>
