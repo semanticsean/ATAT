@@ -18,9 +18,11 @@
     <div class="hidden md:flex items-center">
       {% if current_user.is_authenticated %}
         <a href="/" class="block px-4 py-2 text-white {% if request.path == '/' %}bg-blue-600{% endif %} hover:bg-blue-600">Home</a>
-        <a href="/new_meeting" class="block px-4 py-2 text-white {% if request.path == '/new_meeting' %}bg-blue-600{% endif %} hover:bg-blue-600">New Meeting</a>
-        <a href="/dashboard" class="block px-4 py-2 text-white {% if request.path == '/dashboard' %}bg-blue-600{% endif %} hover:bg-blue-600">Agents</a>
-        <a href="/timeframes" class="block px-4 py-2 text-white {% if request.path == '/timeframes' %}bg-blue-600{% endif %} hover:bg-blue-600">Timeframes</a>
+      <a href="/dashboard" class="block px-4 py-2 text-white {% if request.path == '/dashboard' %}bg-blue-600{% endif %} hover:bg-blue-600">Agents</a>
+       <a href="/timeframes" class="block px-4 py-2 text-white {% if request.path == '/timeframes' %}bg-blue-600{% endif %} hover:bg-blue-600">Timeframes</a>
+        <a href="/meetings" class="block px-4 py-2 text-white {% if request.path == '/new_meeting' %}bg-blue-600{% endif %} hover:bg-blue-600">Meetings</a>
+        
+     
         <a href="/user" class="ml-6 font-md md:text-sm text-white hover:text-blue-300">{{ current_user.username }} ({{ current_user.credits or 0 }})</a>
       {% else %}
         <a href="/login" class="block px-4 py-2 text-white bg-blue-600 hover:bg-blue-700">Login</a>

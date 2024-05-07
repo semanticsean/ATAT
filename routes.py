@@ -297,126 +297,139 @@ def meeting_form(meeting_id):
                            agents=agents_data)
 
 
-@meeting_blueprint.route('/meeting/<int:meeting_id>/results',
-                         methods=['GET', 'POST'])
+@meeting_blueprint.route('/meeting/<int:meeting_id>/results', methods=['GET', 'POST'])
 @login_required
 def meeting_results(meeting_id):
-  meeting = Meeting.query.get(meeting_id)
-  agents_data = meeting.agents
-  for agent in agents_data:
-    agent['photo_path'] = agent['photo_path'].split('/')[-1]
+    meeting = Meeting.query.get(meeting_id)
+    agents_data = meeting.agents
 
-  if meeting.user_id != current_user.id:
-    abort(403)
+    for agent in agents_data:
+        agent['photo_path'] = agent['photo_path'].split('/')[-1]
 
-  if request.method == 'POST':
-    is_public = request.form.get('is_public') == 'on'
-    meeting.is_public = is_public
+    if meeting.user_id != current_user.id:
+        abort(403)
 
-    if is_public:
-      if not meeting.public_url:
-        meeting.public_url = str(uuid.uuid4())
-        logger.info(f"Generated public_url: {meeting.public_url}")
-      public_url = url_for('meeting_blueprint.public_meeting_results',
-                           public_url=meeting.public_url,
-                           _external=True)
-      logger.info(f"Full public URL: {public_url}")
-
-      # Save the image files in the public folder
-      public_folder = 'public'
-      os.makedirs(public_folder, exist_ok=True)
-      for agent in meeting.agents:
-        filename = agent['photo_path'].split('/')[-1]
-
-        # Check if the agent is from a Timeframe
-        timeframe = Timeframe.query.filter(
-            Timeframe.agents_data.contains(json.dumps(agent))).first()
-        if timeframe:
-          # If the agent is from a Timeframe, get the image data from the Timeframe's images_data
-          images_data = json.loads(timeframe.images_data)
-          image_data = images_data.get(filename)
-          logger.info(
-              f"Agent {agent['id']} image data retrieved from Timeframe {timeframe.id}"
-          )
-        else:
-          # If the agent is a Main Agent, get the image data from the user's images_data
-          image_data = current_user.images_data.get(filename)
-          logger.info(
-              f"Agent {agent['id']} image data retrieved from User {current_user.id}"
-          )
-
-        if image_data:
-          image_data = base64.b64decode(image_data)
-          file_path = os.path.join(public_folder, secure_filename(filename))
-          with open(file_path, 'wb') as file:
-            file.write(image_data)
-          logger.info(f"Agent {agent['id']} image saved to {file_path}")
-        else:
-          logger.warning(f"Missing image data for agent: {agent['id']}")
-    else:
-      meeting.public_url = None
-      public_url = None
-      logger.info("Meeting is not public")
-
-    db.session.commit()
-    return redirect(
-        url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id))
-
-  prev_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
-                                      Meeting.id < meeting.id).order_by(
-                                          Meeting.id.desc()).first()
-  next_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
-                                      Meeting.id > meeting.id).order_by(
-                                          Meeting.id).first()
-
-  # Retrieve the meeting summary and image data from the database
-  meeting.summary = meeting.summary if meeting.summary else None
-  meeting.image_data = meeting.image_data if meeting.image_data else None
-  meeting.thumbnail_image_data = meeting.thumbnail_image_data if meeting.thumbnail_image_data else None
-
-  logger.info(f"Meeting {meeting.id} summary: {meeting.summary}")
-  logger.info(
-      f"Meeting {meeting.id} image data: {meeting.image_data[:50] if meeting.image_data else None}"
-  )
-  logger.info(
-      f"Meeting {meeting.id} thumbnail image data: {meeting.thumbnail_image_data[:50] if meeting.thumbnail_image_data else None}"
-  )
-
-  if meeting.image_data:
+    if request.method == 'POST':
+      is_public = request.form.get('is_public') == 'on'
+      meeting.is_public = is_public
+  
+      if is_public:
+        if not meeting.public_url:
+          meeting.public_url = str(uuid.uuid4())
+          logger.info(f"Generated public_url: {meeting.public_url}")
+        public_url = url_for('meeting_blueprint.public_meeting_results',
+                             public_url=meeting.public_url,
+                             _external=True)
+        logger.info(f"Full public URL: {public_url}")
+  
+        # Save the image files in the public folder
+        public_folder = 'public'
+        os.makedirs(public_folder, exist_ok=True)
+        for agent in meeting.agents:
+          filename = agent['photo_path'].split('/')[-1]
+  
+          # Check if the agent is from a Timeframe
+          timeframe = Timeframe.query.filter(
+              Timeframe.agents_data.contains(json.dumps(agent))).first()
+          if timeframe:
+            # If the agent is from a Timeframe, get the image data from the Timeframe's images_data
+            images_data = json.loads(timeframe.images_data)
+            image_data = images_data.get(filename)
+            logger.info(
+                f"Agent {agent['id']} image data retrieved from Timeframe {timeframe.id}"
+            )
+          else:
+            # If the agent is a Main Agent, get the image data from the user's images_data
+            image_data = current_user.images_data.get(filename)
+            logger.info(
+                f"Agent {agent['id']} image data retrieved from User {current_user.id}"
+            )
+  
+          if image_data:
+            image_data = base64.b64decode(image_data)
+            file_path = os.path.join(public_folder, secure_filename(filename))
+            with open(file_path, 'wb') as file:
+              file.write(image_data)
+            logger.info(f"Agent {agent['id']} image saved to {file_path}")
+          else:
+            logger.warning(f"Missing image data for agent: {agent['id']}")
+      else:
+        meeting.public_url = None
+        public_url = None
+        logger.info("Meeting is not public")
+  
+      db.session.commit()
+      return redirect(
+          url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id))
+  
+    prev_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
+                                        Meeting.id < meeting.id).order_by(
+                                            Meeting.id.desc()).first()
+    next_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
+                                        Meeting.id > meeting.id).order_by(
+                                            Meeting.id).first()
+  
+    # Retrieve the meeting summary and image data from the database
+    meeting.summary = meeting.summary if meeting.summary else None
+    meeting.image_data = meeting.image_data if meeting.image_data else None
+    meeting.thumbnail_image_data = meeting.thumbnail_image_data if meeting.thumbnail_image_data else None
+  
+    logger.info(f"Meeting {meeting.id} summary: {meeting.summary}")
     logger.info(
-        f"Meeting {meeting.id} image data type: {type(meeting.image_data)}")
-    logger.info(
-        f"Meeting {meeting.id} image data length: {len(meeting.image_data)}")
-    logger.info(
-        f"Meeting {meeting.id} image URL: {url_for('meeting_blueprint.serve_meeting_image', meeting_id=meeting.id, _external=True)}"
+        f"Meeting {meeting.id} image data: {meeting.image_data[:50] if meeting.image_data else None}"
     )
-  else:
-    logger.warning(f"No image data found for Meeting {meeting.id}")
+    logger.info(
+        f"Meeting {meeting.id} thumbnail image data: {meeting.thumbnail_image_data[:50] if meeting.thumbnail_image_data else None}"
+    )
+  
+    if meeting.image_data:
+      logger.info(
+          f"Meeting {meeting.id} image data type: {type(meeting.image_data)}")
+      logger.info(
+          f"Meeting {meeting.id} image data length: {len(meeting.image_data)}")
+      logger.info(
+          f"Meeting {meeting.id} image URL: {url_for('meeting_blueprint.serve_meeting_image', meeting_id=meeting.id, _external=True)}"
+      )
+    else:
+      logger.warning(f"No image data found for Meeting {meeting.id}")
+  
+    prev_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
+                                        Meeting.id < meeting.id).order_by(
+                                            Meeting.id.desc()).first()
+    next_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
+                                        Meeting.id > meeting.id).order_by(
+                                            Meeting.id).first()
+  
+    # Update the answer extraction logic
+    for agent_id, answers in meeting.answers.items():
+      for question_id, answer in answers.items():
+        if isinstance(answer, dict) and 'response' in answer:
+          meeting.answers[agent_id][question_id] = answer['response']
+        elif isinstance(answer, str):
+          try:
+            answer_json = json.loads(answer)
+            if isinstance(answer_json, dict) and 'response' in answer_json:
+              meeting.answers[agent_id][question_id] = answer_json['response']
+          except (json.JSONDecodeError, TypeError):
+            pass
+  
+    return render_template('results.html', meeting=meeting, agents_data=agents_data)
 
-  prev_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
-                                      Meeting.id < meeting.id).order_by(
-                                          Meeting.id.desc()).first()
-  next_meeting = Meeting.query.filter(Meeting.user_id == current_user.id,
-                                      Meeting.id > meeting.id).order_by(
-                                          Meeting.id).first()
+@meeting_blueprint.route('/meetings')
+@login_required
+def meetings():
+    user_meetings = Meeting.query.filter_by(user_id=current_user.id).all()
 
-  # Update the answer extraction logic
-  for agent_id, answers in meeting.answers.items():
-    for question_id, answer in answers.items():
-      if isinstance(answer, dict) and 'response' in answer:
-        meeting.answers[agent_id][question_id] = answer['response']
-      elif isinstance(answer, str):
-        try:
-          answer_json = json.loads(answer)
-          if isinstance(answer_json, dict) and 'response' in answer_json:
-            meeting.answers[agent_id][question_id] = answer_json['response']
-        except (json.JSONDecodeError, TypeError):
-          pass
+    for meeting in user_meetings:
+        # Load the summary image data for each meeting
+        meeting.image_data = meeting.image_data if meeting.image_data else None
 
-  return render_template('results.html',
-                         meeting=meeting,
-                         agents_data=agents_data)
+        # Load the agents involved in each meeting
+        for agent in meeting.agents:
+            if 'photo_path' in agent:
+                agent['photo_path'] = agent['photo_path'].split('/')[-1]
 
+    return render_template('meetings.html', meetings=user_meetings) 
 
 @dashboard_blueprint.route('/dashboard')
 @login_required
@@ -494,28 +507,70 @@ def serve_timeframe_image(timeframe_id):
 
 @timeframes_blueprint.route('/timeframe/<int:timeframe_id>')
 def single_timeframe(timeframe_id):
-  timeframe = Timeframe.query.get(timeframe_id)
-  if timeframe:
-    if timeframe.summary_image_data:
-      logging.info(
-          f"Timeframe summary image data: {timeframe.summary_image_data[:100]}..."
-      )
+    logging.info(f"Retrieving timeframe with ID: {timeframe_id}")
+    timeframe = Timeframe.query.get(timeframe_id)
+
+    if timeframe:
+        logging.info(f"Timeframe found: {timeframe.name}")
+
+        if timeframe.summary_image_data:
+            logging.info(f"Timeframe summary image data: {timeframe.summary_image_data[:100]}...")
+        else:
+            logging.warning("Timeframe summary image data is None")
+
+        logging.info(f"Timeframe summary: {timeframe.summary}")
+
+        if timeframe.summary_thumbnail_image_data:
+            logging.info(f"Timeframe summary thumbnail image data: {timeframe.summary_thumbnail_image_data[:100]}...")
+        else:
+            logging.warning("Timeframe summary thumbnail image data is None")
+
+        logging.info("Loading agents data...")
+        agents_data = json.loads(timeframe.agents_data)
+        logging.info(f"Loaded {len(agents_data)} agents from timeframe agents_data")
+
+        # Load user agents
+        logging.info("Loading user agents...")
+        user_agents = current_user.agents_data or []
+        for agent in user_agents:
+            if 'id' in agent:
+                agent['agent_type'] = 'user'
+                agents_data.append(agent)
+        logging.info(f"Loaded {len(user_agents)} user agents")
+
+        # Load timeframe agents
+        logging.info("Loading timeframe agents...")
+        for agent in agents_data:
+            if 'id' in agent:
+                agent['agent_type'] = 'timeframe'
+        logging.info(f"Loaded {len(agents_data)} timeframe agents")
+
+        # Load Agent class agents
+        logging.info("Loading Agent class agents...")
+        agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
+        for agent in agent_class_agents:
+            if hasattr(agent, 'id'):
+                agent_data = agent.data
+                agent_data['agent_type'] = 'agent'
+                agents_data.append(agent_data)
+        logging.info(f"Loaded {len(agent_class_agents)} Agent class agents")
+
+        logging.info("Parsing agents data...")
+        parsed_agents_data = []
+        for agent in agents_data:
+            if 'photo_path' in agent:
+                photo_filename = agent['photo_path'].split('/')[-1]
+                agent['image_data'] = json.loads(timeframe.images_data).get(photo_filename, '')
+            parsed_agents_data.append(agent)
+        logging.info(f"Parsed {len(parsed_agents_data)} agents")
+
+        timeframe.parsed_agents_data = parsed_agents_data
+
+        logging.info("Rendering single_timeframe.html template")
+        return render_template('single_timeframe.html', timeframe=timeframe)
     else:
-      logging.info("Timeframe summary image data is None")
-
-    logging.info(f"Timeframe summary: {timeframe.summary}")
-
-    if timeframe.summary_thumbnail_image_data:
-      logging.info(
-          f"Timeframe summary thumbnail image data: {timeframe.summary_thumbnail_image_data[:100]}..."
-      )
-    else:
-      logging.info("Timeframe summary thumbnail image data is None")
-
-    return render_template('single_timeframe.html', timeframe=timeframe)
-  else:
-    abort(404)
-
+        logging.error(f"Timeframe not found for ID: {timeframe_id}")
+        abort(404)
 
 @timeframes_blueprint.route('/timeframes')
 @login_required
