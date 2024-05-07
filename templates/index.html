@@ -173,8 +173,9 @@
           <div class="section-container">
             <div class="bg-white rounded-lg shadow-lg p-6">
               <h2 class="text-2xl font-bold mb-4 tooltip">
-                Agents<span class="tooltiptext">AI-generated synthetic agents</span>
+                Agents
               </h2>
+              <h3 class="tooltiptext">AI-generated synthetic agents</h3>
               <div class="grid-container">
                 {% for agent in current_user.agents_data %}
                 <div class="grid-item">
@@ -209,11 +210,12 @@
           <div class="section-container">
             <div class="bg-white rounded-lg shadow-lg p-6">
               <h2 class="text-2xl font-bold mb-4 tooltip">
-                Meetings<span class="tooltiptext">Collaborate with your AI agents</span>
+                Meetings
               </h2>
+              <h3 class="tooltiptext">Collaborate with your AI agents</h3>
               <div class="grid-container">
                 {% for meeting in current_user.meetings %} {% if meeting.answers %}
-                <div class="grid-item" style="background-image: url('data:image/png;base64,{{ meeting.image_data if meeting.image_data else url_for('static', filename='placeholder.jpg') }}')">
+                <div class="grid-item " style="background-image: url('data:image/png;base64,{{ meeting.image_data if meeting.image_data else url_for('static', filename='placeholder.jpg') }}')">
                   <a href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" class="grid-item-content">
                     <span class="agent-title">{{ meeting.name }}</span>
                   </a>
@@ -229,8 +231,9 @@
           <div class="section-container">
             <div class="bg-white rounded-lg shadow-lg p-6">
               <h2 class="text-2xl font-bold mb-4 tooltip">
-                Timeframes<span class="tooltiptext">Manage your AI agent timelines</span>
+                Timeframes
               </h2>
+              <h3 class="tooltiptext">Manage your AI agent timelines</h3>
               <div class="grid-container">
                 {% for timeframe in timeframes %}
                 <div class="grid-item" style="background-image: url('data:image/png;base64,{{ timeframe.summary_thumbnail_image_data or timeframe.summary_image_data }}');">

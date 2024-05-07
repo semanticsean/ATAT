@@ -10,7 +10,6 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
   {% include 'header.html' %}
-
   <main class="container mx-auto mt-24 px-4 py-8 flex-grow">
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-4xl font-bold">Timeframes</h1>
@@ -18,7 +17,6 @@
         <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="px-4 py-2 bg-black text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">New Timeframe</a>
       </div>
     </div>
-
     <div id="timeframes-container">
       {% for timeframe in timeframes %}
         <div x-data="{ open: false }" class="timeframe-item hidden mb-8 bg-white rounded-lg shadow-lg">
@@ -64,28 +62,33 @@
                 {% endfor %}
               </div>
             </div>
+            <div class="mt-6">
+              <a href="{{ url_for('timeframes_blueprint.single_timeframe', timeframe_id=timeframe.id) }}" class="px-4 py-2 bg-black text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Timeframe Details</a>
+            </div>
           </div>
         </div>
       {% endfor %}
     </div>
-  </main>
 
-  {% include 'footer.html' %}
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const timeframeItems = document.querySelectorAll('.timeframe-item');
+    </main>
+    {% include 'footer.html' %}
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const timeframeItems = document.querySelectorAll('.timeframe-item');
 
-      function loadTimeframes() {
-        timeframeItems.forEach(function(timeframeItem, index) {
-          setTimeout(function() {
-            timeframeItem.classList.remove('hidden');
-          }, index * 500);
+          function loadTimeframes() {
+            timeframeItems.forEach(function(timeframeItem, index) {
+              setTimeout(function() {
+                timeframeItem.classList.remove('hidden');
+              }, index * 500);
+            });
+          }
+
+          loadTimeframes();
         });
-      }
+      </script>
+    </body>
+    </html>
 
-      loadTimeframes();
-    });
-  </script>
-</body>
-</html>
+    
