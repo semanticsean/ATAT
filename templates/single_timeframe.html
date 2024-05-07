@@ -1,103 +1,57 @@
-<!--templates/timeframes.html-->
-
 <!doctype html>
 <html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Timeframes</title>
+  <title>{{ timeframe.name }}</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  <style>
-    .agent-image {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-  </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
   {% include 'header.html' %}
 
-  <main class="container mx-auto px-4 py-12 flex-grow">
-    <div class="container mx-auto">
-      <h1>{{ timeframe.name }}</h1>
+  <main class="container mx-auto mt-24 px-4 py-8 flex-grow">
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+      <div class="flex flex-col md:flex-row">
+        <div class="md:w-1/3 mb-4 md:mb-0 md:mr-6">
+          {% if timeframe.summary_image_data %}
+            <img src="data:image/png;base64,{{ timeframe.summary_image_data }}" alt="{{ timeframe.name }}" class="w-full h-auto rounded-lg shadow-md">
+          {% else %}
+            <div class="bg-gray-200 h-48 flex items-center justify-center rounded-lg shadow-md">
+              <p class="text-lg text-gray-500">No summary image available</p>
+            </div>
+          {% endif %}
+        </div>
+        <div class="md:w-2/3">
+          <h1 class="text-4xl font-bold mb-4">{{ timeframe.name }}</h1>
+          <h2 class="text-2xl font-bold mb-2">Timeframe Summary</h2>
+          <div class="text-lg whitespace-pre-line">{{ timeframe.summary }}</div>
+        </div>
+      </div>
+    </div>
 
-      <h2>Timeframe Summary</h2>
-      <p>{{ timeframe.summary }}</p>
-
-      <h2>Timeframe Summary Image</h2>
-
-      <!-- Method 1: Using base64-encoded data directly in the src attribute -->
-      <h3>Method 1: Base64-encoded data in src attribute</h3>
-      {% if timeframe.summary_image_data %}
-        <img src="data:image/png;base64,{{ timeframe.summary_image_data }}" alt="{{ timeframe.name }}" />
-      {% else %}
-        <p>No summary image data available</p>
-      {% endif %}
-
-      <!-- Method 2: Using a route to serve the image -->
-      <h3>Method 2: Route to serve the image</h3>
-      {% if timeframe.summary_image_data %}
-        <img src="{{ url_for('timeframes_blueprint.serve_timeframe_image', timeframe_id=timeframe.id) }}" alt="{{ timeframe.name }}" />
-      {% else %}
-        <p>No summary image data available</p>
-      {% endif %}
-
-      <!-- Method 3: Using a static file URL -->
-      <h3>Method 3: Static file URL</h3>
-      {% if timeframe.summary_image_data %}
-        <img src="{{ url_for('static', filename='timeframe_images/' + timeframe.id|string + '.png') }}" alt="{{ timeframe.name }}" />
-      {% else %}
-        <p>No summary image data available</p>
-      {% endif %}
-
-      <!-- Method 4: Using JavaScript to set the src attribute -->
-      <h3>Method 4: JavaScript to set src attribute</h3>
-      <img id="summaryImage" alt="{{ timeframe.name }}" />
-      <script>
-        var summaryImageData = "{{ timeframe.summary_image_data }}";
-        if (summaryImageData) {
-          document.getElementById("summaryImage").src = "data:image/png;base64," + summaryImageData;
-        } else {
-          document.getElementById("summaryImage").style.display = "none";
-        }
-      </script>
-
-      <!-- Method 5: Using a data URI with base64-encoded data -->
-      <h3>Method 5: Data URI with base64-encoded data</h3>
-      {% if timeframe.summary_image_data %}
-        <img src="data:image/png;base64,{{ timeframe.summary_image_data }}" alt="{{ timeframe.name }}" />
-      {% else %}
-        <p>No summary image data available</p>
-      {% endif %}
-
-      <!-- Method 6: Using an object tag with base64-encoded data -->
-      <h3>Method 6: Object tag with base64-encoded data</h3>
-      {% if timeframe.summary_image_data %}
-        <object data="data:image/png;base64,{{ timeframe.summary_image_data }}" type="image/png">
-          <img src="fallback.png" alt="{{ timeframe.name }}" />
-        </object>
-      {% else %}
-        <p>No summary image data available</p>
-      {% endif %}
-
-      <h2>Timeframe Summary Thumbnail Image</h2>
-      {% if timeframe.summary_thumbnail_image_data %}
-        <img src="data:image/png;base64,{{ timeframe.summary_thumbnail_image_data }}" alt="{{ timeframe.name }} - Thumbnail" />
-      {% else %}
-        <p>No summary thumbnail image data available</p>
-      {% endif %}
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h2 class="text-2xl font-bold mb-4">Agents</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for agent in timeframe.parsed_agents_data %}
+          {% if agent['image_data'] %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+              <a href="{{ url_for('profile_blueprint.profile', agent_id=agent['id'], timeframe_id=timeframe.id) }}" class="block">
+                <div class="relative pb-48 overflow-hidden">
+                  <img class="absolute inset-0 h-full w-full object-cover" src="data:image/png;base64,{{ agent['image_data'] }}" alt="{{ agent['id'] }}">
+                </div>
+                <div class="p-4">
+                  <h3 class="text-xl font-bold mb-2">{{ agent['id'] }}</h3>
+                  <p class="text-gray-600">{{ agent['jobtitle'] }}</p>
+                  <p class="text-gray-500 text-sm">Type: {{ agent['agent_type'] }}</p>
+                </div>
+              </a>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
     </div>
   </main>
 
   {% include 'footer.html' %}
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const loadingSpinner = document.getElementById('loading-spinner');
-      
-  </script>
 </body>
 </html>
-
