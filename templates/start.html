@@ -7,6 +7,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
     />
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}" />
   </head>
   <body class="bg-gray-100">
     {% include 'header.html' %}
@@ -164,29 +165,11 @@
                 name="fictionalize_option"
                 class="w-full p-2 border border-gray-300 rounded"
               >
-                <option
-                  value="no"
-                  {%
-                  if
-                  config.fictionalize_option=""
-                  ="no"
-                  %}selected{%
-                  endif
-                  %}
-                >
-                  No
-                </option>
-                <option
-                  value="yes"
-                  {%
-                  if
-                  config.fictionalize_option=""
-                  ="yes"
-                  %}selected{%
-                  endif
-                  %}
-                >
+                <option value="yes" {% if config.fictionalize_option == "yes" %}selected{% endif %}>
                   Yes
+                </option>
+                <option value="no" {% if config.fictionalize_option == "no" %}selected{% endif %}>
+                  No
                 </option>
               </select>
             </div>
