@@ -1,10 +1,10 @@
-<!--templates/timeframes.html-->
+<!--templates/meetings.html-->
 <!doctype html>
 <html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Timeframes</title>
+  <title>Meetings</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.js" defer></script>
 </head>
@@ -13,25 +13,25 @@
 
   <main class="container mx-auto mt-24 px-4 py-8 flex-grow">
     <div class="flex justify-between items-center mb-8">
-      <h1 class="text-4xl font-bold">Timeframes</h1>
+      <h1 class="text-4xl font-bold">Meetings</h1>
       <div>
-        <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="px-4 py-2 bg-black text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">New Timeframe</a>
+        <a href="{{ url_for('meeting_blueprint.create_meeting') }}" class="px-4 py-2 bg-black text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">New Meeting</a>
       </div>
     </div>
 
-    <div id="timeframes-container">
-      {% for timeframe in timeframes %}
-        <div x-data="{ open: false }" class="timeframe-item hidden mb-8 bg-white rounded-lg shadow-lg">
+    <div id="meetings-container">
+      {% for meeting in meetings %}
+        <div x-data="{ open: false }" class="meeting-item hidden mb-8 bg-white rounded-lg shadow-lg">
           <div class="px-6 py-4 flex justify-between items-center cursor-pointer" @click="open = !open">
-            <h2 class="text-3xl font-bold">{{ timeframe.name }}</h2>
+            <h2 class="text-3xl font-bold">{{ meeting.name }}</h2>
             <svg x-show="!open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             <svg x-show="open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
           </div>
           <div x-show="open" class="px-6 py-4">
             <div class="flex flex-col md:flex-row">
               <div class="md:w-1/3 mb-4 md:mb-0 md:mr-6">
-                {% if timeframe.summary_image_data %}
-                  <img src="data:image/png;base64,{{ timeframe.summary_image_data }}" alt="{{ timeframe.name }}" class="w-full h-auto rounded-lg shadow-md">
+                {% if meeting.image_data %}
+                  <img src="data:image/png;base64,{{ meeting.image_data }}" alt="{{ meeting.name }}" class="w-full h-auto rounded-lg shadow-md">
                 {% else %}
                   <div class="bg-gray-200 h-48 flex items-center justify-center rounded-lg shadow-md">
                     <p class="text-lg text-gray-500">No summary image available</p>
@@ -39,30 +39,32 @@
                 {% endif %}
               </div>
               <div class="md:w-2/3">
-                <h3 class="text-2xl font-bold mb-2">Timeframe Summary</h3>
-                <div class="text-lg whitespace-pre-line">{{ timeframe.summary }}</div>
+                <h3 class="text-2xl font-bold mb-2">Meeting Summary</h3>
+                <div class="text-lg whitespace-pre-line">{{ meeting.summary }}</div>
               </div>
             </div>
             <div class="mt-6">
               <h3 class="text-2xl font-bold mb-4">Agents</h3>
               <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {% for agent in timeframe.parsed_agents_data %}
-                  {% if agent['image_data'] %}
+                {% for agent in meeting.agents %}
+                  {% if agent['photo_path'] %}
                     <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                      <a href="{{ url_for('profile_blueprint.profile', agent_id=agent['id'], timeframe_id=timeframe.id) }}" class="block">
+                      <a href="{{ url_for('profile_blueprint.profile', agent_id=agent['id'], agent_type='agent') }}" class="block">
                         <div class="relative pb-48 overflow-hidden">
-                          <img class="absolute inset-0 h-full w-full object-cover" src="data:image/png;base64,{{ agent['image_data'] }}" alt="{{ agent['id'] }}">
+                          <img class="absolute inset-0 h-full w-full object-cover" src="{{ url_for('serve_image', filename=agent['photo_path'].split('/')[-1]) }}" alt="{{ agent['id'] }}">
                         </div>
                         <div class="p-4">
                           <h4 class="text-xl font-bold mb-2">{{ agent['id'] }}</h4>
                           <p class="text-gray-600">{{ agent['jobtitle'] }}</p>
-                          <p class="text-gray-500 text-sm">Type: {{ agent['agent_type'] }}</p>
                         </div>
                       </a>
                     </div>
                   {% endif %}
                 {% endfor %}
               </div>
+            </div>
+            <div class="text-center mt-8">
+              <a href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" class="px-4 py-2 bg-black text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">View Meeting Details</a>
             </div>
           </div>
         </div>
@@ -74,17 +76,17 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const timeframeItems = document.querySelectorAll('.timeframe-item');
+      const meetingItems = document.querySelectorAll('.meeting-item');
 
-      function loadTimeframes() {
-        timeframeItems.forEach(function(timeframeItem, index) {
+      function loadMeetings() {
+        meetingItems.forEach(function(meetingItem, index) {
           setTimeout(function() {
-            timeframeItem.classList.remove('hidden');
+            meetingItem.classList.remove('hidden');
           }, index * 500);
         });
       }
 
-      loadTimeframes();
+      loadMeetings();
     });
   </script>
 </body>
