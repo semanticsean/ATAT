@@ -79,7 +79,7 @@
             </div>
         </div>
 
-        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden mt-8 mb-8">
+        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden mt-8 mb-2">
             <div class="p-6">
                 <h2 class="text-xl font-bold mb-4">API Keys</h2>
                 <form action="{{ url_for('auth_blueprint.generate_api_key') }}" method="post" class="mb-4">
@@ -87,14 +87,15 @@
                 </form>
                 <div class="api-keys-section">
                     <h3 class="text-lg font-semibold mb-2">Your API Keys</h3>
-                    <div id="apiKeysContainer" class="space-y-2"></div> <!-- Container to display API keys -->
+                    <div id="apiKeysContainer" class="space-y-2"></div> 
+                    <!-- Container to display API keys -->
                 </div>
             </div>
         </div>
     </div>
 
 
-    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden mt-8 mb-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md overflow-hidden mt-2 mb-8">
             <div class="p-6">
                 <h2 class="text-xl font-bold mb-4">Logout</h2>
                 <a href="{{ url_for('auth_blueprint.logout') }}"

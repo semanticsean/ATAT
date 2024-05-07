@@ -1,326 +1,363 @@
-        <!--templates/index.html-->
-        <!doctype html>
-        <html lang="en">
-        <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Semantic Life - AI Agent Dashboard</title><link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css"
-        />
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <style>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Semantic Life - AI Agent Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
         .welcome-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
         }
+
         @media (max-width: 768px) {
-        .welcome-grid {
-        grid-template-columns: 1fr;
+            .welcome-grid {
+                grid-template-columns: 1fr;
+            }
         }
-        }
+
         .welcome-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding: 1.5rem;
-        background-color: #f3f4f6;
-        border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
         }
+
         .welcome-item svg {
-        width: 2rem;
-        height: 2rem;
-        margin-bottom: 0.5rem;
+            width: 2rem;
+            height: 2rem;
+            margin-bottom: 0.5rem;
         }
+
         .welcome-item p {
-        margin-top: 0.5rem;
-        font-size: 0.875rem;
-        color: #6b7280;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
         }
+
         .section-container {
-        max-width: 75vw;
-        margin: 2rem auto;
+            max-width: 75vw;
+            margin: 2rem auto;
         }
+
         .grid-container {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
         }
+
         @media (max-width: 768px) {
-        .grid-container {
-        grid-template-columns: 1fr;
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
         }
-        }
+
         .grid-item {
-        min-height: 200px;
-        position: relative;
-        overflow: hidden;
-        background-color: #1f2937;
-        padding: 1.5rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        background-position: center; /* Add this property */
-        background-repeat: no-repeat;
-        background-size: cover; /* Add this property */
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+            background-color: #1f2937;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-position: center;
+            /* Add this property */
+            background-repeat: no-repeat;
+            background-size: cover;
+            /* Add this property */
         }
+
         .grid-item img {
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-        border-radius: 0.5rem;
-        margin-bottom: 1rem;
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
         }
+
         .grid-item-content {
-        color: white;
-        font-size: 1.25rem;
-        font-weight: bold;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: bold;
         }
+
         .agent-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
         }
+
         .agent-job {
-        font-size: 1rem;
-        color: #d1d5db;
+            font-size: 1rem;
+            color: #d1d5db;
         }
+
         .hero-container {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 2rem;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
         }
+
         .hero-image {
-        width: 40%;
-        border-radius: 0.5rem;
-        margin-left: 2rem;
+            width: 40%;
+            border-radius: 0.5rem;
+            margin-left: 2rem;
         }
+
         @media (max-width: 768px) {
-        .hero-container {
-        flex-direction: column;
-        }
-        .hero-image {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 1rem;
-        }
-        }
-        </style>
+            .hero-container {
+                flex-direction: column;
+            }
 
-        </head>
-        <body class="mt-24">
-          {% include 'header.html' %}
-          <div id="loadingPlaceholder" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; display: flex; justify-content: center; align-items: center;">
-            <img id="loading" src="static/loading.gif" style="max-width: 180px" alt="Loading" />
-          </div>
-          <div class="flex-grow">
-            <main class="flex-1">
-              <div class="container mx-auto px-4 mt-4">
+            .hero-image {
+                width: 100%;
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+        }
+    </style>
+
+</head>
+
+<body class="mt-24">
+    {% include 'header.html' %}
+    <div id="loadingPlaceholder"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; display: flex; justify-content: center; align-items: center;">
+        <img id="loading" src="static/loading.gif" style="max-width: 180px" alt="Loading" />
+    </div>
+    <div class="flex-grow">
+        <main class="flex-1">
+            <div class="container mx-auto px-4 mt-4">
                 <div class="flex-grow">
-                  <main class="flex-1">
-                    <div class="container mx-auto px-4 mt-4">
-                      <div class="bg-white rounded-lg shadow-lg p-6">
+                    <main class="flex-1">
+                        <div class="container mx-auto px-4 mt-4">
+                            <div class="bg-white rounded-lg shadow-lg p-6">
 
-                        <div class="hero-container">
-                                        <div>
-                                          <h2 class="text-3xl font-bold mb-4">Welcome</h2>
-                                          <p class="mb-4 text-xl lg:w-2/3 md:w-full">
-                                            Welcome to your suite of tools to manage AI agents.
-                                            We call them "synthetics" when they roleplay as synthetic people.
-                                            This is beta software - if you have an issue, try refresing the page.
-                                          </p>
+                          <div class="hero-container">
+                            <div>
+                                <h2 class="text-3xl font-bold mb-4">Welcome</h2>
+                                <p class="mb-4 text-xl lg:w-2/3 md:w-full">
+                                    Welcome to your suite of tools for managing AI agents, referred to as "synthetics" when roleplaying as synthetic people. This is beta software. If you encounter issues, try refreshing the page.
+                                </p>
+                            </div>
+                            {% if current_user.is_authenticated and current_user.images_data.get('hero_image') %}
+                                <img src="data:image/png;base64,{{ current_user.images_data['hero_image'] }}"
+                                    alt="Hero Image" class="hero-image image-cache">
+                                <button id="refreshPhoto"
+                                    class="absolute bottom-0 right-0 mb-2 mr-2 bg-blue-500 text-white font-bold py-1 px-2 rounded text-sm">Refresh Photo</button>
+                            {% else %}
+                                <button id="renderTeamPhoto"
+                                    class="absolute top-0 left-0 mt-2 ml-2 bg-blue-500 text-white font-bold py-2 px-4 rounded">Render Team Photo</button>
+                            {% endif %}
+                          </div>
+
+                          <div class="welcome-grid">
+                            <a href="{{ url_for('auth_blueprint.help') }}" class="welcome-item">
+                                <svg>
+                                    <!-- New Meeting SVG icon -->
+                                </svg>
+                                <h3 class="text-lg font-bold">Welcome</h3>
+                                <p>Read the help file to learn what this platform can do for you.</p>
+                            </a>
+                            <a href="{{ url_for('meeting_blueprint.create_meeting') }}" class="welcome-item">
+                                <svg>
+                                    <!-- New Meeting SVG icon -->
+                                </svg>
+                                <h3 class="text-lg font-bold">New Meeting</h3>
+                                <p>Create a new meeting with your agents. These meetings include conducting surveys and polls.</p>
+                            </a>
+                            <a href="{{ url_for('profile_blueprint.create_new_agent') }}" class="welcome-item">
+                                <svg>
+                                    <!-- New Agent SVG icon -->
+                                </svg>
+                                <h3 class="text-lg font-bold">New Agent</h3>
+                                <p>Create a new AI agent with a synthetic persona. Requires as little as a sentence to get started, or put in lots of backstory.</p>
+                            </a>
+                            <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="welcome-item">
+                                <svg>
+                                    <!-- New Timeframe SVG icon -->
+                                </svg>
+                                <h3 class="text-lg font-bold">New Timeframe</h3>
+                                <p>Create a new timeframe for your existing agents. Time travel forward or backward, by a moment or by a millennium.</p>
+                            </a>
+                          </div>
+                          </div>
+
+
+                          
+                            <div class="section-container">
+                                <div class="bg-white rounded-lg shadow-lg p-6">
+                                    <h2 class="text-2xl font-bold mb-4 tooltip">
+                                        Agents
+                                    </h2>
+                                    <h3 class="my-3 text-lg">AI-generated synthetic agents</h3>
+                                    <div class="grid-container">
+                                        {% for agent in current_user.agents_data %}
+                                        <div class="grid-item">
+                                            <img src="" data-src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}"
+                                                class="image-cache">
+                                            <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type='agent') }}"
+                                                class="grid-item-content">
+                                                <h2 class="agent-title">{{ agent.id }}</h2>
+                                                <h3 class="agent-job">{{ agent.jobtitle }}</h3>
+                                            </a>
                                         </div>
-                                       <!--{% if current_user.is_authenticated and current_user.images_data.get('hero_image') %}
-                                          <div class="relative">
-                                            <img src="" data-src="data:image/png;base64,{{ current_user.images_data['hero_image'] }}" alt="Hero Image" class="hero-image image-cache">
-                                            <button id="refreshPhoto" class="absolute bottom-0 right-0 mb-2 mr-2 bg-blue-500 text-white font-bold py-1 px-2 rounded text-sm">Refresh Photo</button>
-                                          </div>
-                                        {% else %}
-                                          <div class="relative">
-                                            <img src="{{ url_for('static', filename='placeholder.jpg') }}" alt="Placeholder Image" class="hero-image">
-                                            <button id="renderTeamPhoto" class="absolute top-0 left-0 mt-2 ml-2 bg-blue-500 text-white font-bold py-2 px-4 rounded">Render Team Photo</button>
-                                          </div>
+                                        {% endfor %}
+                                        {% for agent in current_user.agents %}
+                                        <div class="grid-item">
+                                            <img src="" data-src="{{ url_for('serve_image', filename=agent.data.get('photo_path', '').split('/')[-1]) }}"
+                                                class="image-cache">
+                                            <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type=agent.agent_type) }}"
+                                                class="grid-item-content">
+                                                <h2 class="agent-title">{{ agent.id }}</h2>
+                                                <h3 class="agent-job">{{ agent.data.jobtitle }}</h3>
+                                            </a>
+                                        </div>
+                                        {% endfor %}
+                                        {% if not current_user.agents_data and not current_user.agents %}
+                                        <form action="{{ url_for('start_blueprint.start_route') }}" method="post"
+                                            class="grid-item bg-gray-200 flex items-center justify-center text-center">
+                                            <button type="submit"
+                                                class="text-black text-xl font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300 text-white">
+                                                Modify Base Synthetics (1st)<br />
+                                                <span class="text-sm">May take several minutes</span>
+                                            </button>
+                                        </form>
+
+                                        <form action="{{ url_for('auth_blueprint.add_base_agents') }}" method="post"
+                                            class="grid-item bg-gray-200 flex items-center justify-center text-center">
+                                            <button type="submit"
+                                                class="text-black text-xl font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300 text-white">
+                                                Render Base Synthetics (2nd)<br />
+                                                <span class="text-sm">May take several minutes</span>
+                                            </button>
+                                        </form>
                                         {% endif %}
-                                      </div> -->
-
-                                      <div class="welcome-grid">
-                                        <div class="welcome-item">
-                                          <svg><!-- Welcome SVG icon --></svg>
-                                          <h3 class="text-lg font-bold">Welcome</h3>
-                                          <p>Start here to explore the dashboard.</p>
-                                        </div>
-                                        <a href="{{ url_for('meeting_blueprint.create_meeting') }}" class="welcome-item">
-                                          <svg><!-- New Meeting SVG icon --></svg>
-                                          <h3 class="text-lg font-bold">New Meeting</h3>
-                                          <p>Create a new meeting with your agents.</p>
-                                        </a>
-                                        <a href="{{ url_for('profile_blueprint.create_new_agent') }}" class="welcome-item">
-                                          <svg><!-- New Agent SVG icon --></svg>
-                                          <h3 class="text-lg font-bold">New Agent</h3>
-                                          <p>Create a new AI agent.</p>
-                                        </a>
-                                        <a href="{{ url_for('auth_blueprint.create_timeframe') }}" class="welcome-item">
-                                          <svg><!-- New Timeframe SVG icon --></svg>
-                                          <h3 class="text-lg font-bold">New Timeframe</h3>
-                                          <p>Create a new timeline for your agents.</p>
-                                        </a>
-                                      </div>
                                     </div>
-                              <div class="section-container">
-                                <div class="bg-white rounded-lg shadow-lg p-6">
-                                  <h2 class="text-2xl font-bold mb-4 tooltip">
-                                    Agents
-                                  </h2>
-                                  <h3 class="my-3 text-lg">AI-generated synthetic agents</h3>
-                                  <div class="grid-container">
-                                    {% for agent in current_user.agents_data %}
-                                    <div class="grid-item">
-                                      <img src="" data-src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}" class="image-cache">
-                                      <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type='agent') }}" class="grid-item-content">
-                                        <h2 class="agent-title">{{ agent.id }}</h2>
-                                        <h3 class="agent-job">{{ agent.jobtitle }}</h3>
-                                      </a>
-                                    </div>
-                                    {% endfor %}
-                                    {% for agent in current_user.agents %}
-                                    <div class="grid-item">
-                                      <img src="" data-src="{{ url_for('serve_image', filename=agent.data.get('photo_path', '').split('/')[-1]) }}" class="image-cache">
-                                      <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type=agent.agent_type) }}" class="grid-item-content">
-                                        <h2 class="agent-title">{{ agent.id }}</h2>
-                                        <h3 class="agent-job">{{ agent.data.jobtitle }}</h3>
-                                      </a>
-                                    </div>
-                                    {% endfor %}
-                                    {% if not current_user.agents_data and not current_user.agents %}
-                                    <form action="{{ url_for('start_blueprint.start_route') }}" method="post" class="grid-item bg-gray-200 flex items-center justify-center text-center">
-                                      <button type="submit" class="text-black text-xl font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300">
-                                        Modify Base Synthetics (1st)<br />
-                                        <span class="text-sm">May take several minutes</span>
-                                      </button>
-                                    </form>
-
-                                    <form action="{{ url_for('auth_blueprint.add_base_agents') }}" method="post" class="grid-item bg-gray-200 flex items-center justify-center text-center">
-                                      <button type="submit" class="text-black text-xl font-bold py-2 px-4 rounded hover:bg-gray-300 transition duration-300">
-                                        Render Base Synthetics (2nd)<br />
-                                        <span class="text-sm">May take several minutes</span>
-                                      </button>
-                                    </form>
-                                    {% endif %}
-                                  </div>
                                 </div>
-                              </div>
+                            </div>
 
-                              <div class="section-container">
-                                <div class="bg-white rounded-lg shadow-lg p-6">
-                                  <h2 class="text-2xl font-bold mb-4 tooltip">
-                                    Meetings
-                                  </h2>
+                          <div class="section-container">
+                              <div class="bg-white rounded-lg shadow-lg p-6">
+                                  <h2 class="text-2xl font-bold mb-4 tooltip">Meetings</h2>
                                   <h3 class="my-3 text-lg">Collaborate with your AI agents</h3>
                                   <div class="grid-container">
-                                    {% for meeting in current_user.meetings %} {% if meeting.answers %}
-                                    <div class="grid-item" style="background-image: url('data:image/png;base64,{{ meeting.image_data if meeting.image_data else url_for('static', filename='placeholder.jpg') }}')">
-                                      <a href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" class="grid-item-content">
-                                        <span class="agent-title">{{ meeting.name }}</span>
-                                      </a>
-                                    </div>
-                                    {% endif %} {% endfor %}
+                                      {% for meeting in current_user.meetings %} 
+                                      {% if meeting.answers %}
+                                      <div class="grid-item">
+                                          {% if meeting.image_data %}
+                                          <img src="data:image/png;base64,{{ meeting.image_data }}" class="image-cache">
+                                          {% endif %}
+                                          <a href="{{ url_for('meeting_blueprint.meeting_results', meeting_id=meeting.id) }}" class="grid-item-content">
+                                              <span class="agent-title">{{ meeting.name }}</span>
+                                          </a>
+                                      </div>
+                                      {% endif %} 
+                                      {% endfor %}
                                   </div>
                                   {% if not current_user.meetings %}
                                   <p class="text-gray-600 mt-4">No meetings yet.</p>
                                   {% endif %}
-                                </div>
                               </div>
+                          </div>
 
-                              <div class="section-container">
-                                <div class="bg-white rounded-lg shadow-lg p-6">
-                                  <h2 class="text-2xl font-bold mb-4 tooltip">
-                                    Timeframes
-                                  </h2>
+
+
+                          <div class="section-container">
+                              <div class="bg-white rounded-lg shadow-lg p-6">
+                                  <h2 class="text-2xl font-bold mb-4 tooltip">Timeframes</h2>
                                   <h3 class="my-3 text-lg">Manage your AI agent timelines</h3>
                                   <div class="grid-container">
-                                    {% for timeframe in timeframes %}
-                        <div class="grid-item" style="background-image: url('data:image/png;base64,{{ timeframe.summary_image_data }}')">
-                          <a href="{{ url_for('timeframes_blueprint.single_timeframe', timeframe_id=timeframe.id) }}" class="grid-item-content">
-                        <span class="agent-title">{{ timeframe.name }}</span>
+                                      {% for timeframe in timeframes %}
+                                      <div class="grid-item">
+                                          {% if timeframe.summary_image_data %}
+                                          <img src="data:image/png;base64,{{ timeframe.summary_image_data }}" class="image-cache">
+                                          {% endif %}
+                                          <a href="{{ url_for('timeframes_blueprint.single_timeframe', timeframe_id=timeframe.id) }}" class="grid-item-content">
+                                              <span class="agent-title">{{ timeframe.name }}</span>
+                                          </a>
+                                      </div>
+                                      {% endfor %}
+                                  </div>
+                                  {% if not timeframes %}
+                                  <p class="text-gray-600 mt-4">No timeframes yet.</p>
+                                  {% endif %}
+                              </div>
+                          </div>
 
 
-                            </a>
-                            </div>
+                          
 
+                        </div>
+                    </main>
 
+                    <div id="footer-push"></div>
+                </div>
 
+                {% include 'footer.html' %}
+                <script>
+                    window.onload = function () {
+                        hideLoading(); // Hide loading image after initial page load
+                    };
 
-                                    {% endfor %}
-                                              </div>
-                                              {% if not timeframes %}
-                                              <p class="text-gray-600 mt-4">No timeframes yet.</p>
-                                              {% endif %}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </main>
+                    $(document).ready(function () {
+                        $("form").submit(function () {
+                            // Show loading image on form submit (Optional: if you want to show loading on form submit again)
+                            $("#loadingPlaceholder").css({ display: "flex", opacity: "1" });
+                        });
+                    });
 
-                                      <div id="footer-push"></div>
-                                    </div>
-
-                                    {% include 'footer.html' %}
-                                    <script>
-
-                                        window.onload = function () {
-                                          hideLoading(); // Hide loading image after initial page load
-                                        };
-
-                                        $(document).ready(function () {
-                                          $("form").submit(function () {
-                                            // Show loading image on form submit (Optional: if you want to show loading on form submit again)
-                                            $("#loadingPlaceholder").css({ display: "flex", opacity: "1" });
-                                          });
-                                        });
-
-                                        // This function hides the loading placeholder
-                                        function hideLoading() {
-                                          var loadingPlaceholder = document.getElementById("loadingPlaceholder");
-                                          if (loadingPlaceholder) {
-                                            loadingPlaceholder.style.opacity = "0";
-                                            setTimeout(function () {
-                                              loadingPlaceholder.style.display = "none";
-                                            }, 600); // A smooth fade out transition
-                                          }
+                    // This function hides the loading placeholder
+                    function hideLoading() {
+                        var loadingPlaceholder = document.getElementById("loadingPlaceholder");
+                        if (loadingPlaceholder) {
+                            loadingPlaceholder.style.opacity = "0";
+                            setTimeout(function () {
+                                loadingPlaceholder.style.display = "none";
+                            }, 600); // A smooth fade out transition
+                        }
+                    }
+                </script>
+                <script src="{{ url_for('static', filename='hero_image.js') }}"></script>
+                <script src="{{ url_for('static', filename='image_cache.js') }}"></script>
+                <script>
+                    document.addEventListener('DOMContentLoaded', async function () {
+                        var imagesToCache = document.getElementsByClassName('image-cache');
+                        for (var img of imagesToCache) {
+                            var imageUrl = img.getAttribute('data-src');
+                            if (await isImageCached(imageUrl)) {
+                                img.src = await loadImageFromCache(imageUrl);
+                            } else {
+                                img.src = imageUrl;
+                                fetch(imageUrl)
+                                    .then(function (response) {
+                                        return response.blob();
+                                    })
+                                    .then(function (blob) {
+                                        var reader = new FileReader();
+                                        reader.onloadend = async function () {
+                                            var imageData = reader.result;
+                                            await saveImageToCache(imageUrl, imageData);
                                         }
-                                      </script>
-                                    <script src="{{ url_for('static', filename='hero_image.js') }}"></script>
-                                    <script src="{{ url_for('static', filename='image_cache.js') }}"></script>
-                                    <script>
-                                      document.addEventListener('DOMContentLoaded', async function() {
-                                        var imagesToCache = document.getElementsByClassName('image-cache');
-                                        for (var img of imagesToCache) {
-                                          var imageUrl = img.getAttribute('data-src');
-                                          if (await isImageCached(imageUrl)) {
-                                            img.src = await loadImageFromCache(imageUrl);
-                                          } else {
-                                            img.src = imageUrl;
-                                            fetch(imageUrl)
-                                              .then(function(response) {
-                                                return response.blob();
-                                              })
-                                              .then(function(blob) {
-                                                var reader = new FileReader();
-                                                reader.onloadend = async function() {
-                                                  var imageData = reader.result;
-                                                  await saveImageToCache(imageUrl, imageData);
-                                                }
-                                                reader.readAsDataURL(blob);
-                                              });
-                                          }
-                                        }
-                                      });
-                                    </script>
-                                                </body>
-                                              </html>
+                                        reader.readAsDataURL(blob);
+                                    });
+                            }
+                        }
+                    });
+                </script>
+</body>
+
+</html>
