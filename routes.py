@@ -1017,46 +1017,54 @@ def allowed_file(filename):
 
 @start_blueprint.route('/start', methods=['GET', 'POST'])
 def start_route():
-  if request.method == 'POST':
-    config = request.form.to_dict()
-    with open('start-config.json', 'w') as file:
-      json.dump(config, file)
+    logger.info("Accessing /start route")
+    if request.method == 'POST':
+        logger.info("Handling POST request")
+        config = request.form.to_dict()
+        config_path = 'start-config.json'
+        logger.info(f"Saving configuration to {config_path}")
+        with open(config_path, 'w') as file:
+            json.dump(config, file)
+        logger.info("Configuration saved successfully")
 
-    if 'run_start' in request.form:
-      start.main()
-      return redirect(url_for('start_blueprint.start_route'))
+        if 'run_start' in request.form:
+            logger.info("Executing start.main()")
+            start.main()
+            logger.info("Redirecting to start route")
+            return redirect(url_for('start_blueprint.start_route'))
 
-    if 'upload_files' in request.files:
-      files = request.files.getlist('upload_files')
-      for file in files:
-        if file and allowed_file(file.filename):
-          filename = secure_filename(file.filename)
-          file_path = os.path.join(current_app.config['UPLOAD_FOLDER'],
-                                   filename)
-          file.save(file_path)
-          # Assuming extract_text.extract_and_save_text(file_path) exists and works as intended
-          extract_text.extract_and_save_text(file_path)
+        if 'upload_files' in request.files:
+            files = request.files.getlist('upload_files')
+            for file in files:
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                    file.save(file_path)
+                    logger.info(f"File {filename} uploaded successfully")
+                    # Assuming extract_text.extract_and_save_text(file_path) exists and works as intended
+                    extract_text.extract_and_save_text(file_path)
+                    logger.info(f"Text extracted and saved for {filename}")
 
-  config = start.load_configuration()
-  new_agent_files = os.listdir(UPLOAD_FOLDER)
-  new_agent_files_content = {}
+    config = start.load_configuration()
+    new_agent_files = os.listdir(UPLOAD_FOLDER)
+    new_agent_files_content = {}
+    for file in new_agent_files:
+        file_path = os.path.join(UPLOAD_FOLDER, file)
+        with open(file_path, 'r') as file_content:
+            new_agent_files_content[file] = file_content.read()
+            logger.debug(f"Loaded content for {file}")
 
-  for file in new_agent_files:
-    with open(os.path.join(UPLOAD_FOLDER, file), 'r') as file_content:
-      new_agent_files_content[file] = file_content.read()
+    page_view = PageView(page='/start_route')
+    db.session.add(page_view)
+    try:
+        db.session.commit()
+        logger.info("Page view for /start_route committed to DB")
+    except Exception as e:
+        logger.error(f"Failed to commit to DB: {e}", exc_info=True)
+        db.session.rollback()
 
-  page_view = PageView(page='/start_route')
-  db.session.add(page_view)
-  try:
-    db.session.commit()
-  except Exception as e:
-    app.logger.error(f"Failed to commit to DB: {e}")
-    db.session.rollback()
+    return render_template('start.html', config=config, new_agent_files=new_agent_files, new_agent_files_content=new_agent_files_content)
 
-  return render_template('start.html',
-                         config=config,
-                         new_agent_files=new_agent_files,
-                         new_agent_files_content=new_agent_files_content)
 
 
 @profile_blueprint.route('/create_new_agent', methods=['GET', 'POST'])
