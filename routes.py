@@ -9,8 +9,9 @@ import abe_gpt
 import start
 import base64
 import binascii
+import secrets
 
-from models import db, User, Survey, Timeframe, Meeting, Agent, Image
+from models import db, User, Survey, Timeframe, Meeting, Agent, Image, APIKey
 from abe import login_manager
 from talker import talker_blueprint
 import email_client
@@ -1031,8 +1032,8 @@ def start_route():
         if 'run_start' in request.form:
             logger.info("Executing start.main()")
             start.main()
-            logger.info("Redirecting to start route")
-            return redirect(url_for('start_blueprint.start_route'))
+            logger.info("Redirecting to home page")
+            return redirect(url_for('home'))  # Redirect to home page ("/")
 
         if 'upload_files' in request.files:
             files = request.files.getlist('upload_files')
@@ -1065,7 +1066,6 @@ def start_route():
         db.session.rollback()
 
     return render_template('start.html', config=config, new_agent_files=new_agent_files, new_agent_files_content=new_agent_files_content)
-
 
 
 @profile_blueprint.route('/create_new_agent', methods=['GET', 'POST'])
@@ -1323,18 +1323,14 @@ def create_timeframe():
                            timeframes=timeframes)
 
 
-# Route to generate an API key and automatically fetch all keys
 @auth_blueprint.route('/users/generate_api_key', methods=['POST'])
 @login_required
 def generate_api_key():
-  token = current_user.generate_api_key()
-  if token:
+    new_api_key = secrets.token_hex(16)
+    api_key = APIKey(key=new_api_key, user_id=current_user.id)
+    db.session.add(api_key)
     db.session.commit()
-    flash('API Key generated successfully!', 'success')
-  else:
-    flash('Failed to generate API Key.', 'error')
-  return redirect(url_for('auth_blueprint.user_profile'))
-
+    return redirect(url_for('auth_blueprint.update_profile'))
 
 # Route to get all API keys for the current user
 @auth_blueprint.route('/users/api_keys', methods=['GET'])
