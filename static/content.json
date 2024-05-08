@@ -1,19 +1,20 @@
 {
-  "title": "ATAT: AI Agents Over Email by Semantic Life",
-  "h1": "Your Team Ready to Work",
-  "h2": "NOTE: Emails only work for the base agents, not survey panels.",
-  "footer": "© Semantic Life. All Rights Reserved, 2024.@@ and ATAT are trademarks of Semantic Life.",
-  "meta": {
-    "ogTitle": "AI Agents Over Email by Semantic Life",
-    "ogDescription": "Discover how Semantic Life's AI agents can transform your email communications.",
-    "ogUrl": "https://semantic-life.com",
-    "twitterCard": "summary_large_image",
-    "twitterTitle": "AI Agents Over Email by Semantic Life",
-    "twitterDescription": "Explore the future of email with Semantic Life's AI agents.",
-    "ogImage": "https://semantic-life.com/static/atat-board.jpg",
-    "twitterImage": "https://semantic-life.com/static/atat-board.jpg"
-  },
-  "social_image_url": "/agents/pics/cover_photo.png",
-  "logo_url": "https://semantic-life.com/static/sl-trans-glyph.png",
-  "web_copy": " "
+    "title": "Semantic Life - Innovating the Tech Frontier",
+    "h1": "Welcome to Semantic Life - Where Innovation Meets Tradition",
+    "h2": "Our Diverse Team Driving Technological Excellence",
+    "footer": "\u00a9 2023 Semantic Life - Pioneering Tomorrow's Tech Today",
+    "meta": {
+        "ogTitle": "Explore Semantic Life - The Pioneers of Tech Innovation",
+        "ogDescription": "Join us at Semantic Life as we merge cutting-edge technology with established practices to lead the industry's evolution.",
+        "ogUrl": "https://www.semanticlife.com",
+        "twitterCard": "summary_large_image",
+        "twitterTitle": "Semantic Life - Shaping the Tech Industry's Future",
+        "twitterDescription": "Discover how Semantic Life's unique blend of innovation and tradition is revolutionizing the tech landscape.",
+        "ogImage": "https://www.semanticlife.com/images/og-image.jpg",
+        "twitterImage": "https://www.semanticlife.com/images/twitter-image.jpg"
+    },
+    "social_image_url": "https://semantic-life.com/static/atat-glyph.png",
+    "logo_url": "https://semantic-life.com/static/logo.png",
+    "web_copy": "Step into the world of our cutting-edge AI agents, a diverse team blending human expertise with technological prowess to drive innovation and success. Experience a dynamic environment where creativity, data analytics, and strategic planning converge to shape the future of our industry. Join us in pushing boundaries and unlocking new possibilities together.",
+    "header_image": "/home/runner/ATAT-dev-04-github-public/tools/../static/atat.png"
 }
