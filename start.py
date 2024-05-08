@@ -14,18 +14,18 @@ def load_configuration(config_file='start-config.json'):
         config = {}
 
     # Set default values if not present in the config
-    config.setdefault('run_update_team', False)
-    config.setdefault('run_render_agents', False)
-    config.setdefault('run_update_content', False)
+    config.setdefault('run_update_team', True)
+    config.setdefault('run_render_agents', True)
+    config.setdefault('run_update_content', True)
     config.setdefault('directory', 'agents/new_agent_files')
-    config.setdefault('transformation_prompt', '')
-    config.setdefault('cover_photo_instructions', '')
+    config.setdefault('transformation_prompt', 'Add your global transformation prompt here.')
+    config.setdefault('cover_photo_instructions', 'Design your cover photo here.')
     config.setdefault('num_agents_additional', 0)
     config.setdefault('fictionalize_option', 'no')
     config.setdefault('clear_json_confirm', 'no')
     config.setdefault('clear_pics_confirm', 'no')
-    config.setdefault('social_image_url', 'default_social_image_url')
-    config.setdefault('logo_url', 'default_logo_url')
+    config.setdefault('social_image_url', 'https://semantic-life.com/static/atat-glyph.png')
+    config.setdefault('logo_url', 'https://semantic-life.com/static/logo.png')
 
     return config
 
