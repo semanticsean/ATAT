@@ -5,6 +5,8 @@ import glob
 import os
 import base64
 import json
+import requests
+
 from flask import Flask, render_template, send_from_directory, abort, send_file, url_for, Response, jsonify, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, login_required
@@ -19,19 +21,18 @@ from sqlalchemy import cast, String
 from talker import talker_blueprint
 
 
-
 def configure_logging():
-  if not os.path.exists('logs'):
-    os.makedirs('logs')
-  log_file_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.log')
-  log_file_path = os.path.join('logs', log_file_name)
-  file_handler = logging.FileHandler(log_file_path)
-  file_handler.setLevel(logging.DEBUG)
-  formatter = logging.Formatter(
-      '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-  file_handler.setFormatter(formatter)
-  logging.getLogger().addHandler(file_handler)
-  logging.getLogger().setLevel(logging.DEBUG)
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
+    log_file_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.log')
+    log_file_path = os.path.join('logs', log_file_name)
+    file_handler = logging.FileHandler(log_file_path)
+    file_handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    logging.getLogger().addHandler(file_handler)
+    logging.getLogger().setLevel(logging.DEBUG)
 
 
 app = Flask(__name__)
@@ -45,10 +46,10 @@ logger = logging.getLogger(__name__)
 
 database_url = os.environ.get('DATABASE_URL')
 if database_url:
-  corrected_url = database_url.replace("postgres://", "postgresql://", 1)
-  app.config['SQLALCHEMY_DATABASE_URI'] = corrected_url
+    corrected_url = database_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = corrected_url
 else:
-  raise ValueError('Missing DATABASE_URL')
+    raise ValueError('Missing DATABASE_URL')
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_NAME'] = 'session_data'
@@ -65,7 +66,7 @@ migrate = Migrate(app, db)
 
 logs_directory = 'logs'
 if not os.path.exists(logs_directory):
-  os.makedirs(logs_directory)
+    os.makedirs(logs_directory)
 log_file_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.log')
 log_file_path = os.path.join(logs_directory, log_file_name)
 file_handler = logging.FileHandler(log_file_path)
@@ -87,59 +88,68 @@ app.register_blueprint(talker_blueprint)
 
 @app.template_filter('from_json')
 def from_json(value):
-  return json.loads(value)
+    return json.loads(value)
 
 
 @login_manager.user_loader
 def load_user(user_id):
-  return User.query.get(int(user_id))
+    return User.query.get(int(user_id))
 
 
 @app.context_processor
 def inject_images():
 
-  def custom_image_filter(photo_path, size='48x48'):
-    # Extract the filename from the photo_path
-    filename = os.path.basename(photo_path)
+    def custom_image_filter(photo_path, size='48x48'):
+        # Extract the filename from the photo_path
+        filename = os.path.basename(photo_path)
 
-    # Generate the URL for the image using the appropriate route
-    image_url = url_for('serve_image', filename=filename)
+        # Generate the URL for the image using the appropriate route
+        image_url = url_for('serve_image', filename=filename)
 
-    return image_url
+        return image_url
 
-  return dict(custom_image_filter=custom_image_filter)
+    return dict(custom_image_filter=custom_image_filter)
 
 
 @app.context_processor
 def inject_secrets():
 
-  def get_secret(name):
-    # Fetches and returns the secret by name from environment variables
-    return os.environ.get(name)
+    def get_secret(name):
+        # Fetches and returns the secret by name from environment variables
+        return os.environ.get(name)
 
-  return dict(get_secret=get_secret)
+    return dict(get_secret=get_secret)
 
 
 @app.route('/')
 def home():
     if current_user.is_authenticated:
         user_agents = current_user.agents_data or []
-        agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
+        agent_class_agents = Agent.query.filter_by(
+            user_id=current_user.id).all()
 
         agents_content = []
         for agent in user_agents:
             agent_data = {
-                'id': agent['id'],
-                'jobtitle': agent.get('jobtitle', ''),
-                'image_data': current_user.images_data.get(agent['photo_path'].split('/')[-1], '')
+                'id':
+                agent['id'],
+                'jobtitle':
+                agent.get('jobtitle', ''),
+                'image_data':
+                current_user.images_data.get(
+                    agent['photo_path'].split('/')[-1], '')
             }
             agents_content.append(agent_data)
 
         for agent in agent_class_agents:
             agent_data = {
-                'id': agent.id,
-                'jobtitle': agent.data.get('jobtitle', ''),
-                'image_data': current_user.images_data.get(agent.data['photo_path'].split('/')[-1], '')
+                'id':
+                agent.id,
+                'jobtitle':
+                agent.data.get('jobtitle', ''),
+                'image_data':
+                current_user.images_data.get(
+                    agent.data['photo_path'].split('/')[-1], '')
             }
             agents_content.append(agent_data)
 
@@ -150,7 +160,8 @@ def home():
             if meeting.agents and meeting.questions and meeting.answers:
                 for agent_data in meeting.agents:
                     if isinstance(agent_data, dict) and 'id' in agent_data:
-                        meeting_results.append((meeting.name, agent_data['id']))
+                        meeting_results.append(
+                            (meeting.name, agent_data['id']))
     else:
         agents_content = None
         meeting_results = []
@@ -167,6 +178,7 @@ def home():
                            meeting_results=meeting_results,
                            timeframes=timeframes)
 
+
 @app.route('/images/<filename>')
 def serve_image(filename):
     if current_user.is_authenticated:
@@ -175,7 +187,8 @@ def serve_image(filename):
 
         # Check if the image is in the user's images_data
         if user.images_data and filename in user.images_data:
-            print("Image found in user's images_data")  # Print if the image is found
+            print("Image found in user's images_data"
+                  )  # Print if the image is found
             image_data = user.images_data.get(filename)
             return Response(base64.b64decode(image_data), mimetype='image/png')
 
@@ -184,75 +197,100 @@ def serve_image(filename):
             timeframe_images_data = json.loads(timeframe.images_data)
             if filename in timeframe_images_data:
                 image_data = timeframe_images_data.get(filename)
-                return Response(base64.b64decode(image_data), mimetype='image/png')
+                return Response(base64.b64decode(image_data),
+                                mimetype='image/png')
 
         # Check if the image is in any of the user's agents
         agent = Agent.query.filter(
             Agent.user_id == user_id,
-            Agent.data.cast(
-                db.Text).contains(f'"photo_path": "/images/{filename}"')).first()
+            Agent.data.cast(db.Text).contains(
+                f'"photo_path": "/images/{filename}"')).first()
         if agent:
-            image_data = agent.data.get('image_data', {}).get(f"/images/{filename}")
+            image_data = agent.data.get('image_data',
+                                        {}).get(f"/images/{filename}")
             if image_data:
-                return Response(base64.b64decode(image_data), mimetype='image/png')
+                return Response(base64.b64decode(image_data),
+                                mimetype='image/png')
 
         # Check if the image belongs to a timeframe agent
         timeframe_agent = db.session.query(Timeframe).filter(
             Timeframe.user_id == user_id,
-            Timeframe.agents_data.cast(
-                db.Text).contains(f'"photo_path": "/images/{filename}"')).first()
+            Timeframe.agents_data.cast(db.Text).contains(
+                f'"photo_path": "/images/{filename}"')).first()
         if timeframe_agent:
             timeframe_images_data = json.loads(timeframe_agent.images_data)
             image_data = timeframe_images_data.get(filename)
             if image_data:
-                return Response(base64.b64decode(image_data), mimetype='image/png')
+                return Response(base64.b64decode(image_data),
+                                mimetype='image/png')
 
         # Check if the image belongs to a public meeting
         public_meeting = Meeting.query.filter_by(is_public=True).filter(
-            Meeting.agents.cast(db.Text).contains(f'"/images/{filename}"')).first()
+            Meeting.agents.cast(
+                db.Text).contains(f'"/images/{filename}"')).first()
         if public_meeting:
             image_data = public_meeting.images_data.get(filename)
             if image_data:
-                return Response(base64.b64decode(image_data), mimetype='image/png')
+                return Response(base64.b64decode(image_data),
+                                mimetype='image/png')
 
         # Check if the image belongs to a meeting summary
         meeting = Meeting.query.filter(
-            Meeting.image_data.isnot(None)).filter_by(image_data=filename).first()
+            Meeting.image_data.isnot(None)).filter_by(
+                image_data=filename).first()
         if meeting:
             image_data = meeting.image_data
             if image_data:
-                return Response(base64.b64decode(image_data), mimetype='image/png')
+                return Response(base64.b64decode(image_data),
+                                mimetype='image/png')
 
     print("Image not found")
     abort(404)
 
+
 @app.errorhandler(404)
 def page_not_found(e):
-  # Render the template for 404.html
-  return render_template('404.html')
+    # Render the template for 404.html
+    return render_template('404.html')
 
 
 @app.route('/public/<path:filename>')
 def serve_public_image(filename):
-  public_folder = 'public'
-  file_path = os.path.join(public_folder, filename)
+    public_folder = 'public'
+    file_path = os.path.join(public_folder, filename)
 
-  if os.path.exists(file_path):
-    return send_from_directory(public_folder, filename)
-  else:
-    abort(404)
+    if os.path.exists(file_path):
+        return send_from_directory(public_folder, filename)
+    else:
+        abort(404)
+
+
+@app.context_processor
+def inject_api_status():
+    try:
+        response = requests.get(
+            'https://082c65da-f066-4d40-8f2b-5310ac929e85-00-8bl4x7087pru.riker.replit.dev/'
+        )
+        api_status = response.status_code == 200
+    except requests.RequestException:
+        api_status = False
+
+    def get_api_status():
+        return api_status
+
+    return dict(get_api_status=get_api_status)
 
 
 def custom_img_filter(photo_path, size='48x48'):
-  # Extract the filename from the photo_path
-  filename = os.path.basename(photo_path)
+    # Extract the filename from the photo_path
+    filename = os.path.basename(photo_path)
 
-  # Generate the URL for the image using the appropriate route
-  image_url = url_for('serve_image', filename=filename)
+    # Generate the URL for the image using the appropriate route
+    image_url = url_for('serve_image', filename=filename)
 
-  # Return the HTML img tag with the image URL and size
-  return f'<img src="{image_url}" alt="{filename}" width="{size.split("x")[0]}" height="{size.split("x")[1]}">'
+    # Return the HTML img tag with the image URL and size
+    return f'<img src="{image_url}" alt="{filename}" width="{size.split("x")[0]}" height="{size.split("x")[1]}">'
 
 
 if __name__ == '__main__':
-  app.run(debug=True)
+    app.run(debug=True)
