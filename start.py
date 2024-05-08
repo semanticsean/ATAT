@@ -1,3 +1,4 @@
+#start.py
 import os
 import subprocess
 import json
@@ -6,8 +7,27 @@ import argparse
 from tools import update_team
 
 def load_configuration(config_file='start-config.json'):
-    with open(config_file, 'r') as file:
-        return json.load(file)
+    try:
+        with open(config_file, 'r') as file:
+            config = json.load(file)
+    except FileNotFoundError:
+        config = {}
+
+    # Set default values if not present in the config
+    config.setdefault('run_update_team', False)
+    config.setdefault('run_render_agents', False)
+    config.setdefault('run_update_content', False)
+    config.setdefault('directory', 'agents/new_agent_files')
+    config.setdefault('transformation_prompt', '')
+    config.setdefault('cover_photo_instructions', '')
+    config.setdefault('num_agents_additional', 0)
+    config.setdefault('fictionalize_option', 'no')
+    config.setdefault('clear_json_confirm', 'no')
+    config.setdefault('clear_pics_confirm', 'no')
+    config.setdefault('social_image_url', 'default_social_image_url')
+    config.setdefault('logo_url', 'default_logo_url')
+
+    return config
 
 def run_update_team(directory, transformation_prompt, num_agents_additional):
     update_team.update_team(directory, transformation_prompt, num_agents_additional)
@@ -31,14 +51,13 @@ def update_content():
 
 def main():
     config = load_configuration()
-
     print("Starting processes defined in start-config.json...")
 
     # Check whether to run specific operations
     if config.get('run_update_team', False):
         directory = config.get('directory', 'agents/new_agent_files')
         transformation_prompt = config['transformation_prompt']
-        num_agents_additional = config['num_agents_additional']
+        num_agents_additional = int(config['num_agents_additional'])  # Convert to integer
         run_update_team(directory, transformation_prompt, num_agents_additional)
 
     if config.get('run_render_agents', False):
