@@ -382,39 +382,63 @@
         }
 
         function createNewConversation() {
+          const timestamp = Date.now();
+          const uniqueId = Math.random().toString(36).substring(7);
+          const conversationUrl = `${timestamp}-${uniqueId}`;
+
           currentConversationId = null;
-          currentConversationName = `Conversation ${Date.now()}`;
+          currentConversationName = `Conversation ${timestamp}`;
 
           messageList.empty();
-          conversationItems.append(`<div class="conversation-item" data-conversation-id="${currentConversationId}">${currentConversationName}</div>`);
+          conversationItems.append(`<div class="conversation-item" data-conversation-url="${conversationUrl}">${currentConversationName}</div>`);
           statusDiv.text(`Created new conversation: ${currentConversationName}`);
 
-          history.pushState({}, "", "/talker/{{ agent_id }}");
+          // Store the new conversation to the database
+          $.ajax({
+            url: "/store_conversation",
+            type: "POST",
+            data: {
+              conversation_url: conversationUrl,
+              conversation_name: currentConversationName,
+              agent_id: "{{ agent_id }}"
+            },
+            success: function (response) {
+              currentConversationId = response.conversation_id;
+              history.pushState({}, "", `/talker/{{ agent_id }}/${conversationUrl}`);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              console.error("Error storing conversation:", textStatus, errorThrown);
+              statusDiv.text("Error storing conversation");
+            }
+          });
         }
 
         function loadConversation() {
-          const conversationId = $(this).data("conversation-id");
-          if (!conversationId || conversationId === "null") {
+          const conversationUrl = $(this).data("conversation-url");
+          if (!conversationUrl) {
             createNewConversation();
             return;
           }
 
-          currentConversationId = conversationId;
+          currentConversationId = null;
           currentConversationName = null;
 
           messageList.empty();
           statusDiv.text(`Loading conversation...`);
 
           $.ajax({
-            url: `/get_conversation_messages/${conversationId}`,
+            url: `/get_conversation_by_url/${conversationUrl}`,
             type: "GET",
             success: function (response) {
               if (response.messages) {
+                currentConversationId = response.conversation_id;
+                currentConversationName = response.name;
+
                 response.messages.forEach(function (message) {
                   displayMessage(message.content, message.role === "user" ? "You" : "AI");
                 });
                 statusDiv.text(`Loaded conversation: ${response.name}`);
-                currentConversationName = response.name;
+                history.pushState({}, "", `/talker/{{ agent_id }}/${conversationUrl}`);
               } else {
                 statusDiv.text(`No messages found for conversation: ${response.name}`);
               }
@@ -436,21 +460,21 @@
 
         function saveConversationName() {
           const conversationItem = $(this).closest(".conversation-item");
-          const conversationId = conversationItem.data("conversation-id");
+          const conversationUrl = conversationItem.data("conversation-url");
           const newName = $(this).val().trim();
           const conversationNameSpan = conversationItem.find(".conversation-name");
           const conversationNameEdit = $(this);
 
           if (newName !== "") {
             $.ajax({
-              url: `/update_conversation_name/${conversationId}`,
+              url: `/update_conversation_name_by_url/${conversationUrl}`,
               type: "POST",
               data: { name: newName },
               success: function () {
                 conversationNameSpan.text(newName);
                 conversationNameSpan.show();
                 conversationNameEdit.hide();
-                if (conversationId === currentConversationId) {
+                if (conversationUrl === currentConversationUrl) {
                   currentConversationName = newName;
                 }
               },

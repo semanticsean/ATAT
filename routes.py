@@ -1399,3 +1399,52 @@ def get_agents():
       agents.append(agent_data)
 
   return jsonify({'agents': agents})
+
+
+@talker_blueprint.route('/store_conversation', methods=['POST'])
+@login_required
+def store_conversation():
+    conversation_name = request.form.get("conversation_name")
+    agent_ids = request.form.get("agent_ids")  # Assuming you pass a list of agent IDs
+    messages = request.form.get("messages", "[]")  # Defaulting to an empty list if not provided
+
+    # Create a new Conversation instance
+    conversation = Conversation(
+        user_id=current_user.id,
+        name=conversation_name,
+        agents=json.loads(agent_ids),
+        messages=json.loads(messages)
+    )
+
+    db.session.add(conversation)
+    db.session.commit()
+
+    return jsonify({"conversation_id": conversation.id})
+
+
+
+@talker_blueprint.route('/get_conversation_by_url/<conversation_url>')
+@login_required
+def get_conversation_by_url(conversation_url):
+    conversation = Conversation.query.filter_by(user_id=current_user.id, url=conversation_url).first()
+    if conversation:
+        return jsonify({
+            'messages': conversation.messages,
+            'name': conversation.name,
+            'conversation_id': conversation.id
+        })
+    else:
+        return jsonify({'error': 'Conversation not found'}), 404
+
+
+@talker_blueprint.route('/update_conversation_name_by_url/<conversation_url>', methods=["POST"])
+@login_required
+def update_conversation_name_by_url(conversation_url):
+    new_name = request.form.get("name")
+    conversation = Conversation.query.filter_by(user_id=current_user.id, url=conversation_url).first()
+    if conversation:
+        conversation.name = new_name
+        db.session.commit()
+        return jsonify({"success": True})
+    else:
+        return jsonify({"error": "Conversation not found"}), 404
