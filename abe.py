@@ -6,6 +6,7 @@ import os
 import base64
 import json
 import requests
+import aiohttp
 
 from flask import Flask, render_template, send_from_directory, abort, send_file, url_for, Response, jsonify, request, redirect
 from flask_sqlalchemy import SQLAlchemy
@@ -265,19 +266,22 @@ def serve_public_image(filename):
         abort(404)
 
 
-@app.context_processor
-async def inject_api_status():
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get('https://082c65da-f066-4d40-8f2b-5310ac929e85-00-8bl4x7087pru.riker.replit.dev/') as response:
-                api_status = response.status == 200
-    except aiohttp.ClientError:
-        api_status = False
+# @app.context_processor
+# def inject_api_status():
+#     try:
+#         response = requests.get(
+#             'https://082c65da-f066-4d40-8f2b-5310ac929e85-00-8bl4x7087pru.riker.replit.dev/'
+#         )
+#         api_status = response.status_code == 200
+#     except requests.RequestException:
+#         api_status = False
 
-    def get_api_status():
-        return api_status
+#     def get_api_status():
+#         return api_status
 
-    return dict(get_api_status=get_api_status)
+#     return dict(get_api_status=get_api_status)
+
+
 
 def custom_img_filter(photo_path, size='48x48'):
     # Extract the filename from the photo_path
