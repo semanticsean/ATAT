@@ -207,8 +207,14 @@
                                     <div class="grid-container">
                                         {% for agent in current_user.agents_data %}
                                         <div class="grid-item">
-                                            <img src="" data-src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}"
+                                        
+                                            
+                                            <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type='agent') }}">                                                
+                                                <img src="" data-src="{{ url_for('serve_image', filename=agent.photo_path.split('/')[-1]) }}"
                                                 class="image-cache">
+                                            </a>
+
+                                            
                                             <a href="{{ url_for('profile_blueprint.profile', agent_id=agent.id, agent_type='agent') }}"
                                                 class="grid-item-content">
                                                 <h2 class="agent-title">{{ agent.id }}</h2>
