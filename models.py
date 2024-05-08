@@ -170,12 +170,17 @@ class Conversation(db.Model):
   agents = db.Column(db.JSON)
   messages = db.Column(db.JSON)
   timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+  url = db.Column(db.String(255), unique=True, nullable=True)  # Added URL field
 
-  def __init__(self, user_id, name, agents, messages):
-    self.user_id = user_id
-    self.name = name
-    self.agents = agents
-    self.messages = messages
+  user = db.relationship('User', backref=db.backref('conversations', lazy=True))
+
+  def __init__(self, user_id, name, agents, messages, url=None):
+      self.user_id = user_id
+      self.name = name
+      self.agents = agents
+      self.messages = messages
+      self.url = url
+
 
 
 class Document(db.Model):
