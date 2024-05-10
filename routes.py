@@ -846,20 +846,39 @@ def get_relationships(agent):
 @profile_blueprint.route('/update_agent', methods=['POST'])
 @login_required
 def update_agent():
-  data = request.get_json()
-  agent_id = data['agent_id']
-  field = data['field']
-  value = data['value']
+    data = request.get_json()
+    agent_id = data['agent_id']
+    updated_data = data['updated_data']
 
-  agents_data = current_user.agents_data
-  agent = next((a for a in agents_data if a['id'] == agent_id), None)
+    agent = Agent.query.get(agent_id)
 
-  if agent:
-    agent[field] = value
-    db.session.commit()
-    return jsonify(success=True)
-  else:
-    return jsonify(success=False, error="Agent not found")
+    if agent and agent.user_id == current_user.id:
+        def update_dict(d, updates):
+            for k, v in updates.items():
+                if isinstance(v, dict):
+                    update_dict(d.setdefault(k, {}), v)
+                else:
+                    d[k] = v
+
+        update_dict(agent.data, updated_data)
+        db.session.commit()
+        return jsonify(success=True)
+    else:
+        return jsonify(success=False, error="Agent not found or unauthorized")
+@profile_blueprint.route('/delete_agent', methods=['POST'])
+@login_required
+def delete_agent():
+    data = request.get_json()
+    agent_id = data['agent_id']
+
+    agent = Agent.query.get(agent_id)
+
+    if agent and agent.user_id == current_user.id:
+        db.session.delete(agent)
+        db.session.commit()
+        return jsonify(success=True)
+    else:
+        return jsonify(success=False, error="Agent not found or unauthorized")
 
 
 @auth_blueprint.route('/agent_images/<filename>')
@@ -1097,139 +1116,6 @@ def create_new_agent():
 
   return render_template('new_agent.html')
 
-
-@profile_blueprint.route('/edit_agent/<agent_id>', methods=['GET', 'POST'])
-@login_required
-def edit_agent(agent_id):
-  logging.info(f"Editing agent with ID: {agent_id}")
-
-  # Try to find the agent in the database
-  agent = Agent.query.filter((Agent.user_id == current_user.id) & (
-      (Agent.id == str(agent_id))
-      | (Agent.id == agent_id.replace('_', '.')))).first()
-
-  if not agent:
-    logging.info("Agent not found in the database")
-    # If agent not found in the database, check in agents_data
-    agents_data = current_user.agents_data or []
-    agent_data = get_agent_by_id(agents_data, agent_id)
-    if agent_data:
-      logging.info("Agent found in agents_data")
-      logging.debug(f"Agent data: {agent_data}")
-      # Create an Agent object from the agent_data dictionary
-      agent = Agent(id=agent_data['id'],
-                    user_id=current_user.id,
-                    data=agent_data)
-    else:
-      logging.info("Agent not found in agents_data")
-      # If agent not found in agents_data, check if it's a user or timeframe
-      if current_user.id == int(agent_id):
-        logging.info("Editing user")
-        # If agent_id matches the current user's id, edit the user
-        agent = current_user
-      else:
-        # Check if it's a timeframe
-        timeframe = Timeframe.query.filter_by(id=agent_id,
-                                              user_id=current_user.id).first()
-        if timeframe:
-          logging.info("Editing timeframe")
-          agent = timeframe
-        else:
-          logging.error("Agent not found")
-          flash('Agent not found.', 'error')
-          return redirect(url_for('dashboard_blueprint.dashboard'))
-
-  if request.method == 'POST':
-    logging.info("Handling POST request")
-    logging.debug(f"Request form data: {request.form}")
-    # Update the agent data based on the form submission
-    try:
-      if isinstance(agent, Agent):
-        logging.info("Updating Agent object")
-        agent.data['persona'] = request.form.get('persona')
-        agent.data['summary'] = request.form.get('summary')
-        agent.data['keywords'] = request.form.get('keywords', '').split(',')
-        agent.data['image_prompt'] = request.form.get('image_prompt')
-        agent.data['relationships'] = get_relationships(agent.data)
-        agent.voice = request.form.get('voice', 'echo')
-        logging.debug(f"Updated Agent data: {str(agent.data)[:140]}")
-        db.session.add(agent)  # Add the modified instance to the session
-      elif isinstance(agent, User):
-        logging.info("Updating User's agents_data")
-        # Update the user's agents_data
-        agents_data = current_user.agents_data or []
-        for agent_data in agents_data:
-          if agent_data['id'] == agent_id:
-            agent_data['persona'] = request.form.get('persona')
-            agent_data['summary'] = request.form.get('summary')
-            agent_data['keywords'] = request.form.get('keywords',
-                                                      '').split(',')
-            agent_data['image_prompt'] = request.form.get('image_prompt')
-            agent_data['relationships'] = get_relationships(agent_data)
-            logging.debug(
-                f"Updated User's agents_data: {str(agent_data)[:140]}")
-            break
-        current_user.agents_data = agents_data
-        db.session.add(
-            current_user)  # Add the modified user instance to the session
-      elif isinstance(agent, Timeframe):
-        logging.info("Updating Timeframe's agents_data")
-        # Update the timeframe's agents_data
-        agents_data = json.loads(agent.agents_data)
-        for agent_data in agents_data:
-          if agent_data['id'] == agent_id:
-            agent_data['persona'] = request.form.get('persona')
-            agent_data['summary'] = request.form.get('summary')
-            agent_data['keywords'] = request.form.get('keywords',
-                                                      '').split(',')
-            agent_data['image_prompt'] = request.form.get('image_prompt')
-            agent_data['relationships'] = get_relationships(agent_data)
-            logging.debug(
-                f"Updated Timeframe's agents_data: {str(agent_data)[:140]}")
-            break
-        agent.agents_data = json.dumps(agents_data)
-        db.session.add(
-            agent)  # Add the modified timeframe instance to the session
-      else:
-        logging.error("Unknown agent type")
-        # Handle the case when the agent type is unknown
-        flash('Unknown agent type. Changes not saved.', 'error')
-        return redirect(url_for('profile_blueprint.profile',
-                                agent_id=agent_id))
-
-      db.session.commit()  # Commit the changes to the database
-    except Exception as e:
-      db.session.rollback()  # Rollback the transaction if an exception occurs
-      logging.error(f"Error updating agent: {str(e)}")
-      flash('An error occurred while updating the agent. Please try again.',
-            'error')
-      return redirect(
-          url_for('profile_blueprint.edit_agent', agent_id=agent_id))
-
-    logging.info("Changes committed to the database")
-    logging.info(
-        f"Redirecting to the profile page: {url_for('profile_blueprint.profile', agent_id=agent_id)}"
-    )
-    return redirect(url_for('profile_blueprint.profile', agent_id=agent_id))
-
-  logging.info("Rendering edit_agent.html template")
-  logging.debug(f"Agent data loaded into edit_agent.html: {agent.data}")
-  voices = ['echo', 'alloy', 'fable', 'onyx', 'nova', 'shimmer']
-  return render_template('edit_agent.html', agent=agent, voices=voices)
-
-
-@profile_blueprint.route('/delete_agent/<agent_id>', methods=['POST'])
-@login_required
-def delete_agent(agent_id):
-  agents_data = current_user.agents_data or []
-  agent = get_agent_by_id(agents_data, agent_id)
-
-  if agent:
-    agents_data.remove(agent)
-    db.session.commit()
-    return jsonify({'success': True})
-  else:
-    return jsonify({'success': False, 'error': 'Agent not found'})
 
 
 @profile_blueprint.route('/status')
