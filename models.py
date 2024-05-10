@@ -67,6 +67,10 @@ class User(db.Model, UserMixin):
     # Create user folder
     os.makedirs(self.folder_path, exist_ok=True)
 
+  def update_agents_data(self, agents_data):
+    self.agents_data = agents_data
+    db.session.commit()
+
 
 class APIKey(db.Model):
   id = db.Column(db.Integer, primary_key=True)

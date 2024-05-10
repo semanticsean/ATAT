@@ -175,61 +175,65 @@
     });
 
     // Save edited agent data
+      // Save edited agent data
       $('#save-agent-btn').on('click', function() {
           var agentId = "{{ agent.id }}";
+          var timeframeId = "{{ timeframe_id }}";
+          var agentType = "{{ agent.agent_type }}";
           var updatedData = {};
 
           $('.editable').each(function() {
-            var field = $(this).data('field');
-            var value = $(this).text();
+              var field = $(this).data('field');
+              var value = $(this).text();
 
-            // Skip updating the agent.id field
-            if (field !== 'id') {
-              // Handle nested fields
-              if (field.includes('.')) {
-                var parts = field.split('.');
-                var currentLevel = updatedData;
-                for (var i = 0; i < parts.length - 1; i++) {
-                  var part = parts[i];
-                  if (!currentLevel[part]) {
-                    currentLevel[part] = {};
+              if (field !== 'id') {
+                  if (field.includes('.')) {
+                      var parts = field.split('.');
+                      var currentLevel = updatedData;
+                      for (var i = 0; i < parts.length - 1; i++) {
+                          var part = parts[i];
+                          if (!currentLevel[part]) {
+                              currentLevel[part] = {};
+                          }
+                          currentLevel = currentLevel[part];
+                      }
+                      currentLevel[parts[parts.length - 1]] = value;
+                  } else {
+                      updatedData[field] = value;
                   }
-                  currentLevel = currentLevel[part];
-                }
-                currentLevel[parts[parts.length - 1]] = value;
-              } else {
-                updatedData[field] = value;
               }
-            }
           });
 
-          $('.saving-indicator').show(); // Show the saving indicator
+          $('.saving-indicator').show();
 
           $.ajax({
-            url: "/update_agent",
-            type: "POST",
-            data: JSON.stringify({
-              agent_id: agentId,
-              updated_data: updatedData
-            }),
-            contentType: "application/json",
-            success: function(response) {
-              if (response.success) {
-                $('.editable').attr('contenteditable', 'false').removeClass('border border-gray-300');
-                $('#save-agent-btn').hide();
-                $('#edit-agent-btn').show();
-                $('.saving-indicator').hide(); // Hide the saving indicator
-              } else {
-                console.error("Failed to save agent data");
-                $('.saving-indicator').hide(); // Hide the saving indicator
+              url: "/update_agent",
+              type: "POST",
+              data: JSON.stringify({
+                  agent_id: agentId,
+                  agent_type: agentType,
+                  timeframe_id: timeframeId,
+                  updated_data: updatedData
+              }),
+              contentType: "application/json",
+              success: function(response) {
+                  if (response.success) {
+                      $('.editable').attr('contenteditable', 'false').removeClass('border border-gray-300');
+                      $('#save-agent-btn').hide();
+                      $('#edit-agent-btn').show();
+                      $('.saving-indicator').hide();
+                  } else {
+                      console.error("Failed to save agent data");
+                      $('.saving-indicator').hide();
+                  }
+              },
+              error: function() {
+                  console.error("An error occurred while saving agent data");
+                  $('.saving-indicator').hide();
               }
-            },
-            error: function() {
-              console.error("An error occurred while saving agent data");
-              $('.saving-indicator').hide(); // Hide the saving indicator
-            }
           });
-        });
+      });
+
 
       
     // Delete agent
