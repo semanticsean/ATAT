@@ -34,185 +34,249 @@
           }
       }
   </style>
-  </head>
-  <body class="bg-blue-50 min-h-screen flex flex-col">
-    
-    <div class="container mx-auto px-4 py-4 md:mt-4 mt-4 flex-grow">
-      {% include 'header.html' %}
-        <div id="loading-overlay" class="fixed inset-0 bg-white flex items-center justify-center z-50">
-            <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." />
-        </div>
-        <div id="profile-content" style="display: none;">
-            {% if agent %}
-                <div class="container mx-auto px-4 py-8 md:mt-4 mt-4">
-                      <div class="bg-white rounded-lg shadow-md">
-                          <div class="flex flex-col md:flex-row">
-                              <div class="md:w-1/2 flex justify-center items-center agent-image py-4 px-2">
-                                <img id="agent-image" src="" alt="Agent Profile" class="md:mr-12">
-                                <script>
-                                    $(document).ready(function() {
-                                        var agentImageData = "{{ agent_image_data }}";
-                                        if (agentImageData) {
-                                            console.log("Agent image data received:", agentImageData.slice(0, 50) + "...");
-                                            $("#agent-image").attr("src", "data:image/png;base64," + agentImageData);
-                                            console.log("Agent image source set successfully");
-                                        } else {
-                                            console.error("Agent image data not found");
-                                        }
-                                    });
-                                </script>
-                              </div>
-                              <div class="md:w-1/2 p-6">
-                                  <div class="mb-2">
-                                      <div class="mb-2 container mx-auto px-4 py-2 mt-2 bg-white rounded-lg shadow-md mb-4">
-                                          <h1 class="text-5xl font-semibold">
-                                              {{ agent.id }}
-                                              {% if timeframe %}
-                                                  <span class="text-3xl font-semibold text-gray-600"> ({{ timeframe.name }})</span>
-                                              {% endif %}
-                                          </h1>
-                                          <h2 class="text-3xl font-semibold text-gray-400 mt-4">{{ agent.jobtitle }}</h2>
-                                          <p class="text-gray-700">{{ agent.summary }}</p>
-                                      </div>
-                                      
-                                    
-                                <div class="mb-4 container mx-auto px-4 py-2 mt-2 bg-white rounded-lg shadow-md">
-                                    <h2 class="text-xl font-semibold mb-2">Keywords</h2>
+</head>
+    <body class="bg-blue-50 min-h-screen flex flex-col">
+        <div class="container mx-auto px-4 py-4 md:mt-4 mt-4 flex-grow">
+            {% include 'header.html' %}
+            <div id="loading-overlay" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+                <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." />
+            </div>
+            <div id="profile-content" style="display: none;">
+                {% if agent %}
+                    <div class="container mx-auto px-4 py-8 md:mt-4 mt-4">
+                        <div class="bg-white rounded-lg shadow-md">
+                            <div class="flex flex-col md:flex-row">
+                                <div class="md:w-1/2 flex justify-center items-center agent-image py-4 px-2">
+                                  <img id="agent-image" src="" alt="Agent Profile" class="md:mr-12">
+                                </div>
+                                <div class="md:w-1/2 p-6">
+                                    <div class="mb-2">
+                                        <h1 class="text-5xl font-semibold">
+                                            {{ agent.id }}
+                                            {% if timeframe %}
+                                                <span class="text-3xl font-semibold text-gray-600"> ({{ timeframe.name }})</span>
+                                            {% endif %}
+                                        </h1>
+                                        <h2 class="text-3xl font-semibold text-gray-400 mt-4 editable" data-field="jobtitle">{{ agent.jobtitle }}</h2>
+                                        <p class="text-gray-700 editable" data-field="summary">{{ agent.summary }}</p>
+                                    </div>
+
+                                    <div class="mb-4 container mx-auto px-4 py-2 mt-2 bg-white rounded-lg shadow-md">
+                                        <h2 class="text-xl font-semibold mb-2">Keywords</h2>
+                                        <div class="flex flex-wrap gap-2">
+                                            {% for keyword in agent.keywords[:6] %}
+                                                <span class="bg-gray-400 text-white font-bold py-2 px-4 rounded editable" data-field="keywords">{{ keyword }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4 container mx-auto px-4 py-2 mt-2 bg-white rounded-lg shadow-md">
+                                        <h2 class="text-xl font-semibold mb-2">Actions</h2>
+                                        {% if timeframe %}
+                                            <a href="{{ url_for('talker_blueprint.talker', agent_type='timeframe', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Talk to Synth</a>
+                                        {% elif agent.agent_type == 'agent' %}
+                                            <a href="{{ url_for('talker_blueprint.talker', agent_type='user', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Talk to Synth</a>
+                                            <a href="mailto:{{ agent.email }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Email Agent</a>
+                                            <button id="copy-email-btn" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2" data-email="{{ agent.data.email }}">Copy Email Address</button>
+                                        {% else %}
+                                            <a href="{{ url_for('talker_blueprint.talker', agent_type='agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Talk to Synth</a>
+                                        {% endif %}
+                                        <button id="edit-agent-btn" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Edit Agent</button>
+                                        <button id="save-agent-btn" class="hidden inline-block bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600">Save Changes</button>
+                                        <div class="mt-4">
+                                            <button id="delete-agent-btn" class="inline-block bg-red-500 text-white font-bold py-1 px-2 rounded hover:bg-red-600 text-sm">Delete Agent</button>
+                                        </div>
+                                    </div>
+
+                                <div class="mb-4 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md">
+                                    <h2 class="text-xl font-semibold mb-2">Agent Versions</h2>
                                     <div class="flex flex-wrap gap-2">
-                                        {% for keyword in agent.keywords[:6] %}
-                                            <span class="bg-gray-400 text-white font-bold py-2 px-4 rounded">{{ keyword }}</span>
+                                        <a href="{{ url_for('profile_blueprint.profile', agent_id=main_agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Main Agent</a>
+                                        {% for timeframe_agent in timeframe_agents %}
+                                            <a href="{{ url_for('profile_blueprint.profile', agent_id=timeframe_agent.agent.id, timeframe_id=timeframe_agent.timeframe_id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">{{ timeframe_agent.timeframe_name }}</a>
                                         {% endfor %}
                                     </div>
                                 </div>
-                                <div class="mb-4 container mx-auto px-4 py-2 mt-2 bg-white rounded-lg shadow-md">
-                                    <h2 class="text-xl font-semibold mb-2">Actions</h2>
-                                    {% if timeframe %}
-                                        <a href="{{ url_for('talker_blueprint.talker', agent_type='timeframe', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Talk to Synth</a>
-                                  {% elif agent.agent_type == 'agent' %}
-                                        <a href="{{ url_for('talker_blueprint.talker', agent_type='user', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Talk to Synth</a>
-                                        <a href="mailto:{{ agent.email }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Email Agent</a>
-
-                                  
-                                    <button id="copy-email-btn" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2" data-email="{{ agent.data.email }}">Copy Email Address</button>
-                                  
-                                    {% else %}
-                                        <a href="{{ url_for('talker_blueprint.talker', agent_type='agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400 mb-2">Talk to Synth</a>
-                                    {% endif %}
-                                    <a href="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Edit Agent</a>
-                                </div>
-
-
-                                    
-                                  <div class="mb-4 container mx-auto px-4 py-4 mt-4 bg-white rounded-lg shadow-md">
-                                      <h2 class="text-xl font-semibold mb-2">Agent Versions</h2>
-                                      <div class="flex flex-wrap gap-2">
-                                          <a href="{{ url_for('profile_blueprint.profile', agent_id=main_agent.id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">Main Agent</a>
-                                          {% for timeframe_agent in timeframe_agents %}
-                                              <a href="{{ url_for('profile_blueprint.profile', agent_id=timeframe_agent.agent.id, timeframe_id=timeframe_agent.timeframe_id) }}" class="inline-block bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-400">{{ timeframe_agent.timeframe_name }}</a>
-                                          {% endfor %}
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-
-                        
-                  <div class="container mx-auto px-4 py-4">
-                      <div class="text-lg mb-8 container mx-auto px-4 py-8 md:mt-4 mt-4 bg-white rounded-lg shadow-md">
-                          <h2 class="text-xl font-semibold mb-2">Persona</h2>
-                          <div class="bg-white rounded-lg p-6">
-                              {% if agent.persona is mapping %}
-                                  {% for key, value in agent.persona.items() %}
-                                      <p class="text-gray-700 mb-4"><strong>{{ key }}:</strong> {{ value }}</p>
-                                  {% endfor %}
-                              {% else %}
-                                  {% set sentences = agent.persona.split('. ') %}
-                                  {% for group in sentences | batch(6) %}
-                                      <p class="text-gray-700 mb-4">{{ group | join('. ') }}.</p>
-                                  {% endfor %}
-                              {% endif %}
-                          </div>
-                      </div>
-
-                      <div class="text-lg mb-4 container mx-auto px-4 py-8 md:mt-4 mt-4 bg-white rounded-lg shadow-md">
-                          <h2 class="text-xl font-semibold mb-2">Image Prompt</h2>
-                          <div class="bg-white rounded-lg p-6">
-                              <p class="text-gray-700">{{ agent.image_prompt }}</p>
-                          </div>
-                      </div>
-
-                      <div class="text-lg mb-2 container mx-auto px-4 py-8 md:mt-4 mt-4 bg-white rounded-lg shadow-md">
-                          <h2 class="text-xl font-semibold mb-2">Relationships</h2>
-                          <div class="bg-white rounded-lg p-6">
-                              {% if agent.relationships is mapping %}
-                                  {% for relationship in agent.relationships %}
-                                      <div class="bg-gray-100 rounded-lg p-4 mb-4">
-                                          <h3 class="text-lg font-semibold mb-2">{{ relationship.name }}</h3>
-                                          <p class="text-gray-700 mb-2"><strong>Job:</strong> {{ relationship.job }}</p>
-                                          <p class="text-gray-700 mb-2"><strong>Relationship Description:</strong> {{ relationship.relationship_description }}</p>
-                                          <p class="text-gray-700"><strong>Summary:</strong> {{ relationship.summary }}</p>
-                                      </div>
-                                  {% endfor %}
-                              {% else %}
-                                  <p class="text-gray-700">{{ agent.relationships }}</p>
-                              {% endif %}
-                          </div>
-                      </div>
-                  </div>
-
-                  
                             </div>
-                            <div class="container mx-auto px-4 py-4">
-                                <div class="mb-2 container mx-auto px-4 py-4 mt-2 bg-white rounded-lg shadow-md">
-                                    <div class="flex space-x-2 mt-1">
-                                        <a href="{{ url_for('profile_blueprint.profile', agent_id=prev_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not prev_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not prev_agent_id %}disabled{% endif %}>Previous</a>
-                                        <a href="{{ url_for('profile_blueprint.profile', agent_id=next_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not next_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not next_agent_id %}disabled{% endif %}>Next</a>
-                                    </div>
-                                </div>
-                            </div>
-                        {% else %}
-                            <p>Agent not found.</p>
-                        {% endif %}
+                        </div>
+                    </div>
+
+                                            <div class="container mx-auto px-4 py-4">
+                                                    <div class="text-lg mb-8 container mx-auto px-4 py-8 md:mt-4 mt-4 bg-white rounded-lg shadow-md">
+                                                        <h2 class="text-xl font-semibold mb-2">Persona</h2>
+                                                        <div class="bg-white rounded-lg p-6">
+                                                            {% if agent.persona is mapping %}
+                                                                {% for key, value in agent.persona.items() %}
+                                                                    <p class="text-gray-700 mb-4 editable" data-field="persona.{{ key }}"><strong>{{ key }}:</strong> {{ value }}</p>
+                                                                {% endfor %}
+                                                            {% else %}
+                                                                <p class="text-gray-700 editable" data-field="persona">{{ agent.persona }}</p>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="text-lg mb-4 container mx-auto px-4 py-8 md:mt-4 mt-4 bg-white rounded-lg shadow-md">
+                                                        <h2 class="text-xl font-semibold mb-2">Image Prompt</h2>
+                                                        <div class="bg-white rounded-lg p-6">
+                                                            <p class="text-gray-700 editable" data-field="image_prompt">{{ agent.image_prompt }}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="text-lg mb-2 container mx-auto px-4 py-8 md:mt-4 mt-4 bg-white rounded-lg shadow-md">
+                                                        <h2 class="text-xl font-semibold mb-2">Relationships</h2>
+                                                        <div class="bg-white rounded-lg p-6">
+                                                            {% if agent.relationships is mapping %}
+                                                                {% for relationship in agent.relationships %}
+                                                                    <div class="bg-gray-100 rounded-lg p-4 mb-4">
+                                                                        <h3 class="text-lg font-semibold mb-2 editable" data-field="relationships.{{ loop.index0 }}.name">{{ relationship.name }}</h3>
+                                                                        <p class="text-gray-700 mb-2 editable" data-field="relationships.{{ loop.index0 }}.job"><strong>Job:</strong> {{ relationship.job }}</p>
+                                                                        <p class="text-gray-700 mb-2 editable" data-field="relationships.{{ loop.index0 }}.relationship_description"><strong>Relationship Description:</strong> {{ relationship.relationship_description }}</p>
+                                                                        <p class="text-gray-700 editable" data-field="relationships.{{ loop.index0 }}.summary"><strong>Summary:</strong> {{ relationship.summary }}</p>
+                                                                    </div>
+                                                                {% endfor %}
+                                                            {% else %}
+                                                                <p class="text-gray-700 editable" data-field="relationships">{{ agent.relationships }}</p>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                <div class="container mx-auto px-4 py-4">
+                    <div class="mb-2 container mx-auto px-4 py-4 mt-2 bg-white rounded-lg shadow-md">
+                        <div class="flex space-x-2 mt-1">
+                            <a href="{{ url_for('profile_blueprint.profile', agent_id=prev_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not prev_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not prev_agent_id %}disabled{% endif %}>Previous</a>
+                            <a href="{{ url_for('profile_blueprint.profile', agent_id=next_agent_id, timeframe_id=timeframe_id) }}" class="flex-1 bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded hover:bg-gray-400 text-center {% if not next_agent_id %}opacity-50 cursor-not-allowed{% endif %}" {% if not next_agent_id %}disabled{% endif %}>Next</a>
+                        </div>
                     </div>
                 </div>
-                <div id="footer-push"></div>
-                {% include 'footer.html' %}
-    <script>
-        $(document).ready(function() {
-            var agentImageData = "{{ agent_image_data }}";
-            if (agentImageData) {
-                console.log("Agent image data received:", agentImageData.slice(0, 50) + "...");
-                $("#agent-image").attr("src", "data:image/png;base64," + agentImageData);
-                console.log("Agent image source set successfully");
-            } else {
-                var agentPhotoPath = "{{ agent.data.photo_path }}";
-                if (agentPhotoPath) {
-                    $("#agent-image").attr("src", "{{ url_for('serve_image', filename=agent.data.photo_path.split('/')[-1]) }}");
-                    console.log("Agent image source set successfully using serve_image route");
-                } else {
-                    console.error("Agent image data and photo path not found");
-                }
-            }
-        });
-    </script>
-    <script>
-        $(window).on('load', function() {
-            $('#loading-overlay').fadeOut(500, function() {
-                $('#profile-content').fadeIn(500);
-            });
-        });
-    </script>
-      <script>
-        $(document).ready(function() {
-          $('#copy-email-btn').on('click', function() {
-            const email = $(this).data('email');
-            navigator.clipboard.writeText(email).then(function() {
-              alert('Email address copied to clipboard!');
-            }, function(err) {
-              console.error('Could not copy email address: ', err);
-            });
-          });
-        });
-      </script>
+            {% else %}
+                <p>Agent not found.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div id="footer-push"></div>
+    {% include 'footer.html' %}
 </body>
+<script>
+  $(document).ready(function() {
+    // Edit agent
+    $('#edit-agent-btn').on('click', function() {
+      $('.editable').attr('contenteditable', 'true').addClass('border border-gray-300');
+      $(this).hide();
+      $('#save-agent-btn').show();
+    });
+
+    // Save edited agent data
+      $('#save-agent-btn').on('click', function() {
+        var agentId = "{{ agent.id }}";
+        var updatedData = {};
+
+        $('.editable').each(function() {
+          var field = $(this).data('field');
+          var value = $(this).text();
+
+          // Skip updating the agent.id field
+          if (field !== 'id') {
+            // Handle nested fields
+            if (field.includes('.')) {
+              var parts = field.split('.');
+              var currentLevel = updatedData;
+              for (var i = 0; i < parts.length - 1; i++) {
+                var part = parts[i];
+                if (!currentLevel[part]) {
+                  currentLevel[part] = {};
+                }
+                currentLevel = currentLevel[part];
+              }
+              currentLevel[parts[parts.length - 1]] = value;
+            } else {
+              updatedData[field] = value;
+            }
+          }
+        });
+
+        $.ajax({
+          url: "/update_agent",
+          type: "POST",
+          data: JSON.stringify({
+            agent_id: agentId,
+            updated_data: updatedData
+          }),
+          contentType: "application/json",
+          success: function(response) {
+            if (response.success) {
+              $('.editable').attr('contenteditable', 'false').removeClass('border border-gray-300');
+              $('#save-agent-btn').hide();
+              $('#edit-agent-btn').show();
+              alert("Agent data saved successfully!");
+            } else {
+              alert("Failed to save agent data. Please try again.");
+            }
+          },
+          error: function() {
+            alert("An error occurred while saving agent data. Please try again.");
+          }
+        });
+      });
+
+      
+    // Delete agent
+    $('#delete-agent-btn').on('click', function() {
+      if (confirm("Are you sure you want to delete this agent?")) {
+        var agentId = "{{ agent.id }}";
+
+        $.ajax({
+          url: "/delete_agent",
+          type: "POST",
+          data: JSON.stringify({ agent_id: agentId }),
+          contentType: "application/json",
+          success: function(response) {
+            if (response.success) {
+              alert("Agent deleted successfully!");
+              window.location.href = "/dashboard";
+            } else {
+              alert("Failed to delete agent. Please try again.");
+            }
+          },
+          error: function() {
+            alert("An error occurred while deleting the agent. Please try again.");
+          }
+        });
+      }
+    });
+
+    // Load agent image
+    var agentImageData = "{{ agent_image_data }}";
+    if (agentImageData) {
+      console.log("Agent image data received:", agentImageData.slice(0, 50) + "...");
+      $("#agent-image").attr("src", "data:image/png;base64," + agentImageData);
+      console.log("Agent image source set successfully");
+    } else {
+      var agentPhotoPath = "{{ agent.data.photo_path }}";
+      if (agentPhotoPath) {
+        $("#agent-image").attr("src", "{{ url_for('serve_image', filename=agent.data.photo_path.split('/')[-1]) }}");
+        console.log("Agent image source set successfully using serve_image route");
+      } else {
+        console.error("Agent image data and photo path not found");
+      }
+    }
+
+    // Copy email to clipboard
+    $('#copy-email-btn').on('click', function() {
+      const email = $(this).data('email');
+      navigator.clipboard.writeText(email).then(function() {
+        alert('Email address copied to clipboard!');
+      }, function(err) {
+        console.error('Could not copy email address: ', err);
+      });
+    });
+  });
+
+  // Fade effect for profile content
+  $(window).on('load', function() {
+    $('#loading-overlay').fadeOut(500, function() {
+      $('#profile-content').fadeIn(500);
+    });
+  });
+</script>
 </html>

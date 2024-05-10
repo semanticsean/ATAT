@@ -47,49 +47,17 @@
 {% include 'header.html' %}
 <div class="container mx-auto">
     {% if agent %}
-    <form action="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}" method="post">
-        <section>
-            <h2>Persona</h2>
-            <p>Please enter the persona details for the agent.</p>
-            <label for="persona" class="block text-gray-700 text-sm font-bold mb-2">Persona:</label>
-            <textarea id="persona" name="persona" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.persona }}</textarea>
-        </section>
-
-        <section>
-            <h2>Summary</h2>
-            <p>Provide a brief summary of the agent's profile.</p>
-            <label for="summary" class="block text-gray-700 text-sm font-bold mb-2">Summary:</label>
-            <textarea id="summary" name="summary" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.summary }}</textarea>
-        </section>
-
-        <section>
-            <h2>Keywords</h2>
-            <p>Specify relevant keywords for the agent.</p>
-            <label for="keywords" class="block text-gray-700 text-sm font-bold mb-2">Keywords:</label>
-            <textarea id="keywords" name="keywords" rows="2" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.keywords | join(', ') }}</textarea>
-        </section>
-
-        <section>
-            <h2>Image Prompt</h2>
-            <p>Describe the desired imagery for the agent's profile.</p>
-            <label for="image_prompt" class="block text-gray-700 text-sm font-bold mb-2">Image Prompt:</label>
-            <textarea id="image_prompt" name="image_prompt" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.image_prompt }}</textarea>
-        </section>
-
-        <section>
-            <h2>Relationships</h2>
-            <p>Detail the agent's professional and personal relationships.</p>
-            <label for="relationships" class="block text-gray-700 text-sm font-bold mb-2">Relationships:</label>
-            <textarea id="relationships" name="relationships" rows="6" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ agent.relationships | tojson }}</textarea>
-        </section>
-
-        <section>
-            <h2>Voice</h2>
-            <p>Select the voice used for communications by the agent.</p>
-            <label for="voice" class="block text-gray-700 text-sm font-bold mb-2">Voice:</label>
-            <select id="voice" name="voice" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                {% for voice in voices %}
-                <option value="{{ voice }}" {% if agent.voice == voice %}selected{% endif %}>{{ voice }}</option>
+                <form action="{{ url_for('profile_blueprint.edit_agent', agent_id=agent.id) }}" method="post">
+                {% for key, value in agent.data.items() %}
+                    <section>
+                        <h2>{{ key|title }}</h2>
+                        <label for="{{ key }}" class="block text-gray-700 text-sm font-bold mb-2">{{ key|title }}:</label>
+                        {% if key == 'keywords' or key == 'relationships' %}
+                            <textarea id="{{ key }}" name="{{ key }}" rows="2" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ value|join(', ') }}</textarea>
+                        {% else %}
+                            <textarea id="{{ key }}" name="{{ key }}" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ value }}</textarea>
+                        {% endif %}
+                    </section>
                 {% endfor %}
             </select>
         </section>
