@@ -25,6 +25,7 @@ from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 from logging.handlers import RotatingFileHandler
 from PIL import Image
+from collections.abc import Mapping
 
 import time
 from sqlalchemy.exc import OperationalError
@@ -842,67 +843,78 @@ def get_relationships(agent):
   else:
     return []
 
-
 @profile_blueprint.route('/update_agent', methods=['POST'])
 @login_required
 def update_agent():
-    logging.info("Updating agent")
-    data = request.get_json()
-    agent_id = data['agent_id']
-    updated_data = data['updated_data']
-    timeframe_id = data.get('timeframe_id')  # Get the timeframe_id from the request data
+    try:
+        data = request.get_json()
+        agent_id = data['agent_id']
+        updated_data = data['updated_data']
+        agent_type = data.get('agent_type')
+        timeframe_id = data.get('timeframe_id')
 
-    if timeframe_id:
-        # Handle updating timeframe agents
-        timeframe = Timeframe.query.get(timeframe_id)
-        if timeframe and timeframe.user_id == current_user.id:
-            agents_data = json.loads(timeframe.agents_data)
-            agent_data = next((agent for agent in agents_data if str(agent['id']) == str(agent_id)), None)
-            if agent_data:
-                logging.info(f"Timeframe agent found with ID: {agent_id}")
-                update_dict(agent_data, updated_data)
-                timeframe.agents_data = json.dumps(agents_data)
+        if agent_type == 'timeframe':
+            if timeframe_id:
+                timeframe = Timeframe.query.get(timeframe_id)
+                if timeframe and timeframe.user_id == current_user.id:
+                    agents_data = json.loads(timeframe.agents_data)
+                    agent_data = next((agent for agent in agents_data if 'id' in agent and str(agent['id']) == str(agent_id)), None)
+                    if agent_data:
+                        update_dict(agent_data, updated_data)
+                        timeframe.agents_data = json.dumps(agents_data)
+                        db.session.commit()
+                        return jsonify(success=True)
+                    else:
+                        logging.error(f"Timeframe agent not found. Agent ID: {agent_id}, Timeframe ID: {timeframe_id}")
+                        return jsonify(success=False, error="Timeframe agent not found")
+                else:
+                    logging.error(f"Timeframe not found or unauthorized. Timeframe ID: {timeframe_id}, User ID: {current_user.id}")
+                    return jsonify(success=False, error="Timeframe not found or unauthorized")
+            else:
+                logging.error(f"Timeframe ID is required for timeframe agents. Agent ID: {agent_id}")
+                return jsonify(success=False, error="Timeframe ID is required for timeframe agents")
+        elif agent_type == 'agent':
+            agent = Agent.query.filter((Agent.user_id == current_user.id) & (
+                (Agent.id == str(agent_id)) | (Agent.id == agent_id.replace('_', '.')))).first()
+            if agent:
+                update_dict(agent.data, updated_data)
                 db.session.commit()
-                logging.info(f"Timeframe agent with ID {agent_id} updated successfully")
                 return jsonify(success=True)
             else:
-                logging.warning(f"Timeframe agent not found. Agent ID: {agent_id}, Timeframe ID: {timeframe_id}")
-                return jsonify(success=False, error="Timeframe agent not found")
-        else:
-            logging.warning(f"Timeframe not found or unauthorized. Timeframe ID: {timeframe_id}, User ID: {current_user.id}")
-            return jsonify(success=False, error="Timeframe not found or unauthorized")
-    else:
-        # Handle updating user and agent type agents
-        agent = Agent.query.filter((Agent.user_id == current_user.id) & (
-            (Agent.id == str(agent_id)) | (Agent.id == agent_id.replace('_', '.')))).first()
-
-        if not agent:
-            agent_data = next(
-                (agent for agent in current_user.agents_data if str(agent.get('id', '')) in [str(agent_id), agent_id.replace('_', '.')]),
+                logging.error(f"Agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
+                return jsonify(success=False, error="Agent not found")
+        else:  # Assuming 'user' agent type or no agent type specified
+            agent_data_index = next(
+                (index for index, agent in enumerate(current_user.agents_data) if str(agent.get('id', '')) in [str(agent_id), agent_id.replace('_', '.')]),
                 None
             )
-            if agent_data:
-                logging.info(f"Agent found in user's agents_data with ID: {agent_id}")
-                update_dict(agent_data, updated_data)
+            if agent_data_index is not None:
+                update_dict(current_user.agents_data[agent_data_index], updated_data)
+                current_user.update_agents_data(current_user.agents_data)
                 db.session.commit()
-                logging.info(f"Agent with ID {agent_id} updated successfully in user's agents_data")
                 return jsonify(success=True)
             else:
-                logging.warning(f"Agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
-                return jsonify(success=False, error="Agent not found")
-        else:
-            logging.info(f"Agent found with ID: {agent_id}")
-            update_dict(agent.data, updated_data)
-            db.session.commit()
-            logging.info(f"Agent with ID {agent_id} updated successfully")
-            return jsonify(success=True)
+                logging.error(f"User agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
+                return jsonify(success=False, error="User agent not found")
+    except Exception as e:
+        logging.error(f"Error updating agent: {str(e)}")
+        return jsonify(success=False, error="Error updating agent")
 
-def update_dict(d, updates):
-    for k, v in updates.items():
-        if isinstance(v, dict):
-            update_dict(d.setdefault(k, {}), v)
+def update_dict(orig_dict, updates):
+    for key, value in updates.items():
+        if isinstance(value, Mapping):
+            orig_dict[key] = update_dict(orig_dict.get(key, {}), value)
         else:
-            d[k] = v
+            orig_dict[key] = updates[key]
+    return orig_dict
+
+def update_dict(orig_dict, updates):
+    for key, value in updates.items():
+        if isinstance(value, Mapping):
+            orig_dict[key] = update_dict(orig_dict.get(key, {}), value)
+        else:
+            orig_dict[key] = updates[key]
+    return orig_dict
 
 @profile_blueprint.route('/delete_agent', methods=['POST'])
 @login_required
