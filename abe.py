@@ -110,6 +110,7 @@ class AgentView(ModelView):
     can_delete = False
     can_create = True
     can_edit = True
+    can_export = True
     can_view_details = True
 
 class ImageView(ModelView):
@@ -118,6 +119,7 @@ class ImageView(ModelView):
     can_delete = False
     can_create = True
     can_edit = True
+    can_export = True
     can_view_details = True
 
 class MeetingView(ModelView):
@@ -126,6 +128,7 @@ class MeetingView(ModelView):
     can_delete = False
     can_create = True
     can_edit = True
+    can_export = True
     can_view_details = True
 
 class SurveyView(ModelView):
@@ -134,6 +137,7 @@ class SurveyView(ModelView):
     can_delete = False
     can_create = True
     can_edit = True
+    can_export = True
     can_view_details = True
 
 class TimeframeView(ModelView):
@@ -142,6 +146,7 @@ class TimeframeView(ModelView):
     can_delete = False
     can_create = True
     can_edit = True
+    can_export = True
     can_view_details = True
 
 class ConversationView(ModelView):
@@ -150,6 +155,7 @@ class ConversationView(ModelView):
     can_delete = False
     can_create = True
     can_edit = True
+    can_export = True
     can_view_details = True
 
 class DocumentView(ModelView):
@@ -158,6 +164,7 @@ class DocumentView(ModelView):
     can_delete = False
     can_create = True
     can_edit = True
+    can_export = True
     can_view_details = True
 
 # Apply the admin_required decorator to the admin views
