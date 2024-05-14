@@ -387,9 +387,9 @@ def meeting_results(meeting_id):
   
     if meeting.image_data:
       logger.info(
-          f"Meeting {meeting.id} image data type: {type(meeting.image_data)}")
+          f"Meeting {meeting.id} image data type: {str(type(meeting.image_data))[:12]}")
       logger.info(
-          f"Meeting {meeting.id} image data length: {len(meeting.image_data)}")
+          f"Meeting {meeting.id} image data length: {len(meeting.image_data[:12])}")
       logger.info(
           f"Meeting {meeting.id} image URL: {url_for('meeting_blueprint.serve_meeting_image', meeting_id=meeting.id, _external=True)}"
       )
@@ -497,7 +497,7 @@ def serve_timeframe_image(timeframe_id):
 
   if not timeframe.image_data:
     logging.error(
-        f"No image data found for timeframe {timeframe_id}. Data: {timeframe.image_data}"
+        f"No image data found for timeframe {timeframe_id}. Data: {timeframe.image_data[:12]}"
     )
     abort(404)
 
@@ -614,88 +614,69 @@ def timeframes():
 @profile_blueprint.route('/profile')
 @login_required
 def profile():
-  agent_id = request.args.get('agent_id')
-  timeframe_id = request.args.get('timeframe_id')
+    agent_id = request.args.get('agent_id')
+    timeframe_id = request.args.get('timeframe_id')
 
-  if timeframe_id:
-    timeframe = Timeframe.query.get(timeframe_id)
-    if timeframe and timeframe.user_id == current_user.id:
-      agents_data = json.loads(timeframe.agents_data)
-      agent_data = next((agent for agent in agents_data
-                         if str(agent.get('id', '')) == str(agent_id)), None)
-      if agent_data:
-        agent = Agent(id=agent_data['id'],
-                      user_id=current_user.id,
-                      data=agent_data)
-        agent.agent_type = 'timeframe'
-        photo_filename = agent.data.get('photo_path', '').split('/')[-1]
-        images_data = json.loads(timeframe.images_data)
-        agent_image_data = images_data.get(photo_filename, '')
-        timeframe_agents = [{
-            'timeframe_id': timeframe.id,
-            'timeframe_name': timeframe.name,
-            'agent': agent
-        }]
-        main_agent = None
-      else:
-        flash('Agent not found within the specified timeframe.', 'error')
-        return redirect(url_for('dashboard_blueprint.dashboard'))
+    if timeframe_id:
+        timeframe = Timeframe.query.get(timeframe_id)
+        if timeframe and timeframe.user_id == current_user.id:
+            agents_data = json.loads(timeframe.agents_data)
+            agent_data = next((agent for agent in agents_data if str(agent.get('id', '')) == str(agent_id)), None)
+            if agent_data:
+                agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
+                agent.agent_type = 'timeframe'
+                photo_filename = agent.data.get('photo_path', '').split('/')[-1]
+                images_data = json.loads(timeframe.images_data)
+                agent_image_data = images_data.get(photo_filename, '')
+                timeframe_agents = [{'timeframe_id': timeframe.id, 'timeframe_name': timeframe.name, 'agent': agent}]
+                main_agent = None
+                logging.info(f"Agent '{agent_id}' loaded from Timeframe '{timeframe.name}' (ID: {timeframe.id})")
+            else:
+                flash('Agent not found within the specified timeframe.', 'error')
+                return redirect(url_for('dashboard_blueprint.dashboard'))
+        else:
+            flash('Invalid timeframe.', 'error')
+            return redirect(url_for('dashboard_blueprint.dashboard'))
     else:
-      flash('Invalid timeframe.', 'error')
-      return redirect(url_for('dashboard_blueprint.dashboard'))
-  else:
-    agent = Agent.query.filter((Agent.user_id == current_user.id) & (
-        (Agent.id == str(agent_id))
-        | (Agent.id == agent_id.replace('_', '.')))).first()
+        agent = Agent.query.filter((Agent.user_id == current_user.id) & ((Agent.id == str(agent_id)) | (Agent.id == agent_id.replace('_', '.')))).first()
+        if not agent:
+            agent_data = next((agent for agent in current_user.agents_data if str(agent.get('id', '')) in [str(agent_id), agent_id.replace('_', '.')]), None)
+            if agent_data:
+                agent = Agent(id=agent_data['id'], user_id=current_user.id, data=agent_data)
+                agent.agent_type = 'agent'
+                photo_filename = agent.data.get('photo_path', '').split('/')[-1]
+                agent_image_data = current_user.images_data.get(photo_filename, '')
+                logging.info(f"Agent '{agent_id}' loaded from User '{current_user.username}' (ID: {current_user.id}) agents_data")
+            else:
+                flash('Agent not found.', 'error')
+                return redirect(url_for('dashboard_blueprint.dashboard'))
+        else:
+            agent.agent_type = agent.data.get('agent_type', 'agent')
+            photo_filename = agent.data.get('photo_path', '').split('/')[-1]
+            agent_image_data = current_user.images_data.get(photo_filename, '')
+            if not agent_image_data:
+                agent_image_data = agent.data.get('image_data', {}).get(agent.data.get('photo_path', ''), '')
+            logging.info(f"Agent '{agent_id}' loaded from Agent model (ID: {agent.id})")
+        main_agent = agent
+        timeframe_agents = []
 
-    if not agent:
-      agent_data = next(
-          (agent
-           for agent in current_user.agents_data if str(agent.get('id', '')) in
-           [str(agent_id), agent_id.replace('_', '.')]), None)
-      if agent_data:
-        agent = Agent(id=agent_data['id'],
-                      user_id=current_user.id,
-                      data=agent_data)
-        agent.agent_type = 'agent'
-        photo_filename = agent.data.get('photo_path', '').split('/')[-1]
-        agent_image_data = current_user.images_data.get(photo_filename, '')
-      else:
+    if agent:
+        logging.debug(f"Agent data in profile route: {agent.data}")
+        agents = current_user.agents + Agent.query.filter_by(user_id=current_user.id).all()
+        prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents, agent)
+
+        return render_template('profile.html',
+                               agent=agent,
+                               agent_image_data=agent_image_data,
+                               main_agent=main_agent,
+                               timeframe_agents=timeframe_agents,
+                               timeframe_id=timeframe_id,
+                               prev_agent_id=prev_agent_id,
+                               next_agent_id=next_agent_id,
+                               talk_to_agent_url=url_for('talker_blueprint.talker', agent_type=agent.agent_type, agent_id=agent.id))
+    else:
         flash('Agent not found.', 'error')
         return redirect(url_for('dashboard_blueprint.dashboard'))
-    else:
-      agent.agent_type = agent.data.get('agent_type', 'agent')
-      photo_filename = agent.data.get('photo_path', '').split('/')[-1]
-      agent_image_data = current_user.images_data.get(photo_filename, '')
-      if not agent_image_data:
-        agent_image_data = agent.data.get('image_data', {}).get(
-            agent.data.get('photo_path', ''), '')
-
-    main_agent = agent
-    timeframe_agents = []
-
-  if agent:
-    logging.debug(f"Agent data in profile route: {agent.data}")
-    agents = current_user.agents + Agent.query.filter_by(
-        user_id=current_user.id).all()
-    prev_agent_id, next_agent_id = get_prev_next_agent_ids(agents, agent)
-
-    return render_template('profile.html',
-                           agent=agent,
-                           agent_image_data=agent_image_data,
-                           main_agent=main_agent,
-                           timeframe_agents=timeframe_agents,
-                           timeframe_id=timeframe_id,
-                           prev_agent_id=prev_agent_id,
-                           next_agent_id=next_agent_id,
-                           talk_to_agent_url=url_for(
-                               'talker_blueprint.talker',
-                               agent_type=agent.agent_type,
-                               agent_id=agent.id))
-  else:
-    flash('Agent not found.', 'error')
-    return redirect(url_for('dashboard_blueprint.dashboard'))
-
 
 # Update load_agents function to accept the direct file path
 def load_agents(agents_file_path):
@@ -843,6 +824,7 @@ def get_relationships(agent):
   else:
     return []
 
+
 @profile_blueprint.route('/update_agent', methods=['POST'])
 @login_required
 def update_agent():
@@ -857,11 +839,14 @@ def update_agent():
             if timeframe_id:
                 timeframe = Timeframe.query.get(timeframe_id)
                 if timeframe and timeframe.user_id == current_user.id:
-                    agents_data = json.loads(timeframe.agents_data)
-                    agent_data = next((agent for agent in agents_data if 'id' in agent and str(agent['id']) == str(agent_id)), None)
-                    if agent_data:
+                    updated_agents_data = json.loads(timeframe.agents_data)
+                    agent_index = next((index for index, agent in enumerate(updated_agents_data) if str(agent.get('id', '')) == str(agent_id)), None)
+                    if agent_index is not None:
+                        agent_data = updated_agents_data[agent_index].copy()
                         update_dict(agent_data, updated_data)
-                        timeframe.agents_data = json.dumps(agents_data)
+                        updated_agents_data[agent_index] = agent_data
+                        timeframe.agents_data = json.dumps(updated_agents_data)
+                        db.session.add(timeframe)
                         db.session.commit()
                         return jsonify(success=True)
                     else:
@@ -877,36 +862,39 @@ def update_agent():
             agent = Agent.query.filter((Agent.user_id == current_user.id) & (
                 (Agent.id == str(agent_id)) | (Agent.id == agent_id.replace('_', '.')))).first()
             if agent:
-                update_dict(agent.data, updated_data)
+                agent_data = agent.data.copy()
+                update_dict(agent_data, updated_data)
+                agent.data = agent_data
+                db.session.add(agent)
                 db.session.commit()
                 return jsonify(success=True)
             else:
                 logging.error(f"Agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
                 return jsonify(success=False, error="Agent not found")
         else:  # Assuming 'user' agent type or no agent type specified
-            agent_data_index = next(
-                (index for index, agent in enumerate(current_user.agents_data) if str(agent.get('id', '')) in [str(agent_id), agent_id.replace('_', '.')]),
-                None
-            )
-            if agent_data_index is not None:
-                update_dict(current_user.agents_data[agent_data_index], updated_data)
-                current_user.update_agents_data(current_user.agents_data)
-                db.session.commit()
-                return jsonify(success=True)
+            user = User.query.get(current_user.id)
+            if user:
+                user_agents = user.agents_data or []
+                agent_data = next((agent for agent in user_agents if str(agent.get('id', '')) == str(agent_id)), None)
+                if agent_data is not None:
+                    agent_index = user_agents.index(agent_data)
+                    agent_data = user_agents[agent_index].copy()
+                    update_dict(agent_data, updated_data)
+                    user_agents[agent_index] = agent_data
+                    user.agents_data = user_agents
+                    db.session.commit()
+                    return jsonify(success=True)
+                else:
+                    logging.error(f"User agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
+                    return jsonify(success=False, error="User agent not found")
+                    
             else:
-                logging.error(f"User agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
-                return jsonify(success=False, error="User agent not found")
+                logging.error(f"User. User ID: {current_user.id}")
+                return jsonify(success=False, error="User not found")
     except Exception as e:
         logging.error(f"Error updating agent: {str(e)}")
+        db.session.rollback()  # Rollback the session if an error occurs
         return jsonify(success=False, error="Error updating agent")
-
-def update_dict(orig_dict, updates):
-    for key, value in updates.items():
-        if isinstance(value, Mapping):
-            orig_dict[key] = update_dict(orig_dict.get(key, {}), value)
-        else:
-            orig_dict[key] = updates[key]
-    return orig_dict
 
 def update_dict(orig_dict, updates):
     for key, value in updates.items():
