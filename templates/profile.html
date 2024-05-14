@@ -201,6 +201,32 @@
                         updatedData[field] = value;
                     }
                 }
+            });$('#save-agent-btn').on('click', function() {
+            var agentId = "{{ agent.id }}";
+            var timeframeId = "{{ timeframe_id }}";
+            var agentType = "{{ agent.agent_type }}";
+            var updatedData = {};
+
+            $('.editable').each(function() {
+                var field = $(this).data('field');
+                var value = $(this).text();
+
+                if (field !== 'id') {
+                    if (field.includes('.')) {
+                        var parts = field.split('.');
+                        var currentLevel = updatedData;
+                        for (var i = 0; i < parts.length - 1; i++) {
+                            var part = parts[i];
+                            if (!currentLevel[part]) {
+                                currentLevel[part] = {};
+                            }
+                            currentLevel = currentLevel[part];
+                        }
+                        currentLevel[parts[parts.length - 1]] = value;
+                    } else {
+                        updatedData[field] = value;
+                    }
+                }
             });
 
             $('.saving-indicator').show();
@@ -210,7 +236,7 @@
                 type: "POST",
                 data: JSON.stringify({
                     agent_id: agentId,
-                    agent_type: agentType,  // Correctly set the agent type
+                    agent_type: agentType,
                     timeframe_id: timeframeId,
                     updated_data: updatedData
                 }),
@@ -221,7 +247,6 @@
                         $('#save-agent-btn').hide();
                         $('#edit-agent-btn').show();
                         $('.saving-indicator').hide();
-                        location.reload(); // Reload the page to reflect the updated data
                     } else {
                         console.error("Failed to save agent data");
                         $('.saving-indicator').hide();
@@ -233,7 +258,6 @@
                 }
             });
         });
-
         // Delete agent
         $('#delete-agent-btn').on('click', function() {
             if (confirm("Are you sure you want to delete this agent?")) {
