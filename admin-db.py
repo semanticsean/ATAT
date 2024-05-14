@@ -86,7 +86,7 @@ def generate_log(username=None):
       main_agent_info = [
           f"Main Agent ID: {main_agent.id}",
           f"Data: {format_data(main_agent.data)}",
-          f"Image Data: {format_data(main_agent.image_data)}"
+          f"Image Data: {format_data(main_agent.image_data[:12])}"
       ]
       log_lines.extend(main_agent_info)
 
