@@ -164,7 +164,7 @@
     </div>
     <div id="footer-push"></div>
     {% include 'footer.html' %}
-</body>
+
 <script>
     $(document).ready(function() {
         // Edit agent
@@ -178,7 +178,7 @@
         $('#save-agent-btn').on('click', function() {
             var agentId = "{{ agent.id }}";
             var timeframeId = "{{ timeframe_id }}";
-            var agentType = "{{ agent.agent_type }}";
+            var agentType = "{{ agent.agent_type }}";  // Ensure this is correctly set
             var updatedData = {};
 
             $('.editable').each(function() {
@@ -210,7 +210,7 @@
                 type: "POST",
                 data: JSON.stringify({
                     agent_id: agentId,
-                    agent_type: agentType,
+                    agent_type: agentType,  // Correctly set the agent type
                     timeframe_id: timeframeId,
                     updated_data: updatedData
                 }),
@@ -264,24 +264,22 @@
         if (agentImageData) {
             console.log("Agent image data received:", agentImageData.slice(0, 50) + "...");
             $("#agent-image").attr("src", "data:image/png;base64," + agentImageData);
-                                   console.log("Agent image source set successfully");
-                                   } else {
-                                   var agentPhotoPath = "{{ agent.data.photo_path }}";
-                                   if (agentPhotoPath) {
-                                   $("#agent-image").attr("src", "{{ url_for('serve_image', filename=agent.data.photo_path.split('/')[-1]) }}");
-                                   console.log("Agent image source set successfully using serve_image route");
-                                   } else {
-                                   console.error("Agent image data and photo path not found");
-                                   }
-                                   }
+        } else {
+            var agentPhotoPath = "{{ agent.data.photo_path }}";
+            if (agentPhotoPath) {
+                $("#agent-image").attr("src", "{{ url_for('serve_image', filename=agent.data.photo_path.split('/')[-1]) }}");
+            } else {
+                console.error("Agent image data and photo path not found");
+            }
+        }
+
         // Copy email to clipboard
-            $('#copy-email-btn').on('click', function() {
-                const email = $(this).data('email');
-                navigator.clipboard.writeText(email).then(function() {
-                    alert('Email address copied to clipboard!');
-                }, function(err) {
-                    console.error('Could not copy email address: ', err);
-                });
+        $('#copy-email-btn').on('click', function() {
+            const email = $(this).data('email');
+            navigator.clipboard.writeText(email).then(function() {
+                alert('Email address copied to clipboard!');
+            }, function(err) {
+                console.error('Could not copy email address: ', err);
             });
         });
 
@@ -291,5 +289,8 @@
                 $('#profile-content').fadeIn(500);
             });
         });
-    </script>
-    </html>
+    });
+
+</script>
+    </body>
+</html>
