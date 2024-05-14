@@ -14,17 +14,12 @@ from flask_login import LoginManager, current_user, login_required
 from flask_migrate import Migrate
 from datetime import datetime
 from extensions import db, login_manager
-from models import db, User, Survey, Timeframe, Meeting, Agent, Image, APIKey, MainAgent, Conversation, Document
+from models import db, User, Survey, Timeframe, Meeting, Agent, Image
 import start
 from routes import auth_blueprint, meeting_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint, talker_blueprint, timeframes_blueprint, doc2api_blueprint
 from werkzeug.utils import secure_filename
 from sqlalchemy import cast, String
 from talker import talker_blueprint
-
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
-from functools import wraps
-
 
 
 def configure_logging():
@@ -90,91 +85,6 @@ app.register_blueprint(profile_blueprint)
 app.register_blueprint(start_blueprint)
 app.register_blueprint(timeframes_blueprint)
 app.register_blueprint(talker_blueprint)
-
-
-admin = Admin(app, name='ABE Admin', template_mode='bootstrap3')
-
-def admin_required(func):
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.role != 'admin':
-            return abort(403)
-        return func(*args, **kwargs)
-    return decorated_view
-
-
-
-class AgentView(ModelView):
-    column_list = ['id', 'user_id', 'data', 'agent_type', 'voice']
-    form_excluded_columns = ['user']
-    can_delete = False
-    can_create = True
-    can_edit = True
-    can_export = True
-    can_view_details = True
-
-class ImageView(ModelView):
-    column_list = ['id', 'user_id', 'filename', 'data']
-    form_excluded_columns = ['user']
-    can_delete = False
-    can_create = True
-    can_edit = True
-    can_export = True
-    can_view_details = True
-
-class MeetingView(ModelView):
-    column_list = ['id', 'name', 'user_id', 'agents', 'questions', 'answers', 'is_public', 'public_url', 'original_name', 'summary', 'image_data', 'thumbnail_image_data']
-    form_excluded_columns = ['creator']
-    can_delete = False
-    can_create = True
-    can_edit = True
-    can_export = True
-    can_view_details = True
-
-class SurveyView(ModelView):
-    column_list = ['id', 'name', 'user_id', 'survey_data', 'is_public', 'public_url']
-    form_excluded_columns = ['user']
-    can_delete = False
-    can_create = True
-    can_edit = True
-    can_export = True
-    can_view_details = True
-
-class TimeframeView(ModelView):
-    column_list = ['id', 'name', 'user_id', 'agents_data', 'images_data', 'thumbnail_images_data', 'summary', 'summary_image_data', 'summary_thumbnail_image_data']
-    form_excluded_columns = ['user']
-    can_delete = False
-    can_create = True
-    can_edit = True
-    can_export = True
-    can_view_details = True
-
-class ConversationView(ModelView):
-    column_list = ['id', 'user_id', 'name', 'agents', 'messages', 'timestamp', 'url']
-    form_excluded_columns = ['user']
-    can_delete = False
-    can_create = True
-    can_edit = True
-    can_export = True
-    can_view_details = True
-
-class DocumentView(ModelView):
-    column_list = ['id', 'user_id', 'filename', 'data']
-    form_excluded_columns = ['user']
-    can_delete = False
-    can_create = True
-    can_edit = True
-    can_export = True
-    can_view_details = True
-
-# Apply the admin_required decorator to the admin views
-admin.add_view(AgentView(Agent, db.session, endpoint='admin_agent_view', url='agents', name='Agents'))
-admin.add_view(ImageView(Image, db.session, endpoint='admin_image_view', url='images', name='Images'))
-admin.add_view(MeetingView(Meeting, db.session, endpoint='admin_meeting_view', url='meetings', name='Meetings'))
-admin.add_view(SurveyView(Survey, db.session, endpoint='admin_survey_view', url='surveys', name='Surveys'))
-admin.add_view(TimeframeView(Timeframe, db.session, endpoint='admin_timeframe_view', url='timeframes', name='Timeframes'))
-admin.add_view(ConversationView(Conversation, db.session, endpoint='admin_conversation_view', url='conversations', name='Conversations'))
-admin.add_view(DocumentView(Document, db.session, endpoint='admin_document_view', url='documents', name='Documents'))
 
 
 @app.template_filter('from_json')
