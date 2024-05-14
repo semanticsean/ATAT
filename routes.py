@@ -26,8 +26,6 @@ from werkzeug.utils import secure_filename
 from logging.handlers import RotatingFileHandler
 from PIL import Image
 from collections.abc import Mapping
-from models import db, User, Survey, Timeframe, Meeting, Agent, Image, APIKey, MainAgent, Conversation, Document
-
 
 import time
 from sqlalchemy.exc import OperationalError
@@ -840,72 +838,75 @@ def update_agent():
         logging.info(f"Updating agent with ID: {agent_id}, Type: {agent_type}, Timeframe ID: {timeframe_id}")
 
         if agent_type == 'timeframe':
-            update_timeframe_agent(agent_id, timeframe_id, updated_data)
+            if timeframe_id:
+                timeframe = Timeframe.query.get(timeframe_id)
+                if timeframe and timeframe.user_id == current_user.id:
+                    updated_agents_data = json.loads(timeframe.agents_data)
+                    agent_index = next((index for index, agent in enumerate(updated_agents_data) if str(agent.get('id', '')) == str(agent_id)), None)
+                    if agent_index is not None:
+                        agent_data = updated_agents_data[agent_index]
+                        for key, value in updated_data.items():
+                            if isinstance(value, dict):
+                                agent_data[key] = {**agent_data.get(key, {}), **value}
+                            else:
+                                agent_data[key] = value
+                        timeframe.agents_data = json.dumps(updated_agents_data)
+                        db.session.commit()
+                        return jsonify(success=True)
+                    else:
+                        logging.error(f"Timeframe agent not found. Agent ID: {agent_id}, Timeframe ID: {timeframe_id}")
+                        return jsonify(success=False, error="Timeframe agent not found")
+                else:
+                    logging.error(f"Timeframe not found or unauthorized. Timeframe ID: {timeframe_id}, User ID: {current_user.id}")
+                    return jsonify(success=False, error="Timeframe not found or unauthorized")
+            else:
+                logging.error(f"Timeframe ID is required for timeframe agents. Agent ID: {agent_id}")
+                return jsonify(success=False, error="Timeframe ID is required for timeframe agents")
         elif agent_type == 'agent':
-            update_agent_class_agent(agent_id, updated_data)
+            agent = Agent.query.filter_by(id=agent_id, user_id=current_user.id).first()
+            logging.info(f"Querying Agent: Found agent: {agent is not None}")
+            if agent:
+                for key, value in updated_data.items():
+                    if isinstance(value, dict):
+                        agent.data[key] = {**agent.data.get(key, {}), **value}
+                    else:
+                        agent.data[key] = value
+                db.session.commit()
+                return jsonify(success=True)
+            else:
+                logging.error(f"Agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
+                return jsonify(success=False, error="Agent not found")
         elif agent_type == 'user':
-            update_user_agent(agent_id, updated_data)
+            user_agents = current_user.agents_data or []
+            agent_index = next((index for index, agent in enumerate(user_agents) if str(agent.get('id', '')) == str(agent_id)), None)
+            if agent_index is not None:
+                agent_data = user_agents[agent_index]
+                for key, value in updated_data.items():
+                    if isinstance(value, dict):
+                        agent_data[key] = {**agent_data.get(key, {}), **value}
+                    else:
+                        agent_data[key] = value
+                current_user.agents_data = user_agents
+                db.session.commit()
+                return jsonify(success=True)
+            else:
+                logging.error(f"User agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
+                return jsonify(success=False, error="User agent not found")
         else:
             logging.error(f"Unknown agent type: {agent_type}")
-            return jsonify(success=False, error="Unknown agent type"), 400
-
-        db.session.commit()
-        return jsonify(success=True)
-
+            return jsonify(success=False, error="Unknown agent type")
     except Exception as e:
         logging.error(f"Error updating agent: {str(e)}")
         db.session.rollback()
         return jsonify(success=False, error=str(e)), 500
 
-
-def update_timeframe_agent(agent_id, timeframe_id, updated_data):
-    if not timeframe_id:
-        logging.error(f"Timeframe ID is required for timeframe agents. Agent ID: {agent_id}")
-        raise ValueError("Timeframe ID is required for timeframe agents")
-
-    timeframe = Timeframe.query.get(timeframe_id)
-    if not timeframe or timeframe.user_id != current_user.id:
-        logging.error(f"Timeframe not found or unauthorized. Timeframe ID: {timeframe_id}, User ID: {current_user.id}")
-        raise ValueError("Timeframe not found or unauthorized")
-
-    updated_agents_data = json.loads(timeframe.agents_data)
-    agent_index = next((index for index, agent in enumerate(updated_agents_data) if str(agent.get('id', '')) == str(agent_id)), None)
-    if agent_index is None:
-        logging.error(f"Timeframe agent not found. Agent ID: {agent_id}, Timeframe ID: {timeframe_id}")
-        raise ValueError("Timeframe agent not found")
-
-    agent_data = updated_agents_data[agent_index]
-    update_dict(agent_data, updated_data)
-    timeframe.agents_data = json.dumps(updated_agents_data)
-
-
-def update_agent_class_agent(agent_id, updated_data):
-    agent = Agent.query.filter_by(id=agent_id, user_id=current_user.id).first()
-    if not agent:
-        logging.error(f"Agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
-        raise ValueError("Agent not found")
-
-    update_dict(agent.data, updated_data)
-
-
-def update_user_agent(agent_id, updated_data):
-    user_agents = current_user.agents_data or []
-    agent_index = next((index for index, agent in enumerate(user_agents) if str(agent.get('id', '')) == str(agent_id)), None)
-    if agent_index is None:
-        logging.error(f"User agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
-        raise ValueError("User agent not found")
-
-    agent_data = user_agents[agent_index]
-    update_dict(agent_data, updated_data)
-    current_user.agents_data = user_agents
-
-
-def update_dict(target_dict, update_dict):
-    for key, value in update_dict.items():
-        if isinstance(value, dict):
-            target_dict[key] = update_dict(target_dict.get(key, {}), value)
+def update_dict(orig_dict, updates):
+    for key, value in updates.items():
+        if isinstance(value, Mapping):
+            orig_dict[key] = update_dict(orig_dict.get(key, {}), value)
         else:
-            target_dict[key] = value
+            orig_dict[key] = updates[key]
+    return orig_dict
 
 
 @profile_blueprint.route('/delete_agent', methods=['POST'])
