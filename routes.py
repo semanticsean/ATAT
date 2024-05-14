@@ -138,7 +138,7 @@ def register():
     if email_exists:
       flash('Email already registered')
       return redirect(url_for('auth_blueprint.register'))
-    new_user = User(username=username, email=email, agents_data=[])
+    new_user = User(username=username, email=email)
     new_user.set_password(password)
     new_user.create_user_data(
     )  # Call create_user_data instead of create_user_folder
@@ -835,8 +835,6 @@ def update_agent():
         agent_type = data.get('agent_type')
         timeframe_id = data.get('timeframe_id')
 
-        logging.info(f"Updating agent with ID: {agent_id}, Type: {agent_type}, Timeframe ID: {timeframe_id}")
-
         if agent_type == 'timeframe':
             if timeframe_id:
                 timeframe = Timeframe.query.get(timeframe_id)
@@ -844,13 +842,11 @@ def update_agent():
                     updated_agents_data = json.loads(timeframe.agents_data)
                     agent_index = next((index for index, agent in enumerate(updated_agents_data) if str(agent.get('id', '')) == str(agent_id)), None)
                     if agent_index is not None:
-                        agent_data = updated_agents_data[agent_index]
-                        for key, value in updated_data.items():
-                            if isinstance(value, dict):
-                                agent_data[key] = {**agent_data.get(key, {}), **value}
-                            else:
-                                agent_data[key] = value
+                        agent_data = updated_agents_data[agent_index].copy()
+                        update_dict(agent_data, updated_data)
+                        updated_agents_data[agent_index] = agent_data
                         timeframe.agents_data = json.dumps(updated_agents_data)
+                        db.session.add(timeframe)
                         db.session.commit()
                         return jsonify(success=True)
                     else:
@@ -863,42 +859,41 @@ def update_agent():
                 logging.error(f"Timeframe ID is required for timeframe agents. Agent ID: {agent_id}")
                 return jsonify(success=False, error="Timeframe ID is required for timeframe agents")
         elif agent_type == 'agent':
-            agent = Agent.query.filter_by(id=agent_id, user_id=current_user.id).first()
-            logging.info(f"Querying Agent: Found agent: {agent is not None}")
+            agent = Agent.query.filter((Agent.user_id == current_user.id) & (
+                (Agent.id == str(agent_id)) | (Agent.id == agent_id.replace('_', '.')))).first()
             if agent:
-                for key, value in updated_data.items():
-                    if isinstance(value, dict):
-                        agent.data[key] = {**agent.data.get(key, {}), **value}
-                    else:
-                        agent.data[key] = value
+                agent_data = agent.data.copy()
+                update_dict(agent_data, updated_data)
+                agent.data = agent_data
+                db.session.add(agent)
                 db.session.commit()
                 return jsonify(success=True)
             else:
                 logging.error(f"Agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
                 return jsonify(success=False, error="Agent not found")
-        elif agent_type == 'user':
-            user_agents = current_user.agents_data or []
-            agent_index = next((index for index, agent in enumerate(user_agents) if str(agent.get('id', '')) == str(agent_id)), None)
-            if agent_index is not None:
-                agent_data = user_agents[agent_index]
-                for key, value in updated_data.items():
-                    if isinstance(value, dict):
-                        agent_data[key] = {**agent_data.get(key, {}), **value}
-                    else:
-                        agent_data[key] = value
-                current_user.agents_data = user_agents
-                db.session.commit()
-                return jsonify(success=True)
+        else:  # Assuming 'user' agent type or no agent type specified
+            user = User.query.get(current_user.id)
+            if user:
+                user_agents = user.agents_data or []
+                agent_data = next((agent for agent in user_agents if str(agent.get('id', '')) == str(agent_id)), None)
+                if agent_data is not None:
+                    agent_index = user_agents.index(agent_data)
+                    agent_data = user_agents[agent_index].copy()
+                    update_dict(agent_data, updated_data)
+                    user_agents[agent_index] = agent_data
+                    user.agents_data = user_agents
+                    db.session.commit()
+                    return jsonify(success=True)
+                else:
+                    logging.error(f"User agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
+                    return jsonify(success=False, error="User agent not found")
             else:
-                logging.error(f"User agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
-                return jsonify(success=False, error="User agent not found")
-        else:
-            logging.error(f"Unknown agent type: {agent_type}")
-            return jsonify(success=False, error="Unknown agent type")
+                logging.error(f"User not found. User ID: {current_user.id}")
+                return jsonify(success=False, error="User not found")
     except Exception as e:
         logging.error(f"Error updating agent: {str(e)}")
-        db.session.rollback()
-        return jsonify(success=False, error=str(e)), 500
+        db.session.rollback()  # Rollback the session if an error occurs
+        return jsonify(success=False, error="Error updating agent")
 
 def update_dict(orig_dict, updates):
     for key, value in updates.items():
@@ -907,7 +902,6 @@ def update_dict(orig_dict, updates):
         else:
             orig_dict[key] = updates[key]
     return orig_dict
-
 
 @profile_blueprint.route('/delete_agent', methods=['POST'])
 @login_required
