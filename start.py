@@ -29,8 +29,9 @@ def load_configuration(config_file='start-config.json'):
 
     return config
 
-def run_update_team(directory, transformation_prompt, num_agents_additional):
-    update_team.update_team(directory, transformation_prompt, num_agents_additional)
+def run_update_team(directory, transformation_prompt, num_agents_additional, new_agent_files_content):
+    update_team.update_team(directory, transformation_prompt, num_agents_additional, new_agent_files_content)
+
 
 def run_render_agents(fictionalize_option, clear_json, clear_pics):
     version_flag = '--version B' if fictionalize_option else '--version A'
@@ -58,7 +59,8 @@ def main():
         directory = config.get('directory', 'agents/new_agent_files')
         transformation_prompt = config['transformation_prompt']
         num_agents_additional = int(config['num_agents_additional'])  # Convert to integer
-        run_update_team(directory, transformation_prompt, num_agents_additional)
+        new_agent_files_content = {}  # Add this line to initialize new_agent_files_content
+        run_update_team(directory, transformation_prompt, num_agents_additional, new_agent_files_content)
 
     if config.get('run_render_agents', False):
         fictionalize_option = config['fictionalize_option'] == "yes"

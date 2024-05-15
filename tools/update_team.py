@@ -57,10 +57,16 @@ def process_files(directory, transformation_prompt, num_files=None):
   print("Completed processing all files with update_team.")
 
 
-def create_new_agent_files(directory, num_new_agents, transformation_prompt):
+def create_new_agent_files(directory, num_new_agents, transformation_prompt, new_agent_files_content):
   # Determine the starting index for new files based on existing files
   existing_files = glob.glob(f'{directory}/*.txt')
   start_index = len(existing_files) + 1
+  
+  for agent_name, content in new_agent_files_content.items():
+    new_file_path = os.path.join(directory, f'{agent_name}.txt')
+    with open(new_file_path, 'w') as new_file:
+        new_file.write(content)
+        print(f"New agent file created: {new_file_path}")
 
   for i in range(start_index, start_index + num_new_agents):
     new_file_path = os.path.join(directory, f'agent_{i}.txt')
@@ -73,9 +79,12 @@ def create_new_agent_files(directory, num_new_agents, transformation_prompt):
       print(f"New agent file created: {new_file_path}")
 
 
-def update_team(directory, transformation_prompt, num_agents):
-  process_files(directory, transformation_prompt,
-                None)  # Process all existing files without limiting the number
+def update_team(directory, transformation_prompt, num_agents, new_agent_files_content):
+  process_files(directory, transformation_prompt, None)  # Process all existing files without limiting the number
+
+  if num_agents is not None and num_agents > 0:
+      create_new_agent_files(directory, num_agents, transformation_prompt, new_agent_files_content)
+
 
   if num_agents is not None and num_agents > 0:
     create_new_agent_files(directory, num_agents, transformation_prompt)
