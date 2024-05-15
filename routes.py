@@ -1222,8 +1222,9 @@ def start_route():
     for file in new_agent_files:
         file_path = os.path.join(UPLOAD_FOLDER, file)
         with open(file_path, 'r') as file_content:
-            new_agent_files_content[file] = file_content.read()
-            logger.debug(f"Loaded content for {file}")
+            agent_name = request.form.get(f"{file}_agent_name", file.split('.')[0])
+            new_agent_files_content[agent_name] = file_content.read()
+            logger.debug(f"Loaded content for {file} with agent name {agent_name}")
 
     page_view = PageView(page='/start_route')
     db.session.add(page_view)
@@ -1235,6 +1236,7 @@ def start_route():
         db.session.rollback()
 
     return render_template('start.html', config=config, new_agent_files=new_agent_files, new_agent_files_content=new_agent_files_content)
+
 
 
 @profile_blueprint.route('/create_new_agent', methods=['GET', 'POST'])
