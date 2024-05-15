@@ -1,5 +1,4 @@
 # abe.py
-
 import logging
 import glob
 import os
@@ -21,10 +20,8 @@ from werkzeug.utils import secure_filename
 from sqlalchemy import cast, String
 from talker import talker_blueprint
 
-from abe_api_internal import app as api_app
-from fastapi.middleware.wsgi import WSGIMiddleware
-from abe_api_internal import get_schema, get_agents, get_meetings, get_timeframes, get_conversations, get_surveys
-
+from fastapi import Header, Depends
+from abe_api_internal import get_schema, get_agents, get_meetings, get_timeframes, get_conversations, get_surveys, APIKeyHeader, verify_api_key, get_db_session
 
 
 def configure_logging():
@@ -91,18 +88,58 @@ app.register_blueprint(start_blueprint)
 app.register_blueprint(timeframes_blueprint)
 app.register_blueprint(talker_blueprint)
 
-# Register the API routes
-api_routes = [
-    ("/api/schema", "get_schema", get_schema),
-    ("/api/agents", "get_agents", get_agents),
-    ("/api/meetings", "get_meetings", get_meetings),
-    ("/api/timeframes", "get_timeframes", get_timeframes),
-    ("/api/conversations", "get_conversations", get_conversations),
-    ("/api/surveys", "get_surveys", get_surveys),
-]
 
-for route, endpoint, view_func in api_routes:
-    app.add_url_rule(route, endpoint=endpoint, view_func=view_func)
+# Register Flask routes with appropriate wrappers
+
+@app.route('/api/schema', methods=['GET'])
+def api_schema():
+    authorization = request.headers.get('Authorization')
+    api_key_header = APIKeyHeader(Authorization=authorization)
+    db_session = next(get_db_session())
+    user = verify_api_key(api_key_header, db_session)
+    return jsonify(get_schema(user, db_session))
+
+@app.route('/api/agents', methods=['GET'])
+def api_agents():
+    authorization = request.headers.get('Authorization')
+    api_key_header = APIKeyHeader(Authorization=authorization)
+    db_session = next(get_db_session())
+    user = verify_api_key(api_key_header, db_session)
+    return jsonify(get_agents(user, db_session))
+
+@app.route('/api/meetings', methods=['GET'])
+def api_meetings(authorization: str = Header(None)):
+    authorization = request.headers.get('Authorization')
+    api_key_header = APIKeyHeader(Authorization=authorization)
+    db_session = next(get_db_session())
+    user = verify_api_key(api_key_header)
+    return jsonify(get_meetings(user))
+
+
+@app.route('/api/timeframes', methods=['GET'])
+def api_timeframes(authorization: str = Header(None)):
+    authorization = request.headers.get('Authorization')
+    api_key_header = APIKeyHeader(Authorization=authorization)
+    db_session = next(get_db_session())
+    user = verify_api_key(api_key_header)
+    return jsonify(get_timeframes(user))
+
+
+@app.route('/api/conversations', methods=['GET'])
+def api_conversations(authorization: str = Header(None)):
+    api_key_header = APIKeyHeader(Authorization=authorization)
+    db_session = next(get_db_session())
+    user = verify_api_key(api_key_header)
+    return jsonify(get_conversations(user))
+
+
+@app.route('/api/surveys', methods=['GET'])
+def api_surveys(authorization: str = Header(None)):
+    authorization = request.headers.get('Authorization')
+    api_key_header = APIKeyHeader(Authorization=authorization)
+    db_session = next(get_db_session())
+    user = verify_api_key(api_key_header)
+    return jsonify(get_surveys(user))
 
 
 @app.template_filter('from_json')
