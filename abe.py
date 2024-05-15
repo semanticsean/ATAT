@@ -21,6 +21,11 @@ from werkzeug.utils import secure_filename
 from sqlalchemy import cast, String
 from talker import talker_blueprint
 
+from abe_api_internal import app as api_app
+from fastapi.middleware.wsgi import WSGIMiddleware
+from abe_api_internal import get_schema, get_agents, get_meetings, get_timeframes, get_conversations, get_surveys
+
+
 
 def configure_logging():
     if not os.path.exists('logs'):
@@ -85,6 +90,19 @@ app.register_blueprint(profile_blueprint)
 app.register_blueprint(start_blueprint)
 app.register_blueprint(timeframes_blueprint)
 app.register_blueprint(talker_blueprint)
+
+# Register the API routes
+api_routes = [
+    ("/api/schema", "get_schema", get_schema),
+    ("/api/agents", "get_agents", get_agents),
+    ("/api/meetings", "get_meetings", get_meetings),
+    ("/api/timeframes", "get_timeframes", get_timeframes),
+    ("/api/conversations", "get_conversations", get_conversations),
+    ("/api/surveys", "get_surveys", get_surveys),
+]
+
+for route, endpoint, view_func in api_routes:
+    app.add_url_rule(route, endpoint=endpoint, view_func=view_func)
 
 
 @app.template_filter('from_json')
@@ -264,23 +282,6 @@ def serve_public_image(filename):
         return send_from_directory(public_folder, filename)
     else:
         abort(404)
-
-
-# @app.context_processor
-# def inject_api_status():
-#     try:
-#         response = requests.get(
-#             'https://082c65da-f066-4d40-8f2b-5310ac929e85-00-8bl4x7087pru.riker.replit.dev/'
-#         )
-#         api_status = response.status_code == 200
-#     except requests.RequestException:
-#         api_status = False
-
-#     def get_api_status():
-#         return api_status
-
-#     return dict(get_api_status=get_api_status)
-
 
 
 def custom_img_filter(photo_path, size='48x48'):

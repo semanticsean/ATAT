@@ -882,13 +882,7 @@ def update_agents_json():
   except Exception as e:
       logging.error(f"Error writing agents to agents.json for user {current_user.id}: {str(e)}")
 
-def update_or_append_agent(agents_list, new_agent):
-  agent_id = new_agent['id']
-  for i, agent in enumerate(agents_list):
-      if agent['id'] == agent_id:
-          agents_list[i] = new_agent
-          return
-  agents_list.append(new_agent)
+
 
 def normalize_agent_data(agent_data):
   try:
