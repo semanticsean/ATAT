@@ -108,30 +108,28 @@ def api_agents():
     return jsonify(get_agents(user, db_session))
 
 @app.route('/api/meetings', methods=['GET'])
-def api_meetings(authorization: str = Header(None)):
+def api_meetings():
     authorization = request.headers.get('Authorization')
     api_key_header = APIKeyHeader(Authorization=authorization)
     db_session = next(get_db_session())
-    user = verify_api_key(api_key_header)
-    return jsonify(get_meetings(user))
-
+    user = verify_api_key(api_key_header, db_session)
+    return jsonify(get_meetings(user, db_session))
 
 @app.route('/api/timeframes', methods=['GET'])
-def api_timeframes(authorization: str = Header(None)):
+def api_timeframes():
     authorization = request.headers.get('Authorization')
     api_key_header = APIKeyHeader(Authorization=authorization)
     db_session = next(get_db_session())
-    user = verify_api_key(api_key_header)
-    return jsonify(get_timeframes(user))
-
+    user = verify_api_key(api_key_header, db_session)
+    return jsonify(get_timeframes(user, db_session))
 
 @app.route('/api/conversations', methods=['GET'])
-def api_conversations(authorization: str = Header(None)):
+def api_conversations():
+    authorization = request.headers.get('Authorization')
     api_key_header = APIKeyHeader(Authorization=authorization)
     db_session = next(get_db_session())
-    user = verify_api_key(api_key_header)
-    return jsonify(get_conversations(user))
-
+    user = verify_api_key(api_key_header, db_session)
+    return jsonify(get_conversations(user, db_session))
 
 @app.route('/api/surveys', methods=['GET'])
 def api_surveys(authorization: str = Header(None)):
@@ -139,7 +137,7 @@ def api_surveys(authorization: str = Header(None)):
     api_key_header = APIKeyHeader(Authorization=authorization)
     db_session = next(get_db_session())
     user = verify_api_key(api_key_header)
-    return jsonify(get_surveys(user))
+    return jsonify(get_surveys(user, db_session))
 
 
 @app.template_filter('from_json')
