@@ -828,6 +828,14 @@ def get_relationships(agent):
   else:
     return []
 
+def update_or_append_agent(agents_list, new_agent):
+  agent_id = new_agent['id']
+  for i, agent in enumerate(agents_list):
+      if agent['id'] == agent_id:
+          agents_list[i] = new_agent
+          return
+  agents_list.append(new_agent)
+
 def update_agents_json():
   # Create a backup of agents.json
   agents_json_path = os.path.join('agents', 'agents.json')
