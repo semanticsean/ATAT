@@ -606,14 +606,14 @@
         "id": "test tester mctester",
         "email": "test tester mctester@semantic-life.com",
         "model": "gpt-3.5-turbo",
-        "persona": "jovial test 3m",
+        "persona": "\n                                jovial test 3h\n                            ",
         "unique_id": "dfeb9e09-993b-47f2-bfbb-51df400a0046",
         "timestamp": "2024-05-07T18:46:46.820778",
-        "summary": "\n                                        \n                                        jovial test 3m",
+        "summary": "\n                                        jovial test 3jb",
         "jobtitle": "\n                                        \n                                    ",
         "keywords": "h",
         "relationships": [],
-        "image_prompt": "jovial test 3m",
+        "image_prompt": "\n                                A cheerful software engineer in a vibrant tech environment, inspecting codes on a computer screen with a backdrop of a dynamic, collaborative workspace. Visuals include notes on software issues, brainstorming sessions with team members, and a clear emphasis on creativity and problem-solving.\n                            ",
         "photo_path": "/images/test tester mctester.png",
         "include": true
     }
