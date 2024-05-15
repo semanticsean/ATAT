@@ -30,6 +30,10 @@ from collections.abc import Mapping
 import time
 from sqlalchemy.exc import OperationalError
 
+import shutil
+from datetime import datetime
+
+
 #LOGGING
 
 logging.basicConfig(
@@ -824,6 +828,105 @@ def get_relationships(agent):
   else:
     return []
 
+def update_agents_json():
+  # Create a backup of agents.json
+  agents_json_path = os.path.join('agents', 'agents.json')
+  backup_folder = os.path.join('agents', 'backups')
+  os.makedirs(backup_folder, exist_ok=True)
+  backup_filename = f"agents_{current_user.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+  backup_path = os.path.join(backup_folder, backup_filename)
+  shutil.copy2(agents_json_path, backup_path)
+  logging.info(f"Created backup of agents.json for user {current_user.id} at: {backup_path}")
+
+  # Load existing agents from agents.json
+  with open(agents_json_path, 'r') as file:
+      existing_agents = json.load(file)
+  logging.info(f"Loaded {len(existing_agents)} existing agents from agents.json")
+
+  # Update agents in agents.json based on the active user's agents (user agents, timeframe agents, and Agent class agents)
+  updated_agents = []
+
+  # Process user agents
+  user_agents = current_user.agents_data or []
+  logging.info(f"Processing {len(user_agents)} user agents for user {current_user.id}")
+  for agent_data in user_agents:
+      normalized_agent = normalize_agent_data(agent_data)
+      if normalized_agent:
+          update_or_append_agent(updated_agents, normalized_agent)
+
+  # Process timeframe agents
+  timeframes = current_user.timeframes
+  for timeframe in timeframes:
+      timeframe_agents_data = json.loads(timeframe.agents_data)
+      logging.info(f"Processing {len(timeframe_agents_data)} timeframe agents for timeframe {timeframe.id}")
+      for agent_data in timeframe_agents_data:
+          normalized_agent = normalize_agent_data(agent_data)
+          if normalized_agent:
+              update_or_append_agent(updated_agents, normalized_agent)
+
+  # Process Agent class agents
+  agent_class_agents = Agent.query.filter_by(user_id=current_user.id).all()
+  logging.info(f"Processing {len(agent_class_agents)} Agent class agents for user {current_user.id}")
+  for agent in agent_class_agents:
+      normalized_agent = normalize_agent_data(agent.data)
+      if normalized_agent:
+          update_or_append_agent(updated_agents, normalized_agent)
+
+  logging.info(f"Updated {len(updated_agents)} agents for user {current_user.id}")
+
+  # Write the updated agents back to agents.json
+  try:
+      with open(agents_json_path, 'w') as file:
+          json.dump(updated_agents, file, indent=4)
+      logging.info(f"Successfully wrote {len(updated_agents)} agents to agents.json for user {current_user.id}")
+  except Exception as e:
+      logging.error(f"Error writing agents to agents.json for user {current_user.id}: {str(e)}")
+
+def update_or_append_agent(agents_list, new_agent):
+  agent_id = new_agent['id']
+  for i, agent in enumerate(agents_list):
+      if agent['id'] == agent_id:
+          agents_list[i] = new_agent
+          return
+  agents_list.append(new_agent)
+
+def normalize_agent_data(agent_data):
+  try:
+      normalized_agent = {
+          'id': agent_data.get('id', ''),
+          'email': agent_data.get('email', ''),
+          'model': agent_data.get('model', ''),
+          'persona': agent_data.get('persona', ''),
+          'unique_id': agent_data.get('unique_id', ''),
+          'timestamp': agent_data.get('timestamp', ''),
+          'summary': agent_data.get('summary', ''),
+          'jobtitle': agent_data.get('jobtitle', ''),
+          'keywords': agent_data.get('keywords', []),
+          'relationships': normalize_relationships(agent_data.get('relationships', [])),
+          'image_prompt': agent_data.get('image_prompt', ''),
+          'photo_path': agent_data.get('photo_path', ''),
+          'include': agent_data.get('include', True)
+      }
+      return normalized_agent
+  except Exception as e:
+      logging.warning(f"Error normalizing agent data: {str(e)}. Skipping agent.")
+      return None
+
+def normalize_relationships(relationships):
+  try:
+      normalized_relationships = []
+      for relationship in relationships:
+          normalized_relationship = {
+              'name': relationship.get('name', ''),
+              'job': relationship.get('job', ''),
+              'relationship_description': relationship.get('relationship_description', ''),
+              'summary': relationship.get('summary', '')
+          }
+          normalized_relationships.append(normalized_relationship)
+      return normalized_relationships
+  except Exception as e:
+      logging.warning(f"Error normalizing relationship data: {str(e)}. Leaving relationships blank.")
+      return []
 
 @profile_blueprint.route('/update_agent', methods=['POST'])
 @login_required
@@ -848,6 +951,7 @@ def update_agent():
                         timeframe.agents_data = json.dumps(updated_agents_data)
                         db.session.add(timeframe)
                         db.session.commit()
+                        update_agents_json()  # Call the update_agents_json function
                         return jsonify(success=True)
                     else:
                         logging.error(f"Timeframe agent not found. Agent ID: {agent_id}, Timeframe ID: {timeframe_id}")
@@ -867,6 +971,7 @@ def update_agent():
                 agent.data = agent_data
                 db.session.add(agent)
                 db.session.commit()
+                update_agents_json()  # Call the update_agents_json function
                 return jsonify(success=True)
             else:
                 logging.error(f"Agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
@@ -883,6 +988,7 @@ def update_agent():
                     user_agents[agent_index] = agent_data
                     user.agents_data = user_agents
                     db.session.commit()
+                    update_agents_json()  # Call the update_agents_json function
                     return jsonify(success=True)
                 else:
                     logging.error(f"User agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
