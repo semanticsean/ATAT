@@ -1,127 +1,138 @@
-#abe_api_internal.py 
+# abe_api_internal.py
 
-import asyncio
-import json
-import logging
-import os
-import uuid
-from datetime import datetime
-from typing import List, Optional
-
-from fastapi import BackgroundTasks, FastAPI
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from models import Meeting, User, Agent, Timeframe, Conversation, Survey, APIKey
+from extensions import db
 from pydantic import BaseModel
+from fastapi.exceptions import HTTPException
 
-from abe_gpt import conduct_meeting, generate_new_agent, process_agents
+from flask import jsonify
 
 app = FastAPI()
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+class APIKeyHeader(BaseModel):
+    Authorization: str
+
+def get_db():
+    db_session = db.session()
+    try:
+        yield db_session
+    finally:
+        db_session.close()
+
+def verify_api_key(api_key_header: APIKeyHeader, db_session: Session = Depends(get_db)):
+    api_key = api_key_header.Authorization.replace("Bearer ", "")
+    user = db_session.query(User).join(APIKey).filter(APIKey.key == api_key).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    return user
+
+@app.get("/api/schema")
+def get_schema(db_session: Session = Depends(get_db), user: User = Depends(verify_api_key)):
+    schema = {
+        "agents": {
+            "count": db_session.query(Agent).filter(Agent.user_id == user.id).count(),
+            "endpoint": "/api/agents"
+        },
+        "meetings": {
+            "count": db_session.query(Meeting).filter(Meeting.user_id == user.id).count(),
+            "endpoint": "/api/meetings"
+        },
+        "timeframes": {
+            "count": db_session.query(Timeframe).filter(Timeframe.user_id == user.id).count(),
+            "endpoint": "/api/timeframes"
+        },
+        "conversations": {
+            "count": db_session.query(Conversation).filter(Conversation.user_id == user.id).count(),
+            "endpoint": "/api/conversations"
+        },
+        "surveys": {
+            "count": db_session.query(Survey).filter(Survey.user_id == user.id).count(),
+            "endpoint": "/api/surveys"
+        }
+    }
+    return jsonify(schema)
+
+@app.get("/api/agents")
+def get_agents(db_session: Session = Depends(get_db), user: User = Depends(verify_api_key)):
+    agents = db_session.query(Agent).filter(Agent.user_id == user.id).all()
+    agent_data = []
+    for agent in agents:
+        agent_data.append({
+            "id": agent.id,
+            "data": agent.data,
+            "agent_type": agent.agent_type,
+            "voice": agent.voice
+        })
+    return jsonify(agent_data)
+
+@app.get("/api/meetings")
+def get_meetings(db_session: Session = Depends(get_db), user: User = Depends(verify_api_key)):
+    meetings = db_session.query(Meeting).filter(Meeting.user_id == user.id).all()
+    meeting_data = []
+    for meeting in meetings:
+        meeting_data.append({
+            "id": meeting.id,
+            "name": meeting.name,
+            "agents": meeting.agents,
+            "questions": meeting.questions,
+            "answers": meeting.answers,
+            "is_public": meeting.is_public,
+            "public_url": meeting.public_url
+        })
+    return jsonify(meeting_data)
+
+@app.get("/api/timeframes")
+def get_timeframes(db_session: Session = Depends(get_db), user: User = Depends(verify_api_key)):
+    timeframes = db_session.query(Timeframe).filter(Timeframe.user_id == user.id).all()
+    timeframe_data = []
+    for timeframe in timeframes:
+        timeframe_data.append({
+            "id": timeframe.id,
+            "name": timeframe.name,
+            "agents_data": timeframe.agents_data,
+            "summary": timeframe.summary
+        })
+    return jsonify(timeframe_data)
+
+@app.get("/api/conversations")
+def get_conversations(db_session: Session = Depends(get_db), user: User = Depends(verify_api_key)):
+    conversations = db_session.query(Conversation).filter(Conversation.user_id == user.id).all()
+    conversation_data = []
+    for conversation in conversations:
+        conversation_data.append({
+            "id": conversation.id,
+            "name": conversation.name,
+            "agents": conversation.agents,
+            "messages": conversation.messages,
+            "timestamp": conversation.timestamp.isoformat(),
+            "url": conversation.url
+        })
+    return jsonify(conversation_data)
+
+@app.get("/api/surveys")
+def get_surveys(db_session: Session = Depends(get_db), user: User = Depends(verify_api_key)):
+    surveys = db_session.query(Survey).filter(Survey.user_id == user.id).all()
+    survey_data = []
+    for survey in surveys:
+        survey_data.append({
+            "id": survey.id,
+            "name": survey.name,
+            "survey_data": survey.survey_data,
+            "is_public": survey.is_public,
+            "public_url": survey.public_url
+        })
+    return jsonify(survey_data)
 
 
-class AgentRequest(BaseModel):
-    agent_id: Optional[str] = None
-    agent_name: Optional[str] = None
-    jobtitle: Optional[str] = None
-    agent_description: Optional[str] = None
+@app.exception_handler(Exception)
+async def generic_exception_handler(request, exc):
+    # Log the exception details
+    logger.error(f"An error occurred: {str(exc)}", exc_info=True)
 
-
-class TimeframeRequest(BaseModel):
-    agents_data: List[AgentRequest]
-    instructions: dict
-    timeframe_name: Optional[str] = None
-
-
-class MeetingRequest(BaseModel):
-    agents_data: List[AgentRequest]
-    questions: dict
-    meeting_id: str
-    meeting_name: Optional[str] = None
-    llm_instructions: Optional[str] = None
-    request_type: str
-
-
-class APIRequest(BaseModel):
-    request_id: str = str(uuid.uuid4())
-    request_type: str
-    priority: bool = False
-    agent_request: Optional[AgentRequest] = None
-    timeframe_request: Optional[TimeframeRequest] = None
-    meeting_request: Optional[MeetingRequest] = None
-
-
-request_queue = asyncio.Queue()
-completed_requests = []
-
-
-async def process_request_queue(current_user):
-    while True:
-        request = await request_queue.get()
-        try:
-            if request.request_type == "new_agent":
-                new_agent = generate_new_agent(
-                    agent_name=request.agent_request.agent_name,
-                    jobtitle=request.agent_request.jobtitle,
-                    agent_description=request.agent_request.agent_description,
-                    current_user=current_user
-                )
-                result = new_agent.id
-  
-            elif request.request_type == "process_agents":
-                new_timeframe = process_agents(
-                    payload={
-                        "agents_data": [agent.dict() for agent in request.timeframe_request.agents_data],
-                        "instructions": request.timeframe_request.instructions,
-                        "timeframe_name": request.timeframe_request.timeframe_name or f"Timeframe {uuid.uuid4()}"
-                    },
-                    current_user=current_user
-                )
-                result = new_timeframe.id
-  
-            elif request.request_type == "conduct_meeting":
-                meeting_responses = conduct_meeting(
-                    payload={
-                        "agents_data": [agent.dict() for agent in request.meeting_request.agents_data],
-                        "questions": request.meeting_request.questions,
-                        "meeting_id": request.meeting_request.meeting_id,
-                        "meeting_name": request.meeting_request.meeting_name or f"Meeting {uuid.uuid4()}",
-                        "llm_instructions": request.meeting_request.llm_instructions,
-                        "request_type": request.meeting_request.request_type
-                    },
-                    current_user=current_user
-                )
-                result = meeting_responses
-  
-            else:
-                raise ValueError(f"Invalid request type: {request.request_type}")
-  
-            logging.info(f"Processed request {request.request_id}")
-            return result
-  
-        except Exception as e:
-            logging.error(f"Error processing request {request.request_id}: {e}")
-  
-        finally:
-            request_queue.task_done()
-
-@app.post("/api/request")
-async def create_request(api_request: APIRequest, background_tasks: BackgroundTasks, current_user=None):
-    if api_request.priority:
-        await request_queue.put(api_request)
-    else:
-        background_tasks.add_task(request_queue.put, api_request)
-
-    return {"message": "Request added to the queue", "request_id": api_request.request_id}
-
-
-@app.get("/api/request/{request_id}")
-async def get_request_status(request_id: str):
-    for request in completed_requests:
-        if request["request_id"] == request_id:
-            return {"status": "completed", "result": request["result"]}
-
-    return {"status": "pending"}
-
-
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(process_request_queue(current_user=None))  # Pass the current user object here
+    # Return a generic error response
+    return JSONResponse(
+        status_code=500,
+        content={"message": "Internal Server Error"}
+    )
