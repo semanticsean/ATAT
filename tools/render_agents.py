@@ -200,8 +200,11 @@ def add_new_agent(agent_name, description, version="A"):
 
 def parse_new_agent_files_content(args):
   new_agent_files_content = {}
-  if args.new_agent_files:
-      new_agent_files_content = json.loads(args.new_agent_files)
+  try:
+      if args.new_agent_files:
+          new_agent_files_content = json.loads(args.new_agent_files)
+  except json.JSONDecodeError as e:
+      print(f"Error parsing new agent files content: {e}")
   return new_agent_files_content
 
 
@@ -230,13 +233,16 @@ def parse_arguments():
 
 def process_agents(version, new_agent_files_content):
   print(f"Processing agent files with version {version}")
+  print(f"New agent files content: {new_agent_files_content}")  # Add this line
 
   agents_file_path = os.path.join('agents', 'agents.json')
   print(f"agents.json path: {agents_file_path}")
 
   for file, content in new_agent_files_content.items():
+      print(f"Processing file: {file}")  # Add this line
       agent_name, description = read_description_from_content(content)
       if not agent_exists(agent_name, agents_file_path):
+          print(f"Adding new agent: {agent_name}")  # Add this line
           new_agent = add_new_agent(agent_name, description, version)
           append_agent_to_file(new_agent, agents_file_path)
           print(f"Appended new agent: {agent_name} to {agents_file_path}.")

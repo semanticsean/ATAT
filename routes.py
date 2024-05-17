@@ -1202,11 +1202,26 @@ def start_route():
             json.dump(config, file)
         logger.info("Configuration saved successfully")
 
-        if 'run_start' in request.form:
-            logger.info("Executing start.main()")
-            start.main()
-            logger.info("Redirecting to home page")
-            return redirect(url_for('home'))  # Redirect to home page ("/")
+        # Get the list of new agent files from the UPLOAD_FOLDER
+        new_agent_files = os.listdir(current_app.config['UPLOAD_FOLDER'])
+
+        # Load the contents of the new agent files
+        new_agent_files_content = {}
+        for file in new_agent_files:
+            if file.endswith('.txt'):
+                file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], file)
+                with open(file_path, 'r') as f:
+                    content = f.read()
+                new_agent_files_content[file] = content
+
+        # Update the new_agent_files_content based on the form data
+        for file in new_agent_files:
+            if file.endswith('.txt'):
+                content = request.form.get(file)
+                if content:
+                    new_agent_files_content[file] = content
+
+        config['new_agent_files_content'] = new_agent_files_content
 
         if 'upload_files' in request.files:
             files = request.files.getlist('upload_files')
@@ -1219,39 +1234,38 @@ def start_route():
                     extract_text.extract_and_save_text(file_path)
                     logger.info(f"Text extracted and saved for {filename}")
 
-    # Get the list of new agent files from the UPLOAD_FOLDER
-    new_agent_files = os.listdir(current_app.config['UPLOAD_FOLDER'])
+        if 'run_start' in request.form:
+            logger.info("Executing start.main()")
+            selected_agent_files = request.form.getlist('selected_agents')
+            logger.info(f"Selected Agent Files: {selected_agent_files}")
+            logger.info(f"New Agent Files Content: {new_agent_files_content}")
+            start.main(config, current_app.config['UPLOAD_FOLDER'], selected_agent_files, new_agent_files_content)
+            logger.info("Redirecting to home page")
+            return redirect(url_for('home'))
 
-    # Load the contents of the new agent files
-    new_agent_files_content = {}
-    for file in new_agent_files:
-        if file.endswith('.txt'):
-            file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], file)
-            with open(file_path, 'r') as f:
-                content = f.read()
-            new_agent_files_content[file] = content
+    else:
+        # Get the list of new agent files from the UPLOAD_FOLDER
+        new_agent_files = os.listdir(current_app.config['UPLOAD_FOLDER'])
 
-    # Update the new_agent_files_content based on the form data (if available)
-    if request.method == 'POST':
+        # Load the contents of the new agent files
+        new_agent_files_content = {}
         for file in new_agent_files:
             if file.endswith('.txt'):
-                content = request.form.get(file)
-                if content:
-                    new_agent_files_content[file] = content
-  
-    config['new_agent_files_content'] = new_agent_files_content
+                file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], file)
+                with open(file_path, 'r') as f:
+                    content = f.read()
+                new_agent_files_content[file] = content
 
-    # Log the number of agent files before handling removed agents
-    num_agent_files_before = len(config['new_agent_files_content'])
-    logger.info(f"Before form submission, {num_agent_files_before} agent file(s) present.")
+        # Update the new_agent_files_content based on the form data
+        for file, content in request.form.items():
+            if file.endswith('.txt'):
+                new_agent_files_content[file] = content
 
-    if request.method == 'POST':
-        # Handle removed agents
-        handle_removed_agents(config)
+        config['new_agent_files_content'] = new_agent_files_content
 
-        # Log the number of agent files after handling removed agents
-        num_agent_files_after = len(config['new_agent_files_content'])
-        logger.info(f"After form submission, {num_agent_files_after} agent file(s) to process.")
+    # Log the number of agent files
+    num_agent_files = len(config['new_agent_files_content'])
+    logger.info(f"Number of agent files: {num_agent_files}")
 
     page_view = PageView(page='/start_route')
     db.session.add(page_view)
@@ -1263,7 +1277,6 @@ def start_route():
         db.session.rollback()
 
     return render_template('start.html', config=config, new_agent_files=new_agent_files, new_agent_files_content=new_agent_files_content)
-
 
 @profile_blueprint.route('/create_new_agent', methods=['GET', 'POST'])
 @login_required
