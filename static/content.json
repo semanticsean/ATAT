@@ -1,20 +1,20 @@
 {
-    "title": "Semantic Life - Innovating Digital Advertising Futures",
-    "h1": "Welcome to Semantic Life",
-    "h2": "Revolutionizing Brands with Cutting-Edge Strategies",
-    "footer": "\u00a92023 Semantic Life | Empowering Brands with Futuristic Advertising Solutions",
+    "title": "AZ2100: Pioneering Innovation and AI for a Sustainable Future",
+    "h1": "Welcome to AZ2100 - Driving Innovation in Arizona",
+    "h2": "Our Expertise in AI and Economic Development",
+    "footer": "\u00a9 2023 AZ2100 - Innovation for Tomorrow. All Rights Reserved.",
     "meta": {
-        "ogTitle": "Innovate with Semantic Life - The Future of Digital Advertising",
-        "ogDescription": "Join Semantic Life in transforming the digital advertising landscape. Creativity meets technology for unparalleled brand growth.",
-        "ogUrl": "https://www.semanticlife.com",
+        "ogTitle": "Discover AZ2100 - Arizona's Hub for AI and Economic Progress",
+        "ogDescription": "Join us at AZ2100 as we lead the charge in utilizing AI for economic development and community engagement across various industries.",
+        "ogUrl": "https://www.az2100.com",
         "twitterCard": "summary_large_image",
-        "twitterTitle": "Semantic Life: Redefining Advertising in the Digital Era",
-        "twitterDescription": "Experience the synergy of creativity and tech with Semantic Life. Drive your brand to new heights in the digital world.",
-        "ogImage": "https://www.semanticlife.com/assets/images/og-image.jpg",
-        "twitterImage": "https://www.semanticlife.com/assets/images/twitter-image.jpg"
+        "twitterTitle": "AZ2100 - Where AI Meets Economic Growth in Arizona",
+        "twitterDescription": "Explore the cutting-edge world of AZ2100, where AI innovation fuels sustainable economic and community advancement in Arizona.",
+        "ogImage": "https://www.az2100.com/og-image.jpg",
+        "twitterImage": "https://www.az2100.com/twitter-image.jpg"
     },
     "social_image_url": "https://semantic-life.com/static/atat-glyph.png",
     "logo_url": "https://semantic-life.com/static/logo.png",
-    "web_copy": "Welcome to Semantic Life, where cutting-edge technology meets creative innovation to drive brand success in the digital age. Our diverse team of experts is dedicated to crafting innovative marketing strategies that push boundaries and shape the future of advertising. Join us and experience the power of AI-driven solutions that will elevate your brand to new heights.",
+    "web_copy": "Experience the future of innovation with AZ2100's team of AI agents, pioneering economic growth through cutting-edge technology. Engage with our dynamic professionals spanning various industries, committed to sustainable practices and inclusive solutions. Join us in shaping a more innovative future together.",
     "header_image": "/home/runner/ATAT-dev-04-github-public/tools/../static/atat.png"
 }
