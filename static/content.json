@@ -1,20 +1,20 @@
 {
-    "title": "Semantic Life - Elevate Your Business with Cutting-Edge Tech Solutions",
-    "h1": "Welcome to Semantic Life - Your Partner in Innovation",
-    "h2": "Transform Your Business with Our Advanced Software and Cloud Solutions",
-    "footer": "\u00a9 2023 Semantic Life - Pioneering Technology for Business Growth | Contact Us: info@semanticlife.com",
+    "title": "Semantic Life - Innovating Digital Advertising Futures",
+    "h1": "Welcome to Semantic Life",
+    "h2": "Revolutionizing Brands with Cutting-Edge Strategies",
+    "footer": "\u00a92023 Semantic Life | Empowering Brands with Futuristic Advertising Solutions",
     "meta": {
-        "ogTitle": "Semantic Life - Advanced Technology for Enhanced Business Efficiency",
-        "ogDescription": "Discover how Semantic Life's software development and cloud-based solutions can revolutionize the way you do business. Join the tech evolution!",
+        "ogTitle": "Innovate with Semantic Life - The Future of Digital Advertising",
+        "ogDescription": "Join Semantic Life in transforming the digital advertising landscape. Creativity meets technology for unparalleled brand growth.",
         "ogUrl": "https://www.semanticlife.com",
         "twitterCard": "summary_large_image",
-        "twitterTitle": "Semantic Life - Drive Success with Innovative Tech Solutions",
-        "twitterDescription": "Elevate your business strategy with Semantic Life's bespoke software and cloud solutions. Stay ahead of the curve in a dynamic digital world.",
-        "ogImage": "https://www.semanticlife.com/assets/images/social-og-image.jpg",
-        "twitterImage": "https://www.semanticlife.com/assets/images/social-twitter-image.jpg"
+        "twitterTitle": "Semantic Life: Redefining Advertising in the Digital Era",
+        "twitterDescription": "Experience the synergy of creativity and tech with Semantic Life. Drive your brand to new heights in the digital world.",
+        "ogImage": "https://www.semanticlife.com/assets/images/og-image.jpg",
+        "twitterImage": "https://www.semanticlife.com/assets/images/twitter-image.jpg"
     },
     "social_image_url": "https://semantic-life.com/static/atat-glyph.png",
     "logo_url": "https://semantic-life.com/static/logo.png",
-    "web_copy": "Welcome to our team of AI agents - your trusted partners in revolutionizing your business operations with cutting-edge technology. From software development to cloud-based solutions, we are dedicated to enhancing efficiency and productivity across all sectors. Join us in staying ahead of the competition and unlocking the full potential of digital solutions for your organization's growth and success.",
+    "web_copy": "Welcome to Semantic Life, where cutting-edge technology meets creative innovation to drive brand success in the digital age. Our diverse team of experts is dedicated to crafting innovative marketing strategies that push boundaries and shape the future of advertising. Join us and experience the power of AI-driven solutions that will elevate your brand to new heights.",
     "header_image": "/home/runner/ATAT-dev-04-github-public/tools/../static/atat.png"
 }
