@@ -11,11 +11,8 @@ import argparse
 import shutil
 from openai import OpenAI
 
-from update_team import create_new_agent_files
-
 client = OpenAI()
 import requests
-
 
 domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com')
 company_name = os.environ.get('COMPANY_NAME', 'Semantic Life')
@@ -153,7 +150,9 @@ def generate_persona(agent_name,
 def add_new_agent(agent_name, description, version="A"):
   print(f"Starting to add a new agent: {agent_name} with version {version}")
   new_persona_json = generate_persona(agent_name, description, version)
-  print(f"Generated persona JSON for {agent_name}: {new_persona_json}")
+  print(
+      f"Generated persona JSON for {agent_name[:20]}: {new_persona_json[:20]}..."
+  )
 
   try:
     new_persona = json.loads(new_persona_json)
@@ -198,15 +197,6 @@ def add_new_agent(agent_name, description, version="A"):
     print(f"Failed to decode JSON for {agent_name}. Error: {e}")
     raise ValueError("Failed to decode JSON from LLM response.")
 
-def parse_new_agent_files_content(args):
-  new_agent_files_content = {}
-  try:
-      if args.new_agent_files:
-          new_agent_files_content = json.loads(args.new_agent_files)
-  except json.JSONDecodeError as e:
-      print(f"Error parsing new agent files content: {e}")
-  return new_agent_files_content
-
 
 def parse_arguments():
   print("Parsing arguments...")
@@ -221,36 +211,40 @@ def parse_arguments():
   parser.add_argument('--clear-pics',
                       action='store_true',
                       help='Clear existing pics content')
-  parser.add_argument('--new-agent-files',
-                      type=str,
-                      default='{}',
-                      help='New agent files content')
   args = parser.parse_args()
   print(
       f"Arguments parsed. Version: {args.version}, Clear JSON: {args.clear_json}, Clear Pics: {args.clear_pics}"
   )
   return args
 
-def process_agents(version, new_agent_files_content):
-  print(f"Processing agent files with version {version}")
-  print(f"New agent files content: {new_agent_files_content}")  # Add this line
+
+def process_agents(version):
+  print("Processing agent files...")
 
   agents_file_path = os.path.join('agents', 'agents.json')
   print(f"agents.json path: {agents_file_path}")
+  new_agents_dir = os.path.join('agents', 'new_agent_files')
 
-  for file, content in new_agent_files_content.items():
-      print(f"Processing file: {file}")  # Add this line
-      agent_name, description = read_description_from_content(content)
-      if not agent_exists(agent_name, agents_file_path):
-          print(f"Adding new agent: {agent_name}")  # Add this line
-          new_agent = add_new_agent(agent_name, description, version)
-          append_agent_to_file(new_agent, agents_file_path)
-          print(f"Appended new agent: {agent_name} to {agents_file_path}.")
-      else:
-          print(f"Agent {agent_name} already exists, skipping.")
+  if not os.path.exists(new_agents_dir):
+    print("No new agents to process. Directory does not exist.")
+    return
 
-  if not new_agent_files_content:
-      print("No agent description files found.")
+  text_files = glob.glob(os.path.join(new_agents_dir, '*.txt'))
+  if not text_files:
+    print("No agent description files found.")
+    return
+
+  for text_file in text_files:
+    agent_name, description = read_description(text_file)
+    # Check if agent already exists before adding
+    if not agent_exists(agent_name, agents_file_path):
+      new_agent = add_new_agent(agent_name, description, version)
+      # Append new agent to the existing list in the file
+      append_agent_to_file(new_agent, agents_file_path)
+      print(f"Appended new agent: {agent_name} to {agents_file_path}.")
+    else:
+      print(f"Agent {agent_name} already exists, skipping.")
+
 
 def append_agent_to_file(agent, file_path):
   """Appends a new agent to the existing list in the JSON file."""
@@ -293,25 +287,21 @@ if __name__ == "__main__":
   args = parse_arguments()
 
   try:
-      with open('start-config.json', 'r') as config_file:
-          config = json.load(config_file)
-          transformation_prompt = config.get('cover_photo_instructions', '')
+    with open('start-config.json', 'r') as config_file:
+      config = json.load(config_file)
+      transformation_prompt = config.get('cover_photo_instructions', '')
   except Exception as e:
-      print(f"Failed to read start-config.json: {e}")
-      transformation_prompt = ''
+    print(f"Failed to read start-config.json: {e}")
+    transformation_prompt = ''
 
   if args.clear_json:
-      clear_agents_json()
+    clear_agents_json()
   if args.clear_pics:
-      clear_pics_directory()
+    clear_pics_directory()
 
   # Generate the cover photo for the website
   if transformation_prompt:
-      generate_cover_photo(transformation_prompt)
+    generate_cover_photo(transformation_prompt)
 
-  print(f"Starting agent processing with version {args.version}, clear_json: {args.clear_json}, clear_pics: {args.clear_pics}")
-  
-  new_agent_files_content = parse_new_agent_files_content(args)
-  process_agents(args.version, new_agent_files_content)
-  
+  process_agents(args.version)
   print("Agent processing and cover photo generation completed.")
