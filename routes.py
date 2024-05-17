@@ -19,7 +19,7 @@ import email_client
 from io import BytesIO
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, send_file, make_response, Response, abort
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify, send_file, make_response, Response, abort, current_app 
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
@@ -32,6 +32,8 @@ from sqlalchemy.exc import OperationalError
 
 import shutil
 from datetime import datetime
+
+from start import handle_removed_agents
 
 
 #LOGGING
@@ -1189,9 +1191,11 @@ def allowed_file(filename):
 @start_blueprint.route('/start', methods=['GET', 'POST'])
 def start_route():
     logger.info("Accessing /start route")
+    config = start.load_configuration()  # Load the default configuration
+
     if request.method == 'POST':
         logger.info("Handling POST request")
-        config = request.form.to_dict()
+        config = request.form.to_dict()  # Override the configuration with form data
         config_path = 'start-config.json'
         logger.info(f"Saving configuration to {config_path}")
         with open(config_path, 'w') as file:
@@ -1212,19 +1216,42 @@ def start_route():
                     file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
                     file.save(file_path)
                     logger.info(f"File {filename} uploaded successfully")
-                    # Assuming extract_text.extract_and_save_text(file_path) exists and works as intended
                     extract_text.extract_and_save_text(file_path)
                     logger.info(f"Text extracted and saved for {filename}")
 
-    config = start.load_configuration()
-    new_agent_files = os.listdir(UPLOAD_FOLDER)
+    # Get the list of new agent files from the UPLOAD_FOLDER
+    new_agent_files = os.listdir(current_app.config['UPLOAD_FOLDER'])
+
+    # Load the contents of the new agent files
     new_agent_files_content = {}
     for file in new_agent_files:
-        file_path = os.path.join(UPLOAD_FOLDER, file)
-        with open(file_path, 'r') as file_content:
-            agent_name = request.form.get(f"{file}_agent_name", file.split('.')[0])
-            new_agent_files_content[agent_name] = file_content.read()
-            logger.debug(f"Loaded content for {file} with agent name {agent_name}")
+        if file.endswith('.txt'):
+            file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], file)
+            with open(file_path, 'r') as f:
+                content = f.read()
+            new_agent_files_content[file] = content
+
+    # Update the new_agent_files_content based on the form data (if available)
+    if request.method == 'POST':
+        for file in new_agent_files:
+            if file.endswith('.txt'):
+                content = request.form.get(file)
+                if content:
+                    new_agent_files_content[file] = content
+  
+    config['new_agent_files_content'] = new_agent_files_content
+
+    # Log the number of agent files before handling removed agents
+    num_agent_files_before = len(config['new_agent_files_content'])
+    logger.info(f"Before form submission, {num_agent_files_before} agent file(s) present.")
+
+    if request.method == 'POST':
+        # Handle removed agents
+        handle_removed_agents(config)
+
+        # Log the number of agent files after handling removed agents
+        num_agent_files_after = len(config['new_agent_files_content'])
+        logger.info(f"After form submission, {num_agent_files_after} agent file(s) to process.")
 
     page_view = PageView(page='/start_route')
     db.session.add(page_view)
@@ -1236,7 +1263,6 @@ def start_route():
         db.session.rollback()
 
     return render_template('start.html', config=config, new_agent_files=new_agent_files, new_agent_files_content=new_agent_files_content)
-
 
 
 @profile_blueprint.route('/create_new_agent', methods=['GET', 'POST'])

@@ -40,7 +40,7 @@ def configure_logging():
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
-
+app.config['UPLOAD_FOLDER'] = 'agents/new_agent_files'
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY', 'default_secret_key')
 
 configure_logging()
