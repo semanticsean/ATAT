@@ -7,15 +7,22 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
     />
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='favicon.ico') }}"
+    />
   </head>
   <body class="bg-gray-100">
     {% include 'header.html' %}
     <div class="container mx-auto px-4 py-8">
-      <div class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-4xl mt-24">
+      <div
+        class="mx-auto bg-white rounded-lg overflow-hidden md:max-w-4xl mt-24"
+      >
         <h1 class="text-3xl font-bold mb-4 px-6 pt-6">Start Configuration</h1>
         <h2 class="text-xl font-bold mb-4 px-6">
-          STILL IN TESTING, ALPHA FEATURES. This only works BEFORE you RENDER BASE SYNTHETICS. 
+          STILL IN TESTING, ALPHA FEATURES. This only works BEFORE you RENDER
+          BASE SYNTHETICS.
         </h2>
         <form
           method="post"
@@ -30,29 +37,8 @@
                 name="run_update_team"
                 class="w-full p-2 border border-gray-300 rounded"
               >
-                <option
-                  value="false"
-                  {%
-                  if
-                  not
-                  config.run_update_team
-                  %}selected{%
-                  endif
-                  %}
-                >
-                  No
-                </option>
-                <option
-                  value="true"
-                  {%
-                  if
-                  config.run_update_team
-                  %}selected{%
-                  endif
-                  %}
-                >
-                  Yes
-                </option>
+                <option value="false" {% if not config.run_update_team %}selected{% endif %}>No</option>
+                <option value="true" {% if config.run_update_team %}selected{% endif %}>Yes</option>
               </select>
             </div>
             <div class="mb-4">
@@ -61,29 +47,8 @@
                 name="run_render_agents"
                 class="w-full p-2 border border-gray-300 rounded"
               >
-                <option
-                  value="false"
-                  {%
-                  if
-                  not
-                  config.run_render_agents
-                  %}selected{%
-                  endif
-                  %}
-                >
-                  No
-                </option>
-                <option
-                  value="true"
-                  {%
-                  if
-                  config.run_render_agents
-                  %}selected{%
-                  endif
-                  %}
-                >
-                  Yes
-                </option>
+                <option value="false" {% if not config.run_render_agents %}selected{% endif %}>No</option>
+                <option value="true" {% if config.run_render_agents %}selected{% endif %}>Yes</option>
               </select>
             </div>
             <div class="mb-4">
@@ -92,32 +57,11 @@
                 name="run_update_content"
                 class="w-full p-2 border border-gray-300 rounded"
               >
-                <option
-                  value="false"
-                  {%
-                  if
-                  not
-                  config.run_update_content
-                  %}selected{%
-                  endif
-                  %}
-                >
-                  No
-                </option>
-                <option
-                  value="true"
-                  {%
-                  if
-                  config.run_update_content
-                  %}selected{%
-                  endif
-                  %}
-                >
-                  Yes
-                </option>
+                <option value="false" {% if not config.run_update_content %}selected{% endif %}>No</option>
+                <option value="true" {% if config.run_update_content %}selected{% endif %}>Yes</option>
               </select>
             </div>
-            <div class="mb-4" style="display: none;">
+            <div class="mb-4" style="display: none">
               <label class="block mb-2 font-bold">Directory:</label>
               <input
                 type="text"
@@ -132,26 +76,18 @@
                 name="transformation_prompt"
                 rows="3"
                 class="w-full p-2 border border-gray-300 rounded"
-              >
-{{ config.transformation_prompt }}</textarea
-              >
+              >{{ config.transformation_prompt }}</textarea>
             </div>
             <div class="mb-4 col-span-2">
-              <label class="block mb-2 font-bold"
-                >Cover Photo Instructions:</label
-              >
+              <label class="block mb-2 font-bold">Cover Photo Instructions:</label>
               <textarea
                 name="cover_photo_instructions"
                 rows="3"
                 class="w-full p-2 border border-gray-300 rounded"
-              >
-{{ config.cover_photo_instructions }}</textarea
-              >
+              >{{ config.cover_photo_instructions }}</textarea>
             </div>
             <div class="mb-4">
-              <label class="block mb-2 font-bold"
-                >Number of Additional Agents:</label
-              >
+              <label class="block mb-2 font-bold">Number of Additional Agents:</label>
               <input
                 type="number"
                 name="num_agents_additional"
@@ -161,22 +97,13 @@
             </div>
             <div class="mb-4">
               <label class="block mb-2 font-bold">Fictionalize Option:</label>
-              <select
-                name="fictionalize_option"
-                class="w-full p-2 border border-gray-300 rounded"
-              >
-                <option value="yes" {% if config.fictionalize_option == "yes" %}selected{% endif %}>
-                  Yes
-                </option>
-                <option value="no" {% if config.fictionalize_option == "no" %}selected{% endif %}>
-                  No
-                </option>
+              <select name="fictionalize_option" class="w-full p-2 border border-gray-300 rounded">
+                <option value="yes" {% if config.fictionalize_option == "yes" %}selected{% endif %}>Yes</option>
+                <option value="no" {% if config.fictionalize_option == "no" %}selected{% endif %}>No</option>
               </select>
             </div>
             <div class="mb-4">
-              <label class="block mb-2 font-bold text-red-600"
-                >Clear JSON Confirm:</label
-              >
+              <label class="block mb-2 font-bold text-red-600">Clear JSON Confirm:</label>
               <p class="text-red-600 mb-2">
                 WARNING: THIS WILL DELETE YOUR PRINCIPAL AGENTS! NO RECOVERY!
                 (YET)
@@ -185,18 +112,8 @@
                 name="clear_json_confirm"
                 class="w-full p-2 border border-gray-300 rounded"
               >
-                <option
-                  value="no"
-                  {% if config.clear_json_confirm == "no" %}selected{% endif %}
-                >
-                  No
-                </option>
-                <option
-                  value="yes"
-                  {% if config.clear_json_confirm == "yes" %}selected{% endif %}
-                >
-                  Yes
-                </option>
+                <option value="no" {% if config.clear_json_confirm == "no" %}selected{% endif %}>No</option>
+                <option value="yes" {% if config.clear_json_confirm == "yes" %}selected{% endif %}>Yes</option>
               </select>
             </div>
             <div class="mb-4">
@@ -205,18 +122,8 @@
                 name="clear_pics_confirm"
                 class="w-full p-2 border border-gray-300 rounded"
               >
-                <option
-                  value="no"
-                  {% if config.clear_pics_confirm == "no" %}selected{% endif %}
-                >
-                  No
-                </option>
-                <option
-                  value="yes"
-                  {% if config.clear_pics_confirm == "yes" %}selected{% endif %}
-                >
-                  Yes
-                </option>
+                <option value="no" {% if config.clear_pics_confirm == "no" %}selected{% endif %}>No</option>
+                <option value="yes" {% if config.clear_pics_confirm == "yes" %}selected{% endif %}>Yes</option>
               </select>
             </div>
             <div class="mb-4">
@@ -248,61 +155,34 @@
             />
           </div>
           <div class="mb-4">
-            <div class="mb-4">
-              <label class="block mb-2 font-bold">New Agent Files:</label>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {% for file, content in new_agent_files_content.items() %}
-                <div class="mb-2 relative" id="file-{{ loop.index }}">
-                  <button
-                    type="button"
-                    class="absolute right-2 top-2 text-lg text-red-500 hover:text-red-700 focus:outline-none"
-                    onclick="removeFile('file-{{ loop.index }}')"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
+            <label class="block mb-2 font-bold">New Agent Files:</label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {% for file, content in new_agent_files_content.items() %}
+              <div class="mb-2 relative" id="file-{{ loop.index }}">
+                  <button type="button" class="absolute right-2 top-2 text-lg text-red-500 hover:text-red-700 focus:outline-none" onclick="removeFile('file-{{ loop.index }}')">
+                      <!-- ... remove button ... -->
                   </button>
-                  <input
-                    type="text"
-                    name="{{ file }}_agent_name"
-                    value="{{ file.split('.')[0] }}"
-                    class="w-full p-2 border border-gray-300 rounded mb-2"
-                    placeholder="Agent Name"
-                  />
-                  <textarea
-                    name="{{ file }}"
-                    rows="6"
-                    class="w-full p-2 border border-gray-300 rounded"
-                  >
-            {{ content }}</textarea>
-                </div>
-                {% endfor %}
+                  <textarea name="{{ file }}" rows="6" class="w-full p-2 border border-gray-300 rounded">{{ content }}</textarea>
               </div>
-            </div>
+              {% endfor %}
             </div>
           </div>
           <div class="text-center">
             <button
               type="submit"
               name="run_start"
-              class="bg-black hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              class="bg-blue-600 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
             >
               Run Start
               <img
                 src="static/loading.gif"
                 id="loadingGif"
-                style="display: none; width: 42px; margin-left: 8px; max-width: 180px "
+                style="
+                  display: none;
+                  width: 42px;
+                  margin-left: 8px;
+                  max-width: 180px;
+                "
                 alt="Loading..."
               />
             </button>
