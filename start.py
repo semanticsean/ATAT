@@ -32,12 +32,23 @@ def run_update_team(directory, transformation_prompt, num_agents_additional):
     update_team.update_team(directory, transformation_prompt, num_agents_additional)
 
 def run_render_agents(fictionalize_option, clear_json, clear_pics, new_agent_files_content):
-    version_flag = '--version B' if fictionalize_option else '--version A'
+    version_flag = '--version' if fictionalize_option else ''
     clear_json_arg = '--clear-json' if clear_json else ''
     clear_pics_arg = '--clear-pics' if clear_pics else ''
 
-    command = f'python tools/render_agents.py {version_flag} {clear_json_arg} {clear_pics_arg} --new-agent-files "{new_agent_files_content}"'
-    subprocess.run(command, shell=True, check=True)
+    command = ['python', 'tools/render_agents.py']
+    if version_flag:
+        command.append(version_flag)
+        command.append('B')
+    if clear_json_arg:
+        command.append(clear_json_arg)
+    if clear_pics_arg:
+        command.append(clear_pics_arg)
+
+    command.append('--new-agent-files')
+    command.append(json.dumps(new_agent_files_content))
+
+    subprocess.run(command, check=True)
 
 def update_content():
     config = load_configuration()
@@ -55,46 +66,55 @@ def clear_agents_json(config):
             json.dump([], file)
         print("agents.json cleared.")
 
-def handle_removed_agents(config):
-    directory = config.get('directory', 'agents/new_agent_files')
-    new_agent_files_content = config.get('new_agent_files_content', {})
 
-    # Remove files that are not present in the form
-    for file in list(new_agent_files_content.keys()):
-        if file not in new_agent_files_content:
+def handle_removed_agents(config, upload_folder, selected_agent_files, new_agent_files_content):
+    directory = upload_folder
+
+    # Remove files that are not selected by the user
+    for file in os.listdir(directory):
+        if file.endswith('.txt') and file not in selected_agent_files:
             file_path = os.path.join(directory, file)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-                print(f"Removed {file} as it was not present in the form.")
-                # Remove the file from the new_agent_files_content dictionary
-                del new_agent_files_content[file]
+            os.remove(file_path)
+            print(f"Removed {file} as it was not selected by the user.")
 
-    # Update the new_agent_files_content dictionary in the config object
-    config['new_agent_files_content'] = new_agent_files_content
+    # Update the selected agent files based on the form data
+    for file in selected_agent_files:
+        if file in new_agent_files_content:
+            content = new_agent_files_content[file]
+            file_path = os.path.join(directory, file)
+            with open(file_path, 'w') as f:
+                f.write(content)
+            print(f"Updated {file} based on the form data.")
 
-    # Log the number of remaining agent files
-    num_remaining_files = len(new_agent_files_content)
-    print(f"After form submission, {num_remaining_files} agent(s) to process.")
+    # Log the number of selected agent files
+    num_selected_files = len(selected_agent_files)
+    print(f"After form submission, {num_selected_files} agent(s) selected for processing.")
 
-def main():
+def main(config, upload_folder, selected_agent_files, new_agent_files_content):
     config = load_configuration()
     print("Starting processes defined in start-config.json...")
 
     clear_agents_json(config)
-    handle_removed_agents(config)
+
+    # Get the content of the selected agent files
+    selected_agent_files_content = {file: new_agent_files_content[file] for file in selected_agent_files if file in new_agent_files_content}
+    print(f"Selected Agent Files: {selected_agent_files}")
+    print(f"Selected Agent Files Content: {selected_agent_files_content}")
+
+    handle_removed_agents(config, upload_folder, selected_agent_files, new_agent_files_content)
 
     # Check whether to run specific operations
     if config.get('run_update_team', False):
         directory = config.get('directory', 'agents/new_agent_files')
         transformation_prompt = config['transformation_prompt']
-        num_agents_additional = int(config['num_agents_additional'])  # Convert to integer
+        num_agents_additional = int(config['num_agents_additional'])
         run_update_team(directory, transformation_prompt, num_agents_additional)
 
     if config.get('run_render_agents', False):
         fictionalize_option = config['fictionalize_option'] == "yes"
         clear_json_confirm = config['clear_json_confirm'] == "yes"
         clear_pics_confirm = config['clear_pics_confirm'] == "yes"
-        new_agent_files_content = json.dumps(config.get('new_agent_files_content', {}))
+        new_agent_files_content = json.dumps(selected_agent_files_content)
         run_render_agents(fictionalize_option, clear_json_confirm, clear_pics_confirm, new_agent_files_content)
 
     if config.get('run_update_content', False):
