@@ -311,7 +311,8 @@ def meeting_results(meeting_id):
     agents_data = meeting.agents
 
     for agent in agents_data:
-        agent['photo_path'] = agent['photo_path'].split('/')[-1]
+        if isinstance(agent, dict) and 'photo_path' in agent:
+            agent['photo_path'] = agent['photo_path'].split('/')[-1]
 
     if meeting.user_id != current_user.id:
         abort(403)
