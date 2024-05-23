@@ -954,7 +954,7 @@ def update_agent():
                         timeframe.agents_data = json.dumps(updated_agents_data)
                         db.session.add(timeframe)
                         db.session.commit()
-                        update_agents_json()  # Call the update_agents_json function
+                        update_agents_json()
                         return jsonify(success=True)
                     else:
                         logging.error(f"Timeframe agent not found. Agent ID: {agent_id}, Timeframe ID: {timeframe_id}")
@@ -966,15 +966,15 @@ def update_agent():
                 logging.error(f"Timeframe ID is required for timeframe agents. Agent ID: {agent_id}")
                 return jsonify(success=False, error="Timeframe ID is required for timeframe agents")
         elif agent_type == 'agent':
-            agent = Agent.query.filter((Agent.user_id == current_user.id) & (
-                (Agent.id == str(agent_id)) | (Agent.id == agent_id.replace('_', '.')))).first()
+            agent = Agent.query.filter_by(id=agent_id, user_id=current_user.id).first()
             if agent:
-                agent_data = agent.data.copy()
+                agent_data = agent.data.copy() if agent.data else {}
                 update_dict(agent_data, updated_data)
                 agent.data = agent_data
+                agent.voice = updated_data.get('voice', agent.voice)
                 db.session.add(agent)
                 db.session.commit()
-                update_agents_json()  # Call the update_agents_json function
+                update_agents_json()
                 return jsonify(success=True)
             else:
                 logging.error(f"Agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
@@ -991,7 +991,7 @@ def update_agent():
                     user_agents[agent_index] = agent_data
                     user.agents_data = user_agents
                     db.session.commit()
-                    update_agents_json()  # Call the update_agents_json function
+                    update_agents_json()
                     return jsonify(success=True)
                 else:
                     logging.error(f"User agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
@@ -1001,7 +1001,7 @@ def update_agent():
                 return jsonify(success=False, error="User not found")
     except Exception as e:
         logging.error(f"Error updating agent: {str(e)}")
-        db.session.rollback()  # Rollback the session if an error occurs
+        db.session.rollback()
         return jsonify(success=False, error="Error updating agent")
 
 def update_dict(orig_dict, updates):
@@ -1009,7 +1009,7 @@ def update_dict(orig_dict, updates):
         if isinstance(value, Mapping):
             orig_dict[key] = update_dict(orig_dict.get(key, {}), value)
         else:
-            orig_dict[key] = updates[key]
+            orig_dict[key] = value
     return orig_dict
 
 @profile_blueprint.route('/delete_agent', methods=['POST'])
