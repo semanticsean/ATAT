@@ -107,8 +107,6 @@
       });
 
       function loadAgents(timeframeId) {
-        $('#loading').show(); // Show the loading message before making the request
-
         $.ajax({
           url: '/get_agents',
           data: { timeframe_id: timeframeId },
@@ -119,15 +117,16 @@
             if (data.agents.length === 0) {
               agentList.html('<div>No agents found.</div>');
             } else {
-              const agentsHTML = data.agents.map(agent => {
+              data.agents.forEach(agent => {
                 const isSelected = selectedAgents.includes(agent.id);
                 const selectedClass = isSelected ? 'selected' : '';
                 const checkedAttr = isSelected ? 'checked' : '';
 
-                return `
+                const agentHTML = `
                   <div class="agent-card ${selectedClass}" data-agent-id="${agent.id}" data-agent-name="${agent.id}">
                     <input type="checkbox" id="agent-${agent.id}" class="agent-checkbox hidden" ${checkedAttr} />
                     <label for="agent-${agent.id}">
+                      <div class="agent-image" style="background-image: url('data:image/png;base64,${agent.image_data}');"></div>
                       <div class="mt-2 text-center">
                         <div class="text-lg font-bold">${agent.id}</div>
                         <div class="text-sm">${agent.jobtitle}</div>
@@ -135,9 +134,8 @@
                     </label>
                   </div>
                 `;
-              }).join('');
-
-              agentList.html(agentsHTML);
+                agentList.append(agentHTML);
+              });
             }
 
             // Keep selected agents visible
@@ -147,19 +145,20 @@
                 agentCard.removeClass('hidden');
               }
             });
+
+            $('#loading').hide();
           },
           error: function(jqXHR, textStatus, errorThrown) {
             $('#agent-list').html(`<div>Error loading agents: ${textStatus}</div>`);
             console.error('Error loading agents:', errorThrown);
-          },
-          complete: function() {
-            $('#loading').hide(); // Hide the loading message after the request is complete
           }
         });
       }
 
       // Initialize with main agents on document ready
-      loadAgents();
+      $(document).ready(function() {
+        loadAgents();
+      });
 
       $('#agent-list').on('click', '.agent-card', function() {
         var agentId = $(this).data('agent-id');
