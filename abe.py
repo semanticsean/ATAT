@@ -13,7 +13,7 @@ from flask_login import LoginManager, current_user, login_required
 from flask_migrate import Migrate
 from datetime import datetime
 from extensions import db, login_manager
-from models import db, User, Survey, Timeframe, Meeting, Agent, Image
+from models import db, User, Survey, Timeframe, Meeting, Agent, Image, Conversation
 import start
 from routes import auth_blueprint, meeting_blueprint, dashboard_blueprint, profile_blueprint, start_blueprint, talker_blueprint, timeframes_blueprint, doc2api_blueprint
 from werkzeug.utils import secure_filename
@@ -22,6 +22,104 @@ from talker import talker_blueprint
 
 from fastapi import Header, Depends
 from abe_api_internal import get_schema, get_agents, get_meetings, get_timeframes, get_conversations, get_surveys, APIKeyHeader, verify_api_key, get_db_session
+
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView, fields
+
+
+
+# ADMIN MODEL VIEWS
+
+
+class AgentModelView(ModelView):
+    column_list = ('id', 'user_id', 'data', 'agent_type', 'voice', 'persona', 'summary', 'keywords', 'image_prompt', 'relationships')
+    column_searchable_list = ('id', 'user_id')
+    column_filters = ('agent_type', 'voice')
+
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.agent_type == 'admin'
+
+    column_formatters = {
+        'data': lambda v, c, m, p: json.dumps(m.data, indent=2),
+        'persona': lambda v, c, m, p: m.persona,
+        'summary': lambda v, c, m, p: m.summary,
+        'keywords': lambda v, c, m, p: ', '.join(m.keywords),
+        'image_prompt': lambda v, c, m, p: m.image_prompt,
+        'relationships': lambda v, c, m, p: json.dumps(m.relationships, indent=2)
+    }
+
+
+class TimeframeModelView(ModelView):
+    column_list = ('id', 'name', 'user_id', 'agents_data', 'images_data', 'thumbnail_images_data', 'summary', 'summary_image_data', 'summary_thumbnail_image_data')
+    column_searchable_list = ('name', 'user_id')
+
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.agent_type == 'admin'
+
+    column_formatters = {
+        'agents_data': lambda v, c, m, p: json.dumps(json.loads(m.agents_data), indent=2),
+        'images_data': lambda v, c, m, p: json.dumps(json.loads(m.images_data), indent=2),
+        'thumbnail_images_data': lambda v, c, m, p: json.dumps(json.loads(m.thumbnail_images_data), indent=2),
+        'summary_image_data': lambda v, c, m, p: f'<img src="data:image/png;base64,{m.summary_image_data}" width="100" height="100">' if m.summary_image_data else '',
+        'summary_thumbnail_image_data': lambda v, c, m, p: f'<img src="data:image/png;base64,{m.summary_thumbnail_image_data}" width="50" height="50">' if m.summary_thumbnail_image_data else ''
+    }
+
+
+class MeetingModelView(ModelView):
+    column_list = ('id', 'name', 'user_id', 'agents', 'questions', 'answers', 'is_public', 'public_url', 'original_name', 'summary', 'image_data', 'thumbnail_image_data')
+    column_searchable_list = ('name', 'user_id')
+    column_filters = ('is_public',)
+
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.agent_type == 'admin'
+
+    column_formatters = {
+        'agents': lambda v, c, m, p: json.dumps(m.agents, indent=2),
+        'questions': lambda v, c, m, p: json.dumps(m.questions, indent=2),
+        'answers': lambda v, c, m, p: json.dumps(m.answers, indent=2),
+        'image_data': lambda v, c, m, p: f'<img src="data:image/png;base64,{m.image_data}" width="100" height="100">' if m.image_data else '',
+        'thumbnail_image_data': lambda v, c, m, p: f'<img src="data:image/png;base64,{m.thumbnail_image_data}" width="50" height="50">' if m.thumbnail_image_data else ''
+    }
+
+
+class ConversationModelView(ModelView):
+    column_list = ('id', 'user_id', 'name', 'agents', 'messages', 'timestamp', 'url')
+    column_searchable_list = ('name', 'user_id')
+
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.agent_type == 'admin'
+
+    column_formatters = {
+        'agents': lambda v, c, m, p: json.dumps(m.agents, indent=2),
+        'messages': lambda v, c, m, p: json.dumps(m.messages, indent=2)
+    }
+
+
+
+class UserModelView(ModelView):
+    column_list = ('id', 'username', 'email', 'credits', 'agent_type', 'meetings', 'api_keys', 'timeframes')
+    column_searchable_list = ('username', 'email')
+    column_filters = ('agent_type',)
+
+    form_excluded_columns = ('password_hash',)
+    form_columns = ('username', 'email', 'credits', 'agent_type', 'api_keys', 'timeframes')
+
+    def on_model_change(self, form, model, is_created):
+        if form.password.data:
+            model.set_password(form.password.data)
+
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.agent_type == 'admin'
+
+    column_formatters = {
+        'meetings': lambda v, c, m, p: len(m.meetings),
+        'api_keys': lambda v, c, m, p: len(m.api_keys),
+        'timeframes': lambda v, c, m, p: len(m.timeframes)
+    }
+
+    inline_models = (MeetingModelView(Meeting, db.session),)
+
+
 
 
 def configure_logging():
@@ -46,6 +144,10 @@ app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY', 'default_secret_key')
 configure_logging()
 
 logger = logging.getLogger(__name__)
+
+# Create an instance of Admin
+admin = Admin(app, name='Admin Panel', template_mode='bootstrap3')
+
 
 database_url = os.environ.get('DATABASE_URL')
 if database_url:
@@ -87,6 +189,17 @@ app.register_blueprint(profile_blueprint)
 app.register_blueprint(start_blueprint)
 app.register_blueprint(timeframes_blueprint)
 app.register_blueprint(talker_blueprint)
+
+
+
+
+# Add the ModelView instances to the admin instance
+admin.add_view(UserModelView(User, db.session))
+admin.add_view(AgentModelView(Agent, db.session))
+admin.add_view(TimeframeModelView(Timeframe, db.session))
+admin.add_view(MeetingModelView(Meeting, db.session))
+admin.add_view(ConversationModelView(Conversation, db.session))
+
 
 
 # Register Flask routes with appropriate wrappers
@@ -328,6 +441,9 @@ def custom_img_filter(photo_path, size='48x48'):
 
     # Return the HTML img tag with the image URL and size
     return f'<img src="{image_url}" alt="{filename}" width="{size.split("x")[0]}" height="{size.split("x")[1]}">'
+
+
+
 
 
 if __name__ == '__main__':

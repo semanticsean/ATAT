@@ -233,6 +233,15 @@
                         </div>
                     </div>
 
+                    <div class="mb-4 container mx-auto px-4 py-2 mt-2 bg-white rounded-lg shadow-md">
+                        <h2 class="text-xl font-semibold mb-2">Voice</h2>
+                        <select class="form-select editable" data-field="voice">
+                            <option value="echo" {% if agent.voice == 'echo' %}selected{% endif %}>Echo</option>
+                            <option value="whisper" {% if agent.voice == 'whisper' %}selected{% endif %}>Whisper</option>
+                            <!-- Add more voice options as needed -->
+                        </select>
+                    </div>
+
                     <div
                         class="text-lg mb-4 container mx-auto px-4 py-8 md:mt-4 mt-4 bg-white rounded-lg shadow-md"
                     >
