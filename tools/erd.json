@@ -1,0 +1,432 @@
+{
+    "status": "success",
+    "message": "Database schema generated successfully.",
+    "schema": {
+        "user": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "nextval('user_id_seq'::regclass)"
+            },
+            {
+                "name": "username",
+                "type": "VARCHAR(64)",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "email",
+                "type": "VARCHAR(120)",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "password_hash",
+                "type": "VARCHAR(256)",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "credits",
+                "type": "INTEGER",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "agents_data",
+                "type": "JSON",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "images_data",
+                "type": "JSON",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "thumbnail_images_data",
+                "type": "JSON",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "agent_type",
+                "type": "VARCHAR(20)",
+                "nullable": true,
+                "default": "None"
+            }
+        ],
+        "survey": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "nextval('survey_id_seq'::regclass)"
+            },
+            {
+                "name": "name",
+                "type": "VARCHAR(100)",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "user_id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "public_url",
+                "type": "VARCHAR(255)",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "survey_data",
+                "type": "JSON",
+                "nullable": true,
+                "default": "None"
+            }
+        ],
+        "page_view": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "nextval('page_view_id_seq'::regclass)"
+            },
+            {
+                "name": "page",
+                "type": "VARCHAR(50)",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "timestamp",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "default": "None"
+            }
+        ],
+        "api_key": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "nextval('api_key_id_seq'::regclass)"
+            },
+            {
+                "name": "key",
+                "type": "VARCHAR(256)",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "user_id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "None"
+            }
+        ],
+        "meeting": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "nextval('meeting_id_seq'::regclass)"
+            },
+            {
+                "name": "name",
+                "type": "VARCHAR(100)",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "user_id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "is_public",
+                "type": "BOOLEAN",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "public_url",
+                "type": "VARCHAR(255)",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "agents",
+                "type": "JSON",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "questions",
+                "type": "JSON",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "answers",
+                "type": "JSON",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "original_name",
+                "type": "VARCHAR(100)",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "summary",
+                "type": "TEXT",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "image_data",
+                "type": "TEXT",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "thumbnail_image_data",
+                "type": "TEXT",
+                "nullable": true,
+                "default": "None"
+            }
+        ],
+        "conversation": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "nextval('conversation_id_seq'::regclass)"
+            },
+            {
+                "name": "user_id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "name",
+                "type": "VARCHAR(100)",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "agents",
+                "type": "JSON",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "messages",
+                "type": "JSON",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "timestamp",
+                "type": "TIMESTAMP",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "url",
+                "type": "VARCHAR(255)",
+                "nullable": true,
+                "default": "None"
+            }
+        ],
+        "alembic_version": [
+            {
+                "name": "version_num",
+                "type": "VARCHAR(32)",
+                "nullable": false,
+                "default": "None"
+            }
+        ],
+        "main_agent": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "nextval('main_agent_id_seq'::regclass)"
+            },
+            {
+                "name": "user_id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "data",
+                "type": "TEXT",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "image_data",
+                "type": "TEXT",
+                "nullable": true,
+                "default": "None"
+            }
+        ],
+        "image": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "nextval('image_id_seq'::regclass)"
+            },
+            {
+                "name": "user_id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "filename",
+                "type": "VARCHAR(255)",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "data",
+                "type": "BYTEA",
+                "nullable": true,
+                "default": "None"
+            }
+        ],
+        "agent": [
+            {
+                "name": "id",
+                "type": "VARCHAR",
+                "nullable": false,
+                "default": "nextval('agent_id_seq'::regclass)"
+            },
+            {
+                "name": "user_id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "data",
+                "type": "JSON",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "agent_type",
+                "type": "VARCHAR(20)",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "voice",
+                "type": "VARCHAR(20)",
+                "nullable": true,
+                "default": "None"
+            }
+        ],
+        "document": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "nextval('document_id_seq'::regclass)"
+            },
+            {
+                "name": "user_id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "filename",
+                "type": "VARCHAR(255)",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "data",
+                "type": "JSON",
+                "nullable": true,
+                "default": "None"
+            }
+        ],
+        "timeframe": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "nextval('timeframe_id_seq'::regclass)"
+            },
+            {
+                "name": "name",
+                "type": "VARCHAR(100)",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "user_id",
+                "type": "INTEGER",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "agents_data",
+                "type": "TEXT",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "images_data",
+                "type": "TEXT",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "thumbnail_images_data",
+                "type": "TEXT",
+                "nullable": false,
+                "default": "None"
+            },
+            {
+                "name": "summary",
+                "type": "TEXT",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "summary_image_data",
+                "type": "TEXT",
+                "nullable": true,
+                "default": "None"
+            },
+            {
+                "name": "summary_thumbnail_image_data",
+                "type": "TEXT",
+                "nullable": true,
+                "default": "None"
+            }
+        ]
+    }
+}

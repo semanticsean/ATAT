@@ -819,7 +819,7 @@ def process_meeting_summary(meeting, current_user):
     # Prepare the API payload for meeting image
     image_prompt = f"{meeting_summary_dalle}\n\nMeeting Summary: {meeting_summary}\n\nAgents Data:\n"
     for agent in agents_data:
-        image_prompt += f"ID: {agent['id']}, Job Title: {agent['jobtitle']}, Summary: {agent['summary']}, Image Prompt: {agent['image_prompt']}\n"
+        image_prompt += f"ID: {agent['id']}, Job Title: {agent['jobtitle']}, Summary: {agent['summary']}, Image Prompt: {agent['image_prompt'][:2500]}\n"
 
     # DALL-E - Generate meeting image
     max_retries = 12

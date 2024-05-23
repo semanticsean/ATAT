@@ -31,6 +31,49 @@ from flask_admin.contrib.sqla import ModelView, fields
 # ADMIN MODEL VIEWS
 
 
+
+def configure_logging():
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
+    log_file_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.log')
+    log_file_path = os.path.join('logs', log_file_name)
+    file_handler = logging.FileHandler(log_file_path)
+    file_handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    logging.getLogger().addHandler(file_handler)
+    logging.getLogger().setLevel(logging.DEBUG)
+
+
+app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
+
+app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY', 'default_secret_key')
+
+configure_logging()
+
+logger = logging.getLogger(__name__)
+
+
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    corrected_url = database_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = corrected_url
+else:
+    raise ValueError('Missing DATABASE_URL')
+
+
+
+
+# Create an instance of Admin
+admin = Admin(app, name='Admin Panel', template_mode='bootstrap3')
+
+
+app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
+
+
+
 class AgentModelView(ModelView):
     column_list = ('id', 'user_id', 'data', 'agent_type', 'voice', 'persona', 'summary', 'keywords', 'image_prompt', 'relationships')
     column_searchable_list = ('id', 'user_id')
@@ -95,7 +138,6 @@ class ConversationModelView(ModelView):
     }
 
 
-
 class UserModelView(ModelView):
     column_list = ('id', 'username', 'email', 'credits', 'agent_type', 'meetings', 'api_keys', 'timeframes')
     column_searchable_list = ('username', 'email')
@@ -122,45 +164,12 @@ class UserModelView(ModelView):
 
 
 
-def configure_logging():
-    if not os.path.exists('logs'):
-        os.makedirs('logs')
-    log_file_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S.log')
-    log_file_path = os.path.join('logs', log_file_name)
-    file_handler = logging.FileHandler(log_file_path)
-    file_handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    logging.getLogger().addHandler(file_handler)
-    logging.getLogger().setLevel(logging.DEBUG)
-
-
-app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
-
-app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY', 'default_secret_key')
-
-configure_logging()
-
-logger = logging.getLogger(__name__)
-
-# Create an instance of Admin
-admin = Admin(app, name='Admin Panel', template_mode='bootstrap3')
-
-
-database_url = os.environ.get('DATABASE_URL')
-if database_url:
-    corrected_url = database_url.replace("postgres://", "postgresql://", 1)
-    app.config['SQLALCHEMY_DATABASE_URI'] = corrected_url
-else:
-    raise ValueError('Missing DATABASE_URL')
-
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_NAME'] = 'session_data'
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['MAX_COOKIE_SIZE'] = 8192  # Adjust the size as needed
+
 
 db.init_app(app)
 login_manager = LoginManager()
@@ -199,7 +208,6 @@ admin.add_view(AgentModelView(Agent, db.session))
 admin.add_view(TimeframeModelView(Timeframe, db.session))
 admin.add_view(MeetingModelView(Meeting, db.session))
 admin.add_view(ConversationModelView(Conversation, db.session))
-
 
 
 # Register Flask routes with appropriate wrappers
