@@ -14,6 +14,8 @@ import uvicorn
 domain_name = os.environ.get('DOMAIN_NAME', 'semantic-life.com')
 company_name = os.environ.get('COMPANY_NAME')
 
+
+
 def run_flask_app():
     # Start the Flask app without the reloader
     abe.app.run(host='0.0.0.0', port=81, use_reloader=False)
