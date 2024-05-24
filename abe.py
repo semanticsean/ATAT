@@ -69,32 +69,36 @@ class UserModelView(ModelView):
     can_create = False
     can_edit = True
     can_delete = False
-    column_list = ['id', 'username', 'email', 'credits']
+    column_list = ['id', 'username', 'agents_data', 'email', 'credits']
+    column_searchable_list = ['username', 'email']
 
 class AgentModelView(ModelView):
     can_create = False
     can_edit = True
     can_delete = False
     column_list = ['id', 'user_id', 'data', 'agent_type', 'voice']
+    column_searchable_list = ['id', 'user_id']
 
 class TimeframeModelView(ModelView):
     can_create = False
     can_edit = True
     can_delete = False
     column_list = ['id', 'name', 'user_id', 'agents_data', 'images_data', 'thumbnail_images_data', 'summary']
+    column_searchable_list = ['id', 'name', 'user_id', 'agents_data', 'images_data', 'thumbnail_images_data',]
 
 class MeetingModelView(ModelView):
     can_create = False
     can_edit = True
     can_delete = False
     column_list = ['id', 'name', 'user_id', 'agents', 'questions', 'answers', 'is_public', 'public_url', 'original_name', 'summary']
+    column_searchable_list = ['name', 'user_id']
 
 class ConversationModelView(ModelView):
     can_create = False
     can_edit = True
     can_delete = False
     column_list = ['id', 'user_id', 'name', 'agents', 'messages', 'timestamp', 'url']
-
+    column_searchable_list = ['name', 'user_id']
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_NAME'] = 'session_data'
