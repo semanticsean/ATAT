@@ -1052,7 +1052,7 @@ def update_dict(orig_dict, updates):
             orig_dict[key] = update_dict(orig_dict.get(key, {}), value)
         else:
             orig_dict[key] = value
-    return orig_dict
+    return orig_dict                
 
 @profile_blueprint.route('/delete_agent', methods=['POST'])
 @login_required
