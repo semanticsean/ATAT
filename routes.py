@@ -33,6 +33,9 @@ from sqlalchemy.exc import OperationalError
 import shutil
 from datetime import datetime
 
+import logging
+
+
 
 #LOGGING
 
@@ -46,7 +49,9 @@ logging.basicConfig(
     ])
 
 logger = logging.getLogger(__name__)
-#logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
+
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 #PATHS
 
@@ -931,6 +936,7 @@ def normalize_relationships(relationships):
       logging.warning(f"Error normalizing relationship data: {str(e)}. Leaving relationships blank.")
       return []
 
+
 @profile_blueprint.route('/update_agent', methods=['POST'])
 @login_required
 def update_agent():
@@ -938,32 +944,42 @@ def update_agent():
         data = request.get_json()
         agent_id = data['agent_id']
         updated_data = data['updated_data']
-        agent_type = data.get('agent_type')
+        agent_type = data.get('agent_type', 'agent')  # Default to 'agent' if not specified
         timeframe_id = data.get('timeframe_id')
 
         if agent_type == 'timeframe':
             if timeframe_id:
+                logger.info(f"3. Timeframe ID provided: {timeframe_id}, loading Timeframe.")
                 timeframe = Timeframe.query.get(timeframe_id)
+
                 if timeframe and timeframe.user_id == current_user.id:
+                    logger.info(f"4. Timeframe found: {timeframe_id}, processing agents within timeframe.")
+
                     updated_agents_data = json.loads(timeframe.agents_data)
-                    agent_index = next((index for index, agent in enumerate(updated_agents_data) if str(agent.get('id', '')) == str(agent_id)), None)
+                    agent_index = next((index for index, agent in enumerate(updated_agents_data) if str(agent.get('id', '')) == str(normalized_agent_id)), None)
+
                     if agent_index is not None:
+                        logger.info(f"5. Agent found in timeframe at index {agent_index}, updating data.")
+
                         agent_data = updated_agents_data[agent_index].copy()
                         update_dict(agent_data, updated_data)
                         updated_agents_data[agent_index] = agent_data
                         timeframe.agents_data = json.dumps(updated_agents_data)
+
                         db.session.add(timeframe)
                         db.session.commit()
+
                         update_agents_json()
+                        logger.info("6. Agent updated successfully within timeframe.")
                         return jsonify(success=True)
                     else:
-                        logging.error(f"Timeframe agent not found. Agent ID: {agent_id}, Timeframe ID: {timeframe_id}")
+                        logger.error(f"7. Timeframe agent not found. Agent ID: {agent_id}, Timeframe ID: {timeframe_id}")
                         return jsonify(success=False, error="Timeframe agent not found")
                 else:
-                    logging.error(f"Timeframe not found or unauthorized. Timeframe ID: {timeframe_id}, User ID: {current_user.id}")
+                    logger.error(f"8. Timeframe not found or unauthorized. Timeframe ID: {timeframe_id}, User ID: {current_user.id}")
                     return jsonify(success=False, error="Timeframe not found or unauthorized")
             else:
-                logging.error(f"Timeframe ID is required for timeframe agents. Agent ID: {agent_id}")
+                logger.error("9. Timeframe ID is required for timeframe agents. Missing timeframe_id.")
                 return jsonify(success=False, error="Timeframe ID is required for timeframe agents")
         elif agent_type == 'agent':
             agent = Agent.query.filter_by(id=agent_id, user_id=current_user.id).first()
@@ -977,32 +993,58 @@ def update_agent():
                 update_agents_json()
                 return jsonify(success=True)
             else:
-                logging.error(f"Agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
-                return jsonify(success=False, error="Agent not found")
-        else:  # Assuming 'user' agent type or no agent type specified
-            user = User.query.get(current_user.id)
-            if user:
-                user_agents = user.agents_data or []
+                # Check if the agent exists in the user's agents_data
+                user_agents = current_user.agents_data or []
                 agent_data = next((agent for agent in user_agents if str(agent.get('id', '')) == str(agent_id)), None)
                 if agent_data is not None:
                     agent_index = user_agents.index(agent_data)
                     agent_data = user_agents[agent_index].copy()
                     update_dict(agent_data, updated_data)
                     user_agents[agent_index] = agent_data
-                    user.agents_data = user_agents
+                    current_user.agents_data = user_agents
                     db.session.commit()
                     update_agents_json()
                     return jsonify(success=True)
                 else:
-                    logging.error(f"User agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
+                    logging.error(f"Agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
+                    return jsonify(success=False, error="Agent not found")
+        else:
+            logger.info(f"14. Processing a user agent with agent_id: {agent_id}")
+
+            user = User.query.get(current_user.id)
+            if user:
+                user_agents = user.agents_data or []
+                agent_data = next((agent for agent in user_agents if str(agent.get('id')) == str(normalized_agent_id)), None)
+
+                if agent_data is not None:
+                    logger.info(f"15. User agent found, updating data.")
+
+                    agent_index = user_agents.index(agent_data)
+                    agent_data = user_agents[agent_index].copy()
+                    update_dict(agent_data, updated_data)
+                    user_agents[agent_index] = agent_data
+                    user.agents_data = user_agents
+
+                    db.session.commit()
+
+                    update_agents_json()
+                    logger.info("16. User agent updated successfully.")
+                    return jsonify(success=True)
+                else:
+                    logger.error(f"17. User agent not found. Agent ID: {agent_id}, User ID: {current_user.id}")
                     return jsonify(success=False, error="User agent not found")
             else:
-                logging.error(f"User not found. User ID: {current_user.id}")
+                logger.error(f"18. User not found. User ID: {current_user.id}")
                 return jsonify(success=False, error="User not found")
+
     except Exception as e:
-        logging.error(f"Error updating agent: {str(e)}")
+        logger.error(f"19. Error updating agent: {str(e)[:140]}")
         db.session.rollback()
-        return jsonify(success=False, error="Error updating agent")
+        return jsonify(success=False, error=f"Error updating agent: {str(e)[:140]}")
+
+
+
+
 
 def update_dict(orig_dict, updates):
     for key, value in updates.items():
