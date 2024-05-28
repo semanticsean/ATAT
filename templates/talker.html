@@ -225,14 +225,14 @@
         <button id="new-conversation-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
           New Conversation
         </button>
-        <div id="conversation-items" class="space-y-2">
+        {# <div id="conversation-items" class="space-y-2">
           {% for conversation in conversations %}
             <div class="conversation-item bg-gray-200 rounded-lg p-2 cursor-pointer" data-conversation-id="{{ conversation.id }}">
               <span class="conversation-name">{{ conversation.name }}</span>
               <input type="text" class="conversation-name-edit" value="{{ conversation.name }}" style="display: none;">
             </div>
           {% endfor %}
-        </div>
+        </div> #}
       </div>
     </div>
 
@@ -259,11 +259,17 @@
         let currentConversationName = null;
 
         // Event listeners
-        recordButton.on("click", startRecording);
+        recordButton.on("click", function() {
+          startRecording();
+          sendButton.hide();
+        });
         stopButton.on("click", stopRecording);
         $("#new-conversation-button").on("click", createNewConversation);
         conversationItems.on("click", ".conversation-item", loadConversation);
-        sendButton.on("click", sendMessage);
+        sendButton.on("click", function() {
+          sendMessage();
+          recordButton.hide();
+        });
         stopAudioButton.on("click", stopAudio);
         muteButton.on("click", toggleMute);
         conversationItems.on("dblclick", ".conversation-item", editConversationName);
@@ -272,6 +278,7 @@
           if (event.key === "Enter") {
             event.preventDefault();
             sendMessage();
+            recordButton.hide();
           }
         });
 
@@ -358,8 +365,8 @@
               data: {
                 user_message: userMessage,
                 agent_id: "{{ agent_id }}",
-                conversation_id: currentConversationId,
-                conversation_name: currentConversationName
+                conversation_id: currentConversationId || null,
+                conversation_name: currentConversationName || null
               },
               success: function (response) {
                 if (response.conversation_id && response.conversation_id !== currentConversationId) {
@@ -381,6 +388,7 @@
           }
         }
 
+        
         function createNewConversation() {
           const timestamp = Date.now();
           const uniqueId = Math.random().toString(36).substring(7);
