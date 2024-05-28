@@ -16,9 +16,11 @@
   }
 </script>
 
+<div class="mb-16">
+
 <div x-data="{ open: false }" id="header" class="fixed top-0 left-0 right-0 z-50 bg-black text-white">
   <div class="py-2 px-4 flex justify-between items-center w-full">
-    <a href="/"><img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-32 md:w-64" /></a>
+    <a href="/"><img src="{{ url_for('static', filename='logo.png') }}" alt="Semantic Life" class="w-16 md:w-32" /></a>
     <!-- Hamburger icon for mobile -->
     <div class="md:hidden">
       <button @click="open = !open" class="text-white focus:outline-none">
@@ -61,5 +63,6 @@
     </div>
   </div>
 </div>
+  </div>
 <script src="static/heartbeat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.0/dist/alpine.js"></script>

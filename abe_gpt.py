@@ -821,6 +821,9 @@ def process_meeting_summary(meeting, current_user):
     for agent in agents_data:
         image_prompt += f"ID: {agent['id']}, Job Title: {agent['jobtitle']}, Summary: {agent['summary']}, Image Prompt: {agent['image_prompt'][:2500]}\n"
 
+    # Truncate the image_prompt to a maximum of 3,000 characters
+    image_prompt = image_prompt[:3000]
+
     # DALL-E - Generate meeting image
     max_retries = 12
     retry_delay = 5

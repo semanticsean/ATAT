@@ -91,83 +91,79 @@ def talker(agent_id):
 @talker_blueprint.route("/transcribe", methods=["POST"])
 @login_required
 def transcribe():
+    logger.info(f"Transcribe route called with request files: {request.files}")
+
     if 'audio' not in request.files:
+        logger.error("No audio file provided in the request")
         return jsonify({"error": "No audio file provided"}), 400
 
     audio_file = request.files['audio']
+    logger.info(f"Received audio file: {audio_file}")
+
+    assert audio_file.filename.endswith(('.mp3', '.wav')), "Audio file must be in MP3 or WAV format"
+
     user_folder = current_user.folder_path
     os.makedirs(user_folder, exist_ok=True)
     audio_file_path = os.path.join(user_folder, 'temp_audio.mp3')
     audio_file.save(audio_file_path)
+    logger.info(f"Audio file saved to: {audio_file_path}")
 
     try:
         with open(audio_file_path, 'rb') as f:
+            logger.info("Sending audio file to OpenAI for transcription")
             transcription = client.audio.transcriptions.create(model="whisper-1",
                                                                file=f,
                                                                language="en")
+            logger.info(f"Received transcription: {transcription}")
 
         agent_id = request.form["agent_id"]
-        agent = None
-        agent_data = None
+        logger.info(f"Agent ID: {agent_id}")
 
-        # Check if the agent exists in the User's agents_data
-        user_agent_data = next((agent for agent in current_user.agents_data if str(agent.get('id', '')) == str(agent_id)), None)
-        if user_agent_data:
-            agent = Agent(id=user_agent_data['id'], user_id=current_user.id, data=user_agent_data)
-            agent_data = user_agent_data
-
-        # Check if the agent exists in the Agent model
-        if not agent:
-            agent = Agent.query.filter_by(user_id=current_user.id, id=str(agent_id)).first()
-            if agent:
-                agent_data = agent.data
-
-        # Check if the agent exists in any of the user's timeframes
-        if not agent:
-            for timeframe in current_user.timeframes:
-                timeframe_agents_data = json.loads(timeframe.agents_data)
-                timeframe_agent_data = next((agent for agent in timeframe_agents_data if str(agent.get('id', '')) == str(agent_id)), None)
-                if timeframe_agent_data:
-                    agent = Agent(id=timeframe_agent_data['id'], user_id=current_user.id, data=timeframe_agent_data)
-                    agent_data = timeframe_agent_data
-                    break
-
-        if not agent or not agent_data:
-            return jsonify({"error": "Agent not found"}), 404
+        agent = get_agent_by_id(agent_id, current_user)
+        assert agent is not None, f"Agent not found for ID: {agent_id}"
+        logger.info(f"Found agent: {agent}")
 
         conversation_id = request.form.get("conversation_id")
         conversation_name = request.form.get("conversation_name")
+        logger.info(f"Conversation ID: {conversation_id}, Conversation Name: {conversation_name}")
 
-        if not conversation_id or conversation_id == 'null':
-            conversation = Conversation(user_id=current_user.id,
-                                        name=conversation_name,
-                                        agents=[agent_id],
-                                        messages=[])
-            db.session.add(conversation)
-            db.session.commit()
-            conversation_id = conversation.id
-        else:
+        conversation_messages = []
+
+        if conversation_id and conversation_id != 'undefined':
             try:
                 conversation_id = int(conversation_id)
                 conversation = Conversation.query.get(conversation_id)
                 if conversation and conversation.user_id == current_user.id:
-                    conversation.messages.append({"role": "user", "content": transcription.text})
+                    conversation_messages = conversation.messages
+                    conversation_messages.append({"role": "user", "content": transcription.text})
                     db.session.commit()
-                else:
-                    return jsonify({"error": "Conversation not found"}), 404
-            except ValueError:
-                return jsonify({"error": "Invalid conversation ID"}), 400
+                    logger.info(f"Appended user message to conversation {conversation_id}")
+            except (ValueError, AssertionError) as e:
+                logger.warning(f"Error processing conversation: {str(e)}")
+                conversation_id = None
 
-        response_text = chat_with_model(conversation.messages, agent_data, transcription.text)
-        conversation.messages.append({"role": "assistant", "content": response_text})
-        db.session.commit()
+        if not conversation_id:
+            conversation_id = 'temp'
+            conversation_name = conversation_name or 'Temporary Conversation'
+            conversation_messages.append({"role": "user", "content": transcription.text})
+            logger.info("Using temporary conversation")
 
-        return jsonify({"conversation_id": conversation_id, "conversation_name": conversation.name, "user_text": transcription.text, "ai_text": response_text})
+        response_text = chat_with_model(conversation_messages, agent.data, transcription.text)
+        conversation_messages.append({"role": "assistant", "content": response_text})
+
+        audio_url = text_to_speech(response_text, agent_id)
+
+        return jsonify({
+            "conversation_id": conversation_id,
+            "conversation_name": conversation_name,
+            "user_text": transcription.text,
+            "ai_text": response_text,
+            "audio_url": audio_url
+        })
 
     except Exception as e:
-        logger.error(f"Transcription error: {str(e)}")
+        logger.exception(f"Error in transcription: {str(e)}")
         return jsonify({"error": str(e)}), 500
-
 
 @talker_blueprint.route("/chat", methods=["POST"])
 @login_required
